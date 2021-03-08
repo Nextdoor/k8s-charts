@@ -1,0 +1,17 @@
+{{ template "chart.header" . }}
+{{ template "chart.description" . }}
+
+{{ template "chart.versionBadge" .  }}{{ template "chart.typeBadge" .  }}{{ template "chart.appVersionBadge" .  }}
+
+[deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+[hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+
+This chart provides a default deployment for a simple application that operates
+in a [Deployment][deployments]. The chart automatically configures various
+defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}
