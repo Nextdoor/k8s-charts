@@ -4,3 +4,6 @@ description: Default Microservice Helm Chart
 type: application
 version: 0.1.1
 appVersion: "latest"
+maintainers:
+  - name: diranged
+    email: matt@nextdoor.com
