@@ -1,0 +1,24 @@
+{{- if .Values.ingressGateway.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "simple-app.fullname" . }}-ingressgateway-access
+  labels:
+    {{- include "simple-app.labels" . | nindent 4 }}
+spec:
+  policyTypes: [Ingress]
+  podSelector:
+    matchLabels:
+      {{- include "simple-app.selectorLabels" . | nindent 6 }}
+  ingress:
+    - ports:
+      {{- range $port := .Values.ports }}
+      - port: {{ $port.containerPort }}
+        protocol: {{ $port.protocol }}
+      {{- end }}
+      from:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              app: istio-ingressgateway
+{{- end }}

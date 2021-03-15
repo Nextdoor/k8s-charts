@@ -1,0 +1,25 @@
+{{- if .Values.ingressGateway.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ include "simple-app.fullname" . }}
+  labels:
+    {{- include "simple-app.labels" . | nindent 4 }}
+  {{- with .Values.ingressGateway.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  hosts:
+    {{- tpl .Values.ingressGateway.hosts . | nindent 4 }}
+  gateways:
+    - {{ .Values.ingressGateway.namespace }}/{{ .Values.ingressGateway.gateway }}
+  {{- if .Values.ingressGateway.http }}
+  http:
+    {{- tpl .Values.ingressGateway.http . | nindent 4 }}
+  {{- end }}
+  {{- if .Values.ingressGateway.tls }}
+  tls:
+    {{- tpl .Values.ingressGateway.tls . | nindent 4 }}
+  {{- end }}
+{{- end }}
