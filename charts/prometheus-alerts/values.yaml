@@ -1,0 +1,167 @@
+# Common settings for all
+
+# This identifies all of the resources as belonging to this particular chart,
+# even though they will ultimately be named likely by the parent chart that
+# uses this as a dependency.
+chart_name: prometheus-rules
+chart_source: https://github.com/Nextdoor/k8s-charts
+
+# PagerDuty AlertManager Configuration
+#
+# If enabled, configures individual AlertmanagerConfig resources in your
+# namespace to route any PrometheusRules that are firing to your particular
+# PagerDuty Routing Key.
+alertManager:
+  # -- Not enabled by default - flip this to true to enable this resource.
+  enabled: false
+
+  # -- Which AlertManager should this config be picked up by?
+  alertmanagerConfig: default
+
+  # -- The labels by which incoming alerts are grouped together. For example,
+  # multiple alerts coming in for cluster=A and alertname=LatencyHigh would
+  # be batched into a single group.
+  #
+  # To aggregate by all possible labels use the special value '...' as the
+  # sole label name, for example:
+  #
+  # group_by: ['...']
+  # This effectively disables aggregation entirely, passing through all
+  # alerts as-is. This is unlikely to be what you want, unless you have
+  # a very low alert volume or your upstream notification system performs
+  # its own grouping.
+  #
+  groupBy: [alertname, namespace]
+
+  # -- How long to initially wait to send a notification for a group of alerts.
+  # Allows to wait for an inhibiting alert to arrive or collect more initial
+  # alerts for the same group. (Usually ~0s to few minutes.)
+  groupWait: 30s
+
+  # -- How long to wait before sending a notification about new alerts that
+  # are added to a group of alerts for which an initial notification has
+  # already been sent. (Usually ~5m or more.)
+  groupInterval: 5m
+
+  # -- How long to wait before sending a notification again if it has already
+  # been sent successfully for an alert. (Usually ~3h or more).
+  repeatInterval: 1h
+
+  # If the pagerduty.routing_key or pagerduty.routing_key_parameter are set,
+  # then the AlertmanagerConfig will be created in the namespace. Otherwise it
+  # will not be.
+  #
+  # pagerduty:
+  #
+  #   # If supplied - this is the path to an AWS SSM Parameter. This requires
+  #   # that the ExternalSecret controller is in place and has access to read
+  #   # these values:
+  #   #
+  #   # https://github.com/external-secrets/kubernetes-external-secrets
+  #   routing_key_parameter:
+  #
+  #   # This is the raw routing_key string - just directly copied in.
+  #   routing_key:
+
+# Defaults applied to all Prometheus Rules
+defaults:
+  # -- The prefix URL to the runbook_urls that will be applied to each PrometheusRule
+  runbookUrl: https://github.com/Nextdoor/k8s-charts/tree/main/charts/prometheus-rules/runbook.md
+  # -- Additional custom labels attached to every PrometheusRule
+  additionalRuleLabels: {}
+
+# Container Alerting Rules
+#
+# These rules are designed to provide very basic but critical monitoring for
+# the health of your containers and pods. More specific alerts can be created
+# by you - but these are some basic ones that apply to your entire namespace
+# and give you the basic health of whatever is running in the namespace.
+containerRules:
+  # -- Whether or not to enable the container rules template
+  enabled: true
+
+  # Monitors Pods for Containers that are terminated for specific reasons that
+  # are unexpected - like OOM's.
+  PodContainerTerminated:
+    severity: warning
+    threshold: 0
+    for: 10m
+    reasons:
+      - OOMKilled
+      - Error
+      - ContainerCannotRun
+
+  # Pod is crash looping
+  KubePodCrashLooping:
+    severity: warning
+    for: 15m
+
+  # Pod has been in a non-ready state for more than a specific threshold
+  KubePodNotReady:
+    severity: warning
+    for: 15m
+
+  # Deployment generation mismatch due to possible roll-back
+  KubeDeploymentGenerationMismatch:
+    severity: warning
+    for: 15m
+
+  # Deployment has not matched the expected number of replicas
+  KubeDeploymentReplicasMismatch:
+    severity: warning
+    for: 15m
+
+  # Deployment has not matched the expected number of replicas
+  KubeStatefulSetReplicasMismatch:
+    severity: warning
+    for: 15m
+
+  # StatefulSet generation mismatch due to possible roll-back
+  KubeStatefulSetGenerationMismatch:
+    severity: warning
+    for: 15m
+
+  # StatefulSet update has not been rolled out
+  KubeStatefulSetUpdateNotRolledOut:
+    severity: warning
+    for: 15m
+
+  # DaemonSet rollout is stuck
+  KubeDaemonSetRolloutStuck:
+    severity: warning
+    for: 15m
+
+  # Pod container waiting longer than threshold
+  KubeContainerWaiting:
+    severity: warning
+    for: 1h
+
+  # DaemonSet pods are not scheduled
+  KubeDaemonSetNotScheduled:
+    severity: warning
+    for: 10m
+
+  # DaemonSet pods are misscheduled
+  KubeDaemonSetMisScheduled:
+    severity: warning
+    for: 15m
+
+  # Job did not complete in time
+  KubeJobCompletion:
+    severity: warning
+    for: 12h
+
+  # Job failed to complete
+  KubeJobFailed:
+    severity: warning
+    for: 15m
+
+  # HPA has not matched descired number of replicas
+  KubeHpaReplicasMismatch:
+    severity: warning
+    for: 15m
+
+  # HPA is running at max replicas
+  KubeHpaMaxedOut:
+    severity: warning
+    for: 15m
