@@ -30,6 +30,6 @@ jobs:
         uses: helm/chart-releaser-action@v1.1.0
         with:
           charts_dir: charts
-          charts_repo_url: https://oss.nextdoor.com/k8s-public-charts
+          charts_repo_url: https://k8s-charts.nextdoor-test.com/
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
