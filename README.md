@@ -1,19 +1,19 @@
-# Internal Nextdoor Helm Chart Components
+# Nextdoor Helm Chart Components
 
 This repo holds a series of common helm-charts that we've developed just to
 help speed up our internal development and reduce repetition. There's no
-business logic or anything private here.
+unique business logic or anything private here.
 
 # Security - Read Me First!
 
 **This is critical - absolutely no private information may be checked into this
 repository. Read this!**
 
-This repository is marked `internal` in Github so that we may hold private
-conversations internally about these helm chart "components" that we are
-building. However, the Helm charts themselves must contain absolutely no
-private information about our environment because they are **published
-publically**.
+This repository is public - internet-facing. We use this repository purely to
+keep reusable "components" available to developers to make their Helm lives
+easier. The components in this repository are intended to be completely general
+purpose and reusable, and should be testable entirely without any privilged
+access.
 
 ## Repository Setup
 
@@ -21,7 +21,7 @@ The repository metadata and artifacts are hosted by Github. All the data here
 is publically accessible to make development easy. Also, it makes testing these
 charts easier (see comments below around testing).
 
-    $ helm repo add nextdoor https://k8s-charts.nextdoor-test.com/
+    $ helm repo add nextdoor https://k8s-charts.nextdoor.com/
     $ helm repo update
     $ helm search repo nextdoor
     NAME                      	CHART VERSION	APP VERSION	DESCRIPTION
@@ -56,7 +56,7 @@ then configure it with your `values.yaml` files. Here's the new `Chart.yaml` for
     dependencies:
       - name: prometheus-alerts
         version: 0.0.2
-        repository: https://k8s-charts.nextdoor-test.com
+        repository: https://k8s-charts.nextdoor.com
 
 And you might then configure your `values.yaml` like this:
 
