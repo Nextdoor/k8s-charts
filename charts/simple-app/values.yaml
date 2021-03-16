@@ -1,15 +1,74 @@
-# Default values for simple-app.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
+# -- The number of Pods to start up by default
 replicaCount: 1
 
 image:
+  # -- (String) The Docker image name and repository for your application
   repository: nginx
+
+  # -- (String) Always, Never or IfNotPresent
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
+
+  # -- (String) Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
+# An optional proxy sidecar configuration is provided - but its a rough
+# beginning here, it doesn't provide any real configuration for the proxy, so
+# we expect that the proxy container is preconfigured (for example,
+# Okta-proxy). In the future we'll add support in for creating ConfigMaps and
+# Secrets that can be bound into the sidecar container for a more complete
+# solution.
+proxySidecar:
+  # -- (Boolean) Enables injecting a pre-defined reverse proxy sidecar container into the Pod containers list.
+  enabled: false
+
+  # -- (String) The name of the proxy sidecar container
+  name: proxy
+
+  image:
+    # -- (String) The Docker image name and repository for the sidecar
+    repository: nginx
+
+    # -- (String) The Docker tag for the sidecar
+    tag: latest
+
+    # -- (String) Always, Never or IfNotPresent
+    pullPolicy: Always
+
+  # -- (List) Environment variables passed into the proxy container
+  env: []
+
+  # -- A PodSpec "Resources" object for the proxy container
+  resources: {}
+
+# -- A PodSpec container "livenessProbe" configuration object. Note that this
+# livenessProbe will be applied to the proxySidecar container instead if that
+# is enabled.
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+
+# -- A PodSpec container "readinessProbe" configuration object. Note that this
+# readinessProbe will be applied to the proxySidecar container instead if that
+# is enabled.
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+# -- A list of Port objects that are exposed by the service. These ports are
+# applied to the main container, or the proxySidecar container (if enabled).
+# The port list is also used to generate Network Policies that allow ingress
+# into the pods.
+ports:
+  - name: http
+    containerPort: 80
+    protocol: TCP
+  - name: https
+    containerPort: 443
+    protocol: TCP
+
+# -- If
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -22,6 +81,12 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
+
+# --- Environment Variables for the primary container
+env: []
+  # Example
+  # - name: VAR
+  #   value: MyString
 
 podAnnotations: {}
 
@@ -40,18 +105,48 @@ service:
   type: ClusterIP
   port: 80
 
+# Configuration for creating a dedicated ALB for your service. This is
+# acceptable - but not the preferred method (see the IngressGateway setup
+# below).
 ingress:
   enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  annotations:
+    alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301" }}'
   hosts:
     - host: chart-example.local
-      paths: []
+      path: ''
+      sslRedirect: true  # ties into "actions.ssl-redirect" above
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
+
+# Configuration for creating a VirtualService inside the Istio Service Mesh
+# Ingress Gateways. This is the preferred method for exposing a service because
+# we have far greater visbility and granularity into the performance, it costs
+# less, and deployments are actually faster this way.
+ingressGateway:
+  # -- (Boolean) Maps the Service to an Istio IngressGateway, exposing the
+  # service outside of the Kubernetes cluster.
+  enabled: false
+  annotations: {}
+  port: 80
+  hosts: |-
+    - {{ include "simple-app.fullname" . }}.{{ .Release.Namespace }}
+  gateway: default-gateway
+  namespace: istio-system
+  tls: ""
+  # -- (String) VirtualService "http" blob in text-form. This is run through
+  # the tpl function so you may use template variables here.
+  http: |-
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: {{ include "simple-app.fullname" . }}
+            port:
+              number: {{ .Values.ingressGateway.port }}
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

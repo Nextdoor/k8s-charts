@@ -1,11 +1,7 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "simple-app.fullname" . -}}
 {{- $svcPort := .Values.service.port -}}
-{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1beta1
-{{- else -}}
-apiVersion: extensions/v1beta1
-{{- end }}
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
@@ -31,11 +27,29 @@ spec:
     - host: {{ .host | quote }}
       http:
         paths:
-          {{- range .paths }}
+          {{- /*
+
+          The ssl-redirect action must be the first action in the list, if
+          we're going to use it. It is combined with the the
+          "alb.ingress.kubernetes.io/actions.ssl-redirect" annotation to do
+          ALB-level HTTP->HTTPS routing.
+
+          */}}
+          {{- if .sslRedirect }}
           - path: {{ .path }}
+            pathType: ImplementationSpecific
             backend:
-              serviceName: {{ $fullName }}
-              servicePort: {{ $svcPort }}
+              service:
+                name: ssl-redirect
+                port:
+                  name: use-annotation
           {{- end }}
+          - path: {{ .path }}
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $svcPort }}
     {{- end }}
   {{- end }}
