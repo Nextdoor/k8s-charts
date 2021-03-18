@@ -1,3 +1,4 @@
+{{ $global := . }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -32,8 +33,17 @@ spec:
         - name: {{ .Values.proxySidecar.name }}
           image: "{{ .Values.proxySidecar.image.repository }}:{{ .Values.proxySidecar.image.tag }}"
           imagePullPolicy: {{ .Values.proxySidecar.image.pullPolicy }}
+          {{- with .Values.proxySidecar.env }}
           env:
-            {{- toYaml .Values.proxySidecar.env | nindent 12 }}
+            {{- range $env := index . }}
+            - name: {{ tpl $env.name $global }}
+              {{- if $env.value }}
+              value: {{ tpl $env.value $global }}
+              {{- else if $env.valueFrom }}
+              valueFrom: {{ tpl (toYaml $env.valueFrom) $global | nindent 16 }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
           ports:
             {{- toYaml .Values.ports | nindent 12 }}
           livenessProbe:
@@ -48,8 +58,17 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.env }}
           env:
-            {{- toYaml .Values.env | nindent 12 }}
+            {{- range $env := index . }}
+            - name: {{ tpl $env.name $global }}
+              {{- if $env.value }}
+              value: {{ tpl $env.value $global }}
+              {{- else if $env.valueFrom }}
+              valueFrom: {{ tpl (toYaml $env.valueFrom) $global | nindent 16 }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- if .Values.proxySidecar.enabled }}
