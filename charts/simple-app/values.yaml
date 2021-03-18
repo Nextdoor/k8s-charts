@@ -34,7 +34,7 @@ proxySidecar:
     # -- (String) Always, Never or IfNotPresent
     pullPolicy: Always
 
-  # --- Environment Variables for the primary container. These are all run
+  # -- Environment Variables for the primary container. These are all run
   # through the tpl function (the key name and value), so you can dynamically
   # name resources as you need.
   env: []
@@ -84,7 +84,7 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-# --- Environment Variables for the primary container. These are all run
+# -- Environment Variables for the primary container. These are all run
 # through the tpl function (the key name and value), so you can dynamically
 # name resources as you need.
 env: []

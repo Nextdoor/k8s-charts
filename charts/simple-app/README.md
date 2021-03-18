@@ -20,7 +20,7 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 | autoscaling.maxReplicas | int | `100` |  |
 | autoscaling.minReplicas | int | `1` |  |
 | autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
-| env | list | `[]` |  |
+| env | list | `[]` | Environment Variables for the primary container. These are all run through the tpl function (the key name and value), so you can dynamically name resources as you need. |
 | fullnameOverride | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` | (String) Always, Never or IfNotPresent |
 | image.repository | string | `"nginx"` | (String) The Docker image name and repository for your application |
@@ -47,7 +47,7 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 | podSecurityContext | object | `{}` |  |
 | ports | list | `[{"containerPort":80,"name":"http","protocol":"TCP"},{"containerPort":443,"name":"https","protocol":"TCP"}]` | A list of Port objects that are exposed by the service. These ports are applied to the main container, or the proxySidecar container (if enabled). The port list is also used to generate Network Policies that allow ingress into the pods. |
 | proxySidecar.enabled | bool | `false` | (Boolean) Enables injecting a pre-defined reverse proxy sidecar container into the Pod containers list. |
-| proxySidecar.env | list | `[]` |  |
+| proxySidecar.env | list | `[]` | Environment Variables for the primary container. These are all run through the tpl function (the key name and value), so you can dynamically name resources as you need. |
 | proxySidecar.image.pullPolicy | string | `"Always"` | (String) Always, Never or IfNotPresent |
 | proxySidecar.image.repository | string | `"nginx"` | (String) The Docker image name and repository for the sidecar |
 | proxySidecar.image.tag | string | `"latest"` | (String) The Docker tag for the sidecar |
