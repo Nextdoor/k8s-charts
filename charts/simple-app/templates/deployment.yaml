@@ -38,7 +38,7 @@ spec:
             {{- range $env := index . }}
             - name: {{ tpl $env.name $global }}
               {{- if $env.value }}
-              value: {{ tpl $env.value $global }}
+              value: {{ tpl $env.value $global | quote }}
               {{- else if $env.valueFrom }}
               valueFrom: {{ tpl (toYaml $env.valueFrom) $global | nindent 16 }}
               {{- end }}
@@ -63,7 +63,7 @@ spec:
             {{- range $env := index . }}
             - name: {{ tpl $env.name $global }}
               {{- if $env.value }}
-              value: {{ tpl $env.value $global }}
+              value: {{ tpl $env.value $global | quote }}
               {{- else if $env.valueFrom }}
               valueFrom: {{ tpl (toYaml $env.valueFrom) $global | nindent 16 }}
               {{- end }}
