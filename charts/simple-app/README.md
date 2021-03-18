@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -47,7 +47,7 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 | podSecurityContext | object | `{}` |  |
 | ports | list | `[{"containerPort":80,"name":"http","protocol":"TCP"},{"containerPort":443,"name":"https","protocol":"TCP"}]` | A list of Port objects that are exposed by the service. These ports are applied to the main container, or the proxySidecar container (if enabled). The port list is also used to generate Network Policies that allow ingress into the pods. |
 | proxySidecar.enabled | bool | `false` | (Boolean) Enables injecting a pre-defined reverse proxy sidecar container into the Pod containers list. |
-| proxySidecar.env | list | `[]` | (List) Environment variables passed into the proxy container |
+| proxySidecar.env | list | `[]` |  |
 | proxySidecar.image.pullPolicy | string | `"Always"` | (String) Always, Never or IfNotPresent |
 | proxySidecar.image.repository | string | `"nginx"` | (String) The Docker image name and repository for the sidecar |
 | proxySidecar.image.tag | string | `"latest"` | (String) The Docker tag for the sidecar |

@@ -34,7 +34,9 @@ proxySidecar:
     # -- (String) Always, Never or IfNotPresent
     pullPolicy: Always
 
-  # -- (List) Environment variables passed into the proxy container
+  # --- Environment Variables for the primary container. These are all run
+  # through the tpl function (the key name and value), so you can dynamically
+  # name resources as you need.
   env: []
 
   # -- A PodSpec "Resources" object for the proxy container
@@ -82,11 +84,20 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-# --- Environment Variables for the primary container
+# --- Environment Variables for the primary container. These are all run
+# through the tpl function (the key name and value), so you can dynamically
+# name resources as you need.
 env: []
   # Example
   # - name: VAR
   #   value: MyString
+  #
+  # - name: MY-DYNAMIC-VAR-{{ .Release.Name }}
+  #   value:
+  #     secretKeyRef:
+  #       name: {{ .Release.Name }}-secret
+  #       key: foo
+  #
 
 podAnnotations: {}
 
