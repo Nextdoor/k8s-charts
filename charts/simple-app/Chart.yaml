@@ -2,8 +2,8 @@ apiVersion: v2
 name: simple-app
 description: Default Microservice Helm Chart
 type: application
-version: 0.2.1
-appVersion: "latest"
+version: 0.2.2
+appVersion: latest
 maintainers:
   - name: diranged
     email: matt@nextdoor.com
