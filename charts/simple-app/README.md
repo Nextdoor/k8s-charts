@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.2.2](https://img.shields.io/badge/Version-0.2.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -24,7 +24,7 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 | fullnameOverride | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` | (String) Always, Never or IfNotPresent |
 | image.repository | string | `"nginx"` | (String) The Docker image name and repository for your application |
-| image.tag | string | `""` | (String) Overrides the image tag whose default is the chart appVersion. |
+| image.tag | String | `nil` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | If |
 | ingress.annotations."alb.ingress.kubernetes.io/actions.ssl-redirect" | string | `"{\"Type\": \"redirect\", \"RedirectConfig\": { \"Protocol\": \"HTTPS\", \"Port\": \"443\", \"StatusCode\": \"HTTP_301\" }}"` |  |
 | ingress.enabled | bool | `false` |  |

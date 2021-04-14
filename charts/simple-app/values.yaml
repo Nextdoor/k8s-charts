@@ -9,7 +9,7 @@ image:
   pullPolicy: IfNotPresent
 
   # -- (String) Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: ~
 
 # An optional proxy sidecar configuration is provided - but its a rough
 # beginning here, it doesn't provide any real configuration for the proxy, so
