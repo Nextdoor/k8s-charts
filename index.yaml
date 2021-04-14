@@ -17,6 +17,19 @@ entries:
   simple-app:
   - apiVersion: v2
     appVersion: latest
+    created: "2021-04-14T22:09:40.61726863Z"
+    description: Default Microservice Helm Chart
+    digest: 3e197ef80f366d87cfcabce8e33e49b7f4f820ec241a3a3ed5d8fefc79a2ec62
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: simple-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/simple-app-0.2.2/simple-app-0.2.2.tgz
+    version: 0.2.2
+  - apiVersion: v2
+    appVersion: latest
     created: "2021-03-18T22:53:08.959997408Z"
     description: Default Microservice Helm Chart
     digest: f8be29d66e89aca24d2cb943ca7ff2632cb01096457ac912d75319c326acda57
