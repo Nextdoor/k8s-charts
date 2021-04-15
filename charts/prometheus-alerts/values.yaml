@@ -66,7 +66,7 @@ alertManager:
 # Defaults applied to all Prometheus Rules
 defaults:
   # -- The prefix URL to the runbook_urls that will be applied to each PrometheusRule
-  runbookUrl: https://github.com/Nextdoor/k8s-charts/tree/main/charts/prometheus-rules/runbook.md
+  runbookUrl: https://github.com/Nextdoor/k8s-charts/blob/main/charts/prometheus-alerts/runbook.md
   # -- Additional custom labels attached to every PrometheusRule
   additionalRuleLabels: {}
 
@@ -165,3 +165,30 @@ containerRules:
   KubeHpaMaxedOut:
     severity: warning
     for: 15m
+
+  CPUThrottlingHigh:
+    severity: warning
+    threshold: 65
+    for: 15m
+
+# Namespace Alerting Rules
+#
+# These rules provide some basic alerting around namespace limits that may
+# prevent a users workload from scaling up.
+#
+namespaceRules:
+  # -- Whether or not to enable the namespace rules template
+  enabled: true
+
+  # Alerts if any of the resources in a given Namespace are close to the Quotas
+  # assigned to that Namespace.
+  KubeQuotaAlmostFull:
+    severity: warning
+    threshold: 90
+    for: 10m
+
+  # Similar to above - but with a higher threshold and a higher severity.
+  KubeQuotaFullyUsed:
+    severity: critical
+    threshold: 99
+    for: 10m

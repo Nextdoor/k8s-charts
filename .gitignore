@@ -4,3 +4,7 @@
 # Helm chart automated files
 /charts/*/charts
 .idea
+
+# Files for diffing between templates
+new
+orig
