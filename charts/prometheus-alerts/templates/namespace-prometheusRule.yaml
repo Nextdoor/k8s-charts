@@ -1,0 +1,61 @@
+{{ $values           := .Values }}
+{{ $targetNamespace  := .Release.Namespace }}
+{{ if .Values.namespaceRules.enabled }}
+# Largely copied from
+# https://github.com/prometheus-community/helm-charts/blob/kube-prometheus-stack-14.6.2/charts/kube-prometheus-stack/templates/prometheus/rules-1.14/kubernetes-resources.yaml,
+# but more customizable.
+#
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}-namespace-rules
+  annotations:
+    nextdoor.com/chart: {{ .Values.chart_name }}
+    nextdoor.com/source: {{ .Values.chart_source }}
+spec:
+  groups:
+  - name: {{ .Release.Name }}.{{ .Release.Namespace }}.namespaceRules
+    rules:
+
+    {{- with .Values.namespaceRules.KubeQuotaAlmostFull }}
+    - alert: KubeQuotaAlmostFull
+      annotations:
+        summary: Namespace quota is going to be full.
+        runbook_url: {{ $values.defaults.runbookUrl }}#KubeQuotaAlmostFull
+        description: >-
+          {{`Namespace {{ $labels.namespace }} is using {{ $value }} of its {{ $labels.resource }} quota. `}}
+      expr: |-
+        (
+          kube_resourcequota{job="kube-state-metrics", type="used", namespace=~"{{ $targetNamespace }}"}
+            / ignoring(instance, job, type)
+          (kube_resourcequota{job="kube-state-metrics", type="hard", namespace=~"{{ $targetNamespace }}"} > 0)
+        ) * 100 > {{ .threshold }} < 100
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        {{- if $values.defaults.additionalRuleLabels }}
+        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- end }}
+    {{- end }}
+
+    {{- with .Values.namespaceRules.KubeQuotaFullyUsed }}
+    - alert: KubeQuotaFullyUsed
+      annotations:
+        summary: Namespace quota is fully used.
+        description:  >-
+          {{`Namespace {{ $labels.namespace }} is using {{ $value }} of its {{ $labels.resource }} quota.`}}
+        runbook_url: {{ $values.defaults.runbookUrl }}#KubeQuotaFullyUsed
+      expr: |-
+        (
+          kube_resourcequota{job="kube-state-metrics", type="used", namespace=~"{{ $targetNamespace }}"}
+            / ignoring(instance, job, type)
+          (kube_resourcequota{job="kube-state-metrics", type="hard", namespace=~"{{ $targetNamespace }}"} > 0)
+        ) * 100 >= {{ .threshold }}
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        {{- if $values.defaults.additionalRuleLabels }}
+        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- end }}
+    {{- end }}
+{{- end }}
