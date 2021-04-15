@@ -6,7 +6,7 @@ on:
       - 'charts/**'
 
 jobs:
-  lint-docs:
+  helm-docs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -14,7 +14,7 @@ jobs:
       - name: Run helm-docs
         run: .github/helm-docs.sh
 
-  lint-test:
+  lint-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
