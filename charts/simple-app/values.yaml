@@ -1,6 +1,9 @@
 # -- The number of Pods to start up by default
 replicaCount: 1
 
+# -- Set up a PodDisruptionBudget for the Deployment
+podDisruptionBudget: {}
+
 image:
   # -- (String) The Docker image name and repository for your application
   repository: nginx
