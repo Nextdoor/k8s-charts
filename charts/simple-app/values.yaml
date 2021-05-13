@@ -21,7 +21,8 @@ image:
 # Secrets that can be bound into the sidecar container for a more complete
 # solution.
 proxySidecar:
-  # -- (Boolean) Enables injecting a pre-defined reverse proxy sidecar container into the Pod containers list.
+  # -- (Boolean) Enables injecting a pre-defined reverse proxy sidecar
+  # container into the Pod containers list.
   enabled: false
 
   # -- (String) The name of the proxy sidecar container
@@ -73,7 +74,9 @@ ports:
     containerPort: 443
     protocol: TCP
 
-# -- If
+# -- Supply a reference to a Secret that can be used by Kubernetes to pull down
+# the Docker image. This is only used in local development, in combination with
+# our `kube_create_ecr_creds` function from dotfiles.
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -125,7 +128,15 @@ service:
 ingress:
   enabled: false
   annotations:
-    alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301" }}'
+    alb.ingress.kubernetes.io/actions.ssl-redirect: >-
+      {
+        "Type": "redirect",
+        "RedirectConfig": {
+          "Protocol": "HTTPS",
+          "Port": "443",
+          "StatusCode": "HTTP_301"
+        }
+      }
   hosts:
     - host: chart-example.local
       path: ''
@@ -174,11 +185,18 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
+# Enabling Horizontal Pod Autoscaling (HPA) ensures that your application
+# scales up to meet demand.
 autoscaling:
+  # -- Controls whether or not an HorizontalPodAutoscaler resource is created.
   enabled: false
+  # -- Sets the minimum number of Pods to run
   minReplicas: 1
+  # -- Sets the maximum number of Pods to run
   maxReplicas: 100
+  # -- Configures the HPA to target a particular CPU utilization percentage
   targetCPUUtilizationPercentage: 80
+  # -- If supplied, configures the HPA to target a particular Memory utilization percentage
   # targetMemoryUtilizationPercentage: 80
 
 nodeSelector: {}
@@ -186,3 +204,23 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+tests:
+  connection:
+    # -- The command used to trigger the test.
+    command: ['curl']
+    # -- A list of arguments passed into the command. These are run through the tpl function.
+    args:
+      - '{{ include "simple-app.fullname" . }}:{{ .Values.service.port }}'
+    # By default, we actually use the source-image for the main application as
+    # the image for testing, This allows the image to contain its own "client"
+    # (curl, in this example) for testing the application. Alternatively, you
+    # can configure your own testing image.
+    image:
+      # -- Sets the image-name that will be used in the "connection"
+      # integration test. If this is left empty, then the .image.repository
+      # value will be used instead (and the .image.tag will also be used).
+      repository:
+      # -- Sets the tag that will be used in the "connection" integration test.
+      # If this is left empty, the default is "latest"
+      tag:

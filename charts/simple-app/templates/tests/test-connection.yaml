@@ -7,9 +7,19 @@ metadata:
   annotations:
     "helm.sh/hook": test
 spec:
-  containers:
-    - name: wget
-      image: busybox
-      command: ['wget']
-      args: ['{{ include "simple-app.fullname" . }}:{{ .Values.service.port }}']
   restartPolicy: Never
+  containers:
+    - name: test
+      image: >-
+        {{- if .Values.tests.connection.image.repository }}
+        {{ .Values.tests.connection.image.repository }}:{{ .Values.tests.connection.image.tag | default "latest" }}
+        {{- else }}
+        {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+        {{- end }}
+      command:
+        {{ toYaml .Values.tests.connection.command }}
+      args:
+        {{- $global := . }}
+        {{- range $arg := index .Values.tests.connection.args }}
+        - {{ tpl $arg $global }}
+        {{- end }}

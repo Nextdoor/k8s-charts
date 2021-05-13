@@ -4,5 +4,3 @@ chart-dirs:
   - charts
 helm-extra-args: --timeout 600s
 target-branch: main
-excluded-charts:
-  - iam-manager
