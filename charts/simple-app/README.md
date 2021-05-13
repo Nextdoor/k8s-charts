@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.3.1](https://img.shields.io/badge/Version-0.3.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -16,17 +16,17 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
-| autoscaling.enabled | bool | `false` |  |
-| autoscaling.maxReplicas | int | `100` |  |
-| autoscaling.minReplicas | int | `1` |  |
-| autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
+| autoscaling.enabled | bool | `false` | Controls whether or not an HorizontalPodAutoscaler resource is created. |
+| autoscaling.maxReplicas | int | `100` | Sets the maximum number of Pods to run |
+| autoscaling.minReplicas | int | `1` | Sets the minimum number of Pods to run |
+| autoscaling.targetCPUUtilizationPercentage | int | `80` | Configures the HPA to target a particular CPU utilization percentage |
 | env | list | `[]` | Environment Variables for the primary container. These are all run through the tpl function (the key name and value), so you can dynamically name resources as you need. |
 | fullnameOverride | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` | (String) Always, Never or IfNotPresent |
 | image.repository | string | `"nginx"` | (String) The Docker image name and repository for your application |
 | image.tag | String | `nil` | Overrides the image tag whose default is the chart appVersion. |
-| imagePullSecrets | list | `[]` | If |
-| ingress.annotations."alb.ingress.kubernetes.io/actions.ssl-redirect" | string | `"{\"Type\": \"redirect\", \"RedirectConfig\": { \"Protocol\": \"HTTPS\", \"Port\": \"443\", \"StatusCode\": \"HTTP_301\" }}"` |  |
+| imagePullSecrets | list | `[]` | Supply a reference to a Secret that can be used by Kubernetes to pull down the Docker image. This is only used in local development, in combination with our `kube_create_ecr_creds` function from dotfiles. |
+| ingress.annotations."alb.ingress.kubernetes.io/actions.ssl-redirect" | string | `"{\n  \"Type\": \"redirect\",\n  \"RedirectConfig\": {\n    \"Protocol\": \"HTTPS\",\n    \"Port\": \"443\",\n    \"StatusCode\": \"HTTP_301\"\n  }\n}"` |  |
 | ingress.enabled | bool | `false` |  |
 | ingress.hosts[0].host | string | `"chart-example.local"` |  |
 | ingress.hosts[0].path | string | `""` |  |
@@ -63,6 +63,10 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
+| tests.connection.args | list | `["{{ include \"simple-app.fullname\" . }}:{{ .Values.service.port }}"]` | A list of arguments passed into the command. These are run through the tpl function. |
+| tests.connection.command | list | `["curl"]` | The command used to trigger the test. |
+| tests.connection.image.repository | string | `nil` | Sets the image-name that will be used in the "connection" integration test. If this is left empty, then the .image.repository value will be used instead (and the .image.tag will also be used). |
+| tests.connection.image.tag | string | `nil` | Sets the tag that will be used in the "connection" integration test. If this is left empty, the default is "latest" |
 | tolerations | list | `[]` |  |
 
 ----------------------------------------------
