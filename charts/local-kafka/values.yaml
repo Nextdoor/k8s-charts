@@ -1,0 +1,8 @@
+strimzi-kafka-operator:
+  # -- Specifically only monitor in our local namespace. This makes a
+  # namespaced-install of the operator which is safer for local dev testing and
+  # for chart-testing.
+  watchAnyNamespace: false
+
+  # -- Explicitly disable any requirements here - just let the pod run.
+  resources: null

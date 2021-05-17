@@ -1,3 +1,5 @@
+# Version 0.1.0
+
 # Pick the chart-name based the name of the directory we are in. This can be
 # overriden - but it picks the "short name" of the directory.
 CHART_NAME ?= $(notdir $(CURDIR))
@@ -64,12 +66,6 @@ deps:
 	helm dependency update .
 
 ###############################################################################
-# Wrapper command that builds an updated README.md for a particular project
-###############################################################################
-docs:
-	docker run --rm --volume "$$(pwd):/helm-docs" -u "$(id -u)" jnorwood/helm-docs:v1.4.0
-
-###############################################################################
 # Shortcut for generating a printed-out template of all the resources that
 # will be created for this target. This is the most useful script for testing
 # helm chart changes and getting the differences from one build to the next.
@@ -94,7 +90,7 @@ install: $(LOCAL_DEPS_TARGET) $(VALUES) deps
 # upgrade command going forward.
 ###############################################################################
 .PHONY: upgrade
-upgrade: $(VALUES) deps
+upgrade: $(VALUES)
 	helm upgrade --install $(VALUE_ARGS) --namespace $(NAMESPACE) $(CHART_NAME) .
 
 ###############################################################################

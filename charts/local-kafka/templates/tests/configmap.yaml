@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-generate-properties
+data:
+    #kafka-consumer-perf-test.sh --consumer.config=/properties/client.properties --bootstrap-server ${BOOTSTRAP_ENDPOINT} --group={{ .Release.Name }}-${HOSTNAME##*-} --topic={{ .Release.Name }} "$@"
+  create_properties.sh: |
+    #/bin/sh
+    set -e
+    cat << EOF > /properties/client.properties
+    bootstrap.servers=${BOOTSTRAP_ENDPOINT}
+    security.protocol=SSL
+    ssl.key.password=$(cat /ssl/client/user.password)
+    ssl.keystore.type=PKCS12
+    ssl.keystore.location=/ssl/client/user.p12
+    ssl.keystore.password=$(cat /ssl/client/user.password)
+    ssl.truststore.type=PKCS12
+    ssl.truststore.location=/ssl/cluster/ca.p12
+    ssl.truststore.password=$(cat /ssl/cluster/ca.password)
+    EOF

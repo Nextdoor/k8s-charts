@@ -4,3 +4,5 @@ chart-dirs:
   - charts
 helm-extra-args: --timeout 600s
 target-branch: main
+chart-repos:
+  - strimzi=https://strimzi.io/charts/

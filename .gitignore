@@ -3,7 +3,10 @@
 
 # Helm chart automated files
 /charts/*/charts
+/charts/*/Chart.lock
 .idea
+.venv
+bin
 
 # Files for diffing between templates
 new

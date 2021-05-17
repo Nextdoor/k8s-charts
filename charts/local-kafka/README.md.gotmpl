@@ -1,0 +1,17 @@
+{{ template "chart.header" . }}
+{{ template "chart.description" . }}
+
+{{ template "chart.versionBadge" .  }}{{ template "chart.typeBadge" .  }}{{ template "chart.appVersionBadge" .  }}
+
+[strimzi_op]: https://github.com/strimzi/strimzi-kafka-operator
+
+This chart provides a fast and local way of spinning up the
+[Strimzi-managed][strimzi_op] Kafka environment. This is an opinionated stack
+for how dumb-simple local Kafka development should be while still using
+production-level tooling.
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}

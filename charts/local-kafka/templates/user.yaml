@@ -1,0 +1,27 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaUser
+metadata:
+  name: user
+  labels:
+    strimzi.io/cluster: default
+spec:
+  authentication:
+    type: tls
+  authorization:
+    type: simple
+    acls:
+      # Topics
+      - operation: All
+        host: '*'
+        resource:
+          type: topic
+          name: '*'
+          patternType: literal
+
+      # Groups
+      - operation: All
+        host: '*'
+        resource:
+          type: group
+          name: '*'
+          patternType: literal
