@@ -2,7 +2,10 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
 metadata:
-  name: default
+  name: {{ .Values.clusterName }}
+  {{- with .Values.namespaceOverride }}
+  namespace: {{ . }}
+  {{- end }}
 spec:
   kafka:
     replicas: 1

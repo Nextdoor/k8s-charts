@@ -6,9 +6,28 @@
 [strimzi_op]: https://github.com/strimzi/strimzi-kafka-operator
 
 This chart provides a fast and local way of spinning up the
-[Strimzi-managed][strimzi_op] Kafka environment. This is an opinionated stack
-for how dumb-simple local Kafka development should be while still using
+[Strimzi-managed][strimzi_op] Kafka environment. This is an opinionated chart
+for how simple local Kafka development should be while still using
 production-level tooling.
+
+This chart (_by default_) installs the [Strimzi Kafka Operator][strimzi_op],
+and then launches a `Kafka` and `KafkaUser` resource. The `KafkaUser` resource
+is granted full privileges to create and manage `Topics` and `Groups` within
+the Kafka broker. The Kafka Broker is set up as a single, ephemeral pod meant
+for quick and dirty local use only.
+
+## Multiple Local Kafka Projects?
+
+If you're developing multiple projects (ie, `featurestore.git` and
+`lightstream.git`) - you should treat them as separate projects and launch
+separate Kafka environments for each one. Each project's `Chart.yaml` file may
+refer to this dependency chart, but ONLY ONE chart may install the Operator.
+The rest of the charts should set `Values.strimzi-kafka-operator.enabled:
+false`.
+
+That will allow each project to install a local `Kafka` cluster and `KafkaUser`
+resource in the development namespace, completely isolated from the _other_
+project's development namespace.
 
 {{ template "chart.requirementsSection" . }}
 

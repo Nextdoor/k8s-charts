@@ -11,3 +11,4 @@ dependencies:
   - name: strimzi-kafka-operator
     version: 0.23.0
     repository: https://strimzi.io/charts
+    condition: strimzi-kafka-operator.enabled

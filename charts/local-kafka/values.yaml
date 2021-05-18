@@ -1,8 +1,51 @@
-strimzi-kafka-operator:
-  # -- Specifically only monitor in our local namespace. This makes a
-  # namespaced-install of the operator which is safer for local dev testing and
-  # for chart-testing.
-  watchAnyNamespace: false
+# -- Set the name of the KafkaUser that is created for local development
+userName: user
 
-  # -- Explicitly disable any requirements here - just let the pod run.
-  resources: null
+# -- Set the name of the Kafka Cluster that is created for local development
+clusterName: default
+
+# -- Optionally force the namespace that the resources in this stack are
+# launched in. Without this, the default namespace that the Helm chart is being
+# put into is used. It is recommended to keep this empty.
+namespaceOverride:
+
+# These settings directly get passed into the Strimzi Kafka Operator helm chart.
+strimzi-kafka-operator:
+  # -- Set to `false` to intentionally disable installation of the Operator.
+  # This is useful if you are running this stack in a local dev environment
+  # where you might have multiple Kafka environments, and are already running
+  # the Strimzi operator.
+  enabled: true
+
+  # -- Because you can only install one Strimzi Operator helm chart in a
+  # cluster, we might as well set this to True. This allows the chart to be
+  # re-used (with `strimzi-kafka-operator.enabled: false`) by other local
+  # development projects.
+  watchAnyNamespace: true
+
+  # -- Run the Operator in a pretty verbose mode - allowing developers to more
+  # easily understand if there are any problems with the operator installation
+  # or its behavior.
+  logLevel: DEBUG
+
+  # I cannot tell you why - but for local dev (at least on an M1 laptop), it
+  # seems that the initial startup takes MUCH longer than it should. Without
+  # this, you get into a restart-loop where Kubernetes keeps thinking the
+  # Operator is not healthy, when it's really just in its startup phase.
+  livenessProbe:
+    initialDelaySeconds: 300
+  readinessProbe:
+    initialDelaySeconds: 300
+
+  # -- Reconfigure the default resource requirements here so that the
+  # "requests" are as low as possible for memory (so we're not allocating any
+  # more memory than we absolutely must), and explicitly limit the CPU
+  # performance of the pod so that it cannot take priority over the other pods
+  # that developers are working on.
+  resources:
+    requests:
+      cpu: 0
+      memory: 0Mi
+    limits:
+      cpu: 200m
+      memory: 384Mi

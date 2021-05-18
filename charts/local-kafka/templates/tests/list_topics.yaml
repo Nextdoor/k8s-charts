@@ -1,43 +1,21 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: list-topics
+  name: {{ .Release.Name }}-list-topics
+  {{- with .Values.namespaceOverride }}
+  namespace: {{ . }}
+  {{- end }}
   annotations:
     helm.sh/hook: test
 spec:
   restartPolicy: Never
-
-  initContainers:
-    - name: generate-properties
+  containers:
+    - name: list-topics-test
       image: bitnami/kafka:2.8.0
-      command: [sh, /scripts/create_properties.sh]
-      env:
-        - name: BOOTSTRAP_ENDPOINT
-          value: default-kafka-bootstrap:9092
+      command: [sh, /scripts/run_test.sh]
       volumeMounts:
         - mountPath: /scripts
-          name: generate-properties
-        - mountPath: /properties
-          name: properties
-        - mountPath: /ssl/client
-          name: client-certs
-        - mountPath: /ssl/cluster
-          name: cluster-ca-certs
-
-  containers:
-    - name: list-topics
-      command: [kafka-topics.sh]
-      args:
-        - --command-config=/properties/client.properties
-        - --bootstrap-server=default-kafka-bootstrap:9092
-        - --list
-      env:
-        - name: BOOTSTRAP_ENDPOINT
-          value: default-kafka-bootstrap:9092
-      image: bitnami/kafka:2.8.0
-      volumeMounts:
-        - mountPath: /properties
-          name: properties
+          name: scripts
         - mountPath: /ssl/client
           name: client-certs
         - mountPath: /ssl/cluster
@@ -46,15 +24,12 @@ spec:
     - name: client-certs
       secret:
         defaultMode: 420
-        secretName: user
+        secretName: {{ .Values.userName }}
     - name: cluster-ca-certs
       secret:
         defaultMode: 420
-        secretName: default-cluster-ca-cert
-    - name: generate-properties
+        secretName: {{ .Values.clusterName }}-cluster-ca-cert
+    - name: scripts
       configMap:
         defaultMode: 420
-        name: test-generate-properties
-
-    # Shared volume between the init container and the main test containerj
-    - name: properties
+        name: {{ .Release.Name }}-test-scripts
