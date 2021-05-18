@@ -9,6 +9,12 @@ metadata:
 spec:
   kafka:
     replicas: 1
+    livenessProbe:
+      initialDelaySeconds: 60
+      failureThreshold: 30  # 30 * 10s
+    readinessProbe:
+      initialDelaySeconds: 60
+      failureThreshold: 30  # 30 * 10s
     authorization:
       type: simple
     jvmOptions:
