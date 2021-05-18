@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-test-scripts
+  {{- with .Values.namespaceOverride }}
+  namespace: {{ . }}
+  {{- end }}
+data:
+  run_test.sh: |
+    #!/bin/sh
+    set -e
+
+    cat << EOF > /tmp/client.properties
+    security.protocol=SSL
+    ssl.key.password=$(cat /ssl/client/user.password)
+    ssl.keystore.type=PKCS12
+    ssl.keystore.location=/ssl/client/user.p12
+    ssl.keystore.password=$(cat /ssl/client/user.password)
+    ssl.truststore.type=PKCS12
+    ssl.truststore.location=/ssl/cluster/ca.p12
+    ssl.truststore.password=$(cat /ssl/cluster/ca.password)
+    EOF
+
+    kafka-topics.sh --command-config=/tmp/client.properties --bootstrap-server={{ .Values.clusterName }}-kafka-bootstrap:9092 --list | grep __strimzi_store_topic

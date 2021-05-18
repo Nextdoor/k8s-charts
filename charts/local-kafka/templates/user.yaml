@@ -1,0 +1,30 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaUser
+metadata:
+  name: {{ .Values.userName }}
+  {{- with .Values.namespaceOverride }}
+  namespace: {{ . }}
+  {{- end }}
+  labels:
+    strimzi.io/cluster: {{ .Values.clusterName }}
+spec:
+  authentication:
+    type: tls
+  authorization:
+    type: simple
+    acls:
+      # Topics
+      - operation: All
+        host: '*'
+        resource:
+          type: topic
+          name: '*'
+          patternType: literal
+
+      # Groups
+      - operation: All
+        host: '*'
+        resource:
+          type: group
+          name: '*'
+          patternType: literal
