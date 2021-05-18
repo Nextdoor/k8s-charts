@@ -1,6 +1,38 @@
 apiVersion: v1
 entries:
+  local-kafka:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2021-05-18T17:38:46.727306251Z"
+    dependencies:
+    - condition: strimzi-kafka-operator.enabled
+      name: strimzi-kafka-operator
+      repository: https://strimzi.io/charts
+      version: 0.23.0
+    description: Local Development spinup of Strimzi-managed Kafka
+    digest: 027ce66a46bb572390fb5f3dc9109fb997097d5d196389099b9808e8a538613d
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: local-kafka
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/local-kafka-0.0.1/local-kafka-0.0.1.tgz
+    version: 0.0.1
   prometheus-alerts:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2021-05-18T17:38:46.933480068Z"
+    description: Helm Chart that provisions a series of common Prometheus Alerts
+    digest: 029c30fd64439fabead6118d3531bcab806116e96f14462af4e6ad7c01567a01
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: prometheus-alerts
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/prometheus-alerts-0.1.4/prometheus-alerts-0.1.4.tgz
+    version: 0.1.4
   - apiVersion: v2
     appVersion: 0.0.1
     created: "2021-04-15T15:40:28.801778978Z"
@@ -28,6 +60,19 @@ entries:
     - https://github.com/Nextdoor/k8s-charts/releases/download/prometheus-alerts-0.1.0/prometheus-alerts-0.1.0.tgz
     version: 0.1.0
   simple-app:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2021-05-18T17:38:47.146505614Z"
+    description: Default Microservice Helm Chart
+    digest: 85e83026f6fd1863f82822ddfcb539223630c78f5934b9f15c48a59245d5fefc
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: simple-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/simple-app-0.3.2/simple-app-0.3.2.tgz
+    version: 0.3.2
   - apiVersion: v2
     appVersion: latest
     created: "2021-05-13T19:31:50.904908019Z"
