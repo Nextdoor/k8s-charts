@@ -28,6 +28,11 @@ spec:
       serviceAccountName: {{ include "simple-app.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if or .Values.volumes .Values.volumesString }}
+      volumes:
+        {{- with .Values.volumes }}{{ toYaml . | nindent 8 }}{{ end }}
+        {{- with .Values.volumesString }}{{ tpl . $global | nindent 8 }}{{ end }}
+      {{- end }}
       containers:
         {{- if .Values.proxySidecar.enabled }}
         - name: {{ .Values.proxySidecar.name }}
@@ -43,6 +48,10 @@ spec:
               valueFrom: {{ tpl (toYaml $env.valueFrom) $global | nindent 16 }}
               {{- end }}
             {{- end }}
+          {{- end }}
+          {{- with .Values.proxySidecar.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           ports:
             {{- toYaml .Values.ports | nindent 12 }}
@@ -68,6 +77,10 @@ spec:
               valueFrom: {{ tpl (toYaml $env.valueFrom) $global | nindent 16 }}
               {{- end }}
             {{- end }}
+          {{- end }}
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

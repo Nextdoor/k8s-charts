@@ -14,6 +14,21 @@ image:
   # -- (String) Overrides the image tag whose default is the chart appVersion.
   tag: ~
 
+
+# -- A list of 'volumes' that can be mounted into the Pod.
+volumes:
+
+# -- A stringified list of 'volumes' similar to the `Values.volumes` parameter
+# - but this one gets run through the `tpl` function so that you can use
+# templatized values if you need to.
+volumesString:
+# eg:
+#
+# volumesString: |-
+#   - name: test-html-mount
+#     configMap:
+#       name: "{{ include "simple-app.fullname" . }}-test-map"
+
 # An optional proxy sidecar configuration is provided - but its a rough
 # beginning here, it doesn't provide any real configuration for the proxy, so
 # we expect that the proxy container is preconfigured (for example,
@@ -42,6 +57,10 @@ proxySidecar:
   # through the tpl function (the key name and value), so you can dynamically
   # name resources as you need.
   env: []
+
+  # -- List of VolumeMounts that are applied to the proxySidecar container -
+  # these must refer to volumes set in the `Values.volumes` parameter.
+  volumeMounts: []
 
   # -- A PodSpec "Resources" object for the proxy container
   resources: {}
@@ -105,6 +124,10 @@ env: []
   #       key: foo
   #
 
+# -- List of VolumeMounts that are applied to the application container -
+# these must refer to volumes set in the `Values.volumes` parameter.
+volumeMounts: []
+
 podAnnotations: {}
 
 podSecurityContext: {}
@@ -139,12 +162,9 @@ ingress:
       }
   hosts:
     - host: chart-example.local
-      path: ''
+      path: /
+      pathType: Prefix
       sslRedirect: true  # ties into "actions.ssl-redirect" above
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
 
 # Configuration for creating a VirtualService inside the Istio Service Mesh
 # Ingress Gateways. This is the preferred method for exposing a service because
