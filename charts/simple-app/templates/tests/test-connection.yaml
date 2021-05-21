@@ -12,12 +12,12 @@ spec:
     - name: test
       image: >-
         {{- if .Values.tests.connection.image.repository }}
-        {{ .Values.tests.connection.image.repository }}:{{ .Values.tests.connection.image.tag | default "latest" }}
+        {{ .Values.tests.connection.image.repository }}:{{ default "latest" .Values.tests.connection.image.tag }}
         {{- else }}
-        {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+        {{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}
         {{- end }}
       command:
-        {{ toYaml .Values.tests.connection.command }}
+        {{- toYaml .Values.tests.connection.command | nindent 8 }}
       args:
         {{- $global := . }}
         {{- range $arg := index .Values.tests.connection.args }}
