@@ -1,4 +1,4 @@
-{{- if .Values.ingressGateway.enabled }}
+{{- if .Values.virtualService.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:

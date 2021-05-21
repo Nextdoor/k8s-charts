@@ -1,25 +1,36 @@
-{{- if .Values.ingressGateway.enabled }}
+{{- if .Values.virtualService.enabled }}
+{{- $global := . }}
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: {{ include "simple-app.fullname" . }}
   labels:
     {{- include "simple-app.labels" . | nindent 4 }}
-  {{- with .Values.ingressGateway.annotations }}
+  {{- with .Values.virtualService.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  hosts:
-    {{- tpl .Values.ingressGateway.hosts . | nindent 4 }}
   gateways:
-    - {{ .Values.ingressGateway.namespace }}/{{ .Values.ingressGateway.gateway }}
-  {{- if .Values.ingressGateway.http }}
+    - {{ .Values.virtualService.namespace }}/{{ .Values.virtualService.gateway }}
+  hosts:
+    {{- range .Values.virtualService.hosts }}
+    - {{ tpl . $global }}
+    {{- end }}
+  {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRoute */}}
   http:
-    {{- tpl .Values.ingressGateway.http . | nindent 4 }}
-  {{- end }}
-  {{- if .Values.ingressGateway.tls }}
+    - match:
+      {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPMatchRequest */}}
+      - uri:
+          prefix: {{ .Values.virtualService.path }}
+      {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRouteDestination */}}
+      route:
+        - destination:
+            host: {{ include "simple-app.fullname" . }}
+            port:
+              number: {{ .Values.virtualService.port }}
+  {{- with .Values.virtualService.tls }}
   tls:
-    {{- tpl .Values.ingressGateway.tls . | nindent 4 }}
+    {{- tpl . $global | nindent 4 }}
   {{- end }}
 {{- end }}
