@@ -15,7 +15,7 @@ spec:
     - {{ .Values.virtualService.namespace }}/{{ .Values.virtualService.gateway }}
   hosts:
     {{- range .Values.virtualService.hosts }}
-    - {{ tpl . $global }}
+    - {{ tpl . $global | quote }}
     {{- end }}
   {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRoute */}}
   http:

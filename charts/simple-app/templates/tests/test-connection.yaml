@@ -17,7 +17,7 @@ spec:
         {{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}
         {{- end }}
       command:
-        {{ toYaml .Values.tests.connection.command | nindent 8 }}
+        {{- toYaml .Values.tests.connection.command | nindent 8 }}
       args:
         {{- $global := . }}
         {{- range $arg := index .Values.tests.connection.args }}

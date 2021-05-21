@@ -6,9 +6,10 @@ metadata:
   name: {{ $fullName }}
   labels:
     {{- include "simple-app.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
   annotations:
+    {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
+    {{- end }}
     {{- if .Values.ingress.sslRedirect }}
     alb.ingress.kubernetes.io/actions.ssl-redirect: >-
       {
@@ -20,10 +21,9 @@ metadata:
         }
       }
     {{- end }}
-  {{- end }}
 spec:
   rules:
-    - host: {{ tpl .Values.ingress.host . }}
+    - host: {{ tpl .Values.ingress.host . | quote }}
       http:
         paths:
           - path: {{ .Values.ingress.path }}
