@@ -62,6 +62,12 @@ proxySidecar:
   # name resources as you need.
   env: []
 
+  # -- Pull all of the environment variables listed in a ConfigMap into the
+  # Pod. See
+  # https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables
+  # for more details.
+  envFrom: []
+
   # -- List of VolumeMounts that are applied to the proxySidecar container -
   # these must refer to volumes set in the `Values.volumes` parameter.
   volumeMounts: []
@@ -127,6 +133,15 @@ env: []
   #       name: {{ .Release.Name }}-secret
   #       key: foo
   #
+
+# -- Pull all of the environment variables listed in a ConfigMap into the
+# Pod. See
+# https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables
+# for more details.
+envFrom: []
+  # Example:
+  # - configMapRef:
+  #     name: my-config-vars
 
 # -- List of VolumeMounts that are applied to the application container -
 # these must refer to volumes set in the `Values.volumes` parameter.
