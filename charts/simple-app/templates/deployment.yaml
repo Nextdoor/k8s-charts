@@ -38,6 +38,10 @@ spec:
         - name: {{ .Values.proxySidecar.name }}
           image: "{{ .Values.proxySidecar.image.repository }}:{{ .Values.proxySidecar.image.tag }}"
           imagePullPolicy: {{ .Values.proxySidecar.image.pullPolicy }}
+          {{- with .Values.proxySidecar.envFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.proxySidecar.env }}
           env:
             {{- range $env := index . }}
@@ -67,6 +71,10 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.envFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.env }}
           env:
             {{- range $env := index . }}
