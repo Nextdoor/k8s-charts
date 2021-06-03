@@ -41,7 +41,7 @@ spec:
       the Service Entry.
       */}} 
       hosts:
-        - {{ $name }}.{{ include "istio-endpoints.domainName" $global }}
+        - ./{{ $name }}.{{ include "istio-endpoints.domainName" $global }}
 
       {{- /*
       Setting captureMode to NONE is how you tell Istio that it's not doing any
