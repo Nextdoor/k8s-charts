@@ -1,6 +1,6 @@
 apiVersion: v2
 name: istio-endpoints
-description: Istio Configuration to route to an external ElastiCache Service
+description: Per-Namespace Istio Configuration Chart
 type: application
 version: 0.1.0
 appVersion: latest
