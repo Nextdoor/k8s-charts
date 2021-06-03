@@ -41,7 +41,8 @@ spec:
   */}}
   endpoints:
     - address: {{ $cfg.address }}
-      port: {{ default $global.Values.defaults.elasticacheTargetPort $cfg.targetPort }}
+      ports:
+        redis: {{ default $global.Values.defaults.elasticacheTargetPort $cfg.targetPort }}
 
   {{- /*
   Inform Istio about the protocol that we are passing here. This is what
