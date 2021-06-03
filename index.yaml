@@ -3,6 +3,19 @@ entries:
   istio-endpoints:
   - apiVersion: v2
     appVersion: latest
+    created: "2021-06-03T22:25:32.01007587Z"
+    description: Per-Namespace Istio Configuration Chart
+    digest: f0e6fa7d1426fb2f0cc2a836230c13664793a8430d2e705cf1a01bfee2cfae91
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: istio-endpoints
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/istio-endpoints-0.1.1/istio-endpoints-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: latest
     created: "2021-06-03T21:04:16.737106367Z"
     description: Per-Namespace Istio Configuration Chart
     digest: 00a0082aa1bec891c25859df234a00884eafbecbcca39edd9dc204a6706dbe89
