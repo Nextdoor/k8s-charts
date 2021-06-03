@@ -1,5 +1,19 @@
 apiVersion: v1
 entries:
+  istio-endpoints:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2021-06-03T21:04:16.737106367Z"
+    description: Per-Namespace Istio Configuration Chart
+    digest: 00a0082aa1bec891c25859df234a00884eafbecbcca39edd9dc204a6706dbe89
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: istio-endpoints
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/istio-endpoints-0.1.0/istio-endpoints-0.1.0.tgz
+    version: 0.1.0
   local-kafka:
   - apiVersion: v2
     appVersion: latest
