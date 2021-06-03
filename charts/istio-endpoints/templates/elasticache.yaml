@@ -48,7 +48,7 @@ spec:
   triggers Istio to use the RedisProxy EnvoyFilter.
   */}}
   ports:
-    - number: {{ required "Must set bindPort in each elasticacheEndpoints object." $cfg.bindPort }}
+    - number: {{ $cfg.bindPort }}
       name: redis
       protocol: REDIS
 
