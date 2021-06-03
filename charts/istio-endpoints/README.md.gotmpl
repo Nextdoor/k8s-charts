@@ -1,0 +1,49 @@
+{{ template "chart.header" . }}
+{{ template "chart.description" . }}
+
+{{ template "chart.versionBadge" .  }}{{ template "chart.typeBadge" .  }}{{ template "chart.appVersionBadge" .  }}
+
+[elasticache]: https://aws.amazon.com/elasticache/
+[serviceentry]: https://istio.io/latest/docs/reference/config/networking/service-entry/
+[envoyfilter]: https://istio.io/latest/docs/reference/config/networking/envoy-filter/
+[sidecar]: https://istio.io/latest/docs/reference/config/networking/sidecar/
+[envoy]: https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/other_protocols/redis
+
+This small chart helps configure the [Istio Proxy Sidecar][sidecar] pods in a
+given `Namespace` to route traffic to AWS managed [ElastiCache][elasticache]
+clusters or services. This assumes that you are running the Istio Service Mesh
+inside of your cluster already, and have a need to use [Envoy's
+RedisProxy][envoy] configuration to handle traffic routing to the ElastiCache
+services.
+
+**Pre-Req: `PILOT_ENABLE_REDIS_FILTER=true` must be set in your Istio Pilot Config**
+
+If you are using the [Istio
+Operator](https://istio.io/latest/docs/reference/commands/operator/), your
+`IstioOperator` resource must enable the `RedisProxy` filter. This filter
+allows Envoy to understand the `REDIS` protocol, and automatically configures
+the filter when necessary.
+
+```yaml
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: istio-control-plane
+spec:
+  components:
+    pilot:
+      k8s:
+        env:
+          - name: PILOT_ENABLE_REDIS_FILTER
+            value: 'true'
+```
+
+## Usage
+
+
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}

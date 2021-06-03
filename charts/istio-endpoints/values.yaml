@@ -1,0 +1,27 @@
+nameOverride: ""
+fullnameOverride: ""
+
+defaults:
+  clusterDomain: svc.cluster.local
+  elasticacheTargetPort: 6379
+  elasticacheOpTimeout: 0.2s
+  elasticacheReadPolicy: ANY
+
+sidecar:
+  enabled: true
+
+# workloadSelector:
+
+# elasticachEndpoints: {}
+elasticacheEndpoints:
+  test:
+    address: staging-host-fully-defined.com
+    targetPort: 6379
+    bindPort: 1234
+    bindAddress: 127.0.0.2
+    opTimeout: 0.5s
+    readPolicy: REPLICA
+  test-no-tgt-port:
+    address: staging-host-without-targetport.com
+    bindPort: 1235
+    bindAddress: 127.0.0.2

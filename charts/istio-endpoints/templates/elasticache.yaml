@@ -1,0 +1,195 @@
+{{- $global := . }}
+{{- range $name, $cfg := index .Values.elasticacheEndpoints }}
+---
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: {{ include "istio-endpoints.fullname" $global }}-elasticache-{{ $name }}
+  labels:
+    {{- include "istio-endpoints.labels" $global | nindent 4 }}
+spec:
+  {{- /*
+  Configure the SerivceEntry to understand that this is a remotely hosted
+  service outside of the cluster. The Sidecar will do DNS lookups to discover
+  the endpoint addresses. Because the Protocol is set to REDIS below, Envoy
+  understands how to connect and actually get the list of endpoints properly.
+  */}}
+  location: MESH_EXTERNAL
+  resolution: DNS
+
+  {{- /*
+  The "hosts" key creates a fake name for the service. This name is unused by
+  the client applications, but it is used internally in the Istio configuration
+  to help connect the Sidecar Egress configurations with our ServiceEntry
+  configuration. It must be a fully qualified DNS name.
+  */}}
+  hosts:
+    - {{ $name }}.{{ include "istio-endpoints.domainName" $global }}
+
+  {{- /*
+  These ServiceEntries are designed to be accessed only by Pods within the
+  application namespace - we are not exposing these to the rest of the cluster.
+  */}}
+  exportTo:
+    - .
+
+  {{- /*
+  The endpoint here is what Istio will route traffic to when the
+  application container tries to hit "BIND_IP:BIND_PORT".
+  */}}
+  endpoints:
+    - address: {{ $cfg.address }}
+      port: {{ default $global.Values.defaults.elasticacheTargetPort $cfg.targetPort }}
+
+  {{- /*
+  Inform Istio about the protocol that we are passing here. This is what
+  triggers Istio to use the RedisProxy EnvoyFilter.
+  */}}
+  ports:
+    - number: {{ required "Must set bindPort in each elasticacheEndpoints object." $cfg.bindPort }}
+      name: redis
+      protocol: REDIS
+
+---
+
+{{- /*
+EnvoyFilter's are used to directly patch the final configuration that the
+istiod (pilot) container builds for the istio-proxy Sidecar containers. These
+patches are applied at the end of the process. We use these to customize the
+behavior of the Listeners and Clusters for Redis connections.
+*/}}
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: {{ include "istio-endpoints.fullname" $global }}-elasticache-{{ $name }}
+  labels:
+    {{- include "istio-endpoints.labels" $global | nindent 4 }}
+spec:
+  workloadSelector:
+    labels:
+      {{- include "istio-endpoints.selectorLabels" $global | nindent 6 }}
+  configPatches:
+    {{- /*
+    This first patch is applying custom settings to the RedisProxy Envoy
+    Filter. Each setting is documented below.
+    */}}
+    - applyTo: NETWORK_FILTER
+
+      {{- /*
+      The bindAddress and bindPort are the only identifying fields we
+      have when we are modifying the Listener's FilterChain.
+      */}}
+      match:
+        listener:
+          name: {{ $cfg.bindAddress }}_{{ $cfg.bindPort }}
+          filterChain:
+            filter:
+              name: envoy.filters.network.redis_proxy
+
+      {{- /*
+      Customize the behavior of the RedisProxy filter.
+      https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/network/redis_proxy/v3/redis_proxy.proto
+
+      Unfortunately, the GoLang proto.merge function that Istio uses does a bad
+      job of merging numbers. This prevents us from adjusting the OpTimeout
+      which defaults to 5s. If we try to MERGE a new number in, proto.merge
+      apparently ADDS THEM TOGETHER. Because of this, we actually replace the
+      entire generated Filter here with our own.
+
+      https://github.com/istio/istio/blob/1.10.0/pilot/pkg/networking/core/v1alpha3/networkfilter.go#L211
+       
+      */}}
+      patch:
+        operation: REPLACE
+        value:
+          name: envoy.filters.network.redis_proxy
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.network.redis_proxy.v3.RedisProxy
+            {{- /*
+            These are default values in Istio 1.10.0. We must replicate them exactly
+            to match the standard behavior of Istio.
+            */}}
+            latencyInMicros: true
+            stat_prefix: outbound|{{ $cfg.bindPort }}||{{ $name }}.{{ include "istio-endpoints.domainName" $global }}
+            prefix_routes:
+              catch_all_route:
+                cluster: outbound|{{ $cfg.bindPort }}||{{ $name }}.{{ include "istio-endpoints.domainName" $global }}
+            {{- /* End Defaults */}}
+            settings:
+              {{- /*
+              (Duration, REQUIRED) Per-operation timeout in milliseconds. The
+              timer starts when the first command of a pipeline is written to
+              the backend connection. Each response received from Redis resets
+              the timer since it signifies that the next command is being
+              processed by the backend. The only exception to this behavior is
+              when a connection to a backend is not yet established. In that
+              case, the connect timeout on the cluster will govern the timeout
+              until the connection is ready.
+              */}}
+              op_timeout: {{ default $global.Values.defaults.elasticacheOpTimeout $cfg.opTimeout | quote }}
+
+              {{- /*
+              (bool) Accept moved and ask redirection errors from upstream
+              redis servers, and retry commands to the specified target server.
+              The target server does not need to be known to the cluster
+              manager. If the command cannot be redirected, then the original
+              error is passed downstream unchanged. By default, this support is
+              not enabled.
+
+              TLDR - this hides the fact that it is a Redis Cluster from the
+              client, and the client can simply issue standard calls thinking
+              that it is a single large host.
+              */}}
+              enable_redirection: true
+
+              {{- /*
+              (bool) Enable per-command statistics per upstream cluster,
+              in addition to the filter level aggregate count. These commands
+              are measured in microseconds.
+              */}}
+              enable_command_stats: true
+
+              {{- /*
+              "https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/network/redis_proxy/v3/redis_proxy.proto#envoy-v3-api-enum-extensions-filters-network-redis-proxy-v3-redisproxy-connpoolsettings-readpolicy"
+
+              We default to reading from any available Redis Replica. Other
+              options are MASTER (default), PREFER_MASTER, PREFER_REPLICA and
+              REPLICA.
+              */}}
+              read_policy: {{ default $global.Values.defaults.elasticacheReadPolicy $cfg.readPolicy | quote }}
+
+    {{- /*
+
+    Envoy has the ability to health-check the backend Redis hosts individually,
+    which helps it keep track of which ones can be used and which cannot. Here
+    we patch the CLUSTER config and tell Envoy to use the Redis HealthCheck.
+
+    */}}
+    - applyTo: CLUSTER
+      match:
+        context: SIDECAR_OUTBOUND
+        cluster:
+          {{/* Find the Cluster config specifically created by the ServiceEntry above */}}
+          service: {{ $name }}.{{ include "istio-endpoints.domainName" $global }}
+          port: 6379
+      patch:
+        operation: MERGE
+        value:
+          cluster_type:
+            name: envoy.clusters.redis
+            typed_config:
+              "@type": type.googleapis.com/google.protobuf.Struct
+              value:
+                cluster_refresh_rate: 5s
+                cluster_refresh_timeout: 0.5s
+          health_checks:
+            - custom_health_check:
+                name: envoy.health_checkers.redis
+                typed_config:
+                  "@type": type.googleapis.com/envoy.extensions.health_checkers.redis.v3.Redis
+              timeout: 0.5s
+              interval: 2s
+              unhealthy_threshold: 2
+              healthy_threshold: 1
+---
+{{- end }}

@@ -1,0 +1,31 @@
+{{- if .Values.sidecar.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: {{ include "istio-endpoints.fullname" . }}-proxy-config
+  labels:
+    {{- include "istio-endpoints.labels" . | nindent 4 }}
+spec:
+  workloadSelector:
+    labels:
+      {{- include "istio-endpoints.selectorLabels" . | nindent 6 }}
+  egress:
+    {{- /*
+    For each ElastiCache endpoint, we create a specific Listener configuration
+    here in the Egress key. These listeners are what configure the istio-proxy
+    container to specifically bind to an "IP:PORT", and route traffic to a
+    specific ServiceEndpoint entry.
+    */}}
+    - bind: 127.0.0.2
+      captureMode: NONE
+      port:
+        number: 1234
+        protocol: REDIS
+        name: redis
+      hosts:
+        - featurestore/*
+#    - captureMode: IPTABLES
+#      hosts:
+#        - '*/*'
+
+{{- end }}
