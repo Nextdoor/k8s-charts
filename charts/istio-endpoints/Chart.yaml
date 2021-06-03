@@ -1,0 +1,9 @@
+apiVersion: v2
+name: istio-endpoints
+description: Per-Namespace Istio Configuration Chart
+type: application
+version: 0.1.0
+appVersion: latest
+maintainers:
+  - name: diranged
+    email: matt@nextdoor.com

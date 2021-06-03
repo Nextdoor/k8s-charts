@@ -51,7 +51,8 @@ jobs:
 
       - name: Install CRDs
         run: |
-          kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml
+          kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml \
+                        -f https://raw.githubusercontent.com/istio/istio/1.10.0/manifests/charts/base/crds/crd-all.gen.yaml
         if: steps.list-changed.outputs.changed == 'true'
 
       - name: Run chart-testing (install)

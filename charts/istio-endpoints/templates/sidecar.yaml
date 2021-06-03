@@ -1,0 +1,62 @@
+{{- if .Values.sidecar.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: {{ include "istio-endpoints.fullname" . }}-proxy-config
+  labels:
+    {{- include "istio-endpoints.labels" . | nindent 4 }}
+spec:
+  workloadSelector:
+    labels:
+      {{- include "istio-endpoints.selectorLabels" . | nindent 6 }}
+  egress:
+    {{- /*
+    For each ElastiCache endpoint, we create a specific Listener configuration
+    here in the Egress key. These listeners are what configure the istio-proxy
+    container to specifically bind to an "IP:PORT", and route traffic to a
+    specific ServiceEndpoint entry.
+    */}}
+    {{- $global := . }}
+    {{- range $name, $cfg := index .Values.elasticacheEndpoints }}
+    {{- $_ := required "Must set bindPort in each elasticacheEndpoints object." $cfg.bindPort }}
+    {{- $_ := required "Must set bindAddress in each elasticacheEndpoints object." $cfg.bindAddress }}
+    - # {{ $name }}
+      {{- /*
+      Configure the local istio-proxy sidecar container to listen on a
+      particular address and port. This is the address and port that the
+      application container will use to connect into the Redis cluster
+
+      Note - protocol/name/number must all match the ServiceEntry object
+      created in elasticache.yaml.
+      */}} 
+      bind: {{ $cfg.bindAddress | quote }}
+      port:
+        number: {{ $cfg.bindPort }}
+        protocol: REDIS
+        name: redis
+
+      {{- /*
+      This specific listener is bound to one specific ServiceEntry object. The
+      mapping happens with the FQDN of the "hosts" value that was passed into
+      the Service Entry.
+      */}} 
+      hosts:
+        - {{ $name }}.{{ include "istio-endpoints.domainName" $global }}
+
+      {{- /*
+      Setting captureMode to NONE is how you tell Istio that it's not doing any
+      fancy iptables redirects, but rather that the client will be
+      intentionally connecting directly to a target IP/Port.
+      */}}
+      captureMode: NONE
+    {{- end }}
+    {{- /*
+    The default Egress capture uses the iptables capturemode and collects all
+    of the ServiceEntries, Services, etc in the entire cluster. This behavior
+    can be customized though.
+    */}}
+    - # Default CatchAll
+      captureMode: {{ $global.Values.sidecar.catchAllCaptureMode }}
+      hosts:
+        {{- toYaml $global.Values.sidecar.catchAllHosts | nindent 8 }}
+{{- end }}
