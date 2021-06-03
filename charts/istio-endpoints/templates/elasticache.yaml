@@ -1,5 +1,7 @@
 {{- $global := . }}
 {{- range $name, $cfg := index .Values.elasticacheEndpoints }}
+{{- $_ := required "Must set bindPort in each elasticacheEndpoints object." $cfg.bindPort }}
+{{- $_ := required "Must set bindAddress in each elasticacheEndpoints object." $cfg.bindAddress }}
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
@@ -97,7 +99,6 @@ spec:
       entire generated Filter here with our own.
 
       https://github.com/istio/istio/blob/1.10.0/pilot/pkg/networking/core/v1alpha3/networkfilter.go#L211
-       
       */}}
       patch:
         operation: REPLACE
@@ -191,5 +192,49 @@ spec:
               interval: 2s
               unhealthy_threshold: 2
               healthy_threshold: 1
+
+---
+
+{{- /*
+
+DestinationRules can customize the connection behavior that the EnvoyFilter
+(RedisProxy) uses when connecting to the backends ... connection timeouts, TLS
+settings, etc.
+
+*/}}
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ include "istio-endpoints.fullname" $global }}-elasticache-{{ $name }}
+  labels:
+    {{- include "istio-endpoints.labels" $global | nindent 4 }}
+spec:
+  {{- /*
+  This matches the ServiceEntry "hosts" name, telling Istio which destination
+  to apply these custom rules to.
+  */}}
+  host: {{ $name }}.{{ include "istio-endpoints.domainName" $global }}
+
+  {{- /*
+  These ServiceEntries are designed to be accessed only by Pods within the
+  application namespace - we are not exposing these to the rest of the cluster.
+  */}}
+  exportTo:
+    - .
+
+  {{- /*
+  Customize the connection settings, outlier detection, etc
+
+  TODO - Allow customization of the below settings.
+  */}}
+  trafficPolicy:
+    {{- /* https://istio.io/latest/docs/reference/config/networking/destination-rule/#ConnectionPoolSettings-TCPSettings */}}
+    connectionPool:
+      tcp:
+        {{- /* TCP connection timeout. format: 1h/1m/1s/1ms. MUST BE >=1ms. Default is 10s.*/}}
+        connectTimeout: 500ms
+        tcpKeepalive:
+          time: 300s
+          interval: 60s
 ---
 {{- end }}

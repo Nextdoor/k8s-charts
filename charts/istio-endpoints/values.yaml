@@ -1,27 +1,56 @@
+# -- (`String`) Overrides the main "release name" of the resources.
 nameOverride: ""
+
+# -- (`String`) Overrides the full prefix of all of the resources.
 fullnameOverride: ""
 
+
 defaults:
+  # -- (`String`) The cluster-level domain name that is applied to TCP-routed
+  # ServiceEndpoints within the Istio configuration. This should match the
+  # internal cluster domain name, but cannot be automatically determined.
   clusterDomain: svc.cluster.local
+
+  # -- (`Integer`) The default target-port that the ElastiCache ServiceEntries will
+  # send traffic to in AWS. This should only change if you launch ElastiCache
+  # clusters with non-standard port configurations.
   elasticacheTargetPort: 6379
+
+  # -- (`String`) Default per-operation timeout applied to every endpoint in the
+  # Values.elasticacheEndpoints list (unless they override it) - [documentation
+  # here](https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/network/redis_proxy/v3/redis_proxy.proto.html#extensions-filters-network-redis-proxy-v3-redisproxy-connpoolsettings).
+  # This string should be time-format (1s,1ms,0.1s,1m, etc).
   elasticacheOpTimeout: 0.2s
+
+  # -- (`String`) ReadPolicy controls how Envoy routes read commands to Redis
+  # nodes. This is currently supported for Redis Cluster. All ReadPolicy
+  # settings except MASTER may return stale data because replication is
+  # asynchronous and requires some delay. You need to ensure that your
+  # application can tolerate stale data. [Documentation here](https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/network/redis_proxy/v3/redis_proxy.proto.html#envoy-v3-api-enum-extensions-filters-network-redis-proxy-v3-redisproxy-connpoolsettings-readpolicy)
+  # for options.
   elasticacheReadPolicy: ANY
 
 sidecar:
+  # -- (`Bool`) Controls whether or not a `Sidecar` resource is created within
+  # the Namespace to help reconfigure the local listeners and routing
+  # configuration for your Pods. This defaults to `true` because it is required
+  # in order to properly set up Listeners that work for ElastiCache. You can
+  # disable this if you are going to manage your own `Sidecar` resource.
   enabled: true
 
-# workloadSelector:
+  # -- (`String`) Default `captureMode` that the final "catch all"
+  # [IstioEgressListener](https://istio.io/latest/docs/reference/config/networking/sidecar/#IstioEgressListener)
+  # will run in. Default values are here for your reference.
+  catchAllCaptureMode: IPTABLES
 
-# elasticachEndpoints: {}
-elasticacheEndpoints:
-  test:
-    address: staging-host-fully-defined.com
-    targetPort: 6379
-    bindPort: 1234
-    bindAddress: 127.0.0.2
-    opTimeout: 0.5s
-    readPolicy: REPLICA
-  test-no-tgt-port:
-    address: staging-host-without-targetport.com
-    bindPort: 1235
-    bindAddress: 127.0.0.2
+  # -- (`Strings[]`) Default `hosts` that the final "catch all"
+  # [IstioEgressListener](https://istio.io/latest/docs/reference/config/networking/sidecar/#IstioEgressListener)
+  # will monitor for. The default value catches all resources across the
+  # cluster.
+  catchAllHosts: ['*/*']
+
+# -- (`Map`) A key/value map with all of the elasticacheEndpoints that need to be
+# configured for the Namespace. Each Key is a human-readable name for the
+# endpoint, and then each value is a Map with a configuration. See the README
+# for more instructions.
+elasticacheEndpoints: {}
