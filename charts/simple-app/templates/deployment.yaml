@@ -16,7 +16,9 @@ spec:
     metadata:
       {{- with .Values.podAnnotations }}
       annotations:
-        {{- toYaml . | nindent 8 }}
+        {{- range $annotation, $value := index . }}
+        {{ $annotation }}: {{ tpl $value $global | quote }}
+        {{- end }}
       {{- end }}
       labels:
         {{- include "simple-app.selectorLabels" . | nindent 8 }}
