@@ -40,6 +40,16 @@ spec:
           imagePullPolicy: {{ .Values.proxySidecar.image.pullPolicy }}
           {{- with .Values.proxySidecar.envFrom }}
           envFrom:
+            {{- range $env := index .}}
+            {{- with $env.configMapRef }}
+            - configMapRef:
+                name: {{ tpl (required ".name key must be set in configMapRef" .name) $global }}
+            {{- end }}
+            {{- with $env.secretRef }}
+            - secretRef:
+                name: {{ tpl (required ".name key must be set on secretRef" .name) $global }}
+            {{- end }}
+            {{- end }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- with .Values.proxySidecar.env }}
@@ -73,7 +83,16 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- with .Values.envFrom }}
           envFrom:
-            {{- toYaml . | nindent 12 }}
+            {{- range $env := index .}}
+            {{- with $env.configMapRef }}
+            - configMapRef:
+                name: {{ tpl (required ".name key must be set in configMapRef" .name) $global }}
+            {{- end }}
+            {{- with $env.secretRef }}
+            - secretRef:
+                name: {{ tpl (required ".name key must be set on secretRef" .name) $global }}
+            {{- end }}
+            {{- end }}
           {{- end }}
           {{- with .Values.env }}
           env:
