@@ -21,7 +21,7 @@ spec:
         {{- end }}
       {{- end }}
       labels:
-        {{- include "simple-app.selectorLabels" . | nindent 8 }}
+        {{- include "simple-app.labels" . | nindent 4 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
