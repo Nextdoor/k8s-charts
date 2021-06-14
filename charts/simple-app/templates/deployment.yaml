@@ -23,7 +23,7 @@ spec:
       labels:
         {{- include "simple-app.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
-        {{- tpl (toYaml .) $global | nindent 4 }}
+        {{- tpl (toYaml .) $global | nindent 8 }}
         {{- end }}
     spec:
       {{- with .Values.imagePullSecrets }}
