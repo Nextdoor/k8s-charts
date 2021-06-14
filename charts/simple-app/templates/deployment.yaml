@@ -5,9 +5,6 @@ metadata:
   name: {{ include "simple-app.fullname" . }}
   labels:
     {{- include "simple-app.labels" . | nindent 4 }}
-    {{- with .Values.podLabels }}
-    {{- tpl (toYaml .) $global | nindent 4 }}
-    {{- end }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -24,7 +21,10 @@ spec:
         {{- end }}
       {{- end }}
       labels:
-        {{- include "simple-app.selectorLabels" . | nindent 8 }}
+        {{- include "simple-app.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- tpl (toYaml .) $global | nindent 4 }}
+        {{- end }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
