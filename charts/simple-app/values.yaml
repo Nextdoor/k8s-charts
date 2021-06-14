@@ -147,6 +147,10 @@ envFrom: []
 # these must refer to volumes set in the `Values.volumes` parameter.
 volumeMounts: []
 
+# -- (`Map`) List of Labels to be added to the PodSpec
+podLabels: {}
+
+# -- (`Map`) List of Annotations to be added to the PodSpec
 podAnnotations: {}
 
 podSecurityContext: {}
