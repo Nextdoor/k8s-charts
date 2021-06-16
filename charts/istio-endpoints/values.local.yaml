@@ -1,0 +1,6 @@
+defaults:
+  createDefaultElasticacheEnvoyFilter: true
+
+elasticacheEndpoints:
+  test:
+    address: foo.com

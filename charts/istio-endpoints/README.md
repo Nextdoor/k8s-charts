@@ -2,7 +2,7 @@
 
 Per-Namespace Istio Configuration Chart
 
-![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [elasticache]: https://aws.amazon.com/elasticache/
 [serviceentry]: https://istio.io/latest/docs/reference/config/networking/service-entry/
@@ -37,6 +37,13 @@ spec:
         env:
           - name: PILOT_ENABLE_REDIS_FILTER
             value: 'true'
+
+**Pre-Req: `ISTIO_META_DNS_CAPTURE=true` must be set in our Istio Pilot Config**
+
+This relies on the new Istio ["DNS
+Capture"](https://istio.io/latest/docs/ops/configuration/traffic-management/dns-proxy)
+mode enabled in your environment. If you are running with the `istio-cni`
+plugin, then you must also be running Istio 1.11+.
 ```
 
 ## Usage
@@ -53,7 +60,7 @@ spec:
 + dependencies:
 +   - name: istio-endpoints
 +     repository: https://k8s-charts.nextdoor.com
-+     version: 0.1.2
++     version: 0.2.0
   maintainers:
     - name: diranged
       email: matt@nextdoor.com
@@ -64,39 +71,25 @@ spec:
 ```yaml
 # values.yaml
 istio-endpoints:
-  test:
-    address: staging-cluster.abcd8x.clustercfg.usw2.cache.amazonaws.com
-    bindPort: 1234          # required
-    bindAddress: 127.0.0.2  # required
-    targetPort: 6379        # optional
-    opTimeout: 0.5s         # optional
-    readPolicy: REPLICA     # optional
+  elasticacheEndpoints:
+    test:
+      address: staging-cluster.abcd8x.clustercfg.usw2.cache.amazonaws.com
+      targetPort: 1234        # required
 ```
 
 ## Per ServiceEndpoint Configurations
 
 ### ElastiCache Endpoint Options
 
- * `bindPort`: Required port that the `istio-proxy` sidecar will listen on to
-   route traffic to the Redis cluster.
- * `bindAddress`: Required address that the `istio-proxy` idecar will listen on
-   to route traffic to the Redis cluster. Suggestion here is to use somethign
-   in the loopback-IP space (`172.0.0.0/8`).
  * `targetPort`: Optional override for the target port of the AWS ElastiCache
    Cluster. If you do not specify a value, the
    `Values.defaults.elasticacheTargetPort` value will be applied.
- * `opTimeout`: Optional override for the per-operation timeout that Envoy will
-   use to cancel slow operations. If you do not specify a value, the
-   `Values.defaults.elasticacheOpTimeout` value will be applied.
- * `readPolicy`: Optional override for the Envoy RedisProxy configuration that
-   will route traffic to specific types of endpoints in the backing cluster. If
-   you do not specify a value, the `Values.defaults.elasticacheReadPolicy`
-   value will be applied.
 
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| createDefaultElasticacheEnvoyFilter | bool | `false` | (`Bool`) Controls creation of the default ElastiCache Redis EnvoyFilter. If your cluster already creates one, then you do not need to enable this. Otherwise, enable this for a good default behavior. |
 | defaults.clusterDomain | string | `"svc.cluster.local"` | (`String`) The cluster-level domain name that is applied to TCP-routed ServiceEndpoints within the Istio configuration. This should match the internal cluster domain name, but cannot be automatically determined. |
 | defaults.elasticacheOpTimeout | string | `"0.2s"` | (`String`) Default per-operation timeout applied to every endpoint in the Values.elasticacheEndpoints list (unless they override it) - [documentation here](https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/network/redis_proxy/v3/redis_proxy.proto.html#extensions-filters-network-redis-proxy-v3-redisproxy-connpoolsettings). This string should be time-format (1s,1ms,0.1s,1m, etc). |
 | defaults.elasticacheReadPolicy | string | `"ANY"` | (`String`) ReadPolicy controls how Envoy routes read commands to Redis nodes. This is currently supported for Redis Cluster. All ReadPolicy settings except MASTER may return stale data because replication is asynchronous and requires some delay. You need to ensure that your application can tolerate stale data. [Documentation here](https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/network/redis_proxy/v3/redis_proxy.proto.html#envoy-v3-api-enum-extensions-filters-network-redis-proxy-v3-redisproxy-connpoolsettings-readpolicy) for options. |

@@ -4,6 +4,10 @@ nameOverride: ""
 # -- (`String`) Overrides the full prefix of all of the resources.
 fullnameOverride: ""
 
+# -- (`Bool`) Controls creation of the default ElastiCache Redis EnvoyFilter.
+# If your cluster already creates one, then you do not need to enable this.
+# Otherwise, enable this for a good default behavior.
+createDefaultElasticacheEnvoyFilter: false
 
 defaults:
   # -- (`String`) The cluster-level domain name that is applied to TCP-routed
@@ -16,12 +20,6 @@ defaults:
   # clusters with non-standard port configurations.
   elasticacheTargetPort: 6379
 
-  # -- (`String`) Default per-operation timeout applied to every endpoint in the
-  # Values.elasticacheEndpoints list (unless they override it) - [documentation
-  # here](https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/network/redis_proxy/v3/redis_proxy.proto.html#extensions-filters-network-redis-proxy-v3-redisproxy-connpoolsettings).
-  # This string should be time-format (1s,1ms,0.1s,1m, etc).
-  elasticacheOpTimeout: 0.2s
-
   # -- (`String`) ReadPolicy controls how Envoy routes read commands to Redis
   # nodes. This is currently supported for Redis Cluster. All ReadPolicy
   # settings except MASTER may return stale data because replication is
@@ -29,6 +27,12 @@ defaults:
   # application can tolerate stale data. [Documentation here](https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/network/redis_proxy/v3/redis_proxy.proto.html#envoy-v3-api-enum-extensions-filters-network-redis-proxy-v3-redisproxy-connpoolsettings-readpolicy)
   # for options.
   elasticacheReadPolicy: ANY
+
+  # -- (`String`) Default per-operation timeout applied to every endpoint in the
+  # Values.elasticacheEndpoints list (unless they override it) - [documentation
+  # here](https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/network/redis_proxy/v3/redis_proxy.proto.html#extensions-filters-network-redis-proxy-v3-redisproxy-connpoolsettings).
+  # This string should be time-format (1s,1ms,0.1s,1m, etc).
+  elasticacheOpTimeout: 0.2s
 
 sidecar:
   # -- (`Bool`) Controls whether or not a `Sidecar` resource is created within
