@@ -18,7 +18,7 @@ spec:
     */}}
     {{- $global := . }}
     {{- range $name, $cfg := index .Values.elasticacheEndpoints }}
-    {{- $_ := required "Must set bindPort in each elasticacheEndpoints object." $cfg.bindPort }}
+    {{- $bindPort := default $global.Values.defaults.elasticacheTargetPort $cfg.bindPort }}
     {{- $_ := required "Must set bindAddress in each elasticacheEndpoints object." $cfg.bindAddress }}
     - # {{ $name }}
       {{- /*
@@ -31,7 +31,7 @@ spec:
       */}} 
       bind: {{ $cfg.bindAddress | quote }}
       port:
-        number: {{ $cfg.bindPort }}
+        number: {{ $bindPort }}
         protocol: REDIS
         name: redis
 

@@ -1,7 +1,6 @@
 {{- $global := . }}
 {{- range $name, $cfg := index .Values.elasticacheEndpoints }}
-{{- $_ := required "Must set bindPort in each elasticacheEndpoints object." $cfg.bindPort }}
-{{- $_ := required "Must set bindAddress in each elasticacheEndpoints object." $cfg.bindAddress }}
+{{- $bindPort := default $global.Values.defaults.elasticacheTargetPort $cfg.bindPort }}
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
@@ -49,7 +48,7 @@ spec:
   triggers Istio to use the RedisProxy EnvoyFilter.
   */}}
   ports:
-    - number: {{ $cfg.bindPort }}
+    - number: {{ $bindPort }}
       name: redis
       protocol: REDIS
 
@@ -84,7 +83,7 @@ spec:
       */}}
       match:
         listener:
-          name: {{ $cfg.bindAddress }}_{{ $cfg.bindPort }}
+          name: {{ $cfg.bindAddress }}_{{ $bindPort }}
           filterChain:
             filter:
               name: envoy.filters.network.redis_proxy
@@ -112,10 +111,10 @@ spec:
             to match the standard behavior of Istio.
             */}}
             latencyInMicros: true
-            stat_prefix: outbound|{{ $cfg.bindPort }}||{{ $name }}.{{ include "istio-endpoints.domainName" $global }}
+            stat_prefix: outbound|{{ $bindPort }}||{{ $name }}.{{ include "istio-endpoints.domainName" $global }}
             prefix_routes:
               catch_all_route:
-                cluster: outbound|{{ $cfg.bindPort }}||{{ $name }}.{{ include "istio-endpoints.domainName" $global }}
+                cluster: outbound|{{ $bindPort }}||{{ $name }}.{{ include "istio-endpoints.domainName" $global }}
             {{- /* End Defaults */}}
             settings:
               {{- /*
