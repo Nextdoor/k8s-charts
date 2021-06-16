@@ -36,6 +36,13 @@ spec:
         env:
           - name: PILOT_ENABLE_REDIS_FILTER
             value: 'true'
+
+**Pre-Req: `ISTIO_META_DNS_CAPTURE=true` must be set in our Istio Pilot Config**
+
+This relies on the new Istio ["DNS
+Capture"](https://istio.io/latest/docs/ops/configuration/traffic-management/dns-proxy)
+mode enabled in your environment. If you are running with the `istio-cni`
+plugin, then you must also be running Istio 1.11+.
 ```
 
 ## Usage
@@ -63,34 +70,19 @@ spec:
 ```yaml
 # values.yaml
 istio-endpoints:
-  test:
-    address: staging-cluster.abcd8x.clustercfg.usw2.cache.amazonaws.com
-    bindPort: 1234          # required
-    bindAddress: 127.0.0.2  # required
-    targetPort: 6379        # optional
-    opTimeout: 0.5s         # optional
-    readPolicy: REPLICA     # optional
+  elasticacheEndpoints:
+    test:
+      address: staging-cluster.abcd8x.clustercfg.usw2.cache.amazonaws.com
+      targetPort: 1234        # required
 ```
 
 ## Per ServiceEndpoint Configurations
 
 ### ElastiCache Endpoint Options
 
- * `bindPort`: Required port that the `istio-proxy` sidecar will listen on to
-   route traffic to the Redis cluster.
- * `bindAddress`: Required address that the `istio-proxy` idecar will listen on
-   to route traffic to the Redis cluster. Suggestion here is to use somethign
-   in the loopback-IP space (`172.0.0.0/8`).
  * `targetPort`: Optional override for the target port of the AWS ElastiCache
    Cluster. If you do not specify a value, the
    `Values.defaults.elasticacheTargetPort` value will be applied.
- * `opTimeout`: Optional override for the per-operation timeout that Envoy will
-   use to cancel slow operations. If you do not specify a value, the
-   `Values.defaults.elasticacheOpTimeout` value will be applied.
- * `readPolicy`: Optional override for the Envoy RedisProxy configuration that
-   will route traffic to specific types of endpoints in the backing cluster. If
-   you do not specify a value, the `Values.defaults.elasticacheReadPolicy`
-   value will be applied.
 
 {{ template "chart.requirementsSection" . }}
 
