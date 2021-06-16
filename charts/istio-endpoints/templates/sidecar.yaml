@@ -19,6 +19,7 @@ spec:
     {{- $global := . }}
     {{- range $name, $cfg := index .Values.elasticacheEndpoints }}
     {{- $bindPort := default $global.Values.defaults.elasticacheTargetPort $cfg.bindPort }}
+    {{- if $cfg.bindAddress }}
     {{- $_ := required "Must set bindAddress in each elasticacheEndpoints object." $cfg.bindAddress }}
     - # {{ $name }}
       {{- /*
@@ -49,6 +50,7 @@ spec:
       intentionally connecting directly to a target IP/Port.
       */}}
       captureMode: NONE
+    {{- end }}
     {{- end }}
     {{- /*
     The default Egress capture uses the iptables capturemode and collects all
