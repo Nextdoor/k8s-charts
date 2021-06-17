@@ -41,7 +41,7 @@ spec:
       containers:
         {{- if .Values.proxySidecar.enabled }}
         - name: {{ .Values.proxySidecar.name }}
-          image: "{{ .Values.proxySidecar.image.repository }}:{{ .Values.proxySidecar.image.tag }}"
+          image: {{ include "simple-app.proxyImageFqdn" . }}
           imagePullPolicy: {{ .Values.proxySidecar.image.pullPolicy }}
           {{- with .Values.proxySidecar.envFrom }}
           envFrom:
@@ -84,7 +84,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}"
+          image: {{ include "simple-app.imageFqdn" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- with .Values.envFrom }}
           envFrom:
