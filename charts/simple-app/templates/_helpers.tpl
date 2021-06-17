@@ -34,10 +34,11 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "simple-app.labels" -}}
+{{- $tag := default .Chart.AppVersion .Values.image.tag -}}
 helm.sh/chart: {{ include "simple-app.chart" . }}
-{{ include "simple-app.selectorLabels" . }}
-app.kubernetes.io/version: {{ default .Chart.AppVersion .Values.image.tag | trunc 63 | replace ":" "_" | quote }}
+app.kubernetes.io/version: {{ $tag | replace ":" "_" | trunc 63 | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{ include "simple-app.selectorLabels" . }}
 {{- end }}
 
 {{/*
@@ -56,5 +57,26 @@ Create the name of the service account to use
 {{- default (include "simple-app.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
+{{/*
+Proxy and Main App Image Names
+*/}}
+{{- define "simple-app.imageFqdn" -}}
+{{- $tag := default .Chart.AppVersion .Values.image.tag }}
+{{- if hasPrefix "sha256:" $tag }}
+{{- .Values.image.repository }}@{{ $tag }}
+{{- else }}
+{{- .Values.image.repository }}:{{ $tag }}
+{{- end }}
+{{- end }}
+
+{{- define "simple-app.proxyImageFqdn" -}}
+{{- $tag := .Values.proxySidecar.image.tag }}
+{{- if hasPrefix "sha256:" $tag }}
+{{- .Values.proxySidecar.image.repository }}@{{ $tag }}
+{{- else }}
+{{- .Values.proxySidecar.image.repository }}:{{ $tag }}
 {{- end }}
 {{- end }}

@@ -14,7 +14,7 @@ spec:
         {{- if .Values.tests.connection.image.repository }}
         {{ .Values.tests.connection.image.repository }}:{{ default "latest" .Values.tests.connection.image.tag }}
         {{- else }}
-        {{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}
+        {{ include "simple-app.imageFqdn" . }}
         {{- end }}
       command:
         {{- toYaml .Values.tests.connection.command | nindent 8 }}
