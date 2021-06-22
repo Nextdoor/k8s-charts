@@ -34,11 +34,25 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "simple-app.labels" -}}
-{{- $tag := default .Chart.AppVersion .Values.image.tag -}}
+{{- $_tag := default .Chart.AppVersion .Values.image.tag -}}
+{{- $tag  := $_tag | replace ":" "_" | trunc 63 | quote -}}
 helm.sh/chart: {{ include "simple-app.chart" . }}
-app.kubernetes.io/version: {{ $tag | replace ":" "_" | trunc 63 | quote }}
+app.kubernetes.io/version: {{ $tag }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{ include "simple-app.selectorLabels" . }}
+{{- if .Values.datadog.enabled }}
+# https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/?tab=kubernetes
+tags.datadoghq.com/env: {{ .Values.datadog.env | quote }}
+tags.datadoghq.com/service: {{ default .Release.Name .Values.datadog.service | quote }}
+tags.datadoghq.com/version: {{ $tag }}
+#
+# https://docs.datadoghq.com/agent/cluster_agent/admission_controller/
+# (Disabled for now, here for future reference. Disabled because we can get
+# the same value through the Kubernetes downward API, which doesn't introduce
+# a potential Pod launching failure point.)
+# admission.datadoghq.com/enabled: "true"
+#
+{{- end }}
 {{- end }}
 
 {{/*
