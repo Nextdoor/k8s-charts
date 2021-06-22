@@ -35,7 +35,7 @@ spec:
         */}}
         {{- if .Values.monitor.enabled }}
         prometheus.io/scrape: "true"
-        prometheus.io/port: {{ .Values.monitor.portName | quote }}
+        prometheus.io/port: {{ .Values.monitor.portNumber | quote }}
         prometheus.io/path: {{ .Values.monitor.path }}
         {{- end }}
 
