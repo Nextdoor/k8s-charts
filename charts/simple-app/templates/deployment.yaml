@@ -27,7 +27,6 @@ spec:
         conditions.
         */}}
         proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
-
         {{- /*
         If monitoring is enabled, and we're in an Istio environment, then we
         default to using the Isto metrics-merging feature where the sidecar
@@ -38,7 +37,34 @@ spec:
         prometheus.io/port: {{ .Values.monitor.portNumber | quote }}
         prometheus.io/path: {{ .Values.monitor.path }}
         {{- end }}
+        {{- end }}
 
+        {{- /*
+        If the datadog agent is enabled,
+        */}}
+        {{- if and .Values.datadog.enabled .Values.monitor.enabled .Values.datadog.scrapeMetrics }}
+        {{- if .Values.istio.enabled }}
+        ad.datadoghq.com/istio-proxy.check_names: ['prometheus']
+        ad.datadoghq.com/istio-proxy.init_configs: '[{}]'
+        ad.datadoghq.com/istio-proxy.instances: |-
+          [
+            {
+              "prometheus_url": "http://%%host%%:15020/stats/prometheus",
+              "namespace": "{{ .Values.datadog.metricsNamespace }}"
+            }
+          ]
+        {{- else }}
+        ad.datadoghq.com/{{ .Chart.Name }}.check_names: ['prometheus']
+        ad.datadoghq.com/{{ .Chart.Name }}.init_configs: '[{}]'
+        ad.datadoghq.com/{{ .Chart.Name }}.instances: |-
+          [
+            {
+              "prometheus_url": "http://%%host%%:{{ .Values.monitor.portNumber }}{{ .Values.monitor.path }}",
+              "namespace": "{{ .Values.datadog.metricsNamespace }}"
+            }
+          ]
+
+        {{- end }}
         {{- end }}
       labels:
         {{- include "simple-app.labels" . | nindent 8 }}
@@ -119,8 +145,9 @@ spec:
             {{- end }}
             {{- end }}
           {{- end }}
-          {{- with .Values.env }}
+          {{- if or .Values.env .Values.datadog.enabled }}
           env:
+            {{- with .Values.env }}
             {{- range $env := index . }}
             - name: {{ tpl $env.name $ }}
               {{- if $env.value }}
@@ -129,7 +156,35 @@ spec:
               valueFrom: {{ tpl (toYaml $env.valueFrom) $ | nindent 16 }}
               {{- end }}
             {{- end }}
+            {{- end }}
+
+            {{- if .Values.datadog.enabled }}
+            # https://www.datadoghq.com/blog/monitor-kubernetes-docker/#instrument-your-code-to-send-metrics-to-dogstatsd
+            - name: DOGSTATSD_HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            # https://docs.datadoghq.com/agent/docker/apm/?tab=standard#docker-apm-agent-environment-variables
+            - name: DD_AGENT_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            # https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/?tab=kubernetes#full-configuration
+            - name: DD_ENV
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/env']
+            - name: DD_SERVICE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/service']
+            - name: DD_VERSION
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/version']
+            {{- end }}
           {{- end }}
+
           {{- with .Values.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}

@@ -22,6 +22,14 @@ If you are operating in an Istio Service Mesh, see the
 works. Otherwise, see the `Values.serviceMonitor` settings to configure a
 Prometheus ServiceMonitor resource to monitor your application.
 
+## Datadog Agent Support
+
+This chart supports operating in environments where the Datadog Agent is
+running. If you set the `Values.datadog.enabled` flag, then a series of
+additional Pod Annotations, Labels and Environment Variables will be
+automatically added in to your deployment. See the `Values.datadog` parameters
+for further information.
+
 ## Istio Networking Support
 
 ### Monitoring through the Sidecar Proxy

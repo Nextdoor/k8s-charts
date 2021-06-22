@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.10.1](https://img.shields.io/badge/Version-0.10.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.11.0](https://img.shields.io/badge/Version-0.11.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -22,6 +22,14 @@ If you are operating in an Istio Service Mesh, see the
 [Istio](#istio-networking-support) section below for details on how monitoring
 works. Otherwise, see the `Values.serviceMonitor` settings to configure a
 Prometheus ServiceMonitor resource to monitor your application.
+
+## Datadog Agent Support
+
+This chart supports operating in environments where the Datadog Agent is
+running. If you set the `Values.datadog.enabled` flag, then a series of
+additional Pod Annotations, Labels and Environment Variables will be
+automatically added in to your deployment. See the `Values.datadog` parameters
+for further information.
 
 ## Istio Networking Support
 
@@ -62,6 +70,11 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | autoscaling.maxReplicas | int | `100` | Sets the maximum number of Pods to run |
 | autoscaling.minReplicas | int | `1` | Sets the minimum number of Pods to run |
 | autoscaling.targetCPUUtilizationPercentage | int | `80` | Configures the HPA to target a particular CPU utilization percentage |
+| datadog.enabled | bool | `true` | (`bool`) Whether or not the various datadog labels and options should be included or not. |
+| datadog.env | string | `"dev"` | (`string`) The "env" tag to configure for the application - this maps to the Datadog environment concept for isolating traces/apm data. |
+| datadog.metricsNamespace | string | `"eks"` | (`string`) The prefix to append to all metrics that are scraped by Datadog. We set this to one common value so that common metrics (like `istio_.*` or `go_.*`) are shared across all apps in Datadog for easier dashboard creation as well as comparision between applications. |
+| datadog.scrapeMetrics | bool | `false` | (`bool`) If true, then we will configure the Datadog agent to scrape metrics from the Pod (or the `istio-proxy` sidecar). |
+| datadog.service | `string` | `nil` | If set, this configures the "service" tag. If this is not set, the tag defaults to the `.Release.Name` for the application. |
 | env | list | `[]` | Environment Variables for the primary container. These are all run through the tpl function (the key name and value), so you can dynamically name resources as you need. |
 | envFrom | list | `[]` | Pull all of the environment variables listed in a ConfigMap into the Pod. See https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables for more details. |
 | fullnameOverride | string | `""` |  |
