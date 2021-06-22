@@ -7,7 +7,3 @@ ingress:
   # -- Disable the SSL-Redirect explicitly because it only applies to
   # ALB-ingress controllers.
   sslRedirect: false
-
-serviceMonitor:
-  enabled: true
-

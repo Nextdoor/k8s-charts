@@ -276,33 +276,61 @@ tolerations: []
 
 affinity: {}
 
-# ServiceMonitor configuration
-serviceMonitor:
-  # -- If enabled, ServiceMonitor resources for Prometheus Operator are created
-  enabled: false
-  # -- Alternative namespace for ServiceMonitor resources
-  namespace: null
-  # -- Namespace selector for ServiceMonitor resources
-  namespaceSelector: {}
-  # -- ServiceMonitor annotations
-  annotations: {}
-  # -- Name of the port to scrape for metrics
+# Monitoring configuration for metric scraping against the Prometheus-style
+# metrics endpoint.
+monitor:
+  # -- (`bool`) If enabled, ServiceMonitor resources for Prometheus Operator
+  # are created or if `Values.istio.enabled` is `True`, then the appropriate
+  # Pod Annotations will be added for the istio-proxy sidecar container to
+  # scrape the metrics.
+  enabled: true
+
+  # -- (`string`) Name of the port to scrape for metrics - this is the name of
+  # the port that will be exposed in your `PodSpec` for scraping purposes.
   portName: metrics
-  # -- Path to scrape metrics from
+
+  # -- (`int`) Number of the port to scrape for metrics - this port will be
+  # exposed in your `PodSpec` to ensure it can be scraped.
+  portNumber: 9090
+
+  # -- (`string`) Path to scrape metrics from within your Pod.
   path: /metrics
-  # -- Additional ServiceMonitor labels
+
+serviceMonitor:
+  # -- (`string`) Alternative namespace for ServiceMonitor resources.
+  namespace: null
+
+  # -- (`map`) ServiceMonitor annotations.
+  annotations: {}
+
+  # -- Additional ServiceMonitor labels.
   labels: {}
+
   # -- ServiceMonitor scrape interval
   interval: null
+
   # -- ServiceMonitor scrape timeout in Go duration format (e.g. 15s)
   scrapeTimeout: null
+
   # -- ServiceMonitor relabel configs to apply to samples before scraping
   # https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig
   relabelings: []
+
   # -- ServiceMonitor will use http by default, but you can pick https as well
   scheme: http
+
   # -- ServiceMonitor will use these tlsConfig settings to make the health check requests
   tlsConfig: null
+
+# Configuration that lets the chart know that it's operating inside of an Istio
+# service mesh or not. If it is, certain defaults are applied to various Pod
+# and other resource configurations.
+istio:
+  # -- (`bool`) Whether or not the service should be part of an Istio Service
+  # Mesh. If this is turned on and `Values.monitor.enabled=true`, then the
+  # Istio Sidecar containers will be configured to pull and merge the metrics
+  # from the application, rather than creating a new `ServiceMonitor` object.
+  enabled: false
 
 tests:
   connection:

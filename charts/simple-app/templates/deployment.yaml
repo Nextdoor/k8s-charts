@@ -13,12 +13,33 @@ spec:
       {{- include "simple-app.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+        {{- with .Values.podAnnotations }}
         {{- range $annotation, $value := index . }}
         {{ $annotation }}: {{ tpl $value $ | quote }}
         {{- end }}
-      {{- end }}
+        {{- end }}
+
+        {{- if .Values.istio.enabled }}
+        {{- /*
+        Ensures that the application does not start up until after the Istio
+        proxy container is ready to pass traffic. This prevents race
+        conditions.
+        */}}
+        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+
+        {{- /*
+        If monitoring is enabled, and we're in an Istio environment, then we
+        default to using the Isto metrics-merging feature where the sidecar
+        scrapes the metrics.
+        */}}
+        {{- if .Values.monitor.enabled }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ .Values.monitor.portName | quote }}
+        prometheus.io/path: {{ .Values.monitor.path }}
+        {{- end }}
+
+        {{- end }}
       labels:
         {{- include "simple-app.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
@@ -119,6 +140,11 @@ spec:
           {{- else }}
           ports:
             {{- toYaml .Values.ports | nindent 12 }}
+            {{- if .Values.monitor.enabled }}
+            - name: {{ .Values.monitor.portName }}
+              containerPort: {{ .Values.monitor.portNumber }}
+              protocol: TCP
+            {{- end }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:

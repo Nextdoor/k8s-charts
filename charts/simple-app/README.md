@@ -11,6 +11,48 @@ This chart provides a default deployment for a simple application that operates
 in a [Deployment][deployments]. The chart automatically configures various
 defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
+## Monitoring
+
+This chart makes the assumption that you _do_ have a Prometheus-style
+monitoring endpoint configured. See the `Values.monitor.portName`,
+`Values.monitor.portNumber` and `Values.monitor.path` settings for informing
+the chart of where your metrics are exposed.
+
+If you are operating in an Istio Service Mesh, see the
+[Istio](#istio-networking-support) section below for details on how monitoring
+works. Otherwise, see the `Values.serviceMonitor` settings to configure a
+Prometheus ServiceMonitor resource to monitor your application.
+
+## Istio Networking Support
+
+### Monitoring through the Sidecar Proxy
+
+[metrics_merging]: https://istio.io/latest/docs/ops/integrations/prometheus/#option-1-metrics-merging
+
+When running your Pod within an Istio Mesh, access to the `metrics` endpoint
+for your Pod can be obscured by the mesh itself which sits in front of the
+metrics port and may require that all clients are coming in through the
+mesh natively. The simplest way around this is to use [Istio Metrics
+Merging][metrics_merging] - where the Sidecar container is responsible for
+scraping your application's `metrics` port, merging the metrics with its own,
+and then Prometheus is configured to pull all of the metrics from the Sidecar.
+
+There are several advantages to this model.
+
+* It's much simpler - developers do not need to create `ServiceMonitor` or
+  `PodMonitor` resources because the Prometheus system is already configured to
+  discover all `istio-proxy` sidecar containers and collect their metrics.
+
+* Your application is not exposed outside of the service mesh to anybody - the
+  `istio-proxy` sidecar handles that for you.
+
+* There are fewer individual configurations for Prometheus, letting it's
+  configuration be simpler and lighter weight. It runs fewer "scrape" jobs,
+  improving its overall performance.
+
+This feature is turned on by default if you set `Values.istio.enabled=true` and
+`Values.monitor.enabled=true`.
+
 ## Values
 
 | Key | Type | Default | Description |
@@ -35,7 +77,12 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 | ingress.port | string | `nil` | If set, this will override the `service.portName` parameter, and the `Service` object will point specifically to this port number on the backing Pods. |
 | ingress.portName | string | `"http"` | This is the port "name" that the `Service` will point to on the backing Pods. This value must match one of the values of `.name` in the `Values.ports` configuration. |
 | ingress.sslRedirect | bool | `true` | If `true`, then this will annotate the Ingress with a special AWS ALB Ingress Controller annotation that configures an SSL-redirect at the ALB level. |
+| istio.enabled | bool | `false` | (`bool`) Whether or not the service should be part of an Istio Service Mesh. If this is turned on and `Values.monitor.enabled=true`, then the Istio Sidecar containers will be configured to pull and merge the metrics from the application, rather than creating a new `ServiceMonitor` object. |
 | livenessProbe | object | `{"httpGet":{"path":"/","port":"http"}}` | A PodSpec container "livenessProbe" configuration object. Note that this livenessProbe will be applied to the proxySidecar container instead if that is enabled. |
+| monitor.enabled | bool | `true` | (`bool`) If enabled, ServiceMonitor resources for Prometheus Operator are created or if `Values.istio.enabled` is `True`, then the appropriate Pod Annotations will be added for the istio-proxy sidecar container to scrape the metrics. |
+| monitor.path | string | `"/metrics"` | (`string`) Path to scrape metrics from within your Pod. |
+| monitor.portName | string | `"metrics"` | (`string`) Name of the port to scrape for metrics - this is the name of the port that will be exposed in your `PodSpec` for scraping purposes. |
+| monitor.portNumber | int | `9090` | (`int`) Number of the port to scrape for metrics - this port will be exposed in your `PodSpec` to ensure it can be scraped. |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
 | podAnnotations | object | `{}` | (`Map`) List of Annotations to be added to the PodSpec |
@@ -60,14 +107,10 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
-| serviceMonitor.annotations | object | `{}` | ServiceMonitor annotations |
-| serviceMonitor.enabled | bool | `false` | If enabled, ServiceMonitor resources for Prometheus Operator are created |
+| serviceMonitor.annotations | object | `{}` | (`map`) ServiceMonitor annotations. |
 | serviceMonitor.interval | string | `nil` | ServiceMonitor scrape interval |
-| serviceMonitor.labels | object | `{}` | Additional ServiceMonitor labels |
-| serviceMonitor.namespace | string | `nil` | Alternative namespace for ServiceMonitor resources |
-| serviceMonitor.namespaceSelector | object | `{}` | Namespace selector for ServiceMonitor resources |
-| serviceMonitor.path | string | `"/metrics"` | Path to scrape metrics from |
-| serviceMonitor.portName | string | `"metrics"` | Name of the port to scrape for metrics |
+| serviceMonitor.labels | object | `{}` | Additional ServiceMonitor labels. |
+| serviceMonitor.namespace | `string` | `nil` | Alternative namespace for ServiceMonitor resources. |
 | serviceMonitor.relabelings | list | `[]` | ServiceMonitor relabel configs to apply to samples before scraping https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig |
 | serviceMonitor.scheme | string | `"http"` | ServiceMonitor will use http by default, but you can pick https as well |
 | serviceMonitor.scrapeTimeout | string | `nil` | ServiceMonitor scrape timeout in Go duration format (e.g. 15s) |

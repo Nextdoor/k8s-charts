@@ -1,46 +1,40 @@
-{{- with .Values.serviceMonitor }}
-{{- if .enabled }}
+{{- if and .Values.monitor.enabled (not .Values.istio.enabled) }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ include "simple-app.fullname" $ }}
-  {{- with .namespace }}
+  name: {{ include "simple-app.fullname" . }}
+  {{- with .Values.serviceMonitor.namespace }}
   namespace: {{ . }}
   {{- end }}
-  {{- with .annotations }}
+  {{- with .Values.serviceMonitor.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   labels:
-    {{- include "simple-app.labels" $ | nindent 4 }}
-    {{- with .labels }}
+    {{- include "simple-app.labels" . | nindent 4 }}
+    {{- with .Values.serviceMonitor.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
-  {{- with .namespaceSelector }}
-  namespaceSelector:
-  {{- toYaml . | nindent 4 }}
-  {{- end }}
   selector:
     matchLabels:
-      {{- include "simple-app.selectorLabels" $ | nindent 6 }}
+      {{- include "simple-app.selectorLabels" . | nindent 6 }}
   endpoints:
-    - port: {{ .portName }}
-      path: {{ .path }}
-      scheme: {{ .scheme }}
-      {{- with .interval }}
+    - port: {{ .Values.monitor.portName }}
+      path: {{ .Values.monitor.path }}
+      scheme: {{ .Values.serviceMonitor.scheme }}
+      {{- with .Values.serviceMonitor.interval }}
       interval: {{ . }}
       {{- end }}
-      {{- with .scrapeTimeout }}
+      {{- with .Values.serviceMonitor.scrapeTimeout }}
       scrapeTimeout: {{ . }}
       {{- end }}
-      {{- with .relabelings }}
+      {{- with .Values.serviceMonitor.relabelings }}
       relabelings:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .tlsConfig }}
+      {{- with .Values.serviceMonitor.tlsConfig }}
       tlsConfig:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-{{- end }}
 {{- end }}
