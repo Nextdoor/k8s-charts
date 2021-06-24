@@ -8,6 +8,9 @@ spec:
   {{- if and .Values.replicaCount (not .Values.autoscaling.enabled) }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
+  {{- with .Values.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ . }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "simple-app.selectorLabels" . | nindent 6 }}
