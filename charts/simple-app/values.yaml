@@ -17,6 +17,18 @@ image:
   # -- (String) Overrides the image tag whose default is the chart appVersion.
   tag: null
 
+# -- The command run by the container. This overrides `ENTRYPOINT`. If not
+# specified, the container's default entrypoint is used. The exact rules of how
+# commadn and args are interpreted can be # found at:
+# https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/
+command: []
+
+# -- The arguments passed to the command. If unspecified the container defaults
+# are used. The exact rules of how commadn and args are interpreted can be #
+# found at:
+# https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/
+args: []
+
 # -- A list of 'volumes' that can be mounted into the Pod. See
 # https://kubernetes.io/docs/concepts/storage/volumes/.
 volumes: []
