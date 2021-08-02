@@ -66,7 +66,7 @@ Similar to the `KubeQuotaAlmostFull` alert - but you are now out of resources.
 At this point you cannot launch or scale any new resources until you reduce
 your usage, or work with an administrator to expand your `Quota` capacity.
 
-## Alert Name - `KubeStatefulSetGenerationMismatch`
+## Alert Name: `KubeStatefulSetGenerationMismatch`
 
 This alert indicates that a change to a `StatefulSet` resource has been applied, but
 is not rolling out properly. Check the status of the `StatefulSet` using `kubectl describe`:
