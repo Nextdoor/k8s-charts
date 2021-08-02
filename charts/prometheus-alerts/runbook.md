@@ -65,3 +65,22 @@ can inspect any quotas or limits placed on your `Namespace` like this:
 Similar to the `KubeQuotaAlmostFull` alert - but you are now out of resources.
 At this point you cannot launch or scale any new resources until you reduce
 your usage, or work with an administrator to expand your `Quota` capacity.
+
+## Alert Name - `KubeStatefulSetGenerationMismatch`
+
+This alert indicates that a change to a `StatefulSet` resource has been applied, but
+is not rolling out properly. Check the status of the `StatefulSet` using `kubectl describe`:
+
+```bash
+$ kubectl describe sts observability-loki-ingester
+Name:               observability-loki-ingester
+Namespace:          observability
+CreationTimestamp:  Mon, 02 Aug 2021 08:08:37 -0700
+...
+Events:
+  Type     Reason        Age                   From                    Message
+  ----     ------        ----                  ----                    -------
+  Warning  FailedCreate  2m10s (x21 over 57m)  statefulset-controller  create Pod observability-loki-ingester-0 in StatefulSet observability-loki-ingester failed error: Pod "observability-loki-ingester-0" is invalid: [spec.containers[0].resources.limits[limit]: Invalid value: "limit": must be a standard resource type or fully qualified, spec.containers[0].resources.limits[limit]: Invalid value: "limit": must be a standard resource for containers, spec.containers[0].resources.requests[limit]: Invalid value: "limit": must be a standard resource type or fully qualified, spec.containers[0].resources.requests[limit]: Invalid value: "limit": must be a standard resource for containers]
+```
+
+The events will most likely tell you what is wrong, and how to fix it.
