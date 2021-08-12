@@ -17,6 +17,8 @@ spec:
       failureThreshold: 30  # 30 * 10s
     authorization:
       type: simple
+      superUsers:
+        - ANONYMOUS
     jvmOptions:
       '-Xmx': '384M'
       '-Xms': '128M'
@@ -31,6 +33,15 @@ spec:
         port: 9093
         type: internal
         tls: false
+      - name: external
+        port: 9094
+        type: nodeport
+        tls: false
+        configuration:
+          brokers:
+            - broker: 0
+              nodePort: 32000
+              advertisedHost: 127.0.0.1
     config:
       offsets.topic.replication.factor: 1
       transaction.state.log.replication.factor: 1
