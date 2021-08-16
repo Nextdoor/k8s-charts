@@ -41,6 +41,7 @@ project's development namespace.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | clusterName | string | `"default"` | Set the name of the Kafka Cluster that is created for local development |
+| listeners | list | `[{"configuration":{"brokers":[{"advertisedHost":"127.0.0.1","broker":0,"nodePort":32000}]},"name":"external","port":9094,"tls":false,"type":"nodeport"}]` | Additional configurable listeners for connecting to brokers. |
 | namespaceOverride | string | `nil` | Optionally force the namespace that the resources in this stack are launched in. Without this, the default namespace that the Helm chart is being put into is used. It is recommended to keep this empty. |
 | strimzi-kafka-operator.enabled | bool | `true` | Set to `false` to intentionally disable installation of the Operator. This is useful if you are running this stack in a local dev environment where you might have multiple Kafka environments, and are already running the Strimzi operator. |
 | strimzi-kafka-operator.livenessProbe.initialDelaySeconds | int | `300` |  |
