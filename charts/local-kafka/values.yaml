@@ -9,6 +9,18 @@ clusterName: default
 # put into is used. It is recommended to keep this empty.
 namespaceOverride:
 
+# -- Additional configurable listeners for connecting to brokers.
+listeners:
+  - name: external
+    port: 9094
+    type: nodeport
+    tls: false
+    configuration:
+      brokers:
+        - broker: 0
+          nodePort: 32000
+          advertisedHost: 127.0.0.1
+
 # These settings directly get passed into the Strimzi Kafka Operator helm chart.
 strimzi-kafka-operator:
   # -- Set to `false` to intentionally disable installation of the Operator.
