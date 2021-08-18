@@ -19,16 +19,38 @@ spec:
         runbook_url: {{ $values.defaults.runbookUrl }}#kube-pod-container-terminated
         description: >-
           Pod {{`{{$labels.pod}}`}} in namespace {{`{{$labels.namespace}}`}}
-          has a container that has been terminated due to
-          {{`{{$labels.reason}}`}} in the last {{ .threshold }} at least
-          {{`{{$labels.threshold}}`}} times.
+          has a container that has been terminated ({{`{{ $value }}`}} times) due to
+          {{`{{$labels.reason}}`}} in the last {{ .for }}.
       expr: |-
         sum by (container, instance, namespace, pod, reason) (
           sum_over_time(
-            kube_pod_container_status_terminated_reason{reason=~"{{ join "|" .reasons }}", namespace="{{ $targetNamespace }}"}[{{ .for }}]
+            kube_pod_container_status_terminated_reason{reason=~"{{ join "|" .reasons }}", namespace="{{ $targetNamespace }}"}[{{ .over }}]
           )
         ) > {{ .threshold }}
-      for: 1m  # as soon as this trips, page.
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        {{- if $values.defaults.additionalRuleLabels }}
+        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- end }}
+    {{ end -}}
+
+    {{ with .Values.containerRules.PodContainerOOMKilled -}}
+    - alert: PodContainerOOMKilled
+      annotations:
+        summary: {{`Pod {{$labels.pod}} in namespace {{$labels.namespace}} in error status`}}
+        runbook_url: {{ $values.defaults.runbookUrl }}#kube-pod-container-terminated
+        description: >-
+          Pod {{`{{$labels.pod}}`}} in namespace {{`{{$labels.namespace}}`}}
+          has a container that has been terminated ({{`{{ $value }}`}} times) due to
+          {{`{{$labels.reason}}`}} in the last {{ .for }}.
+      expr: |-
+        sum by (container, instance, namespace, pod, reason) (
+          sum_over_time(
+            kube_pod_container_status_terminated_reason{reason=~"OOMKilled", namespace="{{ $targetNamespace }}"}[{{ .over }}]
+          )
+        ) > {{ .threshold }}
+      for: {{ .for }}
       labels:
         severity: {{ .severity }}
         {{- if $values.defaults.additionalRuleLabels }}

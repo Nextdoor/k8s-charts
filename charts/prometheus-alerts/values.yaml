@@ -80,28 +80,38 @@ containerRules:
   # -- Whether or not to enable the container rules template
   enabled: true
 
-  # Monitors Pods for Containers that are terminated for specific reasons that
-  # are unexpected - like OOM's.
+  # -- Monitors Pods for Containers that are terminated either for unexpected
+  # reasons like ContainerCannotRun. If that number breaches the $threshold (1)
+  # for $for (1m), then it will alert.
   PodContainerTerminated:
     severity: warning
     threshold: 0
-    for: 10m
+    over: 10m
+    for: 1m
     reasons:
-      - OOMKilled
-      - Error
+      # - Error  < when a container is evicted gracefully, the "error" state is used.
       - ContainerCannotRun
+      - DeadlineExceeded
 
-  # Pod is crash looping
+  # -- Sums up all of the OOMKilled events per pod over the $over time (60m). If
+  # that number breaches the $threshold (0) for $for (1m), then it will alert.
+  PodContainerOOMKilled:
+    severity: warning
+    threshold: 0
+    over: 60m
+    for: 1m
+
+  # -- Pod is crash looping
   KubePodCrashLooping:
     severity: warning
     for: 15m
 
-  # Pod has been in a non-ready state for more than a specific threshold
+  # -- Pod has been in a non-ready state for more than a specific threshold
   KubePodNotReady:
     severity: warning
     for: 15m
 
-  # Deployment generation mismatch due to possible roll-back
+  # -- Deployment generation mismatch due to possible roll-back
   KubeDeploymentGenerationMismatch:
     severity: warning
     for: 15m

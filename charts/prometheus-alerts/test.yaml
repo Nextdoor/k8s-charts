@@ -1,0 +1,26 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: test-rules
+spec:
+  groups:
+  - name: test-prometheus-alerts.default.containerRules
+    rules:
+    - alert: PodContainerTerminated
+      annotations:
+        summary: Pod {{$labels.pod}} in namespace {{$labels.namespace}} in error status
+        runbook_url: https://github.com/Nextdoor/k8s-charts/blob/main/charts/prometheus-alerts/runbook.md#kube-pod-container-terminated
+        description: >-
+          Pod {{$labels.pod}} in namespace {{$labels.namespace}}
+          has a container that has been terminated due to
+          {{$labels.reason}} in the last 0 at least
+          {{$labels.threshold}} times.
+      expr: |-
+        sum by (container, instance, namespace, pod, reason) (
+          sum_over_time(
+            kube_pod_container_status_terminated_reason{reason=~"OOMKilled|Error|ContainerCannotRun", namespace="observability"}[30m]
+          )
+        ) > 0
+      for: 1m
+      labels:
+        severity: warning
