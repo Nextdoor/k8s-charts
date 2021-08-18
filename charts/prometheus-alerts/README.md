@@ -1,6 +1,6 @@
 # prometheus-alerts
 
-![Version: 0.1.6](https://img.shields.io/badge/Version-0.1.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
+![Version: 0.1.7](https://img.shields.io/badge/Version-0.1.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
 
 Helm Chart that provisions a series of common Prometheus Alerts
 
@@ -33,8 +33,7 @@ Helm Chart that provisions a series of common Prometheus Alerts
 | containerRules.KubeDaemonSetNotScheduled.severity | string | `"warning"` |  |
 | containerRules.KubeDaemonSetRolloutStuck.for | string | `"15m"` |  |
 | containerRules.KubeDaemonSetRolloutStuck.severity | string | `"warning"` |  |
-| containerRules.KubeDeploymentGenerationMismatch.for | string | `"15m"` |  |
-| containerRules.KubeDeploymentGenerationMismatch.severity | string | `"warning"` |  |
+| containerRules.KubeDeploymentGenerationMismatch | object | `{"for":"15m","severity":"warning"}` | Deployment generation mismatch due to possible roll-back |
 | containerRules.KubeDeploymentReplicasMismatch.for | string | `"15m"` |  |
 | containerRules.KubeDeploymentReplicasMismatch.severity | string | `"warning"` |  |
 | containerRules.KubeHpaMaxedOut.for | string | `"15m"` |  |
@@ -45,22 +44,16 @@ Helm Chart that provisions a series of common Prometheus Alerts
 | containerRules.KubeJobCompletion.severity | string | `"warning"` |  |
 | containerRules.KubeJobFailed.for | string | `"15m"` |  |
 | containerRules.KubeJobFailed.severity | string | `"warning"` |  |
-| containerRules.KubePodCrashLooping.for | string | `"15m"` |  |
-| containerRules.KubePodCrashLooping.severity | string | `"warning"` |  |
-| containerRules.KubePodNotReady.for | string | `"15m"` |  |
-| containerRules.KubePodNotReady.severity | string | `"warning"` |  |
+| containerRules.KubePodCrashLooping | object | `{"for":"15m","severity":"warning"}` | Pod is crash looping |
+| containerRules.KubePodNotReady | object | `{"for":"15m","severity":"warning"}` | Pod has been in a non-ready state for more than a specific threshold |
 | containerRules.KubeStatefulSetGenerationMismatch.for | string | `"15m"` |  |
 | containerRules.KubeStatefulSetGenerationMismatch.severity | string | `"warning"` |  |
 | containerRules.KubeStatefulSetReplicasMismatch.for | string | `"15m"` |  |
 | containerRules.KubeStatefulSetReplicasMismatch.severity | string | `"warning"` |  |
 | containerRules.KubeStatefulSetUpdateNotRolledOut.for | string | `"15m"` |  |
 | containerRules.KubeStatefulSetUpdateNotRolledOut.severity | string | `"warning"` |  |
-| containerRules.PodContainerTerminated.for | string | `"10m"` |  |
-| containerRules.PodContainerTerminated.reasons[0] | string | `"OOMKilled"` |  |
-| containerRules.PodContainerTerminated.reasons[1] | string | `"Error"` |  |
-| containerRules.PodContainerTerminated.reasons[2] | string | `"ContainerCannotRun"` |  |
-| containerRules.PodContainerTerminated.severity | string | `"warning"` |  |
-| containerRules.PodContainerTerminated.threshold | int | `0` |  |
+| containerRules.PodContainerOOMKilled | object | `{"for":"1m","over":"60m","severity":"warning","threshold":0}` | Sums up all of the OOMKilled events per pod over the $over time (60m). If that number breaches the $threshold (0) for $for (1m), then it will alert. |
+| containerRules.PodContainerTerminated | object | `{"for":"1m","over":"10m","reasons":["ContainerCannotRun","DeadlineExceeded"],"severity":"warning","threshold":0}` | Monitors Pods for Containers that are terminated either for unexpected reasons like ContainerCannotRun. If that number breaches the $threshold (1) for $for (1m), then it will alert. |
 | containerRules.enabled | bool | `true` | Whether or not to enable the container rules template |
 | defaults.additionalRuleLabels | object | `{}` | Additional custom labels attached to every PrometheusRule |
 | defaults.runbookUrl | string | `"https://github.com/Nextdoor/k8s-charts/blob/main/charts/prometheus-alerts/runbook.md"` | The prefix URL to the runbook_urls that will be applied to each PrometheusRule |
