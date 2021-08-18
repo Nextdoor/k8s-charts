@@ -75,6 +75,19 @@ entries:
   prometheus-alerts:
   - apiVersion: v2
     appVersion: 0.0.1
+    created: "2021-08-18T21:08:49.489200674Z"
+    description: Helm Chart that provisions a series of common Prometheus Alerts
+    digest: 4c5b6d812d76f93a7fda313e971678a285c7a681ac129e50ef84240557646547
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: prometheus-alerts
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/prometheus-alerts-0.1.7/prometheus-alerts-0.1.7.tgz
+    version: 0.1.7
+  - apiVersion: v2
+    appVersion: 0.0.1
     created: "2021-08-18T14:56:23.144890055Z"
     description: Helm Chart that provisions a series of common Prometheus Alerts
     digest: ad0b9b767d4531e12997eaadb3293372b094d10d941c0b14fb0de6379a7a8d44
