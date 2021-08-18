@@ -18,10 +18,17 @@ spec:
         summary: {{`Pod {{$labels.pod}} in namespace {{$labels.namespace}} in error status`}}
         runbook_url: {{ $values.defaults.runbookUrl }}#kube-pod-container-terminated
         description: >-
-          {{`Pod {{$labels.pod}} in namespace {{$labels.namespace}} has a
-          container terminated for more than 10 minutes`}}
-      expr: kube_pod_container_status_terminated_reason{reason=~"{{ join "|" .reasons }}", namespace="{{ $targetNamespace }}"} > {{ .threshold }}
-      for: {{ .for }}
+          Pod {{`{{$labels.pod}}`}} in namespace {{`{{$labels.namespace}}`}}
+          has a container that has been terminated due to
+          {{`{{$labels.reason}}`}} in the last {{ .threshold }} at least
+          {{`{{$labels.threshold}}`}} times.
+      expr: |-
+        sum by (container, instance, namespace, pod, reason) (
+          sum_over_time(
+            kube_pod_container_status_terminated_reason{reason=~"{{ join "|" .reasons }}", namespace="{{ $targetNamespace }}"}[{{ .for }}]
+          )
+        ) > {{ .threshold }}
+      for: 1m  # as soon as this trips, page.
       labels:
         severity: {{ .severity }}
         {{- if $values.defaults.additionalRuleLabels }}
