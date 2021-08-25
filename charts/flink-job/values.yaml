@@ -1,0 +1,228 @@
+# Default values for deploying a flink job cluster with the word counting app
+
+image:
+  repository: flink
+  tag: 1.13.1
+
+fullnameOverride: word-counting-cluster
+
+# Prometheus reporter jar to be loaded by flink
+envVars:
+  - name: HADOOP_CLASSPATH
+    value: /opt/flink/opt/flink-metrics-prometheus-1.9.3.jar
+
+logConfig:
+  "log4j-console.properties": |
+    rootLogger.level = INFO
+    rootLogger.appenderRef.file.ref = LogFile
+    rootLogger.appenderRef.console.ref = LogConsole
+    appender.file.name = LogFile
+    appender.file.type = File
+    appender.file.append = false
+    appender.file.fileName = ${sys:log.file}
+    appender.file.layout.type = PatternLayout
+    appender.file.layout.pattern = %d{yyyy-MM-dd HH:mm:ss,SSS} %-5p %-60c %x - %m%n
+    appender.console.name = LogConsole
+    appender.console.type = CONSOLE
+    appender.console.layout.type = PatternLayout
+    appender.console.layout.pattern = %d{yyyy-MM-dd HH:mm:ss,SSS} %-5p %-60c %x - %m%n
+    logger.akka.name = akka
+    logger.akka.level = INFO
+    logger.kafka.name= org.apache.kafka
+    logger.kafka.level = INFO
+    logger.hadoop.name = org.apache.hadoop
+    logger.hadoop.level = INFO
+    logger.zookeeper.name = org.apache.zookeeper
+    logger.zookeeper.level = INFO
+    logger.netty.name = org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline
+    logger.netty.level = OFF
+  "logback-console.xml": |
+    <configuration>
+      <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+          <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} %X{sourceThread} - %msg%n</pattern>
+        </encoder>
+      </appender>
+      <appender name="file" class="ch.qos.logback.core.FileAppender">
+        <file>${log.file}</file>
+        <append>false</append>
+        <encoder>
+          <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} %X{sourceThread} - %msg%n</pattern>
+        </encoder>
+      </appender>
+      <root level="INFO">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
+      </root>
+      <logger name="akka" level="INFO" />
+      <logger name="org.apache.kafka" level="INFO" />
+      <logger name="org.apache.hadoop" level="INFO" />
+      <logger name="org.apache.zookeeper" level="INFO" />
+      <logger name="org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline" level="ERROR" />
+    </configuration>
+
+jobManager:
+  accessScope: Cluster
+  ports:
+    ui: 8081
+
+# enable metrics ports for jobManager
+  metrics:
+    enabled: true
+    extraPorts:
+      - name: prom
+        containerPort: 9249
+
+  resources:
+    requests:
+      memory: "1000Mi"
+      cpu: "100m"
+    limits:
+      memory: 1400Mi
+      cpu: "2"  # flinkcluster controller needs this quoted
+
+  volumes:
+    - name: savepoint-storage
+      persistentVolumeClaim:
+        claimName: word-counting-cluster-savepoint
+
+  volumeMounts:
+    - name: savepoint-storage
+      mountPath: /savepoint
+
+taskManager:
+  replicas: 1
+
+# enable metrics ports for taskManager
+  metrics:
+    enabled: true
+    extraPorts:
+      - name: prom
+        containerPort: 9249
+        protocol: TCP
+
+  resources:
+    requests:
+      memory: "1000Mi"
+      cpu: "100m"
+    limits:
+      memory: 1500Mi
+      cpu: "2"  # flinkcluster controller needs this quoted
+
+  volumes:
+    - name: savepoint-storage
+      persistentVolumeClaim:
+        claimName: word-counting-cluster-savepoint
+
+  volumeMounts:
+    - name: savepoint-storage
+      mountPath: /savepoint
+
+  securityContext:
+    # Allow flink user to read volumes
+    fsGroup: 9999
+    runAsGroup: 9999
+    runAsNonRoot: true
+    runAsUser: 9999
+
+job:
+  # job will look for a JAR file at ./examples/streaming/WordCount.jar  and execute it
+  # className has to be valid and used in the provided JAR File
+  jarFile: ./examples/streaming/WordCount.jar
+  className: org.apache.flink.streaming.examples.wordcount.WordCount
+  args: ["--input", "./README.txt", "--output", "./OUTPUT.txt"]
+  parallelism: 1
+  autoSavepointSeconds: 30
+  savepointsDir: /savepoint
+  restartPolicy: FromSavepointOnFailure
+  cleanupPolicy:
+    afterJobFails: KeepCluster
+    afterJobCancelled: KeepCluster
+    afterJobSucceeds: KeepCluster
+  volumes:
+    - name: savepoint-storage
+      persistentVolumeClaim:
+        claimName: word-counting-cluster-savepoint
+
+  # Mount an EmptyDir so the InitContainer can store its JarFile in the specific path for the job to execute,
+  # only needed when initContainer is enabled.
+  # volumes:
+  #  - name: properties
+  #    emptyDir: {}
+  volumeMounts:
+    - name: savepoint-storage
+      mountPath: /savepoint
+
+  # Init Container is used to download a remote job jar to your job pod.
+  # it is only needed if you have no other way to download your job files into the Flink job cluster.
+  initContainers:
+    enabled: false
+
+# You can use the following setup to download the remote jar from e.g. a blob-storage.
+# The below fields then have to be adjusted according to your blob-storage.
+
+    # Storage:
+    # Provide the secret name, in which the storage connection-string is stored
+#    secretName: storage-connectstr
+#    secretNameKey: connectstr
+    # Provide the container name, from which a blob should be downloaded by the InitContainer
+#    containerName: snapshot
+    # Provide blob name, which should be downloaded from the container
+#   blobName: <path_to_blobName>
+
+flinkProperties:
+  execution.checkpointing.interval: 10min
+  execution.checkpointing.mode: EXACTLY_ONCE
+  restart-strategy: exponential-delay
+  restart-strategy.exponential-delay.backoff-multiplier: 2.0
+  state.checkpoints.dir: file:/savepoint/
+  taskmanager.numberOfTaskSlots: 1
+  kubernetes.cluster-id: word-counting-cluster
+  kubernetes.namespace: flink-sample-app
+  high-availability: org.apache.flink.kubernetes.highavailability.KubernetesHaServicesFactory
+  high-availability.storageDir: file:/savepoint/
+  # metrics reporter "PrometheusReporter"
+  # visit https://ci.apache.org/projects/flink/flink-docs-stable/monitoring/metrics.html#prometheus-orgapacheflinkmetricsprometheusprometheusreporter
+  # for more information
+  metrics.reporters: prom
+  metrics.reporter.prom.class: org.apache.flink.metrics.prometheus.PrometheusReporter
+
+## Extra Annotations to be added to pod
+
+## Extra Labels to be added to pod
+podLabels:
+  sidecar.istio.io/inject: "false"
+
+## Enable podMonitor for metrics - you need the Prometheus-Operator and its CRDs up and running in order to use PodMonitor.
+podMonitor:
+  enabled: true
+  podTargetLabels:
+    - cluster
+    - component
+
+  # include the podMonitorSelectorLabel which you have set in your prometheus-operator
+  # set podMonitorSelectorLabels {} if your prometheus-operator is set to collect all podMonitors
+  podMonitorSelectorLabels:
+    prometheus: cluster-metrics
+
+  selector:
+    matchLabels:
+      app: flink
+
+  podMetricsEndpoints:
+  - port: prom
+
+serviceAccount:
+  # -- (Boolean) whether to create the ServiceAccount we associate with the IAM Role.
+  create: true
+
+# Configuration of the PersistentVolume for storing savepoints.
+pvc:
+  storageClassName: efs
+  storage: 1Gi
+
+alerts:
+  enabled: true
+
+defaults:
+  runbookUrl: https://github.com/Nextdoor/k8s-charts/blob/main/charts/flink-job/runbook.md
