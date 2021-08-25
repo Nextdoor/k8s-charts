@@ -57,8 +57,10 @@ alertManager:
   #   # that the ExternalSecret controller is in place and has access to read
   #   # these values:
   #   #
-  #   # https://github.com/external-secrets/kubernetes-external-secrets
+  #   # https://external-secrets.io/provider-aws-secrets-manager/
   #   routing_key_parameter:
+  #   # If you use $routing_key_parameter, you must also pass in this:
+  #   routing_key_store_ref:
   #
   #   # This is the raw routing_key string - just directly copied in.
   #   routing_key:
