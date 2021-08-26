@@ -3,9 +3,7 @@ kind: FlinkCluster
 metadata:
   name: {{ template "flink-job-cluster.fullname" . }}
   labels:
-    app: event-proxy
-    chart: flink
-    release: {{ .Release.Name }}
+    {{- include "flink-job.labels" . | nindent 4 }}
 spec:
   image:
     name: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -113,5 +111,8 @@ spec:
   logConfig:
 {{ toYaml .Values.logConfig | indent 4}}
   flinkProperties:
-{{ toYaml .Values.flinkProperties | indent 4}}
-
+    {{- with .Values.flinkProperties }}
+    {{- range $property, $value := index . }}
+    {{ $property }}: {{ tpl $value $ | quote }}
+    {{- end }}
+    {{- end }}

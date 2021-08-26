@@ -3,9 +3,18 @@
 
 {{ template "chart.versionBadge" . }}{{ template "chart.typeBadge" . }}{{ template "chart.appVersionBadge" . }}
 
-{{ template "chart.requirementsSection" . }}
+This chart deploys a flink job cluster and runs a simple word counting flink app as an example.
+This chart includes some production ready set-ups such as
+checkpoints, savepoints, HA service, and Prometheus metrics and alerts.
 
-Please follow the Flink job cluster Helm Chart [guide](docs/flink_job_cluster_guide) to deploy the helm chart.
+Please see the Flink operator [user guide](https://github.com/GoogleCloudPlatform/flink-on-k8s-operator/blob/master/docs/user_guide.md) for more details.
+
+## Monitoring
+
+This chart makes an assumption that you _do_ have a Prometheus monitoring endpoint configured.
+See metrics reporter in the flink properties for more details.
+
+{{ template "chart.requirementsSection" . }}
 
 {{ template "chart.valuesSection" . }}
 

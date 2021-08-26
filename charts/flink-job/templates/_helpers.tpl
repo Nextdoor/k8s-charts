@@ -31,3 +31,29 @@ Create chart name and version as used by the chart label.
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "flink-job.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "flink-job.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "flink-job-cluster.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define "flink-job.labels" -}}
+{{- $_tag := default .Chart.AppVersion .Values.image.tag -}}
+{{- $tag  := $_tag | replace ":" "_" | trunc 63 | quote -}}
+helm.sh/chart: {{ include "flink-job.chart" . }}
+app.kubernetes.io/version: {{ $tag }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{ include "flink-job.selectorLabels" . }}
+{{- end }}

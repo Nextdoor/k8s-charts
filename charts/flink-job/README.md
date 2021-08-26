@@ -2,9 +2,18 @@
 
 Flink job cluster on k8s
 
-![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
+![Version: 0.0.1](https://img.shields.io/badge/Version-0.0.1-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
 
-Please follow the Flink job cluster Helm Chart [guide](docs/flink_job_cluster_guide) to deploy the helm chart.
+This chart deploys a flink job cluster and runs a simple word counting flink app as an example.
+This chart includes some production ready set-ups such as
+checkpoints, savepoints, HA service, and Prometheus metrics and alerts.
+
+Please see the Flink operator [user guide](https://github.com/GoogleCloudPlatform/flink-on-k8s-operator/blob/master/docs/user_guide.md) for more details.
+
+## Monitoring
+
+This chart makes an assumption that you _do_ have a Prometheus monitoring endpoint configured.
+See metrics reporter in the flink properties for more details.
 
 ## Values
 
@@ -17,7 +26,7 @@ Please follow the Flink job cluster Helm Chart [guide](docs/flink_job_cluster_gu
 | flinkProperties."execution.checkpointing.interval" | string | `"10min"` |  |
 | flinkProperties."execution.checkpointing.mode" | string | `"EXACTLY_ONCE"` |  |
 | flinkProperties."high-availability.storageDir" | string | `"file:/savepoint/"` |  |
-| flinkProperties."kubernetes.cluster-id" | string | `"word-counting-cluster"` |  |
+| flinkProperties."kubernetes.cluster-id" | string | `"{{ .Values.fullnameOverride }}"` |  |
 | flinkProperties."kubernetes.namespace" | string | `"flink-sample-app"` |  |
 | flinkProperties."metrics.reporter.prom.class" | string | `"org.apache.flink.metrics.prometheus.PrometheusReporter"` |  |
 | flinkProperties."metrics.reporters" | string | `"prom"` |  |
@@ -69,6 +78,7 @@ Please follow the Flink job cluster Helm Chart [guide](docs/flink_job_cluster_gu
 | podMonitor.podTargetLabels[0] | string | `"cluster"` |  |
 | podMonitor.podTargetLabels[1] | string | `"component"` |  |
 | podMonitor.selector.matchLabels.app | string | `"flink"` |  |
+| pvc.storage | string | `"1Gi"` |  |
 | pvc.storageClassName | string | `"efs"` |  |
 | serviceAccount.create | bool | `true` | (Boolean) whether to create the ServiceAccount we associate with the IAM Role. |
 | taskManager.metrics.enabled | bool | `true` |  |

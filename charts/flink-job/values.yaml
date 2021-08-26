@@ -174,10 +174,10 @@ flinkProperties:
   execution.checkpointing.interval: 10min
   execution.checkpointing.mode: EXACTLY_ONCE
   restart-strategy: exponential-delay
-  restart-strategy.exponential-delay.backoff-multiplier: 2.0
+  restart-strategy.exponential-delay.backoff-multiplier: "2.0"
   state.checkpoints.dir: file:/savepoint/
-  taskmanager.numberOfTaskSlots: 1
-  kubernetes.cluster-id: word-counting-cluster
+  taskmanager.numberOfTaskSlots: "1"
+  kubernetes.cluster-id: "{{ .Values.fullnameOverride }}"
   kubernetes.namespace: flink-sample-app
   high-availability: org.apache.flink.kubernetes.highavailability.KubernetesHaServicesFactory
   high-availability.storageDir: file:/savepoint/
@@ -220,6 +220,9 @@ serviceAccount:
 pvc:
   storageClassName: efs
   storage: 1Gi
+
+savepoints:
+  enabled: true
 
 alerts:
   enabled: true

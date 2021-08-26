@@ -1,3 +1,5 @@
 pvc:
   storageClassName: ''
 
+savepoints:
+  enabled: false
