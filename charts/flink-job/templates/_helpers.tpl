@@ -57,3 +57,15 @@ app.kubernetes.io/version: {{ $tag }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{ include "flink-job.selectorLabels" . }}
 {{- end }}
+
+{{/*
+Image name
+*/}}
+{{- define "flink-job-cluster.imageFqdn" -}}
+{{- $tag := default .Chart.AppVersion .Values.image.tag }}
+{{- if hasPrefix "sha256:" $tag }}
+{{- .Values.image.repository }}@{{ $tag }}
+{{- else }}
+{{- .Values.image.repository }}:{{ $tag }}
+{{- end }}
+{{- end }}

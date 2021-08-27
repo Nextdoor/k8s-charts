@@ -6,7 +6,7 @@ metadata:
     {{- include "flink-job.labels" . | nindent 4 }}
 spec:
   image:
-    name: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+    name: {{ template "flink-job-cluster.imageFqdn" . }}
     pullPolicy: IfNotPresent
   envVars:
 {{ toYaml .Values.envVars | indent 4 }}
