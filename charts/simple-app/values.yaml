@@ -243,12 +243,15 @@ virtualService:
   # https://istio.io/latest/docs/reference/config/networking/virtual-service/#VirtualService
   # for more details.
   hosts:
-    - '{{ include "simple-app.fullname" . }}.{{ .Release.Namespace }}'
+    - '{{ include "simple-app.fullname" . }}'
 
-  # -- The name of the Istio `IngressGateway` object that this `VirtualService`
-  # will register with. The default here is a private internal gateway that is
-  # not internet-facing.
-  gateway: default-gateway
+  # -- The name of the Istio `Gateway` resource that this `VirtualService`
+  # will register with. You can get a list of the avaialable `Gateways` by
+  # running `kubectl -n istio-system get gateways`. Not specifying a Gateway
+  # means that you are creating a VirtualService routing definition only inside
+  # of the Kubernetes cluster, which is totally reasonable if you want to do
+  # that.
+  gateways: []
 
   # -- The namespace where the Istio services are operating. Do not change this.
   namespace: istio-system
