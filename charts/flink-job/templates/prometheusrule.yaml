@@ -1,0 +1,54 @@
+{{- if .Values.alerts.enabled -}}
+
+{{ $values    := .Values }}
+{{ $cluster   := .Values.fullnameOverride }}
+{{ $namespace := .Release.Namespace }}
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}-rules
+spec:
+  groups:
+  - name: {{ .Release.Name }}.{{ .Release.Namespace }}.Rules
+    rules:
+    - alert: NoFlinkJobRunning
+      annotations:
+        summary: No Flink job running in this job cluster.
+        runbook_url: "{{ $values.defaults.runbookUrl }}#noflinkjobrunning"
+        description: >-
+          No job is running in {{ template "flink-job-cluster.fullname" . }}.
+      expr: >-
+        flink_jobmanager_numRunningJobs{cluster="{{ $cluster }}", namespace="{{ $namespace }}"} < 1
+      for: 10m
+      labels:
+        severity: info
+    - alert: FlinkJobOutage
+      annotations:
+        summary: Flink job is down
+        runbook_url: "{{ $values.defaults.runbookUrl }}#flinkjoboutage"
+        description: >-
+          The job running in {{ template "flink-job-cluster.fullname" . }} is down for more than 10s.
+      expr: >-
+        changes(flink_jobmanager_job_downtime{
+          cluster="{{ $cluster }}",
+          namespace="{{ $namespace }}"
+        }[10m]) > 10000
+      for: 10m
+      labels:
+        severity: info
+    - alert: FlinkJobTooManyRestarts
+      annotations:
+        summary: Flink job has too many restarts
+        runbook_url: "{{ $values.defaults.runbookUrl }}#flinkjobtoomanyrestarts"
+        description: >-
+          The job running in {{ template "flink-job-cluster.fullname" . }} is having too many restarts.
+      expr: >-
+        changes(flink_jobmanager_job_numRestarts{
+          cluster="{{ $cluster }}",
+          namespace="{{ $namespace }}"
+        }[30m]) > 2
+      for: 10m
+      labels:
+        severity: info
+{{- end -}}

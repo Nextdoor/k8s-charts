@@ -1,0 +1,8 @@
+pvc:
+  storageClassName: ''
+
+alerts:
+  enabled: false
+
+savepoints:
+  enabled: false

@@ -11,3 +11,6 @@ bin
 # Files for diffing between templates
 new
 orig
+
+# MacOS file
+.DS_Store
