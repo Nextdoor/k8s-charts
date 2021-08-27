@@ -296,6 +296,8 @@ nodeSelector: {}
 
 tolerations: []
 
+topologySpreadConstraints: []
+
 affinity: {}
 
 # Monitoring configuration for metric scraping against the Prometheus-style
