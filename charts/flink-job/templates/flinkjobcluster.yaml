@@ -15,12 +15,25 @@ spec:
     accessScope: {{ .Values.jobManager.accessScope }}
     ports:
       ui: {{ .Values.jobManager.ports.ui }}
-{{- if .Values.jobManager.volumes }}
+{{- if or (.Values.jobManager.volumes) (.Values.savepoints.enabled) }}
     volumes:
+{{- end }}
+{{- if .Values.savepoints.enabled }}
+      - name: savepoint-storage
+        persistentVolumeClaim:
+          claimName: {{ template "flink-job-cluster.fullname" . }}-savepoint
+{{- end }}
+{{- if .Values.jobManager.volumes }}
 {{ toYaml .Values.jobManager.volumes | indent 6}}
 {{- end }}
-{{- if .Values.jobManager.volumeMounts }}
+{{- if or (.Values.jobManager.volumeMounts) (.Values.savepoints.enabled) }}
     volumeMounts:
+{{- end }}
+{{- if .Values.savepoints.enabled }}
+      - name: savepoint-storage
+        mountPath: {{ .Values.savepoints.savepointDir }}
+{{- end }}
+{{- if .Values.jobManager.volumeMounts }}
 {{ toYaml .Values.jobManager.volumeMounts | indent 6}}
 {{- end }}
 {{- if .Values.jobManager.metrics.enabled }}
@@ -39,12 +52,25 @@ spec:
 {{- end }}
   taskManager:
     replicas: {{ .Values.taskManager.replicas }}
-{{- if .Values.taskManager.volumes }}
+{{- if or (.Values.taskManager.volumes) (.Values.savepoints.enabled) }}
     volumes:
+{{- end }}
+{{- if .Values.savepoints.enabled }}
+      - name: savepoint-storage
+        persistentVolumeClaim:
+          claimName: {{ template "flink-job-cluster.fullname" . }}-savepoint
+{{- end }}
+{{- if .Values.taskManager.volumes }}
 {{ toYaml .Values.taskManager.volumes | indent 6}}
 {{- end }}
-{{- if .Values.taskManager.volumeMounts }}
+{{- if or (.Values.taskManager.volumeMounts) (.Values.savepoints.enabled) }}
     volumeMounts:
+{{- end }}
+{{- if .Values.savepoints.enabled }}
+      - name: savepoint-storage
+        mountPath: {{ .Values.savepoints.savepointDir }}
+{{- end }}
+{{- if .Values.taskManager.volumeMounts }}
 {{ toYaml .Values.taskManager.volumeMounts | indent 6}}
 {{- end }}
 {{- if .Values.taskManager.metrics.enabled }}
@@ -75,12 +101,25 @@ spec:
       afterJobFails: {{ .Values.job.cleanupPolicy.afterJobSucceeds}}
       afterJobCancelled: {{ .Values.job.cleanupPolicy.afterJobSucceeds}}
       afterJobSucceeds: {{ .Values.job.cleanupPolicy.afterJobSucceeds}}
-{{- if .Values.job.volumes }}
+{{- if or (.Values.job.volumes) (.Values.savepoints.enabled) }}
     volumes:
+{{- end }}
+{{- if .Values.savepoints.enabled }}
+      - name: savepoint-storage
+        persistentVolumeClaim:
+          claimName: {{ template "flink-job-cluster.fullname" . }}-savepoint
+{{- end }}
+{{- if .Values.job.volumes }}
 {{ toYaml .Values.job.volumes | indent 6}}
 {{- end }}
-{{- if .Values.job.volumeMounts }}
+{{- if or (.Values.job.volumeMounts) (.Values.savepoints.enabled) }}
     volumeMounts:
+{{- end }}
+{{- if .Values.savepoints.enabled }}
+      - name: savepoint-storage
+        mountPath: {{ .Values.savepoints.savepointDir }}
+{{- end }}
+{{- if .Values.job.volumeMounts }}
 {{ toYaml .Values.job.volumeMounts | indent 6}}
 {{- end }}
     {{- if .Values.job.initContainers.enabled }}
