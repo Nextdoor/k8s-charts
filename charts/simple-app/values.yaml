@@ -76,6 +76,9 @@ proxySidecar:
     # -- (String) Always, Never or IfNotPresent
     pullPolicy: IfNotPresent
 
+  # -- https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#hook-handler-execution
+  terminationGracePeriodSeconds: null
+
   # -- Environment Variables for the primary container. These are all run
   # through the tpl function (the key name and value), so you can dynamically
   # name resources as you need.
@@ -137,6 +140,9 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
+
+# -- https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#hook-handler-execution
+terminationGracePeriodSeconds: null
 
 # -- Environment Variables for the primary container. These are all run
 # through the tpl function (the key name and value), so you can dynamically
