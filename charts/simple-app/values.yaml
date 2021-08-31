@@ -175,6 +175,15 @@ podAnnotations: {}
 podSecurityContext: {}
   # fsGroup: 2000
 
+# -- https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#min-ready-seconds
+minReadySeconds: null
+
+# -- https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#progress-deadline-seconds
+progressDeadlineSeconds: null
+
+# -- https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+deploymentStrategy: {}
+
 securityContext: {}
   # capabilities:
   #   drop:
