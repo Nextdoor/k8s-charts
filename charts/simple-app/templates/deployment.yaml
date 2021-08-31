@@ -5,6 +5,12 @@ metadata:
   labels:
     {{- include "simple-app.labels" . | nindent 4 }}
 spec:
+  {{- with .Values.minReadySeconds }}
+  minReadySeconds: {{ . }}
+  {{- end }}
+  {{- with .Values.progressDeadlineSeconds }}
+  progressDeadlineSeconds: {{ . }}
+  {{- end }}
   {{- if and .Values.replicaCount (not .Values.autoscaling.enabled) }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
@@ -14,6 +20,10 @@ spec:
   selector:
     matchLabels:
       {{- include "simple-app.selectorLabels" . | nindent 6 }}
+  {{- with .Values.deploymentStrategy }}
+  strategy:
+    {{- toYaml . | nindent 8 }}
+  {{- end }}
   template:
     metadata:
       annotations:
@@ -75,16 +85,6 @@ spec:
         {{- tpl (toYaml .) $ | nindent 8 }}
         {{- end }}
     spec:
-      {{- with .Values.minReadySeconds }}
-      minReadySeconds: {{ . }}
-      {{- end }}
-      {{- with .Values.progressDeadlineSeconds }}
-      progressDeadlineSeconds: {{ . }}
-      {{- end }}
-      {{- with .Values.deploymentStrategy }}
-      strategy:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -105,10 +105,13 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "simple-app.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       {{- if or .Values.volumes .Values.volumesString }}
+      serviceAccountName: {{ include "simple-app.serviceAccountName" . }}
+      {{- with .Values.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ . }}
+      {{- end }}
       volumes:
         {{- with .Values.volumes }}{{ toYaml . | nindent 8 }}{{ end }}
         {{- with .Values.volumesString }}{{ tpl . $ | nindent 8 }}{{ end }}
@@ -118,9 +121,6 @@ spec:
         - name: {{ .Values.proxySidecar.name }}
           image: {{ include "simple-app.proxyImageFqdn" . }}
           imagePullPolicy: {{ .Values.proxySidecar.image.pullPolicy }}
-          {{- with .Values.proxySidecar.terminationGracePeriodSeconds }}
-          terminationGracePeriodSeconds: {{ . }}
-          {{- end }}
           {{- with .Values.proxySidecar.envFrom }}
           envFrom:
             {{- range $env := index .}}
@@ -172,9 +172,6 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- with .Values.terminationGracePeriodSeconds }}
-          terminationGracePeriodSeconds: {{ . }}
-          {{- end }}
           {{- with .Values.envFrom }}
           envFrom:
             {{- range $env := index .}}
