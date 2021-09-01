@@ -121,6 +121,14 @@ spec:
         - name: {{ .Values.proxySidecar.name }}
           image: {{ include "simple-app.proxyImageFqdn" . }}
           imagePullPolicy: {{ .Values.proxySidecar.image.pullPolicy }}
+          {{- with .Values.preStopCommand }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  {{ toYaml . | nindent 18 }}
+          {{- end }}
+
           {{- with .Values.proxySidecar.envFrom }}
           envFrom:
             {{- range $env := index .}}
@@ -172,6 +180,13 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.preStopCommand }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  {{- toYaml . | nindent 18 }}
+          {{- end }}
           {{- with .Values.envFrom }}
           envFrom:
             {{- range $env := index .}}
