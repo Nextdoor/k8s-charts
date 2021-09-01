@@ -187,6 +187,16 @@ progressDeadlineSeconds: null
 # -- https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
 deploymentStrategy: {}
 
+# -- Before a pod gets terminated, Kubernetes sends a SIGTERM signal to every
+# container and waits for period of time (30s by default) for all containers to
+# exit gracefully. If your app doesn't handle the SIGTERM signal or if it
+# doesn't exit within the grace period, Kubernetes will kill the container and
+# any inflight requests that your app is processing will fail.
+# https://docs.flagger.app/tutorials/zero-downtime-deployments#graceful-shutdown
+preStopCommand:
+  - /bin/sleep
+  - '30'
+
 securityContext: {}
   # capabilities:
   #   drop:
