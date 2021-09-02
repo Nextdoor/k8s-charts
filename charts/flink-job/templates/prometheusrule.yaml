@@ -22,7 +22,7 @@ spec:
         flink_jobmanager_numRunningJobs{cluster="{{ $cluster }}", namespace="{{ $namespace }}"} < 1
       for: 10m
       labels:
-        severity: info
+        severity: {{ .Values.alerts.severity }}
     - alert: FlinkJobOutage
       annotations:
         summary: Flink job is down
@@ -36,7 +36,7 @@ spec:
         }[10m]) > 10000
       for: 10m
       labels:
-        severity: info
+        severity: {{ .Values.alerts.severity }}
     - alert: FlinkJobTooManyRestarts
       annotations:
         summary: Flink job has too many restarts
@@ -50,5 +50,19 @@ spec:
         }[30m]) > 2
       for: 10m
       labels:
-        severity: info
+        severity: {{ .Values.alerts.severity }}
+    - alert: FlinkCheckpointFailing
+      annotations:
+        summary: Flink fails to capture the checkpoint.
+        runbook_url: "{{ $values.defaults.runbookUrl }}#flinkcheckpointfailing"
+        description: >-
+          The job manager in {{ template "flink-job-cluster.fullname" . }} fails to capture checkpoint.
+      expr: >-
+        changes(flink_jobmanager_job_numberOfFailedCheckpoints{
+          cluster="{{ $cluster }}",
+          namespace="{{ $namespace }}"
+        }[10m]) > 0
+      for: 10m
+      labels:
+        severity: {{ .Values.alerts.severity }}
 {{- end -}}
