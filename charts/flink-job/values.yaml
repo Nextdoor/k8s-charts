@@ -147,7 +147,7 @@ flinkProperties:
   state.checkpoints.dir: file:/savepoint/
   taskmanager.numberOfTaskSlots: "1"
   kubernetes.cluster-id: "{{ .Values.fullnameOverride }}"
-  kubernetes.namespace: flink-sample-app
+  kubernetes.namespace: "{{ .Release.Namespace }}"
   high-availability: org.apache.flink.kubernetes.highavailability.KubernetesHaServicesFactory
   high-availability.storageDir: file:/savepoint/
   # metrics reporter "PrometheusReporter"
