@@ -40,6 +40,55 @@ spec:
         conditions.
         */}}
         proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+
+        {{- /*
+        If the service has any ports exposed at all, we're going to make the
+        Istio Sidecar wait to shut down until after the application stops
+        listening on the port. This ensures that the app is able to complete
+        whatever its shutdown process is (like flushing data out of memory to a
+        downstream source) before the network connectivity to the application
+        is cut off.
+        */}}
+        {{- if .Values.ports }}
+        {{- if .Values.istio.preStopCommand }}
+        proxy.istio.io/overrides: >-
+          {
+            "containers": [
+              {
+                "name": "istio-proxy",
+                "lifecycle": {
+                  "preStop": {
+                    "exec": {
+                      "command": {{ .Values.istio.preStopCommand | toJson }}
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        {{- else if gt (len .Values.ports) 0 }}
+        proxy.istio.io/overrides: >-
+          {
+            "containers": [
+              {
+                "name": "istio-proxy",
+                "lifecycle": {
+                  "preStop": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "while [ $(netstat -plunt | grep tcp | egrep -v 'envoy|pilot-agent' | wc -l | xargs) -ne 0 ]; do sleep 1; done"
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        {{- end }}
+        {{- end }}
+
         {{- /*
         If monitoring is enabled, and we're in an Istio environment, then we
         default to using the Isto metrics-merging feature where the sidecar
@@ -51,6 +100,7 @@ spec:
         prometheus.io/path: {{ .Values.monitor.path }}
         {{- end }}
         {{- end }}
+
 
         {{- /*
         If the datadog agent is enabled,
@@ -158,8 +208,10 @@ spec:
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- with .Values.ports }}
           ports:
-            {{- toYaml .Values.ports | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
@@ -249,7 +301,11 @@ spec:
           {{- if .Values.proxySidecar.enabled }}
           {{- else }}
           ports:
+            {{- if .Values.ports }}
+            {{- if gt (len .Values.ports) 0 }}
             {{- toYaml .Values.ports | nindent 12 }}
+            {{- end }}
+            {{- end }}
             {{- if .Values.monitor.enabled }}
             - name: {{ .Values.monitor.portName }}
               containerPort: {{ .Values.monitor.portNumber }}

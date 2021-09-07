@@ -9,3 +9,5 @@ ingress:
   sslRedirect: false
 
 terminationGracePeriodSeconds: 30
+istio:
+  enabled: true

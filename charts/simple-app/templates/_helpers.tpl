@@ -30,7 +30,7 @@ Create chart name and version as used by the chart label.
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
-{{/*
+{{- /*
 Common labels
 
 *app.kubernetes.io/<labels>*
@@ -62,7 +62,7 @@ tags.datadoghq.com/service: {{ default .Release.Name .Values.datadog.service | q
 tags.datadoghq.com/version: {{ $tag }}
 {{- end }}
 {{- end }}
-{{/*
+{{- /*
 https://docs.datadoghq.com/agent/cluster_agent/admission_controller/
 (Disabled for now, here for future reference. Disabled because we can get
 the same value through the Kubernetes downward API, which doesn't introduce
