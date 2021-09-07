@@ -32,10 +32,25 @@ Create chart name and version as used by the chart label.
 
 {{/*
 Common labels
+
+*app.kubernetes.io/<labels>*
+https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/
+
+*version*
+Istio recommends a generic "version" label, but we also think its just
+a nice generic label to add on top of the standard app.kubernetes.io/version
+label.
+
+*tags.datadoghq.com/<labels>*
+https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/?tab=kubernetes
 */}}
 {{- define "simple-app.labels" -}}
 {{- $_tag := default .Chart.AppVersion .Values.image.tag -}}
 {{- $tag  := $_tag | replace ":" "_" | trunc 63 | quote -}}
+{{- if not (hasKey .Values.podLabels "app") }}
+app: {{ .Release.Name }}
+{{- end }}
+version: {{ $tag }}
 helm.sh/chart: {{ include "simple-app.chart" . }}
 app.kubernetes.io/version: {{ $tag }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -45,15 +60,15 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 tags.datadoghq.com/env: {{ .Values.datadog.env | quote }}
 tags.datadoghq.com/service: {{ default .Release.Name .Values.datadog.service | quote }}
 tags.datadoghq.com/version: {{ $tag }}
-#
-# https://docs.datadoghq.com/agent/cluster_agent/admission_controller/
-# (Disabled for now, here for future reference. Disabled because we can get
-# the same value through the Kubernetes downward API, which doesn't introduce
-# a potential Pod launching failure point.)
+{{- end }}
+{{- end }}
+{{/*
+https://docs.datadoghq.com/agent/cluster_agent/admission_controller/
+(Disabled for now, here for future reference. Disabled because we can get
+the same value through the Kubernetes downward API, which doesn't introduce
+a potential Pod launching failure point.)
 # admission.datadoghq.com/enabled: "true"
-#
-{{- end }}
-{{- end }}
+*/}}
 
 {{/*
 Selector labels
