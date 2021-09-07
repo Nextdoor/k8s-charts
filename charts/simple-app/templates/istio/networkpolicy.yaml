@@ -1,4 +1,5 @@
-{{- if .Values.virtualService.enabled }}
+{{- if and .Values.virtualService.enabled .Values.ports }}
+{{- if gt (len .Values.ports) 0 }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -21,4 +22,5 @@ spec:
           podSelector:
             matchLabels:
               app: istio-ingressgateway
+{{- end }}
 {{- end }}
