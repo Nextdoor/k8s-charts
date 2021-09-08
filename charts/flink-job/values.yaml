@@ -198,6 +198,7 @@ savepoints:
 alerts:
   # -- (Boolean) whether to create the PrometheusRule for this flink cluster
   enabled: true
+  severity: info
 
 defaults:
   # -- (String) Runbook URL for the Prometheus alerts
