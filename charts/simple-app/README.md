@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.13.7](https://img.shields.io/badge/Version-0.13.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.13.8](https://img.shields.io/badge/Version-0.13.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -108,7 +108,7 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | podLabels | object | `{}` | (`Map`) List of Labels to be added to the PodSpec |
 | podSecurityContext | object | `{}` |  |
 | ports | list | `[{"containerPort":80,"name":"http","protocol":"TCP"},{"containerPort":443,"name":"https","protocol":"TCP"}]` | A list of Port objects that are exposed by the service. These ports are applied to the main container, or the proxySidecar container (if enabled). The port list is also used to generate Network Policies that allow ingress into the pods. |
-| preStopCommand | list | `["/bin/sleep","30"]` | Before a pod gets terminated, Kubernetes sends a SIGTERM signal to every container and waits for period of time (30s by default) for all containers to exit gracefully. If your app doesn't handle the SIGTERM signal or if it doesn't exit within the grace period, Kubernetes will kill the container and any inflight requests that your app is processing will fail. https://docs.flagger.app/tutorials/zero-downtime-deployments#graceful-shutdown |
+| preStopCommand | list | `["/bin/sleep","10"]` | Before a pod gets terminated, Kubernetes sends a SIGTERM signal to every container and waits for period of time (10s by default) for all containers to exit gracefully. If your app doesn't handle the SIGTERM signal or if it doesn't exit within the grace period, Kubernetes will kill the container and any inflight requests that your app is processing will fail. Make sure you set this to SHORTER than the terminationGracePeriod (30s default) setting. https://docs.flagger.app/tutorials/zero-downtime-deployments#graceful-shutdown |
 | progressDeadlineSeconds | string | `nil` | https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#progress-deadline-seconds |
 | proxySidecar.enabled | bool | `false` | (Boolean) Enables injecting a pre-defined reverse proxy sidecar container into the Pod containers list. |
 | proxySidecar.env | list | `[]` | Environment Variables for the primary container. These are all run through the tpl function (the key name and value), so you can dynamically name resources as you need. |
