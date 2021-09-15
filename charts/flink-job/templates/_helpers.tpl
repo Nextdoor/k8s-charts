@@ -69,3 +69,14 @@ Image name
 {{- .Values.image.repository }}:{{ $tag }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "flink-job.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "flink-job-cluster.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
