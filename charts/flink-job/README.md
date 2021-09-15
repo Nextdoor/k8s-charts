@@ -2,7 +2,7 @@
 
 Flink job cluster on k8s
 
-![Version: 0.0.3](https://img.shields.io/badge/Version-0.0.3-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
+![Version: 0.0.4](https://img.shields.io/badge/Version-0.0.4-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
 
 This chart deploys a flink job cluster and runs a simple word counting flink app as an example.
 This chart includes some production ready set-ups such as
@@ -47,7 +47,8 @@ See metrics reporter in the flink properties for more details.
 | savepoints | object | `{"enabled":true,"savepointDir":"/savepoint"}` | Configuration of the automatic savepoints |
 | savepoints.enabled | bool | `true` | (Boolean) Automatically creates a volume and mount the volume on task manager and job manager pods |
 | savepoints.savepointDir | string | `"/savepoint"` | (String) The mount path of the savepoint volume |
-| serviceAccount.create | bool | `true` | (Boolean) whether to create the ServiceAccount we associate with the IAM Role. |
+| serviceAccount.create | bool | `true` | (Boolean) Specifies whether a service account should be created |
+| serviceAccount.name | string | `""` | (String) The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
 | taskManager.metrics | object | `{"enabled":true,"extraPorts":[{"containerPort":9249,"name":"prom","protocol":"TCP"}]}` | Prometheus metrics ports for taskManager |
 | taskManager.replicas | int | `1` | (`int`) The number of TaskManager replicas |
 | taskManager.resources | object | `{"limits":{"cpu":"2","memory":"1500Mi"},"requests":{"cpu":"100m","memory":"1000Mi"}}` | Compute resources required by TaskManager containers |
