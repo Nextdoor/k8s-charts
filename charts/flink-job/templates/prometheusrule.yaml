@@ -47,7 +47,7 @@ spec:
         changes(flink_jobmanager_job_numRestarts{
           cluster="{{ $cluster }}",
           namespace="{{ $namespace }}"
-        }[30m]) > 2
+        }[30m]) > {{ .Values.alerts.restartsLimit }}
       for: 10m
       labels:
         severity: {{ .Values.alerts.severity }}
