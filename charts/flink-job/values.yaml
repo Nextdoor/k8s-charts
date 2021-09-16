@@ -199,9 +199,12 @@ savepoints:
   enabled: true
 
 alerts:
-  # -- (Boolean) whether to create the PrometheusRule for this flink cluster
+  # -- (Boolean) Specifies whether to create the PrometheusRule for this flink cluster
   enabled: true
+  # -- (String) Severity of the alerts
   severity: info
+  # -- (`int`) The number of job restarts before alerting
+  restartsLimit: 2
 
 defaults:
   # -- (String) Runbook URL for the Prometheus alerts
