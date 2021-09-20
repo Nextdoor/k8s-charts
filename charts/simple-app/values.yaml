@@ -264,6 +264,12 @@ virtualService:
   # details.
   annotations: {}
 
+  # -- (`map`) If set, this will populate the corsPolicy setting for the
+  # VirtualService. See
+  # https://istio.io/latest/docs/reference/config/networking/virtual-service/#CorsPolicy
+  # for more details.
+  corsPolicy: null
+
   # -- A list of destination hostnames that this VirtualService will accept
   # traffic for. Multiple names can be listed here. See
   # https://istio.io/latest/docs/reference/config/networking/virtual-service/#VirtualService
