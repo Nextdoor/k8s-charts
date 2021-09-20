@@ -286,6 +286,12 @@ virtualService:
   # against to pass to the default `Service` object in this deployment.
   path: '/'
 
+  # -- (`string[]`) List of optional path prefixes that the `VirtualService`
+  # will use to match requests against and will pass to the `Service` object in
+  # this deployment. This list replaces the `path` prefix above - use one or
+  # the other, do not use both.
+  paths: []
+
   # -- This is the backing Pod port _number_ to route traffic to. This must
   # match a `containerPort` in the `Values.ports` list.
   port: 80
