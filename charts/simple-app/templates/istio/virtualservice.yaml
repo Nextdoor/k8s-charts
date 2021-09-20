@@ -26,8 +26,15 @@ spec:
   http:
     - match:
       {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPMatchRequest */}}
+      {{- if .Values.virtualService.paths }}
+      {{- range $path := .Values.virtualService.paths }}
+      - uri:
+          prefix: {{ $path }}
+      {{- end }}
+      {{- else }}
       - uri:
           prefix: {{ .Values.virtualService.path }}
+      {{- end }}
       {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRouteDestination */}}
       route:
         - destination:
