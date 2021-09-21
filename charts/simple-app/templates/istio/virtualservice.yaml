@@ -34,6 +34,7 @@ spec:
       {{- else }}
       - uri:
           prefix: {{ .Values.virtualService.path }}
+      {{- end }}
       {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#CorsPolicy */}}
       {{- with .Values.virtualService.corsPolicy }}
       corsPolicy:
