@@ -268,7 +268,15 @@ virtualService:
   # VirtualService. See
   # https://istio.io/latest/docs/reference/config/networking/virtual-service/#CorsPolicy
   # for more details.
-  corsPolicy: null
+  corsPolicy: {}
+
+  # -- (`map[]`) A list of Istio `HTTPMatchRequest` objects that will be
+  # applied to the VirtualService. This is the more advanced and customizable
+  # way of controlling which paths get sent to your backend. These are added
+  # _in addition_ to the `paths` or `path` settings. See
+  # https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPMatchRequest
+  # for examples.
+  matches: {}
 
   # -- A list of destination hostnames that this VirtualService will accept
   # traffic for. Multiple names can be listed here. See
