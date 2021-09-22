@@ -85,7 +85,6 @@ jobManager:
       cpu: "100m"
     limits:
       memory: 1400Mi
-      cpu: "2"  # flinkcluster controller needs this quoted
 
 taskManager:
   # -- (`int`) The number of TaskManager replicas
@@ -105,7 +104,6 @@ taskManager:
       cpu: "100m"
     limits:
       memory: 1500Mi
-      cpu: "2"  # flinkcluster controller needs this quoted
   # -- Allow flink user to read volumes
   securityContext:
     fsGroup: 9999
