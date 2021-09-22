@@ -1,0 +1,13 @@
+# This role is granted to oncall engineers to allow modification of configmaps,
+# which we do not generally want to permit, but in namespaces that are running
+# flink, oncall engineers sometimes need to manually edit the configmaps that
+# the flink operator uses to persist state about the flink cluster.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Release.Name }}-operator
+  namespace: {{ .Release.Namespace }}
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["configmaps"]
+  verbs: ["patch"]
