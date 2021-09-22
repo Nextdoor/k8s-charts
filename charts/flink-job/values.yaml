@@ -207,3 +207,6 @@ alerts:
 defaults:
   # -- (String) Runbook URL for the Prometheus alerts
   runbookUrl: https://github.com/Nextdoor/k8s-charts/blob/main/charts/flink-job/runbook.md
+
+# -- (List) A list of groups to grant the operator-role to in the namespace the chart is installed in.
+operatorGroups: [system:masters]

@@ -5,9 +5,11 @@ metadata:
   name: {{ .Release.Name }}-operator-role-binding
   namespace: {{ .Release.Namespace }}
 subjects:
-- kind: Group
-  name: nd:oncall
-  namespace: {{ .Release.Namespace }}
+  {{- range $group := .Values.operatorGroups }}
+  - kind: Group
+     name: {{ $group }}
+     namespace: {{ .Release.Namespace }}
+  {{- end }}
 roleRef:
   kind: Role
   name: {{ .Release.Name }}-operator
