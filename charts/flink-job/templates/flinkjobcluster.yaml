@@ -73,6 +73,10 @@ spec:
 {{- if .Values.taskManager.volumeMounts }}
 {{ toYaml .Values.taskManager.volumeMounts | indent 6}}
 {{- end }}
+{{- if .Values.taskManager.volumeClaimTemplates }}
+    volumeClaimTemplates:
+{{ toYaml .Values.taskManager.volumeClaimTemplates | indent 6}}
+{{- end }}
 {{- if .Values.taskManager.metrics.enabled }}
     extraPorts:
 {{ toYaml .Values.taskManager.metrics.extraPorts | indent 6 }}    
