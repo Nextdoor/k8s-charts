@@ -1,5 +1,6 @@
 pvc:
   storageClassName: ''
+  storage: 10Mi
 
 alerts:
   enabled: false
