@@ -110,6 +110,12 @@ taskManager:
     runAsGroup: 9999
     runAsNonRoot: true
     runAsUser: 9999
+  # -- ('list') volumeClaimTemplates for the TaskManager pods
+  volumeClaimTemplates: []
+  # -- ('list') volumes for the TaskManager pods
+  volumes: []
+  # -- ('list') volumeMounts for the TaskManager containers
+  volumeMounts: []
 
 job:
   # -- (String) JAR file of the job
