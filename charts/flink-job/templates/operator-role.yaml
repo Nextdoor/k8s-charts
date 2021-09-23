@@ -10,4 +10,4 @@ metadata:
 rules:
 - apiGroups: [""] # "" indicates the core API group
   resources: ["configmaps"]
-  verbs: ["patch"]
+  verbs: ["patch", "update", "delete"]
