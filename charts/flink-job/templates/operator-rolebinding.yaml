@@ -7,8 +7,8 @@ metadata:
 subjects:
   {{- range $group := .Values.operatorGroups }}
   - kind: Group
-     name: {{ $group }}
-     namespace: {{ .Release.Namespace }}
+    name: {{ $group }}
+    namespace: {{ $.Release.Namespace }}
   {{- end }}
 roleRef:
   kind: Role
