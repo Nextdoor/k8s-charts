@@ -206,6 +206,10 @@ podMonitor:
       regex: task_attempt_id
     - action: labeldrop
       regex: tm_id
+
+  # -- (`int`) Per-scrape limit on number of scraped samples that will be accepted.
+  sampleLimit: 2000
+
 serviceAccount:
   # -- (Boolean) Specifies whether a service account should be created
   create: true
