@@ -3,6 +3,18 @@ entries:
   flink-job:
   - apiVersion: v2
     appVersion: "1.0"
+    created: "2021-09-24T00:52:38.195411301Z"
+    description: Flink job cluster on k8s
+    digest: 2e9c8afe85c1c43a633e80ca3b60de224156d72310725502b22b41c27e98c1d3
+    maintainers:
+    - email: albert@nextdoor.com
+      name: Zedive
+    name: flink-job
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/flink-job-0.1.1/flink-job-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: "1.0"
     created: "2021-09-23T18:23:05.36416745Z"
     description: Flink job cluster on k8s
     digest: c4bcbc2405ffb080fb5e129c2fb215d35f0ddaabb961d7c1e4d8d6b72310e580
