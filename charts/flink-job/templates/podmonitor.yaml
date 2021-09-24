@@ -27,7 +27,7 @@ spec:
       relabelings:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-  {{- with .Values.podMonitor.SampleLimit }}
-  SampleLimit: {{ . }}
+  {{- if .Values.podMonitor.sampleLimit }}
+  SampleLimit: {{ .Values.podMonitor.sampleLimit }}
   {{- end -}}
 {{- end -}}
