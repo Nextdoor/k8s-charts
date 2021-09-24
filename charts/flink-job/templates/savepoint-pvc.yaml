@@ -4,7 +4,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: {{ template "flink-job-cluster.fullname" . }}-savepoint
 spec:
-  storageClassName: {{ .Values.pvc.storageClassName }}
+  {{- with .Values.pvc.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
   accessModes:
     - ReadWriteMany
   resources:

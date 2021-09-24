@@ -6,3 +6,4 @@ helm-extra-args: --timeout 600s
 target-branch: main
 chart-repos:
   - strimzi=https://strimzi.io/charts/
+  - flink-operator=https://googlecloudplatform.github.io/flink-on-k8s-operator

@@ -180,9 +180,32 @@ podMonitor:
     matchLabels:
       app: flink
 
-  podMetricsEndpoints:
-  - port: prom
+  # -- (`string`) The name of the port exposed by the Flink Operator on the
+  # pods that has metrics.
+  portName: prom
 
+  # -- (`string`) The frequency in which to scrape metrics.
+  scrapeInterval: 15s
+
+  # -- (`map[]`) A list of Prometheus relabelings configs applied to the
+  # metrics before they are ingested by Prometheus. Use this to reduce
+  # cardinality of metrics based on labels that are not critical to monitor.
+  relabelings: []
+
+  # -- (`map[]`) A list of Prometheus metricRelablings configs applied to the
+  # metrics before they are ingested by Prometheus. Use this to reduce
+  # cardinality of metrics based on labels that are not critical to monitor.
+  #
+  # This default list removes the task_id. task_attempt_id, and tm_id
+  # labels from the metrics to drastically reduce the cardinality of the very
+  # verbose metrics.
+  metricRelabelings:
+    - action: labeldrop
+      regex: task_id
+    - action: labeldrop
+      regex: task_attempt_id
+    - action: labeldrop
+      regex: tm_id
 serviceAccount:
   # -- (Boolean) Specifies whether a service account should be created
   create: true
