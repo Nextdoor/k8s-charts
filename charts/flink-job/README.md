@@ -2,7 +2,7 @@
 
 Flink job cluster on k8s
 
-![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
+![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
 
 This chart deploys a flink job cluster and runs a simple word counting flink app as an example.
 This chart includes some production ready set-ups such as
@@ -51,6 +51,11 @@ See metrics reporter in the flink properties for more details.
 | podMonitor.sampleLimit | int | `2000` | (`int`) Per-scrape limit on number of scraped samples that will be accepted. |
 | podMonitor.scrapeInterval | string | `"15s"` | (`string`) The frequency in which to scrape metrics. |
 | pvc | object | `{"storage":"1Gi","storageClassName":"efs"}` | Configuration of the PersistentVolume for storing savepoints. |
+| pvcRocksdb | object | `{"enabled":false,"rocksdbDir":"/rocksdb","storage":"10Gi","storageClassName":"gp3-encrypted"}` | Configuration of rocksdb PVC |
+| pvcRocksdb.enabled | bool | `false` | (`boolean`) whether to enable RocksDB PVC |
+| pvcRocksdb.rocksdbDir | string | `"/rocksdb"` | (`string`) The mount path of the rocksdb volume |
+| pvcRocksdb.storage | string | `"10Gi"` | (`string`) The size of the storage |
+| pvcRocksdb.storageClassName | string | `"gp3-encrypted"` | (`string`) The class name of the storage. The list of available storage classes is from `k get storageclasses` |
 | savepoints | object | `{"enabled":true,"savepointDir":"/savepoint"}` | Configuration of the automatic savepoints |
 | savepoints.enabled | bool | `true` | (Boolean) Automatically creates a volume and mount the volume on task manager and job manager pods |
 | savepoints.savepointDir | string | `"/savepoint"` | (String) The mount path of the savepoint volume |

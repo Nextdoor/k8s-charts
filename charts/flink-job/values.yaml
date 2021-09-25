@@ -229,6 +229,18 @@ savepoints:
   # -- (Boolean) Automatically creates a volume and mount the volume on task manager and job manager pods
   enabled: true
 
+# -- Configuration of rocksdb PVC
+pvcRocksdb:
+  # -- (`boolean`) whether to enable RocksDB PVC
+  enabled: false
+  # -- (`string`) The mount path of the rocksdb volume
+  rocksdbDir: "/rocksdb"
+  # -- (`string`) The class name of the storage.
+  # The list of available storage classes is from `k get storageclasses`
+  storageClassName: gp3-encrypted
+  # -- (`string`) The size of the storage
+  storage: 10Gi
+
 alerts:
   # -- (Boolean) Specifies whether to create the PrometheusRule for this flink cluster
   enabled: true

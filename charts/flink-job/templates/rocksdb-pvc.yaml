@@ -1,0 +1,15 @@
+{{- if .Values.pvcRocksdb.enabled -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "flink-job-cluster.fullname" . }}-rocksdb
+spec:
+  {{- with .Values.pvcRocksdb.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.pvcRocksdb.storage }}
+  {{- end -}}

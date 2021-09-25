@@ -60,6 +60,11 @@ spec:
         persistentVolumeClaim:
           claimName: {{ template "flink-job-cluster.fullname" . }}-savepoint
 {{- end }}
+{{- if .Values.pvcRocksdb.enabled }}
+      - name: rocksdb-storage
+        persistentVolumeClaim:
+          claimName: {{ template "flink-job-cluster.fullname" . }}-rocksdb
+{{- end }}
 {{- if .Values.taskManager.volumes }}
 {{ toYaml .Values.taskManager.volumes | indent 6}}
 {{- end }}
@@ -69,6 +74,10 @@ spec:
 {{- if .Values.savepoints.enabled }}
       - name: savepoint-storage
         mountPath: {{ .Values.savepoints.savepointDir }}
+{{- end }}
+{{- if .Values.pvcRocksdb.enabled }}
+      - name: rocksdb-storage
+        mountPath: {{ .Values.pvcRocksdb.rocksdbDir }}
 {{- end }}
 {{- if .Values.taskManager.volumeMounts }}
 {{ toYaml .Values.taskManager.volumeMounts | indent 6}}
