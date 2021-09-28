@@ -157,11 +157,11 @@ spec:
       {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if or .Values.volumes .Values.volumesString }}
       serviceAccountName: {{ include "simple-app.serviceAccountName" . }}
       {{- with .Values.terminationGracePeriodSeconds }}
       terminationGracePeriodSeconds: {{ . }}
       {{- end }}
+      {{- if or .Values.volumes .Values.volumesString }}
       volumes:
         {{- with .Values.volumes }}{{ toYaml . | nindent 8 }}{{ end }}
         {{- with .Values.volumesString }}{{ tpl . $ | nindent 8 }}{{ end }}
