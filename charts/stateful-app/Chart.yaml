@@ -1,0 +1,9 @@
+apiVersion: v2
+name: stateful-app
+description: Default StatefulSet Helm Chart
+type: application
+version: 0.0.1
+appVersion: latest
+maintainers:
+  - name: diranged
+    email: matt@nextdoor.com

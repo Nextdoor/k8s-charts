@@ -1,0 +1,13 @@
+{{- if .Values.podDisruptionBudget -}}
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ template "stateful-app.fullname" . }}
+  labels:
+    {{- include "stateful-app.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "stateful-app.selectorLabels" . | nindent 8 }}
+  {{ toYaml .Values.podDisruptionBudget | nindent 2 }}
+{{- end }}

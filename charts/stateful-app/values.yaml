@@ -1,0 +1,466 @@
+# -- (`string`) podManagementPolicy controls how pods are created during
+# initial scale up, when replacing pods on nodes, or when scaling down. The
+# default policy is `OrderedReady`, where pods are created in increasing order
+# (pod-0, then pod-1, etc) and the controller will wait until each pod is ready
+# before continuing. When scaling down, the pods are removed in the opposite
+# order. The alternative policy is `Parallel` which will create pods in
+# parallel to match the desired scale without waiting, and on scale down will
+# delete all pods at once.
+podManagementPolicy: null
+
+# -- (`int`) The number of Pods to start up by default. If the
+# `autoscaling.enabled` parameter is set, then this serves as the "start
+# scale" for an application. Setting this to `null` prevents the setting from
+# being applied at all in the PodSpec, leaving it to Kubernetes to use the
+# default value (1). https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#replicas
+replicaCount: null
+
+# -- (`int`) The default revisionHistoryLimit in Kubernetes is 10 - which is
+# just really noisy. Set our default to 3. https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy
+revisionHistoryLimit: 3
+
+# -- (`StatefulSetUpdateStrategy`) updateStrategy indicates the
+# StatefulSetUpdateStrategy that will be employed to update Pods in the
+# StatefulSet when a revision is made to Template.
+#
+# https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#statefulsetupdatestrategy-v1-apps
+updateStrategy: null
+
+# -- (`PersistentVolumeClaim[]`) volumeClaimTemplates is a list of claims that
+# pods are allowed to reference. The StatefulSet controller is responsible for
+# mapping network identities to claims in a way that maintains the identity of
+# a pod. Every claim in this list must have at least one matching (by name)
+# volumeMount in one container in the template. A claim in this list takes
+# precedence over any volumes in the template, with the same name.
+#
+# https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#persistentvolumeclaim-v1-core
+volumeClaimTemplates: null
+
+# -- Set up a PodDisruptionBudget for the Deployment. See
+# https://kubernetes.io/docs/tasks/run-application/configure-pdb/ for more
+# details.
+podDisruptionBudget: {}
+
+image:
+  # -- (String) The Docker image name and repository for your application
+  repository: nginx
+
+  # -- (String) Always, Never or IfNotPresent
+  pullPolicy: IfNotPresent
+
+  # -- (String) Overrides the image tag whose default is the chart appVersion.
+  tag: null
+
+# -- The command run by the container. This overrides `ENTRYPOINT`. If not
+# specified, the container's default entrypoint is used. The exact rules of how
+# commadn and args are interpreted can be # found at:
+# https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/
+command: []
+
+# -- The arguments passed to the command. If unspecified the container defaults
+# are used. The exact rules of how commadn and args are interpreted can be #
+# found at:
+# https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/
+args: []
+
+# -- A list of 'volumes' that can be mounted into the Pod. See
+# https://kubernetes.io/docs/concepts/storage/volumes/.
+volumes: []
+
+# -- A stringified list of 'volumes' similar to the `Values.volumes` parameter,
+# but this one gets run through the `tpl` function so that you can use
+# templatized values if you need to. See
+# https://kubernetes.io/docs/concepts/storage/volumes/.
+volumesString: ""
+# eg:
+#
+# volumesString: |-
+#   - name: test-html-mount
+#     configMap:
+#       name: "{{ include "stateful-app.fullname" . }}-test-map"
+
+# An optional proxy sidecar configuration is provided - but its a rough
+# beginning here, it doesn't provide any real configuration for the proxy, so
+# we expect that the proxy container is preconfigured (for example,
+# Okta-proxy). In the future we'll add support in for creating ConfigMaps and
+# Secrets that can be bound into the sidecar container for a more complete
+# solution.
+proxySidecar:
+  # -- (Boolean) Enables injecting a pre-defined reverse proxy sidecar
+  # container into the Pod containers list.
+  enabled: false
+
+  # -- (String) The name of the proxy sidecar container
+  name: proxy
+
+  image:
+    # -- (String) The Docker image name and repository for the sidecar
+    repository: nginx
+
+    # -- (String) The Docker tag for the sidecar
+    tag: latest
+
+    # -- (String) Always, Never or IfNotPresent
+    pullPolicy: IfNotPresent
+
+  # -- Environment Variables for the primary container. These are all run
+  # through the tpl function (the key name and value), so you can dynamically
+  # name resources as you need.
+  env: []
+
+  # -- Pull all of the environment variables listed in a ConfigMap into the
+  # Pod. See
+  # https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables
+  # for more details.
+  envFrom: []
+
+  # -- List of VolumeMounts that are applied to the proxySidecar container -
+  # these must refer to volumes set in the `Values.volumes` parameter.
+  volumeMounts: []
+
+  # -- A PodSpec "Resources" object for the proxy container
+  resources: {}
+
+# -- A PodSpec container "livenessProbe" configuration object. Note that this
+# livenessProbe will be applied to the proxySidecar container instead if that
+# is enabled.
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+
+# -- A PodSpec container "readinessProbe" configuration object. Note that this
+# readinessProbe will be applied to the proxySidecar container instead if that
+# is enabled.
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+# -- A list of Port objects that are exposed by the service. These ports are
+# applied to the main container, or the proxySidecar container (if enabled).
+# The port list is also used to generate Network Policies that allow ingress
+# into the pods.
+ports:
+  - name: http
+    containerPort: 80
+    protocol: TCP
+  - name: https
+    containerPort: 443
+    protocol: TCP
+
+# -- Supply a reference to a Secret that can be used by Kubernetes to pull down
+# the Docker image. This is only used in local development, in combination with
+# our `kube_create_ecr_creds` function from dotfiles.
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# -- https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#hook-handler-execution
+terminationGracePeriodSeconds: null
+
+# -- Environment Variables for the primary container. These are all run
+# through the tpl function (the key name and value), so you can dynamically
+# name resources as you need.
+env: []
+  # Example
+  # - name: VAR
+  #   value: MyString
+  #
+  # - name: MY-DYNAMIC-VAR-{{ .Release.Name }}
+  #   value:
+  #     secretKeyRef:
+  #       name: {{ .Release.Name }}-secret
+  #       key: foo
+  #
+
+# -- Pull all of the environment variables listed in a ConfigMap into the
+# Pod. See
+# https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables
+# for more details.
+envFrom: []
+  # Example:
+  # - configMapRef:
+  #     name: my-config-vars
+
+# -- List of VolumeMounts that are applied to the application container -
+# these must refer to volumes set in the `Values.volumes` parameter.
+volumeMounts: []
+
+# -- (`Map`) List of Labels to be added to the PodSpec
+podLabels: {}
+
+# -- (`Map`) List of Annotations to be added to the PodSpec
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+# -- https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+deploymentStrategy: {}
+
+# -- Before a pod gets terminated, Kubernetes sends a SIGTERM signal to every
+# container and waits for period of time (10s by default) for all containers to
+# exit gracefully. If your app doesn't handle the SIGTERM signal or if it
+# doesn't exit within the grace period, Kubernetes will kill the container and
+# any inflight requests that your app is processing will fail.
+#
+# Make sure you set this to SHORTER than the terminationGracePeriod (30s
+# default) setting.
+#
+# https://docs.flagger.app/tutorials/zero-downtime-deployments#graceful-shutdown
+preStopCommand:
+  - /bin/sleep
+  - '10'
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+
+# Configuration for creating a dedicated ALB for your service. This is
+# acceptable - but not the preferred method (see the IngressGateway setup
+# below).
+ingress:
+  enabled: false
+
+  # -- Any annotations you wish to add to the ALB. See
+  # https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.2/guide/ingress/annotations/
+  # for more details.
+  annotations: {}
+
+  # -- This setting configures the ALB to listen specifically to requests for
+  # this hostname. It _also_ ties into the external-dns controller and
+  # automatically provisions DNS hostnames matching this value (presuming that
+  # they are allowed by the cluster settings).
+  host: '{{ include "stateful-app.fullname" . }}.{{ .Release.Namespace }}'
+
+  # -- https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types
+  pathType: Prefix
+
+  # -- See the `ingress.pathType` setting documentation.
+  path: '/'
+
+  # -- If `true`, then this will annotate the Ingress with a special AWS ALB
+  # Ingress Controller annotation that configures an SSL-redirect at the ALB
+  # level.
+  sslRedirect: true  # ties into "actions.ssl-redirect" above
+
+  # -- This is the port "name" that the `Service` will point to on the backing
+  # Pods. This value must match one of the values of `.name` in the
+  # `Values.ports` configuration.
+  portName: http
+
+  # -- If set, this will override the `service.portName` parameter, and the
+  # `Service` object will point specifically to this port number on the backing
+  # Pods.
+  port: null
+
+# Configuration for creating a VirtualService inside the Istio Service Mesh
+# Ingress Gateways. This is the preferred method for exposing a service because
+# we have far greater visbility and granularity into the performance, it costs
+# less, and deployments are actually faster this way.
+virtualService:
+  # -- (Boolean) Maps the Service to an Istio IngressGateway, exposing the
+  # service outside of the Kubernetes cluster.
+  enabled: false
+
+  # -- Any annotations you wish to add to the `VirtualService` resource. See
+  # https://istio.io/latest/docs/reference/config/annotations/ for more
+  # details.
+  annotations: {}
+
+  # -- (`map`) If set, this will populate the corsPolicy setting for the
+  # VirtualService. See
+  # https://istio.io/latest/docs/reference/config/networking/virtual-service/#CorsPolicy
+  # for more details.
+  corsPolicy: {}
+
+  # -- (`map[]`) A list of Istio `HTTPMatchRequest` objects that will be
+  # applied to the VirtualService. This is the more advanced and customizable
+  # way of controlling which paths get sent to your backend. These are added
+  # _in addition_ to the `paths` or `path` settings. See
+  # https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPMatchRequest
+  # for examples.
+  matches: {}
+
+  # -- A list of destination hostnames that this VirtualService will accept
+  # traffic for. Multiple names can be listed here. See
+  # https://istio.io/latest/docs/reference/config/networking/virtual-service/#VirtualService
+  # for more details.
+  hosts:
+    - '{{ include "stateful-app.fullname" . }}'
+
+  # -- The name of the Istio `Gateway` resource that this `VirtualService`
+  # will register with. You can get a list of the avaialable `Gateways` by
+  # running `kubectl -n istio-system get gateways`. Not specifying a Gateway
+  # means that you are creating a VirtualService routing definition only inside
+  # of the Kubernetes cluster, which is totally reasonable if you want to do
+  # that.
+  gateways: []
+
+  # -- The namespace where the Istio services are operating. Do not change this.
+  namespace: istio-system
+
+  # -- The default path prefix that the `VirtualService` will match requests
+  # against to pass to the default `Service` object in this deployment.
+  path: '/'
+
+  # -- (`string[]`) List of optional path prefixes that the `VirtualService`
+  # will use to match requests against and will pass to the `Service` object in
+  # this deployment. This list replaces the `path` prefix above - use one or
+  # the other, do not use both.
+  paths: []
+
+  # -- This is the backing Pod port _number_ to route traffic to. This must
+  # match a `containerPort` in the `Values.ports` list.
+  port: 80
+
+  tls: ""
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+topologySpreadConstraints: []
+
+affinity: {}
+
+# Monitoring configuration for metric scraping against the Prometheus-style
+# metrics endpoint.
+monitor:
+  # -- (`bool`) If enabled, ServiceMonitor resources for Prometheus Operator
+  # are created or if `Values.istio.enabled` is `True`, then the appropriate
+  # Pod Annotations will be added for the istio-proxy sidecar container to
+  # scrape the metrics.
+  enabled: true
+
+  # -- (`string`) Name of the port to scrape for metrics - this is the name of
+  # the port that will be exposed in your `PodSpec` for scraping purposes.
+  portName: metrics
+
+  # -- (`int`) Number of the port to scrape for metrics - this port will be
+  # exposed in your `PodSpec` to ensure it can be scraped.
+  portNumber: 9090
+
+  # -- (`string`) Path to scrape metrics from within your Pod.
+  path: /metrics
+
+serviceMonitor:
+  # -- (`string`) Alternative namespace for ServiceMonitor resources.
+  namespace: null
+
+  # -- (`map`) ServiceMonitor annotations.
+  annotations: {}
+
+  # -- Additional ServiceMonitor labels.
+  labels: {}
+
+  # -- ServiceMonitor scrape interval
+  interval: null
+
+  # -- ServiceMonitor scrape timeout in Go duration format (e.g. 15s)
+  scrapeTimeout: null
+
+  # -- ServiceMonitor relabel configs to apply to samples before scraping
+  # https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig
+  relabelings: []
+
+  # -- ServiceMonitor will use http by default, but you can pick https as well
+  scheme: http
+
+  # -- ServiceMonitor will use these tlsConfig settings to make the health check requests
+  tlsConfig: null
+
+# Configuration that lets the chart know that it's operating inside of an Istio
+# service mesh or not. If it is, certain defaults are applied to various Pod
+# and other resource configurations.
+istio:
+  # -- (`bool`) Whether or not the service should be part of an Istio Service
+  # Mesh. If this is turned on and `Values.monitor.enabled=true`, then the
+  # Istio Sidecar containers will be configured to pull and merge the metrics
+  # from the application, rather than creating a new `ServiceMonitor` object.
+  enabled: false
+
+  # -- (`list <str>`) If supplied, this is the command that will be passed into
+  # the `istio-proxy` sidecar container as a pre-stop function. This is used to
+  # delay the shutdown of the istio-proxy sidecar in some way or another. Our
+  # own default behavior is applied if this value is not set - which is that
+  # the sidecar will wait until it does not see the application container
+  # listening on any TCP ports, and then it will shut down.
+  #
+  # eg:
+  # preStopCommand: [ /bin/sleep, "30" ]
+  preStopCommand: null
+
+# Configures labels and other parameters assuming that the Datadog Agent is
+# installed on the underlying hosts and is part of the Kubernetes cluster.
+datadog:
+  # -- (`bool`) Whether or not the various datadog labels and options should be
+  # included or not.
+  enabled: true
+
+  # -- (`string`) The "env" tag to configure for the application - this maps to
+  # the Datadog environment concept for isolating traces/apm data.
+  env: dev
+
+  # -- (`string`) If set, this configures the "service" tag. If this is not
+  # set, the tag defaults to the `.Release.Name` for the application.
+  service: null
+
+  # -- (`bool`) If true, then we will configure the Datadog agent to scrape
+  # metrics from the Pod (or the `istio-proxy` sidecar).
+  scrapeMetrics: false
+
+  # -- (`string`) The prefix to append to all metrics that are scraped by
+  # Datadog. We set this to one common value so that common metrics (like
+  # `istio_.*` or `go_.*`) are shared across all apps in Datadog for easier
+  # dashboard creation as well as comparision between applications.
+  metricsNamespace: eks
+
+tests:
+  connection:
+    # -- The command used to trigger the test.
+    command: ['curl', '--retry-connrefused', '--retry', '5']
+    # -- A list of arguments passed into the command. These are run through the tpl function.
+    args:
+      - '{{ include "stateful-app.fullname" . }}'
+    # By default, we actually use the source-image for the main application as
+    # the image for testing, This allows the image to contain its own "client"
+    # (curl, in this example) for testing the application. Alternatively, you
+    # can configure your own testing image.
+    image:
+      # -- Sets the image-name that will be used in the "connection"
+      # integration test. If this is left empty, then the .image.repository
+      # value will be used instead (and the .image.tag will also be used).
+      repository:
+      # -- Sets the tag that will be used in the "connection" integration test.
+      # If this is left empty, the default is "latest"
+      tag:
