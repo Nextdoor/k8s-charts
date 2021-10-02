@@ -1,0 +1,320 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "stateful-app.fullname" . }}
+  labels:
+    {{- include "stateful-app.labels" . | nindent 4 }}
+spec:
+  {{- with .Values.podManagementPolicy }}
+  podManagementPolicy: {{ . }}
+  {{- end }}
+  {{- with .Values.replicaCount }}
+  replicas: {{ . }}
+  {{- end }}
+  {{- with .Values.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ . }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "stateful-app.selectorLabels" . | nindent 6 }}
+  serviceName: {{ include "stateful-app.fullname" . }}
+  {{- with .Values.updateStrategy }}
+  updateStrategy:
+    {{- toYaml . | nindent 8 }}
+  {{- end }}
+  {{- with .Values.volumeClaimTemplates }}
+  volumeClaimTemplates:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.podAnnotations }}
+        {{- range $annotation, $value := index . }}
+        {{ $annotation }}: {{ tpl $value $ | quote }}
+        {{- end }}
+        {{- end }}
+
+        {{- if .Values.istio.enabled }}
+        {{- /*
+        Ensures that the application does not start up until after the Istio
+        proxy container is ready to pass traffic. This prevents race
+        conditions.
+        */}}
+        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+
+        {{- /*
+        If the service has any ports exposed at all, we're going to make the
+        Istio Sidecar wait to shut down until after the application stops
+        listening on the port. This ensures that the app is able to complete
+        whatever its shutdown process is (like flushing data out of memory to a
+        downstream source) before the network connectivity to the application
+        is cut off.
+        */}}
+        {{- if .Values.ports }}
+        {{- if .Values.istio.preStopCommand }}
+        proxy.istio.io/overrides: >-
+          {
+            "containers": [
+              {
+                "name": "istio-proxy",
+                "lifecycle": {
+                  "preStop": {
+                    "exec": {
+                      "command": {{ .Values.istio.preStopCommand | toJson }}
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        {{- else if gt (len .Values.ports) 0 }}
+        proxy.istio.io/overrides: >-
+          {
+            "containers": [
+              {
+                "name": "istio-proxy",
+                "lifecycle": {
+                  "preStop": {
+                    "exec": {
+                      "command": [
+                        "/bin/sh",
+                        "-c",
+                        "while [ $(netstat -plunt | grep tcp | egrep -v 'envoy|pilot-agent' | wc -l | xargs) -ne 0 ]; do sleep 1; done"
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        {{- end }}
+        {{- end }}
+
+        {{- /*
+        If monitoring is enabled, and we're in an Istio environment, then we
+        default to using the Isto metrics-merging feature where the sidecar
+        scrapes the metrics.
+        */}}
+        {{- if .Values.monitor.enabled }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ .Values.monitor.portNumber | quote }}
+        prometheus.io/path: {{ .Values.monitor.path }}
+        {{- end }}
+        {{- end }}
+
+
+        {{- /*
+        If the datadog agent is enabled,
+        */}}
+        {{- if and .Values.datadog.enabled .Values.monitor.enabled .Values.datadog.scrapeMetrics }}
+        {{- if .Values.istio.enabled }}
+        ad.datadoghq.com/istio-proxy.check_names: ['prometheus']
+        ad.datadoghq.com/istio-proxy.init_configs: '[{}]'
+        ad.datadoghq.com/istio-proxy.instances: |-
+          [
+            {
+              "prometheus_url": "http://%%host%%:15020/stats/prometheus",
+              "namespace": "{{ .Values.datadog.metricsNamespace }}"
+            }
+          ]
+        {{- else }}
+        ad.datadoghq.com/{{ .Chart.Name }}.check_names: ['prometheus']
+        ad.datadoghq.com/{{ .Chart.Name }}.init_configs: '[{}]'
+        ad.datadoghq.com/{{ .Chart.Name }}.instances: |-
+          [
+            {
+              "prometheus_url": "http://%%host%%:{{ .Values.monitor.portNumber }}{{ .Values.monitor.path }}",
+              "namespace": "{{ .Values.datadog.metricsNamespace }}"
+            }
+          ]
+
+        {{- end }}
+        {{- end }}
+      labels:
+        {{- include "stateful-app.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- tpl (toYaml .) $ | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      serviceAccountName: {{ include "stateful-app.serviceAccountName" . }}
+      {{- with .Values.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ . }}
+      {{- end }}
+      {{- if or .Values.volumes .Values.volumesString }}
+      volumes:
+        {{- with .Values.volumes }}{{ toYaml . | nindent 8 }}{{ end }}
+        {{- with .Values.volumesString }}{{ tpl . $ | nindent 8 }}{{ end }}
+      {{- end }}
+      containers:
+        {{- if .Values.proxySidecar.enabled }}
+        - name: {{ .Values.proxySidecar.name }}
+          image: {{ include "stateful-app.proxyImageFqdn" . }}
+          imagePullPolicy: {{ .Values.proxySidecar.image.pullPolicy }}
+          {{- with .Values.preStopCommand }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  {{ toYaml . | nindent 18 }}
+          {{- end }}
+
+          {{- with .Values.proxySidecar.envFrom }}
+          envFrom:
+            {{- range $env := index .}}
+            {{- with $env.configMapRef }}
+            - configMapRef:
+                name: {{ tpl (required ".name key must be set in configMapRef" .name) $ }}
+            {{- end }}
+            {{- with $env.secretRef }}
+            - secretRef:
+                name: {{ tpl (required ".name key must be set on secretRef" .name) $ }}
+            {{- end }}
+            {{- end }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.proxySidecar.env }}
+          env:
+            {{- range $env := index . }}
+            - name: {{ tpl $env.name $ }}
+              {{- if $env.value }}
+              value: {{ tpl $env.value $ | quote }}
+              {{- else if $env.valueFrom }}
+              valueFrom: {{ tpl (toYaml $env.valueFrom) $ | nindent 16 }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.proxySidecar.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.ports }}
+          ports:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.proxySidecar.resources | nindent 12 }}
+        {{- end }}
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: {{ include "stateful-app.imageFqdn" . }}
+          {{- with .Values.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.preStopCommand }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  {{- toYaml . | nindent 18 }}
+          {{- end }}
+          {{- with .Values.envFrom }}
+          envFrom:
+            {{- range $env := index .}}
+            {{- with $env.configMapRef }}
+            - configMapRef:
+                name: {{ tpl (required ".name key must be set in configMapRef" .name) $ }}
+            {{- end }}
+            {{- with $env.secretRef }}
+            - secretRef:
+                name: {{ tpl (required ".name key must be set on secretRef" .name) $ }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- if or .Values.env .Values.datadog.enabled }}
+          env:
+            {{- with .Values.env }}
+            {{- range $env := index . }}
+            - name: {{ tpl $env.name $ }}
+              {{- if $env.value }}
+              value: {{ tpl $env.value $ | quote }}
+              {{- else if $env.valueFrom }}
+              valueFrom: {{ tpl (toYaml $env.valueFrom) $ | nindent 16 }}
+              {{- end }}
+            {{- end }}
+            {{- end }}
+
+            {{- if .Values.datadog.enabled }}
+            # https://www.datadoghq.com/blog/monitor-kubernetes-docker/#instrument-your-code-to-send-metrics-to-dogstatsd
+            - name: DOGSTATSD_HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            # https://docs.datadoghq.com/agent/docker/apm/?tab=standard#docker-apm-agent-environment-variables
+            - name: DD_AGENT_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            # https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/?tab=kubernetes#full-configuration
+            - name: DD_ENV
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/env']
+            - name: DD_SERVICE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/service']
+            - name: DD_VERSION
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/version']
+            {{- end }}
+          {{- end }}
+
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.proxySidecar.enabled }}
+          {{- else }}
+          ports:
+            {{- if .Values.ports }}
+            {{- if gt (len .Values.ports) 0 }}
+            {{- toYaml .Values.ports | nindent 12 }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.monitor.enabled }}
+            - name: {{ .Values.monitor.portName }}
+              containerPort: {{ .Values.monitor.portNumber }}
+              protocol: TCP
+            {{- end }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}

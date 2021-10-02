@@ -1,0 +1,21 @@
+{{- if .Values.ports }}
+{{- if gt (len .Values.ports) 0 }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "stateful-app.fullname" . }}
+  labels:
+    {{- include "stateful-app.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    {{- range $port := .Values.ports }}
+    - port: {{ $port.containerPort }}
+      targetPort: {{ $port.name }}
+      protocol: {{ $port.protocol }}
+      name: {{ $port.name }}
+    {{- end }}
+  selector:
+    {{- include "stateful-app.selectorLabels" . | nindent 4 }}
+{{- end }}
+{{- end }}

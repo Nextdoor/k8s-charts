@@ -1,0 +1,26 @@
+{{- if and .Values.virtualService.enabled .Values.ports }}
+{{- if gt (len .Values.ports) 0 }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "stateful-app.fullname" . }}-ingressgateway-access
+  labels:
+    {{- include "stateful-app.labels" . | nindent 4 }}
+spec:
+  policyTypes: [Ingress]
+  podSelector:
+    matchLabels:
+      {{- include "stateful-app.selectorLabels" . | nindent 6 }}
+  ingress:
+    - ports:
+      {{- range $port := .Values.ports }}
+      - port: {{ $port.containerPort }}
+        protocol: {{ $port.protocol }}
+      {{- end }}
+      from:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              app: istio-ingressgateway
+{{- end }}
+{{- end }}
