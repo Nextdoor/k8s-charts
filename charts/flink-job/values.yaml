@@ -1,5 +1,8 @@
 # Default values for deploying a flink job cluster with the word counting app
 
+# -- (String) The Flink version to operate
+flinkVersion:
+
 image:
   # -- (String) The Flink image name and repository
   repository: flink
