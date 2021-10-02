@@ -8,7 +8,6 @@ spec:
   {{- with .Values.flinkVersion }}
   flinkVersion: {{ . }}
   {{- end }}
-#  flinkVersion: {{ .Values.flinkVersion }}
   image:
     name: {{ template "flink-job-cluster.imageFqdn" . }}
     pullPolicy: IfNotPresent
