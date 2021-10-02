@@ -799,4 +799,18 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/simple-app-0.1.1/simple-app-0.1.1.tgz
     version: 0.1.1
+  stateful-app:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2021-10-02T00:39:35.631692938Z"
+    description: Default StatefulSet Helm Chart
+    digest: f0d05cf93309e2e93fde4fdae955830caef7e8490565e700c0e397b556259f8d
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: stateful-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
+    version: 0.0.1
 generated: "2021-03-16T15:00:52.058533714Z"
