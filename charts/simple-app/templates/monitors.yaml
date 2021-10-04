@@ -23,4 +23,4 @@ spec:
          / sum(increase(istio_requests_total{destination_service_name="{{ include "simple-app.fullname" . }}"}[60s])) > {{ .Values.virtualService5xxMonitor.threshold }}
       for: {{ .Values.virtualService5xxMonitor.period }}
       labels:
-        severity: {{ .Values.alerts.severity }}
+        severity: {{ .Values.virtualService5xxMonitor.severity | default .Values.alerts.severity }}

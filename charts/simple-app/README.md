@@ -66,6 +66,7 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
+| alerts.severity | string | `"critical"` |  |
 | args | list | `[]` | The arguments passed to the command. If unspecified the container defaults are used. The exact rules of how commadn and args are interpreted can be # found at: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/ |
 | autoscaling.enabled | bool | `false` | Controls whether or not an HorizontalPodAutoscaler resource is created. |
 | autoscaling.maxReplicas | int | `100` | Sets the maximum number of Pods to run |
@@ -158,6 +159,7 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | virtualService5xxMonitor.enabled | bool | `true` | Whether to enable the monitor on 5xxs returned by the VirtualService. |
 | virtualService5xxMonitor.period | string | `"5m"` | How long to evaluate the rate of 5xxs over. |
 | virtualService5xxMonitor.runbookUrl | string | `nil` | The runbook URL for the 5xx alarm. |
+| virtualService5xxMonitor.severity | string | `nil` | Severity of the 5xx monitor |
 | virtualService5xxMonitor.threshold | float | `0.0005` | The threshold for considering the 5xx monitor to be alarming. Default is 0.05% error rate, i.e 99.95% reliabilty. |
 | volumeMounts | list | `[]` | List of VolumeMounts that are applied to the application container - these must refer to volumes set in the `Values.volumes` parameter. |
 | volumes | list | `[]` | A list of 'volumes' that can be mounted into the Pod. See https://kubernetes.io/docs/concepts/storage/volumes/. |

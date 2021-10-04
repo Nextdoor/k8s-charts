@@ -461,6 +461,9 @@ tests:
 # -- The URL of the runbook for this service.
 runbookUrl:
 
+alerts:
+  severity: critical
+
 virtualService5xxMonitor:
   # -- Whether to enable the monitor on 5xxs returned by the VirtualService.
   enabled: true
@@ -470,3 +473,5 @@ virtualService5xxMonitor:
   threshold: 0.0005
   # -- The runbook URL for the 5xx alarm.
   runbookUrl:
+  # -- Severity of the 5xx monitor
+  severity:
