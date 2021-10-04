@@ -24,3 +24,4 @@ spec:
       for: {{ .Values.virtualService5xxMonitor.period }}
       labels:
         severity: {{ .Values.virtualService5xxMonitor.severity | default .Values.alerts.severity }}
+{{- end }}
