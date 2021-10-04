@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.14.4](https://img.shields.io/badge/Version-0.14.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.14.5](https://img.shields.io/badge/Version-0.14.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -123,6 +123,7 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | replicaCount | `int` | `nil` | The number of Pods to start up by default. If the `autoscaling.enabled` parameter is set, then this serves as the "start scale" for an application. Setting this to `null` prevents the setting from being applied at all in the PodSpec, leaving it to Kubernetes to use the default value (1). https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#replicas |
 | resources | object | `{}` |  |
 | revisionHistoryLimit | int | `3` | (`int`) The default revisionHistoryLimit in Kubernetes is 10 - which is just really noisy. Set our default to 3. https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy |
+| runbookUrl | string | `nil` | The URL of the runbook for this service. |
 | securityContext | object | `{}` |  |
 | service.type | string | `"ClusterIP"` |  |
 | serviceAccount.annotations | object | `{}` |  |
@@ -154,6 +155,10 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | virtualService.paths | list | `[]` | (`string[]`) List of optional path prefixes that the `VirtualService` will use to match requests against and will pass to the `Service` object in this deployment. This list replaces the `path` prefix above - use one or the other, do not use both. |
 | virtualService.port | int | `80` | This is the backing Pod port _number_ to route traffic to. This must match a `containerPort` in the `Values.ports` list. |
 | virtualService.tls | string | `""` |  |
+| virtualService5xxMonitor.enabled | bool | `true` | Whether to enable the monitor on 5xxs returned by the VirtualService. |
+| virtualService5xxMonitor.period | string | `"5m"` | How long to evaluate the rate of 5xxs over. |
+| virtualService5xxMonitor.runbookUrl | string | `nil` | The runbook URL for the 5xx alarm. |
+| virtualService5xxMonitor.threshold | float | `0.0005` | The threshold for considering the 5xx monitor to be alarming. Default is 0.05% error rate, i.e 99.95% reliabilty. |
 | volumeMounts | list | `[]` | List of VolumeMounts that are applied to the application container - these must refer to volumes set in the `Values.volumes` parameter. |
 | volumes | list | `[]` | A list of 'volumes' that can be mounted into the Pod. See https://kubernetes.io/docs/concepts/storage/volumes/. |
 | volumesString | string | `""` | A stringified list of 'volumes' similar to the `Values.volumes` parameter, but this one gets run through the `tpl` function so that you can use templatized values if you need to. See https://kubernetes.io/docs/concepts/storage/volumes/. |

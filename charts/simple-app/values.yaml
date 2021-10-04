@@ -457,3 +457,16 @@ tests:
       # -- Sets the tag that will be used in the "connection" integration test.
       # If this is left empty, the default is "latest"
       tag:
+
+# -- The URL of the runbook for this service.
+runbookUrl:
+
+virtualService5xxMonitor:
+  # -- Whether to enable the monitor on 5xxs returned by the VirtualService.
+  enabled: true
+  # -- How long to evaluate the rate of 5xxs over.
+  period: 5m
+  # -- The threshold for considering the 5xx monitor to be alarming. Default is 0.05% error rate, i.e 99.95% reliabilty.
+  threshold: 0.0005
+  # -- The runbook URL for the 5xx alarm.
+  runbookUrl:
