@@ -9,7 +9,7 @@ image:
   # -- (String) The Flink image tag
   tag: 1.13.1
 
-# -- batchSchedulerName, see flink-on-k8s-operator docs.
+# -- (String) specifies the batch scheduler name for JobManager, TaskManager. If empty, no batch scheduling is enabled
 batchSchedulerName:
 
 # -- (String) The name of the flink cluster
@@ -130,6 +130,7 @@ job:
   className: org.apache.flink.streaming.examples.wordcount.WordCount
   # -- (List) Command-line args of the job
   args: ["--input", "./README.txt", "--output", "./OUTPUT.txt"]
+  # -- (String) Savepoint where to restore the job from. Unspecify if to restore from the latest savepoint
   fromSavepoint:
   # -- (`int`) Automatically take a savepoint to the savepointsDir in this given interval
   autoSavepointSeconds: 30
