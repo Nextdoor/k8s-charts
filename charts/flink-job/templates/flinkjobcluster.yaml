@@ -11,6 +11,7 @@ spec:
   image:
     name: {{ template "flink-job-cluster.imageFqdn" . }}
     pullPolicy: IfNotPresent
+  batchSchedulerName: {{ .Values.batchSchedulerName }}
   envVars:
 {{ toYaml .Values.envVars | indent 4 }}
   serviceAccountName: {{ template "flink-job-cluster.fullname" . }}
@@ -18,63 +19,64 @@ spec:
     accessScope: {{ .Values.jobManager.accessScope }}
     ports:
       ui: {{ .Values.jobManager.ports.ui }}
+      # TODO (Aaron/Albert) expose the other ports?
+{{- if .Values.jobManager.metrics.enabled }}
+    extraPorts:
+{{ toYaml .Values.jobManager.metrics.extraPorts | indent 6 }}
+{{- end }}
+    # TODO (Aaron/Albert) expose ingress?
+    resources:
+{{ toYaml .Values.jobManager.resources | indent 6 }}
+    # TODO (Aaron/Albert) expose memory configs?
 {{- if or (.Values.jobManager.volumes) (.Values.savepoints.enabled) }}
     volumes:
-{{- end }}
-{{- if .Values.savepoints.enabled }}
+  {{- if .Values.savepoints.enabled }}
       - name: savepoint-storage
         persistentVolumeClaim:
           claimName: {{ template "flink-job-cluster.fullname" . }}-savepoint
-{{- end }}
-{{- if .Values.jobManager.volumes }}
+  {{- end }}
+  {{- if .Values.jobManager.volumes }}
 {{ toYaml .Values.jobManager.volumes | indent 6}}
+  {{- end }}
 {{- end }}
 {{- if or (.Values.jobManager.volumeMounts) (.Values.savepoints.enabled) }}
     volumeMounts:
-{{- end }}
-{{- if .Values.savepoints.enabled }}
+  {{- if .Values.savepoints.enabled }}
       - name: savepoint-storage
         mountPath: {{ .Values.savepoints.savepointDir }}
-{{- end }}
-{{- if .Values.jobManager.volumeMounts }}
+  {{- end }}
+  {{- if .Values.jobManager.volumeMounts }}
 {{ toYaml .Values.jobManager.volumeMounts | indent 6}}
+  {{- end }}
 {{- end }}
-{{- if .Values.jobManager.metrics.enabled }}
-    extraPorts:
-{{ toYaml .Values.jobManager.metrics.extraPorts | indent 6 }}    
-{{- end }}    
-    resources:
-{{ toYaml .Values.jobManager.resources | indent 6 }}
-    podAnnotations:
-{{- with .Values.podAnnotations }}
-  {{- toYaml . | nindent 6 }}
-{{- end }}
+  # volumeClaimTemplates, initContainers, nodeSelector, tolerations, sideCars, podAnnotations not exposed
     podLabels:
 {{- with .Values.podLabels }}
   {{- toYaml . | nindent 6 }}
 {{- end }}
+  # securityContext, livenessProbe, readinessProbe not exposed
   taskManager:
     replicas: {{ .Values.taskManager.replicas }}
 {{- if or (.Values.taskManager.volumes) (.Values.savepoints.enabled) }}
     volumes:
-{{- end }}
-{{- if .Values.savepoints.enabled }}
+  {{- if .Values.savepoints.enabled }}
       - name: savepoint-storage
         persistentVolumeClaim:
           claimName: {{ template "flink-job-cluster.fullname" . }}-savepoint
-{{- end }}
-{{- if .Values.taskManager.volumes }}
+  {{- end }}
+  {{- if .Values.taskManager.volumes }}
 {{ toYaml .Values.taskManager.volumes | indent 6}}
+  {{- end }}
 {{- end }}
 {{- if or (.Values.taskManager.volumeMounts) (.Values.savepoints.enabled) }}
     volumeMounts:
-{{- end }}
-{{- if .Values.savepoints.enabled }}
+  {{- if .Values.savepoints.enabled }}
       - name: savepoint-storage
         mountPath: {{ .Values.savepoints.savepointDir }}
-{{- end }}
-{{- if .Values.taskManager.volumeMounts }}
+  {{- end }}
+  {{- if .Values.taskManager.volumeMounts }}
 {{ toYaml .Values.taskManager.volumeMounts | indent 6}}
+  {{- end }}
 {{- end }}
 {{- if .Values.taskManager.volumeClaimTemplates }}
     volumeClaimTemplates:
@@ -98,11 +100,20 @@ spec:
 {{ toYaml .Values.taskManager.securityContext | indent 6 }}
   job:
     jarFile: {{ .Values.job.jarFile }}
-    noLoggingToStdout: false
     className: {{ .Values.job.className }}
-    parallelism: {{ .Values.job.parallelism }}
-    savepointsDir: {{ .Values.job.savepointsDir }}
+    args: {{ .Values.job.args }}
+    {{-if .Values.job.fromSavepoint }}
+    fromSavepoint: {{ .Values.job.fromSavepoint }}
+    {{-end}}
     autoSavepointSeconds: {{ .Values.job.autoSavepointSeconds }}
+    savepointsDir: {{ .Values.job.savepointsDir }}
+    allowNonRestoredState: {{ .Values.job.allowNonRestoredState }}
+    takeSavepointOnUpgrade: {{ .Values.job.takeSavepointOnUpgrade }}
+    {{- if .Values.job.savepointGeneration }}
+    savepointGeneration: {{ .Values.job.savepointGenaration }}
+    {{-end }}
+    noLoggingToStdout: false
+    parallelism: {{ .Values.job.parallelism }}
     restartPolicy: {{ .Values.job.restartPolicy }}
     cleanupPolicy:
       afterJobFails: {{ .Values.job.cleanupPolicy.afterJobSucceeds}}
