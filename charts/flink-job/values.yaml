@@ -135,9 +135,11 @@ job:
   autoSavepointSeconds: 30
   # -- (String) Directory to store automatically taken savepoints
   savepointsDir: /savepoint
+  # -- (String) Should allow to skip state that cannot be mapped to the new program when drop an operator
   allowNonRestoredState: false
-  # -- (bool) Should take savepoint before upgrading the job (TODO do we want to default to true?)
-  takeSavepointOnUpgrade: false
+  # -- (bool) Should take savepoint before upgrading the job
+  takeSavepointOnUpgrade: true
+  # -- (`int`) Update this field to jobStatus.savepointGeneration + 1 for a running job cluster to trigger a new savepoint to savepointsDir on demand.
   savepointGeneration:
   # -- (`int`) Parallelism of the job
   parallelism: 1
