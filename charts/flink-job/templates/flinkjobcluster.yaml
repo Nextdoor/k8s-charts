@@ -102,7 +102,7 @@ spec:
     jarFile: {{ .Values.job.jarFile }}
     className: {{ .Values.job.className }}
     args: {{ .Values.job.args }}
-    {{-if .Values.job.fromSavepoint }}
+    {{- if .Values.job.fromSavepoint }}
     fromSavepoint: {{ .Values.job.fromSavepoint }}
     {{-end}}
     autoSavepointSeconds: {{ .Values.job.autoSavepointSeconds }}
@@ -121,24 +121,24 @@ spec:
       afterJobSucceeds: {{ .Values.job.cleanupPolicy.afterJobSucceeds}}
 {{- if or (.Values.job.volumes) (.Values.savepoints.enabled) }}
     volumes:
-{{- end }}
-{{- if .Values.savepoints.enabled }}
+  {{- if .Values.savepoints.enabled }}
       - name: savepoint-storage
         persistentVolumeClaim:
           claimName: {{ template "flink-job-cluster.fullname" . }}-savepoint
-{{- end }}
-{{- if .Values.job.volumes }}
+  {{- end }}
+  {{- if .Values.job.volumes }}
 {{ toYaml .Values.job.volumes | indent 6}}
+  {{- end }}
 {{- end }}
 {{- if or (.Values.job.volumeMounts) (.Values.savepoints.enabled) }}
     volumeMounts:
-{{- end }}
-{{- if .Values.savepoints.enabled }}
+  {{- if .Values.savepoints.enabled }}
       - name: savepoint-storage
         mountPath: {{ .Values.savepoints.savepointDir }}
-{{- end }}
-{{- if .Values.job.volumeMounts }}
+  {{- end }}
+  {{- if .Values.job.volumeMounts }}
 {{ toYaml .Values.job.volumeMounts | indent 6}}
+  {{- end }}
 {{- end }}
     {{- if .Values.job.initContainers.enabled }}
     initContainers:
