@@ -36,7 +36,7 @@ spec:
           claimName: {{ template "flink-job-cluster.fullname" . }}-savepoint
   {{- end }}
   {{- if .Values.jobManager.volumes }}
-    {{- toYaml .Values.jobManager.volumes | indent 6}}
+    {{ toYaml .Values.jobManager.volumes | indent 6}}
   {{- end }}
 {{- end }}
 {{- if or (.Values.jobManager.volumeMounts) (.Values.savepoints.enabled) }}
@@ -131,7 +131,7 @@ spec:
           claimName: {{ template "flink-job-cluster.fullname" . }}-savepoint
   {{- end }}
   {{- if .Values.job.volumes }}
-    {{- toYaml .Values.job.volumes | indent 6}}
+{{ toYaml .Values.job.volumes | indent 6}}
   {{- end }}
 {{- end }}
 {{- if or (.Values.job.volumeMounts) (.Values.savepoints.enabled) }}
@@ -141,7 +141,7 @@ spec:
         mountPath: {{ .Values.savepoints.savepointDir }}
   {{- end }}
   {{- if .Values.job.volumeMounts }}
-    {{- toYaml .Values.job.volumeMounts | indent 6}}
+{{ toYaml .Values.job.volumeMounts | indent 6}}
   {{- end }}
 {{- end }}
     {{- if .Values.job.initContainers.enabled }}
