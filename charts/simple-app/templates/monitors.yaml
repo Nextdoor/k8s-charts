@@ -1,4 +1,4 @@
-{{- if and .Values.virtualService.enabled .Values.virtualService5xxMonitor.enabled }}
+{{- if and .Values.virtualService.enabled .Values.virtualService.5xxMonitor.enabled }}
 
 {{ $values    := .Values }}
 {{ $cluster   := .Values.fullnameOverride }}
@@ -15,13 +15,13 @@ spec:
     - alert: {{ .Release.Name }}-5xx-Rate-Too-High
       annotations:
         summary: High rate of 5xx errors from {{ include "simple-app.fullname" . }}
-        runbook_url: "{{ .Values.virtualService5xxMonitor.runbookUrl | default $values.runbookUrl }}"
+        runbook_url: "{{ .Values.virtualService.5xxMonitor.runbookUrl | default $values.runbookUrl }}"
         description: >-
           High rate of 5xx responses from the  {{ include "simple-app.fullname" . }} VirtualService.
       expr: >-
         sum(increase(istio_requests_total{response_code=~"5.*", destination_service_name="{{ include "simple-app.fullname" . }}"}[60s]))
-         / sum(increase(istio_requests_total{destination_service_name="{{ include "simple-app.fullname" . }}"}[60s])) > {{ .Values.virtualService5xxMonitor.threshold }}
-      for: {{ .Values.virtualService5xxMonitor.period }}
+         / sum(increase(istio_requests_total{destination_service_name="{{ include "simple-app.fullname" . }}"}[60s])) > {{ .Values.virtualService.5xxMonitor.threshold }}
+      for: {{ .Values.virtualService.5xxMonitor.period }}
       labels:
-        severity: {{ .Values.virtualService5xxMonitor.severity | default .Values.alerts.severity }}
+        severity: {{ .Values.virtualService.5xxMonitor.severity | default .Values.alerts.severity }}
 {{- end }}

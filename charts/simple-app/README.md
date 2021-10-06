@@ -145,6 +145,12 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | tests.connection.image.tag | string | `nil` | Sets the tag that will be used in the "connection" integration test. If this is left empty, the default is "latest" |
 | tolerations | list | `[]` |  |
 | topologySpreadConstraints | list | `[]` |  |
+| virtualService.5xxMonitor | object | `{"enabled":true,"period":"5m","runbookUrl":null,"severity":null,"threshold":0.0005}` | Configuration related to the 5xx monitor for the VirtualService. |
+| virtualService.5xxMonitor.enabled | bool | `true` | Whether to enable the monitor on 5xxs returned by the VirtualService. |
+| virtualService.5xxMonitor.period | string | `"5m"` | How long to evaluate the rate of 5xxs over. |
+| virtualService.5xxMonitor.runbookUrl | string | `nil` | The runbook URL for the 5xx alarm. |
+| virtualService.5xxMonitor.severity | string | `nil` | Severity of the 5xx monitor |
+| virtualService.5xxMonitor.threshold | float | `0.0005` | The threshold for considering the 5xx monitor to be alarming. Default is 0.05% error rate, i.e 99.95% reliabilty. |
 | virtualService.annotations | object | `{}` | Any annotations you wish to add to the `VirtualService` resource. See https://istio.io/latest/docs/reference/config/annotations/ for more details. |
 | virtualService.corsPolicy | object | `{}` | (`map`) If set, this will populate the corsPolicy setting for the VirtualService. See https://istio.io/latest/docs/reference/config/networking/virtual-service/#CorsPolicy for more details. |
 | virtualService.enabled | bool | `false` | (Boolean) Maps the Service to an Istio IngressGateway, exposing the service outside of the Kubernetes cluster. |
@@ -156,11 +162,6 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | virtualService.paths | list | `[]` | (`string[]`) List of optional path prefixes that the `VirtualService` will use to match requests against and will pass to the `Service` object in this deployment. This list replaces the `path` prefix above - use one or the other, do not use both. |
 | virtualService.port | int | `80` | This is the backing Pod port _number_ to route traffic to. This must match a `containerPort` in the `Values.ports` list. |
 | virtualService.tls | string | `""` |  |
-| virtualService5xxMonitor.enabled | bool | `true` | Whether to enable the monitor on 5xxs returned by the VirtualService. |
-| virtualService5xxMonitor.period | string | `"5m"` | How long to evaluate the rate of 5xxs over. |
-| virtualService5xxMonitor.runbookUrl | string | `nil` | The runbook URL for the 5xx alarm. |
-| virtualService5xxMonitor.severity | string | `nil` | Severity of the 5xx monitor |
-| virtualService5xxMonitor.threshold | float | `0.0005` | The threshold for considering the 5xx monitor to be alarming. Default is 0.05% error rate, i.e 99.95% reliabilty. |
 | volumeMounts | list | `[]` | List of VolumeMounts that are applied to the application container - these must refer to volumes set in the `Values.volumes` parameter. |
 | volumes | list | `[]` | A list of 'volumes' that can be mounted into the Pod. See https://kubernetes.io/docs/concepts/storage/volumes/. |
 | volumesString | string | `""` | A stringified list of 'volumes' similar to the `Values.volumes` parameter, but this one gets run through the `tpl` function so that you can use templatized values if you need to. See https://kubernetes.io/docs/concepts/storage/volumes/. |
