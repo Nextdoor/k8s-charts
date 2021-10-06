@@ -257,6 +257,3 @@ defaults:
 
 # -- (List) A list of groups to grant the operator-role to in the namespace the chart is installed in.
 operatorGroups: [system:masters]
-
-# -- (string) override for the fullname helper function in case it is generating names > 63 chars
-fullnameOverride:

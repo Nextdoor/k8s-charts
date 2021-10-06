@@ -28,7 +28,6 @@ See metrics reporter in the flink properties for more details.
 | flinkProperties | object | `{"execution.checkpointing.interval":"10min","execution.checkpointing.mode":"EXACTLY_ONCE","high-availability":"org.apache.flink.kubernetes.highavailability.KubernetesHaServicesFactory","high-availability.storageDir":"file:/savepoint/","kubernetes.cluster-id":"{{ .Values.fullnameOverride }}","kubernetes.namespace":"{{ .Release.Namespace }}","metrics.reporter.prom.class":"org.apache.flink.metrics.prometheus.PrometheusReporter","metrics.reporters":"prom","restart-strategy":"exponential-delay","restart-strategy.exponential-delay.backoff-multiplier":"2.0","state.checkpoints.dir":"file:/savepoint/","taskmanager.numberOfTaskSlots":"1"}` | (`Map`) Flink properties which are appened to flink-conf.yaml |
 | flinkVersion | String | `nil` | The Flink version to operate |
 | fullnameOverride | string | `"word-counting-cluster"` | (String) The name of the flink cluster |
-| fullnameOverride | string | `nil` | override for the fullname helper function in case it is generating names > 63 chars |
 | image.repository | string | `"flink"` | (String) The Flink image name and repository |
 | image.tag | string | `"1.13.1"` | (String) The Flink image tag |
 | job.allowNonRestoredState | bool | `false` | (String) Should allow to skip state that cannot be mapped to the new program when drop an operator |
