@@ -54,7 +54,7 @@ jobs:
           kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml \
                         -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml \
                         -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml \
-                        -f https://raw.githubusercontent.com/spotify/flink-on-k8s-operator/v1beta1/config/crd/bases/flinkoperator.k8s.io_flinkclusters.yaml \
+                        -f https://raw.githubusercontent.com/spotify/flink-on-k8s-operator/v0.1.15/config/crd/bases/flinkoperator.k8s.io_flinkclusters.yaml \
                         -f https://raw.githubusercontent.com/istio/istio/1.10.0/manifests/charts/base/crds/crd-all.gen.yaml
         if: steps.list-changed.outputs.changed == 'true'
 
