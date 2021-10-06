@@ -2,7 +2,7 @@
 
 Flink job cluster on k8s
 
-![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
+![Version: 0.1.4](https://img.shields.io/badge/Version-0.1.4-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
 
 This chart deploys a flink job cluster and runs a simple word counting flink app as an example.
 This chart includes some production ready set-ups such as
@@ -22,6 +22,7 @@ See metrics reporter in the flink properties for more details.
 | alerts.enabled | bool | `true` | (Boolean) Specifies whether to create the PrometheusRule for this flink cluster |
 | alerts.restartsLimit | int | `2` | (`int`) The number of job restarts before alerting |
 | alerts.severity | string | `"info"` | (String) Severity of the alerts |
+| batchSchedulerName | String | `nil` | specifies the batch scheduler name for JobManager, TaskManager. If empty, no batch scheduling is enabled |
 | defaults.runbookUrl | string | `"https://github.com/Nextdoor/k8s-charts/blob/main/charts/flink-job/runbook.md"` | (String) Runbook URL for the Prometheus alerts |
 | envVars | list | `[{"name":"HADOOP_CLASSPATH","value":"/opt/flink/opt/flink-metrics-prometheus-1.9.3.jar"}]` | Environment variables shared by all containers |
 | flinkProperties | object | `{"execution.checkpointing.interval":"10min","execution.checkpointing.mode":"EXACTLY_ONCE","high-availability":"org.apache.flink.kubernetes.highavailability.KubernetesHaServicesFactory","high-availability.storageDir":"file:/savepoint/","kubernetes.cluster-id":"{{ .Values.fullnameOverride }}","kubernetes.namespace":"{{ .Release.Namespace }}","metrics.reporter.prom.class":"org.apache.flink.metrics.prometheus.PrometheusReporter","metrics.reporters":"prom","restart-strategy":"exponential-delay","restart-strategy.exponential-delay.backoff-multiplier":"2.0","state.checkpoints.dir":"file:/savepoint/","taskmanager.numberOfTaskSlots":"1"}` | (`Map`) Flink properties which are appened to flink-conf.yaml |
@@ -29,15 +30,19 @@ See metrics reporter in the flink properties for more details.
 | fullnameOverride | string | `"word-counting-cluster"` | (String) The name of the flink cluster |
 | image.repository | string | `"flink"` | (String) The Flink image name and repository |
 | image.tag | string | `"1.13.1"` | (String) The Flink image tag |
+| job.allowNonRestoredState | bool | `false` | (String) Should allow to skip state that cannot be mapped to the new program when drop an operator |
 | job.args | list | `["--input","./README.txt","--output","./OUTPUT.txt"]` | (List) Command-line args of the job |
 | job.autoSavepointSeconds | int | `30` | (`int`) Automatically take a savepoint to the savepointsDir in this given interval |
 | job.className | string | `"org.apache.flink.streaming.examples.wordcount.WordCount"` | (String) Java class name of the job |
 | job.cleanupPolicy | object | `{"afterJobCancelled":"KeepCluster","afterJobFails":"KeepCluster","afterJobSucceeds":"KeepCluster"}` | The action to take after job finishes enum("KeepCluster", "DeleteCluster", "DeleteTaskManager") |
+| job.fromSavepoint | String | `nil` | Savepoint where to restore the job from. Unspecify if to restore from the latest savepoint |
 | job.initContainers | object | `{"enabled":false}` | Init containers of the Job pod. It can be used to download a remote job jar to your job pod. It is only needed if you have no other way to download your job files into the Flink job cluster. |
 | job.jarFile | string | `"./examples/streaming/WordCount.jar"` | (String) JAR file of the job |
 | job.parallelism | int | `1` | (`int`) Parallelism of the job |
 | job.restartPolicy | string | `"FromSavepointOnFailure"` | (String) Restart policy when the job fails, enum("Never", "FromSavepointOnFailure") |
+| job.savepointGeneration | `int` | `nil` | Update this field to jobStatus.savepointGeneration + 1 for a running job cluster to trigger a new savepoint to savepointsDir on demand. |
 | job.savepointsDir | string | `"/savepoint"` | (String) Directory to store automatically taken savepoints |
+| job.takeSavepointOnUpgrade | bool | `true` | (bool) Should take savepoint before upgrading the job |
 | jobManager.accessScope | string | `"Cluster"` | (String) Access scope of the JobManager service. enum("Cluster", "VPC", "External", "NodePort", "Headless") |
 | jobManager.metrics | object | `{"enabled":true,"extraPorts":[{"containerPort":9249,"name":"prom"}]}` | Prometheus metrics ports for jobManager |
 | jobManager.ports | object | `{"ui":8081}` | (`int`) Ports that JobManager listening on |

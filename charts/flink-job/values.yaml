@@ -9,6 +9,9 @@ image:
   # -- (String) The Flink image tag
   tag: 1.13.1
 
+# -- (String) specifies the batch scheduler name for JobManager, TaskManager. If empty, no batch scheduling is enabled
+batchSchedulerName:
+
 # -- (String) The name of the flink cluster
 fullnameOverride: word-counting-cluster
 
@@ -127,12 +130,20 @@ job:
   className: org.apache.flink.streaming.examples.wordcount.WordCount
   # -- (List) Command-line args of the job
   args: ["--input", "./README.txt", "--output", "./OUTPUT.txt"]
-  # -- (`int`) Parallelism of the job
-  parallelism: 1
+  # -- (String) Savepoint where to restore the job from. Unspecify if to restore from the latest savepoint
+  fromSavepoint:
   # -- (`int`) Automatically take a savepoint to the savepointsDir in this given interval
   autoSavepointSeconds: 30
   # -- (String) Directory to store automatically taken savepoints
   savepointsDir: /savepoint
+  # -- (String) Should allow to skip state that cannot be mapped to the new program when drop an operator
+  allowNonRestoredState: false
+  # -- (bool) Should take savepoint before upgrading the job
+  takeSavepointOnUpgrade: true
+  # -- (`int`) Update this field to jobStatus.savepointGeneration + 1 for a running job cluster to trigger a new savepoint to savepointsDir on demand.
+  savepointGeneration:
+  # -- (`int`) Parallelism of the job
+  parallelism: 1
   # -- (String) Restart policy when the job fails, enum("Never", "FromSavepointOnFailure")
   restartPolicy: FromSavepointOnFailure
   # -- The action to take after job finishes enum("KeepCluster", "DeleteCluster", "DeleteTaskManager")
