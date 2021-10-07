@@ -21,7 +21,7 @@ spec:
       expr: >-
         sum(increase(istio_requests_total{response_code=~"5.*", destination_service_name="{{ include "simple-app.fullname" . }}"}[60s]))
          / sum(increase(istio_requests_total{destination_service_name="{{ include "simple-app.fullname" . }}"}[60s])) > {{ .Values.virtualService.http5XXMonitor.threshold }}
-      for: {{ .Values.virtualService.5xxMonitor.period }}
+      for: {{ .Values.virtualService.http5XXMonitor.period }}
       labels:
         severity: {{ .Values.virtualService.http5XXMonitor.severity | default .Values.alerts.severity }}
 {{- end }}
