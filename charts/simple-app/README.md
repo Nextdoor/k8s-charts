@@ -145,17 +145,17 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | tests.connection.image.tag | string | `nil` | Sets the tag that will be used in the "connection" integration test. If this is left empty, the default is "latest" |
 | tolerations | list | `[]` |  |
 | topologySpreadConstraints | list | `[]` |  |
-| virtualService.5xxMonitor | object | `{"enabled":true,"period":"5m","runbookUrl":null,"severity":null,"threshold":0.0005}` | Configuration related to the 5xx monitor for the VirtualService. |
-| virtualService.5xxMonitor.enabled | bool | `true` | Whether to enable the monitor on 5xxs returned by the VirtualService. |
-| virtualService.5xxMonitor.period | string | `"5m"` | How long to evaluate the rate of 5xxs over. |
-| virtualService.5xxMonitor.runbookUrl | string | `nil` | The runbook URL for the 5xx alarm. |
-| virtualService.5xxMonitor.severity | string | `nil` | Severity of the 5xx monitor |
-| virtualService.5xxMonitor.threshold | float | `0.0005` | The threshold for considering the 5xx monitor to be alarming. Default is 0.05% error rate, i.e 99.95% reliabilty. |
 | virtualService.annotations | object | `{}` | Any annotations you wish to add to the `VirtualService` resource. See https://istio.io/latest/docs/reference/config/annotations/ for more details. |
 | virtualService.corsPolicy | object | `{}` | (`map`) If set, this will populate the corsPolicy setting for the VirtualService. See https://istio.io/latest/docs/reference/config/networking/virtual-service/#CorsPolicy for more details. |
 | virtualService.enabled | bool | `false` | (Boolean) Maps the Service to an Istio IngressGateway, exposing the service outside of the Kubernetes cluster. |
 | virtualService.gateways | list | `[]` | The name of the Istio `Gateway` resource that this `VirtualService` will register with. You can get a list of the avaialable `Gateways` by running `kubectl -n istio-system get gateways`. Not specifying a Gateway means that you are creating a VirtualService routing definition only inside of the Kubernetes cluster, which is totally reasonable if you want to do that. |
 | virtualService.hosts | list | `["{{ include \"simple-app.fullname\" . }}"]` | A list of destination hostnames that this VirtualService will accept traffic for. Multiple names can be listed here. See https://istio.io/latest/docs/reference/config/networking/virtual-service/#VirtualService for more details. |
+| virtualService.http5XXMonitor | object | `{"enabled":true,"period":"5m","runbookUrl":null,"severity":null,"threshold":0.0005}` | Configuration related to the 5xx monitor for the VirtualService. |
+| virtualService.http5XXMonitor.enabled | bool | `true` | Whether to enable the monitor on 5xxs returned by the VirtualService. |
+| virtualService.http5XXMonitor.period | string | `"5m"` | How long to evaluate the rate of 5xxs over. |
+| virtualService.http5XXMonitor.runbookUrl | string | `nil` | The runbook URL for the 5xx alarm. |
+| virtualService.http5XXMonitor.severity | string | `nil` | Severity of the 5xx monitor |
+| virtualService.http5XXMonitor.threshold | float | `0.0005` | The threshold for considering the 5xx monitor to be alarming. Default is 0.05% error rate, i.e 99.95% reliabilty. |
 | virtualService.matches | object | `{}` | (`map[]`) A list of Istio `HTTPMatchRequest` objects that will be applied to the VirtualService. This is the more advanced and customizable way of controlling which paths get sent to your backend. These are added _in addition_ to the `paths` or `path` settings. See https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPMatchRequest for examples. |
 | virtualService.namespace | string | `"istio-system"` | The namespace where the Istio services are operating. Do not change this. |
 | virtualService.path | string | `"/"` | The default path prefix that the `VirtualService` will match requests against to pass to the default `Service` object in this deployment. |

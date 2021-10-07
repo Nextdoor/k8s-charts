@@ -313,7 +313,7 @@ virtualService:
   tls: ""
 
   # -- Configuration related to the 5xx monitor for the VirtualService.
-  5xxMonitor:
+  http5XXMonitor:
     # -- Whether to enable the monitor on 5xxs returned by the VirtualService.
     enabled: true
     # -- How long to evaluate the rate of 5xxs over.
