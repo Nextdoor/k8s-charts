@@ -201,6 +201,24 @@ entries:
   local-kafka:
   - apiVersion: v2
     appVersion: latest
+    created: "2021-10-08T14:15:37.10786966Z"
+    dependencies:
+    - condition: strimzi-kafka-operator.enabled
+      name: strimzi-kafka-operator
+      repository: https://strimzi.io/charts
+      version: 0.25.0
+    description: Local Development spinup of Strimzi-managed Kafka
+    digest: e5bd2a241d0a480d6a6be7a9f33c8c3c8e901b37cc8464036e15f73d6f5406e7
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: local-kafka
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/local-kafka-0.2.0/local-kafka-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
+    appVersion: latest
     created: "2021-08-19T00:24:23.012464696Z"
     dependencies:
     - condition: strimzi-kafka-operator.enabled
