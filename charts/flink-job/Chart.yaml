@@ -9,6 +9,6 @@ maintainers:
 dependencies:
   - name: flink-operator
     alias: flinkOperator
-    version: 0.2.0
+    version: 0.1.1
     repository: https://googlecloudplatform.github.io/flink-on-k8s-operator/
     condition: flinkOperator.enabled
