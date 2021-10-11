@@ -2,7 +2,7 @@
 
 Flink job cluster on k8s
 
-![Version: 0.1.5](https://img.shields.io/badge/Version-0.1.5-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
+![Version: 0.1.6](https://img.shields.io/badge/Version-0.1.6-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
 
 This chart deploys a flink job cluster and runs a simple word counting flink app as an example.
 This chart includes some production ready set-ups such as
@@ -19,7 +19,7 @@ See metrics reporter in the flink properties for more details.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://googlecloudplatform.github.io/flink-on-k8s-operator/ | flinkOperator(flink-operator) | 0.2.0 |
+| https://googlecloudplatform.github.io/flink-on-k8s-operator/ | flinkOperator(flink-operator) | 0.1.1 |
 
 ## Values
 
