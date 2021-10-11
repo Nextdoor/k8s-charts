@@ -15,12 +15,6 @@ Please see the Flink operator [user guide](https://github.com/GoogleCloudPlatfor
 This chart makes an assumption that you _do_ have a Prometheus monitoring endpoint configured.
 See metrics reporter in the flink properties for more details.
 
-## Requirements
-
-| Repository | Name | Version |
-|------------|------|---------|
-| https://googlecloudplatform.github.io/flink-on-k8s-operator/ | flinkOperator(flink-operator) | 0.1.1 |
-
 ## Values
 
 | Key | Type | Default | Description |
@@ -31,7 +25,6 @@ See metrics reporter in the flink properties for more details.
 | batchSchedulerName | String | `nil` | specifies the batch scheduler name for JobManager, TaskManager. If empty, no batch scheduling is enabled |
 | defaults.runbookUrl | string | `"https://github.com/Nextdoor/k8s-charts/blob/main/charts/flink-job/runbook.md"` | (String) Runbook URL for the Prometheus alerts |
 | envVars | list | `[{"name":"HADOOP_CLASSPATH","value":"/opt/flink/opt/flink-metrics-prometheus-1.9.3.jar"}]` | Environment variables shared by all containers |
-| flinkOperator.enabled | bool | `false` | (bool) this is only enabled in test environments. |
 | flinkProperties | object | `{"execution.checkpointing.interval":"10min","execution.checkpointing.mode":"EXACTLY_ONCE","high-availability":"org.apache.flink.kubernetes.highavailability.KubernetesHaServicesFactory","high-availability.storageDir":"file:/savepoint/","kubernetes.cluster-id":"{{ .Values.fullnameOverride }}","kubernetes.namespace":"{{ .Release.Namespace }}","metrics.reporter.prom.class":"org.apache.flink.metrics.prometheus.PrometheusReporter","metrics.reporters":"prom","restart-strategy":"exponential-delay","restart-strategy.exponential-delay.backoff-multiplier":"2.0","state.checkpoints.dir":"file:/savepoint/","taskmanager.numberOfTaskSlots":"1"}` | (`Map`) Flink properties which are appened to flink-conf.yaml |
 | flinkVersion | String | `nil` | The Flink version to operate |
 | fullnameOverride | string | `"word-counting-cluster"` | (String) The name of the flink cluster |
