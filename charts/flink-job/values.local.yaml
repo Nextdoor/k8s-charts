@@ -7,9 +7,3 @@ alerts:
 
 savepoints:
   enabled: false
-
-flinkOperator:
-  enabled: true
-
-  operatorImage:
-    name: ghcr.io/spotify/flink-operator:v0.1.15

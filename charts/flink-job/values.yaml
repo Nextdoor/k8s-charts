@@ -257,7 +257,3 @@ defaults:
 
 # -- (List) A list of groups to grant the operator-role to in the namespace the chart is installed in.
 operatorGroups: [system:masters]
-
-flinkOperator:
-  # -- (bool) this is only enabled in test environments.
-  enabled: false
