@@ -36,7 +36,7 @@ spec:
           claimName: {{ template "flink-job-cluster.fullname" . }}-savepoint
   {{- end }}
   {{- if .Values.jobManager.volumes }}
-{{ toYaml .Values.jobManager.volumes | indent 6}}
+    {{- toYaml .Values.jobManager.volumes | nindent 6}}
   {{- end }}
 {{- end }}
 {{- if or (.Values.jobManager.volumeMounts) (.Values.savepoints.enabled) }}
@@ -46,7 +46,7 @@ spec:
         mountPath: {{ .Values.savepoints.savepointDir }}
   {{- end }}
   {{- if .Values.jobManager.volumeMounts }}
-{{ toYaml .Values.jobManager.volumeMounts | indent 6}}
+    {{- toYaml .Values.jobManager.volumeMounts | nindent 6}}
   {{- end }}
 {{- end }}
   # volumeClaimTemplates, initContainers, nodeSelector, tolerations, sideCars not exposed
