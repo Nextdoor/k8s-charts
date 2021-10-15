@@ -2,7 +2,7 @@
 
 Flink job cluster on k8s
 
-![Version: 0.1.7](https://img.shields.io/badge/Version-0.1.7-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
+![Version: 0.1.8](https://img.shields.io/badge/Version-0.1.8-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
 
 This chart deploys a flink job cluster and runs a simple word counting flink app as an example.
 This chart includes some production ready set-ups such as
@@ -42,10 +42,14 @@ See metrics reporter in the flink properties for more details.
 | job.restartPolicy | string | `"FromSavepointOnFailure"` | (String) Restart policy when the job fails, enum("Never", "FromSavepointOnFailure") |
 | job.savepointGeneration | `int` | `nil` | Update this field to jobStatus.savepointGeneration + 1 for a running job cluster to trigger a new savepoint to savepointsDir on demand. |
 | job.savepointsDir | string | `"/savepoint"` | (String) Directory to store automatically taken savepoints |
-| job.takeSavepointOnUpgrade | bool | `true` | (bool) Should take savepoint before upgrading the job |
+| job.takeSavepointOnUpdate | bool | `true` | (bool) Should take savepoint before upgrading the job |
 | jobManager.accessScope | string | `"Cluster"` | (String) Access scope of the JobManager service. enum("Cluster", "VPC", "External", "NodePort", "Headless") |
+| jobManager.memoryProcessRatio | int | `80` | ('list') Percentage of memory process, as a safety margin to avoid OOM kill |
 | jobManager.metrics | object | `{"enabled":true,"extraPorts":[{"containerPort":9249,"name":"prom"}]}` | Prometheus metrics ports for jobManager |
-| jobManager.ports | object | `{"ui":8081}` | (`int`) Ports that JobManager listening on |
+| jobManager.ports.blob | int | `6124` | (`int`) Blob port that JobManager listening on |
+| jobManager.ports.query | int | `6125` | (`int`) Query ports that JobManager listening on |
+| jobManager.ports.rpc | int | `6123` | (`int`) RPC port that JobManager listening on |
+| jobManager.ports.ui | int | `8081` | (`int`) UI port that JobManager listening on |
 | jobManager.resources | object | `{"limits":{"memory":"1400Mi"},"requests":{"cpu":"100m","memory":"1000Mi"}}` | Compute resources required by JobManager container |
 | logConfig | object | `{"log4j-console.properties":"rootLogger.level = INFO\nrootLogger.appenderRef.file.ref = LogFile\nrootLogger.appenderRef.console.ref = LogConsole\nappender.file.name = LogFile\nappender.file.type = File\nappender.file.append = false\nappender.file.fileName = ${sys:log.file}\nappender.file.layout.type = PatternLayout\nappender.file.layout.pattern = %d{yyyy-MM-dd HH:mm:ss,SSS} %-5p %-60c %x - %m%n\nappender.console.name = LogConsole\nappender.console.type = CONSOLE\nappender.console.layout.type = PatternLayout\nappender.console.layout.pattern = %d{yyyy-MM-dd HH:mm:ss,SSS} %-5p %-60c %x - %m%n\nlogger.akka.name = akka\nlogger.akka.level = INFO\nlogger.kafka.name= org.apache.kafka\nlogger.kafka.level = INFO\nlogger.hadoop.name = org.apache.hadoop\nlogger.hadoop.level = INFO\nlogger.zookeeper.name = org.apache.zookeeper\nlogger.zookeeper.level = INFO\nlogger.netty.name = org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline\nlogger.netty.level = OFF\n","logback-console.xml":"<configuration>\n  <appender name=\"console\" class=\"ch.qos.logback.core.ConsoleAppender\">\n    <encoder>\n      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} %X{sourceThread} - %msg%n</pattern>\n    </encoder>\n  </appender>\n  <appender name=\"file\" class=\"ch.qos.logback.core.FileAppender\">\n    <file>${log.file}</file>\n    <append>false</append>\n    <encoder>\n      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} %X{sourceThread} - %msg%n</pattern>\n    </encoder>\n  </appender>\n  <root level=\"INFO\">\n    <appender-ref ref=\"console\"/>\n    <appender-ref ref=\"file\"/>\n  </root>\n  <logger name=\"akka\" level=\"INFO\" />\n  <logger name=\"org.apache.kafka\" level=\"INFO\" />\n  <logger name=\"org.apache.hadoop\" level=\"INFO\" />\n  <logger name=\"org.apache.zookeeper\" level=\"INFO\" />\n  <logger name=\"org.apache.flink.shaded.akka.org.jboss.netty.channel.DefaultChannelPipeline\" level=\"ERROR\" />\n</configuration>\n"}` | The logging configuration, a string-to-string map that becomes the ConfigMap mounted at /opt/flink/conf |
 | operatorGroups | list | `["system:masters"]` | (List) A list of groups to grant the operator-role to in the namespace the chart is installed in. |
@@ -57,12 +61,17 @@ See metrics reporter in the flink properties for more details.
 | podMonitor.sampleLimit | int | `2000` | (`int`) Per-scrape limit on number of scraped samples that will be accepted. |
 | podMonitor.scrapeInterval | string | `"15s"` | (`string`) The frequency in which to scrape metrics. |
 | pvc | object | `{"storage":"1Gi","storageClassName":"efs"}` | Configuration of the PersistentVolume for storing savepoints. |
+| recreateOnUpdate | bool | `true` | (bool) Recreate components when updating flinkcluster |
 | savepoints | object | `{"enabled":true,"savepointDir":"/savepoint"}` | Configuration of the automatic savepoints |
 | savepoints.enabled | bool | `true` | (Boolean) Automatically creates a volume and mount the volume on task manager and job manager pods |
 | savepoints.savepointDir | string | `"/savepoint"` | (String) The mount path of the savepoint volume |
 | serviceAccount.create | bool | `true` | (Boolean) Specifies whether a service account should be created |
 | serviceAccount.name | string | `""` | (String) The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
+| taskManager.memoryProcessRatio | int | `80` | ('list') Percentage of memory process, as a safety margin to avoid OOM kill |
 | taskManager.metrics | object | `{"enabled":true,"extraPorts":[{"containerPort":9249,"name":"prom","protocol":"TCP"}]}` | Prometheus metrics ports for taskManager |
+| taskManager.ports.data | int | `6121` | (`int`) Data port that TaskManager listening on |
+| taskManager.ports.query | int | `6125` | (`int`) Query port that TaskManager listening on |
+| taskManager.ports.rpc | int | `6122` | (`int`) RPC port that TaskManager listening on |
 | taskManager.replicas | int | `1` | (`int`) The number of TaskManager replicas |
 | taskManager.resources | object | `{"limits":{"memory":"1500Mi"},"requests":{"cpu":"100m","memory":"1000Mi"}}` | Compute resources required by TaskManager containers |
 | taskManager.securityContext | object | `{"fsGroup":9999,"runAsGroup":9999,"runAsNonRoot":true,"runAsUser":9999}` | Allow flink user to read volumes |

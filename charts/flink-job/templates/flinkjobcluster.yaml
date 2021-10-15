@@ -15,11 +15,14 @@ spec:
   envVars:
     {{- toYaml .Values.envVars | nindent 4 }}
   serviceAccountName: {{ template "flink-job-cluster.fullname" . }}
+  recreateOnUpdate: {{ .Values.recreateOnUpdate }}
   jobManager:
     accessScope: {{ .Values.jobManager.accessScope }}
     ports:
       ui: {{ .Values.jobManager.ports.ui }}
-      # TODO (Aaron/Albert) expose the other ports?
+      rpc: {{ .Values.jobManager.ports.rpc }}
+      query: {{ .Values.jobManager.ports.query }}
+      blob: {{ .Values.jobManager.ports.blob }}
     {{- if .Values.jobManager.metrics.enabled }}
     extraPorts:
       {{- toYaml .Values.jobManager.metrics.extraPorts | nindent 6 }}
@@ -59,7 +62,12 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
   # securityContext, livenessProbe, readinessProbe not exposed
+    memoryProcessRatio: {{ .Values.jobManager.memoryProcessRatio }}
   taskManager:
+    ports:
+      data: {{ .Values.taskManager.ports.data }}
+      rpc: {{ .Values.taskManager.ports.rpc }}
+      query: {{ .Values.taskManager.ports.query }}
     replicas: {{ .Values.taskManager.replicas }}
     {{- if or (.Values.taskManager.volumes) (.Values.savepoints.enabled) }}
     volumes:
@@ -102,6 +110,7 @@ spec:
       {{- end }}
     securityContext:
       {{- toYaml .Values.taskManager.securityContext | nindent 6 }}
+    memoryProcessRatio: {{ .Values.taskManager.memoryProcessRatio }}
   job:
     jarFile: {{ .Values.job.jarFile }}
     className: {{ .Values.job.className }}
@@ -112,7 +121,7 @@ spec:
     autoSavepointSeconds: {{ .Values.job.autoSavepointSeconds }}
     savepointsDir: {{ .Values.job.savepointsDir }}
     allowNonRestoredState: {{ .Values.job.allowNonRestoredState }}
-    takeSavepointOnUpgrade: {{ .Values.job.takeSavepointOnUpgrade }}
+    takeSavepointOnUpdate: {{ .Values.job.takeSavepointOnUpdate }}
     {{- if .Values.job.savepointGeneration }}
     savepointGeneration: {{ .Values.job.savepointGenaration }}
     {{- end }}
