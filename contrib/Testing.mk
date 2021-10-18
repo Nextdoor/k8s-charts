@@ -1,4 +1,4 @@
-# Version 0.1.0
+# Version 0.1.5
 
 ###############################################################################
 # Helpers for installing tooling..
@@ -23,9 +23,13 @@ else
 	GET_HELM_DOCS_URL ?= https://github.com/norwoodj/helm-docs/releases/download/v1.5.0/helm-docs_1.5.0_Darwin_x86_64.tar.gz
 endif
 
+ifeq ($(HELM_TEST_ALL_CHARTS),true)
+	ALL_FLAG := --all
+endif
+
 GET_HELM_URL   ?= https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-GET_CT_URL     ?= https://github.com/helm/chart-testing/releases/download/v3.3.1/chart-testing_3.3.1_$(OSNAME)_amd64.tar.gz
-GET_KIND_URL   ?= https://kind.sigs.k8s.io/dl/v0.10.0/kind-$(OSNAME)-amd64
+GET_CT_URL     ?= https://github.com/helm/chart-testing/releases/download/v3.4.0/chart-testing_3.4.0_$(OSNAME)_amd64.tar.gz
+GET_KIND_URL   ?= https://kind.sigs.k8s.io/dl/v0.11.1/kind-$(OSNAME)-amd64
 
 # First, try to detect helm/ct in the users local env.. if thats there, we'll
 # use it, otherwise fall back to our BIN_DIR which will trigger the Makefile to
@@ -93,7 +97,12 @@ $(HELM_DOCS):
 ###############################################################################
 .PHONY: _helm_clean
 _helm_clean:
-	/bin/rm -f charts/*/Chart.lock charts/*/requirements.lock
+	@/bin/rm -f charts/*/Chart.lock charts/*/requirements.lock
+
+.PHONY: helm_list_changed
+helm_list_changed:
+	@cd $(ROOT_DIR) && $(CT) list-changed --config $(ROOT_DIR)/ct.yaml \
+			--excluded-charts="$(EXCLUDED_CHARTS_FROM_TESTS)"
 
 .PHONY: helm_lint
 helm_lint: _helm_clean
@@ -109,7 +118,7 @@ helm_cluster: $(KIND)
 	$(KIND) create cluster \
 		--name "$(KIND_CLUSTER_NAME)" \
 		--config "$(ROOT_DIR)/contrib/kind-config.yaml" \
-		--image "kindest/node:v1.19.7" \
+		--image "kindest/node:v1.21.2" \
 		--wait 60s
 
 .PHONY: helm_test
@@ -119,6 +128,7 @@ helm_test: $(TEST_PREREQS)
 		--volume "$(ROOT_DIR):/workdir" \
 		--volume "$(HOME)/.kube/config:/root/.kube/config" \
 		--workdir /workdir \
-		quay.io/helmpack/chart-testing:v3.3.1 \
+		quay.io/helmpack/chart-testing:v3.4.0 \
 		ct install \
-			--excluded-charts="$(EXCLUDED_CHARTS_FROM_TESTS)"
+			--excluded-charts="$(EXCLUDED_CHARTS_FROM_TESTS)" \
+			$(ALL_FLAG)
