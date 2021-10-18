@@ -1,5 +1,19 @@
 apiVersion: v1
 entries:
+  daemonset-app:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2021-10-18T18:40:25.098520731Z"
+    description: Default DaemonSet Helm Chart
+    digest: d5627aee064eb79105f7b377c8b25f68cdc2059d5b211ba7c02634e5260bf84e
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: daemonset-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/daemonset-app-0.0.1/daemonset-app-0.0.1.tgz
+    version: 0.0.1
   flink-job:
   - apiVersion: v2
     appVersion: "1.0"
