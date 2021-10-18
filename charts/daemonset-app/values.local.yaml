@@ -1,0 +1,3 @@
+terminationGracePeriodSeconds: 30
+istio:
+  enabled: true

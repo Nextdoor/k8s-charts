@@ -1,0 +1,67 @@
+{{ template "chart.header" . }}
+{{ template "chart.description" . }}
+
+{{ template "chart.versionBadge" .  }}{{ template "chart.typeBadge" .  }}{{ template "chart.appVersionBadge" .  }}
+
+[statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
+[hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+
+This chart provides a standard deployment for operating a [stateful application
+in Kubernetes][statefulsets]. The chart provides all of the common pieces like
+ServiceAccounts, Services, etc.
+
+## Monitoring
+
+This chart makes the assumption that you _do_ have a Prometheus-style
+monitoring endpoint configured. See the `Values.monitor.portName`,
+`Values.monitor.portNumber` and `Values.monitor.path` settings for informing
+the chart of where your metrics are exposed.
+
+If you are operating in an Istio Service Mesh, see the
+[Istio](#istio-networking-support) section below for details on how monitoring
+works. Otherwise, see the `Values.serviceMonitor` settings to configure a
+Prometheus ServiceMonitor resource to monitor your application.
+
+## Datadog Agent Support
+
+This chart supports operating in environments where the Datadog Agent is
+running. If you set the `Values.datadog.enabled` flag, then a series of
+additional Pod Annotations, Labels and Environment Variables will be
+automatically added in to your deployment. See the `Values.datadog` parameters
+for further information.
+
+## Istio Networking Support
+
+### Monitoring through the Sidecar Proxy
+
+[metrics_merging]: https://istio.io/latest/docs/ops/integrations/prometheus/#option-1-metrics-merging
+
+When running your Pod within an Istio Mesh, access to the `metrics` endpoint
+for your Pod can be obscured by the mesh itself which sits in front of the
+metrics port and may require that all clients are coming in through the
+mesh natively. The simplest way around this is to use [Istio Metrics
+Merging][metrics_merging] - where the Sidecar container is responsible for
+scraping your application's `metrics` port, merging the metrics with its own,
+and then Prometheus is configured to pull all of the metrics from the Sidecar.
+
+There are several advantages to this model.
+
+* It's much simpler - developers do not need to create `ServiceMonitor` or
+  `PodMonitor` resources because the Prometheus system is already configured to
+  discover all `istio-proxy` sidecar containers and collect their metrics.
+
+* Your application is not exposed outside of the service mesh to anybody - the
+  `istio-proxy` sidecar handles that for you.
+
+* There are fewer individual configurations for Prometheus, letting it's
+  configuration be simpler and lighter weight. It runs fewer "scrape" jobs,
+  improving its overall performance.
+
+This feature is turned on by default if you set `Values.istio.enabled=true` and
+`Values.monitor.enabled=true`.
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}
