@@ -44,7 +44,7 @@ See metrics reporter in the flink properties for more details.
 | job.savepointsDir | string | `"/savepoint"` | (String) Directory to store automatically taken savepoints |
 | job.takeSavepointOnUpdate | bool | `true` | (bool) Should take savepoint before upgrading the job |
 | jobManager.accessScope | string | `"Cluster"` | (String) Access scope of the JobManager service. enum("Cluster", "VPC", "External", "NodePort", "Headless") |
-| jobManager.memoryProcessRatio | int | `80` | ('list') Percentage of memory process, as a safety margin to avoid OOM kill |
+| jobManager.memoryProcessRatio | int | `80` | ('int') Percentage of memory process, as a safety margin to avoid OOM kill |
 | jobManager.metrics | object | `{"enabled":true,"extraPorts":[{"containerPort":9249,"name":"prom"}]}` | Prometheus metrics ports for jobManager |
 | jobManager.ports.blob | int | `6124` | (`int`) Blob port that JobManager listening on |
 | jobManager.ports.query | int | `6125` | (`int`) Query ports that JobManager listening on |
@@ -67,7 +67,7 @@ See metrics reporter in the flink properties for more details.
 | savepoints.savepointDir | string | `"/savepoint"` | (String) The mount path of the savepoint volume |
 | serviceAccount.create | bool | `true` | (Boolean) Specifies whether a service account should be created |
 | serviceAccount.name | string | `""` | (String) The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
-| taskManager.memoryProcessRatio | int | `80` | ('list') Percentage of memory process, as a safety margin to avoid OOM kill |
+| taskManager.memoryProcessRatio | int | `80` | ('int') Percentage of memory process, as a safety margin to avoid OOM kill |
 | taskManager.metrics | object | `{"enabled":true,"extraPorts":[{"containerPort":9249,"name":"prom","protocol":"TCP"}]}` | Prometheus metrics ports for taskManager |
 | taskManager.ports.data | int | `6121` | (`int`) Data port that TaskManager listening on |
 | taskManager.ports.query | int | `6125` | (`int`) Query port that TaskManager listening on |

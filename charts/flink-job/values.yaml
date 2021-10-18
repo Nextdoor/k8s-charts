@@ -100,7 +100,7 @@ jobManager:
       cpu: "100m"
     limits:
       memory: 1400Mi
-  # -- ('list') Percentage of memory process, as a safety margin to avoid OOM kill
+  # -- ('int') Percentage of memory process, as a safety margin to avoid OOM kill
   memoryProcessRatio: 80
 
 taskManager:
@@ -141,7 +141,7 @@ taskManager:
   volumes: []
   # -- ('list') volumeMounts for the TaskManager containers
   volumeMounts: []
-  # -- ('list') Percentage of memory process, as a safety margin to avoid OOM kill
+  # -- ('int') Percentage of memory process, as a safety margin to avoid OOM kill
   memoryProcessRatio: 80
 
 job:
