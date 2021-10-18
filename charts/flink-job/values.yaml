@@ -21,6 +21,9 @@ envVars:
   - name: HADOOP_CLASSPATH
     value: /opt/flink/opt/flink-metrics-prometheus-1.9.3.jar
 
+# -- (bool) Recreate components when updating flinkcluster
+recreateOnUpdate: true
+
 # -- The logging configuration, a string-to-string map that becomes the ConfigMap mounted at /opt/flink/conf
 logConfig:
   "log4j-console.properties": |
@@ -75,9 +78,15 @@ logConfig:
 jobManager:
   # -- (String) Access scope of the JobManager service. enum("Cluster", "VPC", "External", "NodePort", "Headless")
   accessScope: Cluster
-  # -- (`int`) Ports that JobManager listening on
   ports:
+    # -- (`int`) UI port that JobManager listening on
     ui: 8081
+    # -- (`int`) RPC port that JobManager listening on
+    rpc: 6123
+    # -- (`int`) Blob port that JobManager listening on
+    blob: 6124
+    # -- (`int`) Query ports that JobManager listening on
+    query: 6125
   # -- Prometheus metrics ports for jobManager
   metrics:
     enabled: true
@@ -91,10 +100,20 @@ jobManager:
       cpu: "100m"
     limits:
       memory: 1400Mi
+  # -- ('int') Percentage of memory process, as a safety margin to avoid OOM kill
+  memoryProcessRatio: 80
 
 taskManager:
   # -- (`int`) The number of TaskManager replicas
   replicas: 1
+
+  ports:
+    # -- (`int`) Data port that TaskManager listening on
+    data: 6121
+    # -- (`int`) RPC port that TaskManager listening on
+    rpc: 6122
+    # -- (`int`) Query port that TaskManager listening on
+    query: 6125
 
   # -- Prometheus metrics ports for taskManager
   metrics:
@@ -122,6 +141,8 @@ taskManager:
   volumes: []
   # -- ('list') volumeMounts for the TaskManager containers
   volumeMounts: []
+  # -- ('int') Percentage of memory process, as a safety margin to avoid OOM kill
+  memoryProcessRatio: 80
 
 job:
   # -- (String) JAR file of the job
@@ -139,7 +160,7 @@ job:
   # -- (String) Should allow to skip state that cannot be mapped to the new program when drop an operator
   allowNonRestoredState: false
   # -- (bool) Should take savepoint before upgrading the job
-  takeSavepointOnUpgrade: true
+  takeSavepointOnUpdate: true
   # -- (`int`) Update this field to jobStatus.savepointGeneration + 1 for a running job cluster to trigger a new savepoint to savepointsDir on demand.
   savepointGeneration:
   # -- (`int`) Parallelism of the job
