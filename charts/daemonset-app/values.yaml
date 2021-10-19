@@ -5,6 +5,10 @@ minReadySeconds: null
 # just really noisy. Set our default to 3. https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy
 revisionHistoryLimit: 3
 
+# -- (`string`) The priorityClassName for the Pod. See
+# https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#pod-priority.
+priorityClassName: default
+
 # -- (`DaemonSetUpdateStrategy`) updateStrategy indicates the
 # StatefulSetUpdateStrategy that will be employed to update Pods in the
 # StatefulSet when a revision is made to Template.
@@ -210,6 +214,8 @@ resources: {}
   #   memory: 128Mi
 
 nodeSelector: {}
+
+hostNetwork: null
 
 tolerations: []
 

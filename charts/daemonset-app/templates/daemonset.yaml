@@ -129,9 +129,13 @@ spec:
         {{- tpl (toYaml .) $ | nindent 8 }}
         {{- end }}
     spec:
+      priorityClassName: {{ .Values.priorityClassName }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.hostNetwork }}
+      hostNetwork: {{ . }}
       {{- end }}
       {{- with .Values.affinity }}
       affinity:
