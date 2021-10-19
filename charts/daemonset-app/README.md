@@ -2,7 +2,7 @@
 
 Default DaemonSet Helm Chart
 
-![Version: 0.0.1](https://img.shields.io/badge/Version-0.0.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.0.2](https://img.shields.io/badge/Version-0.0.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -77,6 +77,7 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | env | list | `[]` | Environment Variables for the primary container. These are all run through the tpl function (the key name and value), so you can dynamically name resources as you need. |
 | envFrom | list | `[]` | Pull all of the environment variables listed in a ConfigMap into the Pod. See https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables for more details. |
 | fullnameOverride | string | `""` |  |
+| hostNetwork | string | `nil` |  |
 | image.pullPolicy | string | `"IfNotPresent"` | (String) Always, Never or IfNotPresent |
 | image.repository | string | `"nginx"` | (String) The Docker image name and repository for your application |
 | image.tag | String | `nil` | Overrides the image tag whose default is the chart appVersion. |
@@ -112,6 +113,7 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | podSecurityContext | object | `{}` |  |
 | ports | list | `[{"containerPort":80,"name":"http","protocol":"TCP"},{"containerPort":443,"name":"https","protocol":"TCP"}]` | A list of Port objects that are exposed by the service. These ports are applied to the main container, or the proxySidecar container (if enabled). The port list is also used to generate Network Policies that allow ingress into the pods. |
 | preStopCommand | list | `["/bin/sleep","10"]` | Before a pod gets terminated, Kubernetes sends a SIGTERM signal to every container and waits for period of time (10s by default) for all containers to exit gracefully. If your app doesn't handle the SIGTERM signal or if it doesn't exit within the grace period, Kubernetes will kill the container and any inflight requests that your app is processing will fail. Make sure you set this to SHORTER than the terminationGracePeriod (30s default) setting. https://docs.flagger.app/tutorials/zero-downtime-deployments#graceful-shutdown |
+| priorityClassName | string | `"default"` | (`string`) The priorityClassName for the Pod. See https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#pod-priority. |
 | readinessProbe | object | `{"httpGet":{"path":"/","port":"http"}}` | A PodSpec container "readinessProbe" configuration object. Note that this readinessProbe will be applied to the proxySidecar container instead if that is enabled. |
 | resources | object | `{}` |  |
 | revisionHistoryLimit | int | `3` | (`int`) The default revisionHistoryLimit in Kubernetes is 10 - which is just really noisy. Set our default to 3. https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy |
