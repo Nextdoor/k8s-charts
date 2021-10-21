@@ -316,10 +316,10 @@ datadog:
 tests:
   connection:
     # -- The command used to trigger the test.
-    command: ['curl', '--retry-connrefused', '--retry', '5']
+    command: [curl, --verbose, --retry-connrefused, --retry, '5', --retry-delay, '10']
     # -- A list of arguments passed into the command. These are run through the tpl function.
     args:
-      - $HOST_IP
+      - "$(HOST_IP)"
     # By default, we actually use the source-image for the main application as
     # the image for testing, This allows the image to contain its own "client"
     # (curl, in this example) for testing the application. Alternatively, you
