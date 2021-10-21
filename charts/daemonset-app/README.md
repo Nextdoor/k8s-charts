@@ -2,7 +2,7 @@
 
 Default DaemonSet Helm Chart
 
-![Version: 0.0.2](https://img.shields.io/badge/Version-0.0.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.0.3](https://img.shields.io/badge/Version-0.0.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -122,8 +122,8 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
 | terminationGracePeriodSeconds | string | `nil` | https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#hook-handler-execution |
-| tests.connection.args | list | `["$HOST_IP"]` | A list of arguments passed into the command. These are run through the tpl function. |
-| tests.connection.command | list | `["curl","--retry-connrefused","--retry","5"]` | The command used to trigger the test. |
+| tests.connection.args | list | `["$(HOST_IP)"]` | A list of arguments passed into the command. These are run through the tpl function. |
+| tests.connection.command | list | `["curl","--verbose","--retry-connrefused","--retry","5","--retry-delay","10"]` | The command used to trigger the test. |
 | tests.connection.image.repository | string | `nil` | Sets the image-name that will be used in the "connection" integration test. If this is left empty, then the .image.repository value will be used instead (and the .image.tag will also be used). |
 | tests.connection.image.tag | string | `nil` | Sets the tag that will be used in the "connection" integration test. If this is left empty, the default is "latest" |
 | tolerations | list | `[]` |  |
