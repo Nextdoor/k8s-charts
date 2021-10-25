@@ -408,19 +408,19 @@ spec:
           has not matched the desired number of replicas for longer than 15
           minutes.
       expr: |-
-        (kube_hpa_status_desired_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+        (kube_horizontalpodautoscaler_status_desired_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
           !=
-        kube_hpa_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"})
+        kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"})
           and
-        (kube_hpa_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+        (kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
           >
-        kube_hpa_spec_min_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"})
+        kube_horizontalpodautoscaler_spec_min_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"})
           and
-        (kube_hpa_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+        (kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
           <
-        kube_hpa_spec_max_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"})
+        kube_horizontalpodautoscaler_spec_max_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"})
           and
-        changes(kube_hpa_status_current_replicas[15m]) == 0
+        changes(kube_horizontalpodautoscaler_status_current_replicas[15m]) == 0
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
@@ -438,9 +438,9 @@ spec:
           HPA {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.hpa {{`}}`}}
           has been running at max replicas for longer than 15 minutes.
       expr: |-
-        kube_hpa_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+        kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
           ==
-        kube_hpa_spec_max_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+        kube_horizontalpodautoscaler_spec_max_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
