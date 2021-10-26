@@ -2,7 +2,7 @@
 
 Local Development spinup of Strimzi-managed Kafka
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [strimzi_op]: https://github.com/strimzi/strimzi-kafka-operator
 
@@ -34,13 +34,16 @@ project's development namespace.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://strimzi.io/charts | strimzi-kafka-operator | 0.25.0 |
+| https://strimzi.io/charts | strimzi-kafka-operator | 0.26.0 |
 
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | clusterName | string | `"default"` | Set the name of the Kafka Cluster that is created for local development |
+| kafka.brokerVersion | `str` | `nil` | Optional version of Kafka to install (eg, `2.8.0`) |
+| kafka.interBrokerProtocolVersion | `str` | `nil` | Optional value for the inter.broker.protocol.version property (eg. `2.8`) |
+| kafka.logMessageFormatVersion | `str` | `nil` | Optional value for the log.message.format.version property (eg, `2.7`) |
 | listeners | list | `[{"configuration":{"brokers":[{"advertisedHost":"127.0.0.1","broker":0,"nodePort":32000}]},"name":"external","port":9094,"tls":false,"type":"nodeport"}]` | Additional configurable listeners for connecting to brokers. |
 | namespaceOverride | string | `nil` | Optionally force the namespace that the resources in this stack are launched in. Without this, the default namespace that the Helm chart is being put into is used. It is recommended to keep this empty. |
 | strimzi-kafka-operator.enabled | bool | `true` | Set to `false` to intentionally disable installation of the Operator. This is useful if you are running this stack in a local dev environment where you might have multiple Kafka environments, and are already running the Strimzi operator. |
