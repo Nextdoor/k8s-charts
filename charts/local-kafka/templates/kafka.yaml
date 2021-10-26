@@ -8,6 +8,9 @@ metadata:
   {{- end }}
 spec:
   kafka:
+    {{- with .Values.kafka.brokerVersion }}
+    version: {{ . }}
+    {{- end }}
     replicas: 1
     livenessProbe:
       initialDelaySeconds: 60
@@ -38,8 +41,12 @@ spec:
       offsets.topic.replication.factor: 1
       transaction.state.log.replication.factor: 1
       transaction.state.log.min.isr: 1
-      log.message.format.version: "2.8"
-      inter.broker.protocol.version: "2.8"
+      {{- with .Values.kafka.logMessageFormatVersion }}
+      log.message.format.version: "{{ . }}"
+      {{- end }}
+      {{- with .Values.kafka.interBrokerProtocolVersion }}
+      inter.broker.protocol.version: "{{ . }}"
+      {{- end }}
     storage:
       type: jbod
       volumes:
