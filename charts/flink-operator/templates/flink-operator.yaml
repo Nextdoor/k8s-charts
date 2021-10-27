@@ -1,23 +1,25 @@
 # This is original from https://github.com/spotify/flink-on-k8s-operator/releases/download/v0.3.0/flink-operator.yaml
 # with modifications for general usage
+{{ if .Values.createNamespace }}
 apiVersion: v1
 kind: Namespace
 metadata:
   labels:
     control-plane: controller-manager
-  name: flink-operator-system
+  name: {{ .Release.Namespace }}
+{{ end -}}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: flink-operator-controller-manager
-  namespace: flink-operator-system
+  namespace: {{ .Release.Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: flink-operator-leader-election-role
-  namespace: flink-operator-system
+  namespace: {{ .Release.Namespace }}
 rules:
 - apiGroups:
   - ""
@@ -277,7 +279,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: flink-operator-leader-election-rolebinding
-  namespace: flink-operator-system
+  namespace: {{ .Release.Namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -285,7 +287,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: flink-operator-controller-manager
-  namespace: flink-operator-system
+  namespace: {{ .Release.Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -298,7 +300,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: flink-operator-controller-manager
-  namespace: flink-operator-system
+  namespace: {{ .Release.Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -311,7 +313,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: flink-operator-controller-manager
-  namespace: flink-operator-system
+  namespace: {{ .Release.Namespace }}
 ---
 apiVersion: v1
 kind: Service
@@ -323,7 +325,7 @@ metadata:
   labels:
     control-plane: controller-manager
   name: flink-operator-controller-manager-metrics-service
-  namespace: flink-operator-system
+  namespace: {{ .Release.Namespace }}
 spec:
   ports:
   - name: https
@@ -336,7 +338,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: flink-operator-webhook-service
-  namespace: flink-operator-system
+  namespace: {{ .Release.Namespace }}
 spec:
   ports:
   - port: 443
@@ -351,7 +353,7 @@ metadata:
     app: flink-operator
     control-plane: controller-manager
   name: flink-operator-controller-manager
-  namespace: flink-operator-system
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   selector:
@@ -417,11 +419,11 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: flink-operator-serving-cert
-  namespace: flink-operator-system
+  namespace: {{ .Release.Namespace }}
 spec:
   dnsNames:
-  - flink-operator-webhook-service.flink-operator-system.svc
-  - flink-operator-webhook-service.flink-operator-system.svc.cluster.local
+  - flink-operator-webhook-service.{{ .Release.Namespace }}.svc
+  - flink-operator-webhook-service.{{ .Release.Namespace }}.svc.cluster.local
   issuerRef:
     kind: Issuer
     name: flink-operator-selfsigned-issuer
@@ -431,7 +433,7 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: flink-operator-selfsigned-issuer
-  namespace: flink-operator-system
+  namespace: {{ .Release.Namespace }}
 spec:
   selfSigned: {}
 ---
@@ -439,7 +441,7 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: flink-operator-system/flink-operator-serving-cert
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/flink-operator-serving-cert
   name: flink-operator-mutating-webhook-configuration
 webhooks:
 - admissionReviewVersions:
@@ -447,7 +449,7 @@ webhooks:
   clientConfig:
     service:
       name: flink-operator-webhook-service
-      namespace: flink-operator-system
+      namespace: {{ .Release.Namespace }}
       path: /mutate-flinkoperator-k8s-io-v1beta1-flinkcluster
   failurePolicy: Fail
   name: mflinkcluster.flinkoperator.k8s.io
@@ -467,7 +469,7 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
   annotations:
-    cert-manager.io/inject-ca-from: flink-operator-system/flink-operator-serving-cert
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/flink-operator-serving-cert
   name: flink-operator-validating-webhook-configuration
 webhooks:
 - admissionReviewVersions:
@@ -475,7 +477,7 @@ webhooks:
   clientConfig:
     service:
       name: flink-operator-webhook-service
-      namespace: flink-operator-system
+      namespace: {{ .Release.Namespace }}
       path: /validate-flinkoperator-k8s-io-v1beta1-flinkcluster
   failurePolicy: Fail
   name: vflinkcluster.flinkoperator.k8s.io
