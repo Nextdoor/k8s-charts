@@ -1,0 +1,5 @@
+# -- (`bool`) whether or not to enable global network policy
+enableGlobalNetworkPolicy: true
+
+# -- (`string`) namespace the chart to be installed in
+namespace: interaction-store

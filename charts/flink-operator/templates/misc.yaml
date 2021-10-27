@@ -1,0 +1,39 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-operator
+  namespace: flink-operator-system
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+spec:
+  podSelector:
+    matchLabels:
+      control-plane: controller-manager
+  policyTypes: [Ingress]
+  ingress:
+    - ports:
+      - port: 9443
+        protocol: TCP
+---
+# Grant the Flink Operator carte-blanche to connect to and manage
+# JobManager pods throughout the cluster.
+{{ if .Values.enableGlobalNetworkPolicy }}
+apiVersion: crd.projectcalico.org/v1
+kind: GlobalNetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-flink-operator-access
+spec:
+  order: 100
+  types:
+    - Ingress
+  ingress:
+    - action: Allow
+      protocol: TCP
+      source:
+        selector: control-plane == 'controller-manager'
+        namespaceSelector: projectcalico.org/name == 'flink-operator-system'
+      destination:
+        ports: [8081]
+        selector: component == 'jobmanager' && app == 'flink'
+{{ end -}}

@@ -1,0 +1,18 @@
+# see https://raw.githubusercontent.com/GoogleCloudPlatform/flink-on-k8s-operator/master/examples/prometheus/flink_metric_cluster.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: flink-pod-monitor
+  namespace: flink-operator-system
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+spec:
+  podTargetLabels:
+    - cluster
+    - component
+  selector:
+    matchLabels:
+      app: flink
+  # Specify the port name of the exposed metric port
+  podMetricsEndpoints:
+    - port: prom
