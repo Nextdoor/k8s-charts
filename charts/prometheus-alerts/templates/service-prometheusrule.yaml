@@ -13,7 +13,7 @@ spec:
   groups:
   - name: {{ .Release.Name }}.{{ .Release.Namespace }}.serviceRules
     rules:
-    {{ with .Values.serviceRules.http5XXMonitor }}
+    {{ with .Values.serviceRules.5xxRateTooHigh }}
     {{ if .enabled }}
     - alert: {{ .Release.Name }}-5xx-Rate-Too-High
       annotations:
