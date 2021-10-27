@@ -183,6 +183,11 @@ containerRules:
     threshold: 65
     for: 15m
 
+  HighRequestLatency:
+    severity: warning
+    threshold: 0.5
+    for: 15m
+
 # Namespace Alerting Rules
 #
 # These rules provide some basic alerting around namespace limits that may
