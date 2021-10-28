@@ -221,6 +221,20 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/flink-job-0.0.1/flink-job-0.0.1.tgz
     version: 0.0.1
+  istio-alerts:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2021-10-28T22:03:55.157312074Z"
+    description: A Helm chart that provisions a series of alerts for istio VirtualServices
+    digest: d0ca99187fe8633f26ee26a575dc0d7b402273161e4e0f01adaf8209a74463d6
+    maintainers:
+    - email: aaron@nextdoor.com
+      name: sabw8217
+    name: istio-alerts
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/istio-alerts-0.1.0/istio-alerts-0.1.0.tgz
+    version: 0.1.0
   istio-endpoints:
   - apiVersion: v2
     appVersion: latest
@@ -350,6 +364,19 @@ entries:
   prometheus-alerts:
   - apiVersion: v2
     appVersion: 0.0.1
+    created: "2021-10-28T22:03:55.300242719Z"
+    description: Helm Chart that provisions a series of common Prometheus Alerts
+    digest: eaa5fa6f9aca1ea3a5b4aa0ce7c53d1821b240491aa712cf538f9c403a62e411
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: prometheus-alerts
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/prometheus-alerts-0.2.2/prometheus-alerts-0.2.2.tgz
+    version: 0.2.2
+  - apiVersion: v2
+    appVersion: 0.0.1
     created: "2021-10-25T13:34:14.485863018Z"
     description: Helm Chart that provisions a series of common Prometheus Alerts
     digest: 608c45cb4f612863890c53e37d9af365633a15cf438858c5ce47ba18ae2c9331
@@ -453,6 +480,19 @@ entries:
     - https://github.com/Nextdoor/k8s-charts/releases/download/prometheus-alerts-0.1.0/prometheus-alerts-0.1.0.tgz
     version: 0.1.0
   simple-app:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2021-10-28T22:03:55.463794386Z"
+    description: Default Microservice Helm Chart
+    digest: ba704e87e86169a939269219aaf2edd287501ca7c0b7897e7102396512733fd4
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: simple-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/simple-app-0.14.6/simple-app-0.14.6.tgz
+    version: 0.14.6
   - apiVersion: v2
     appVersion: latest
     created: "2021-10-11T21:20:33.004532583Z"
