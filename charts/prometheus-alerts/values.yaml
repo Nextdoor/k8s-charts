@@ -204,23 +204,3 @@ namespaceRules:
     severity: critical
     threshold: 99
     for: 10m
-
-# Service Rules
-#
-# These rules provide some basic alerting around performance of any VirtualServices
-# in the target namespace.
-#
-serviceRules:
-  # -- Whether to enable the service rules template
-  enabled: true
-
-  # -- Configuration related to the 5xx monitor for the VirtualService.
-  http5XXMonitor:
-    # -- Whether to enable the monitor on 5xxs returned by the VirtualService.
-    enabled: true
-    # -- How long to evaluate the rate of 5xxs over.
-    for: 5m
-    # -- The threshold for considering the 5xx monitor to be alarming. Default is 0.05% error rate, i.e 99.95% reliability.
-    threshold: 0.0005
-    # -- Severity of the 5xx monitor
-    severity: critical

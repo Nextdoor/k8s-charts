@@ -18,7 +18,7 @@ spec:
     - alert: {{ $release.Name }}-5xx-Rate-Too-High
       annotations:
         summary: {{`High rate of 5xx errors from {{$labels.destination_service_name}} in namespace {{$labels.namespace}}`}}
-        runbook_url: {{ $values.defaults.runbookUrl }}#5xx-rate-too-high
+        runbook_url: {{ $values.defaults.runbookUrl }}#5xx-Rate-Too-High
         description: >-
           High rate of 5xx responses from the {{`$labels.destination_service_name`}} VirtualService in namespace {{`{{$labels.namespace}}`}}.
       expr: >-
