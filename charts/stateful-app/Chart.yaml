@@ -2,8 +2,13 @@ apiVersion: v2
 name: stateful-app
 description: Default StatefulSet Helm Chart
 type: application
-version: 0.0.1
+version: 0.1.0
 appVersion: latest
 maintainers:
   - name: diranged
     email: matt@nextdoor.com
+dependencies:
+  - name: istio-alerts
+    version: 0.1.0
+    repository: "file://../istio-alerts/"
+    condition: istio-alerts.enabled

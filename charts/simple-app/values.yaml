@@ -461,5 +461,11 @@ tests:
 # -- The URL of the runbook for this service.
 runbookUrl:
 
-alerts:
-  severity: critical
+# Configure alerts for all istio VirtualServices in the namespace this chart is launched in.
+# If you are launching a single copy of simple-app in a namespace, just leave this enabled
+# to reproduce similar behavior to services launched on ECS with dedicated ALBs. For more
+# complex scenarios, you may want to disable this, and have your application chart directly
+# depend on istio-alerts.
+istio-alerts:
+  # -- (`bool`) Whether or not to enable the istio-alerts chart.
+  enabled: true

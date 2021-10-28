@@ -464,3 +464,12 @@ tests:
       # -- Sets the tag that will be used in the "connection" integration test.
       # If this is left empty, the default is "latest"
       tag:
+
+# Configure alerts for all istio VirtualServices in the namespace this chart is launched in.
+# If you are launching a single copy of stateful-app in a namespace, just leave this enabled
+# to reproduce similar behavior to services launched on ECS with dedicated ALBs. For more
+# complex scenarios, you may want to disable this, and have your application chart directly
+# depend on istio-alerts.
+istio-alerts:
+  # -- (`bool`) Whether or not to enable the istio-alerts chart.
+  enabled: true
