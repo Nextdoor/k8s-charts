@@ -1,4 +1,3 @@
-
 # This identifies all of the resources as belonging to this particular chart,
 # even though they will ultimately be named likely by the parent chart that
 # uses this as a dependency.
