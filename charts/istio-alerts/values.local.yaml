@@ -1,0 +1,5 @@
+# Example PagerDuty config - totally bogus token
+alertManager:
+  enabled: true
+  pagerduty:
+    routing_key: abcdefg

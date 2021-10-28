@@ -1,0 +1,35 @@
+{{ $values           := .Values }}
+{{ $release          := .Release }}
+{{ if .Values.serviceRules.enabled }}
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}-service-rules
+  annotations:
+    nextdoor.com/chart: {{ .Values.chart_name }}
+    nextdoor.com/source: {{ .Values.chart_source }}
+spec:
+  groups:
+  - name: {{ .Release.Name }}.{{ .Release.Namespace }}.serviceRules
+    rules:
+    {{ with .Values.serviceRules.http5XXMonitor }}
+    {{ if .enabled }}
+    - alert: {{ $release.Name }}-5xx-Rate-Too-High
+      annotations:
+        summary: {{`High rate of 5xx errors from {{$labels.destination_service_name}} in namespace {{$labels.namespace}}`}}
+        runbook_url: {{ $values.defaults.runbookUrl }}#5xx-Rate-Too-High
+        description: >-
+          High rate of 5xx responses from the {{`$labels.destination_service_name`}} VirtualService in namespace {{`{{$labels.namespace}}`}}.
+      expr: >-
+        sum by (destination_service_name) (increase(istio_requests_total{response_code=~"5.*", destination_service_namespace="{{ $release.Namespace }}"}[60s]))
+         / sum by (destination_service_name) (increase(istio_requests_total{destination_service_namespace="{{ $release.Namespace }}"}[60s])) > {{ .threshold }}
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        {{- if $values.defaults.additionalRuleLabels }}
+        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- end }}
+    {{- end }}
+    {{- end }}
+{{- end }}

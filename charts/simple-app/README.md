@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.14.5](https://img.shields.io/badge/Version-0.14.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.14.6](https://img.shields.io/badge/Version-0.14.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -150,12 +150,6 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | virtualService.enabled | bool | `false` | (Boolean) Maps the Service to an Istio IngressGateway, exposing the service outside of the Kubernetes cluster. |
 | virtualService.gateways | list | `[]` | The name of the Istio `Gateway` resource that this `VirtualService` will register with. You can get a list of the avaialable `Gateways` by running `kubectl -n istio-system get gateways`. Not specifying a Gateway means that you are creating a VirtualService routing definition only inside of the Kubernetes cluster, which is totally reasonable if you want to do that. |
 | virtualService.hosts | list | `["{{ include \"simple-app.fullname\" . }}"]` | A list of destination hostnames that this VirtualService will accept traffic for. Multiple names can be listed here. See https://istio.io/latest/docs/reference/config/networking/virtual-service/#VirtualService for more details. |
-| virtualService.http5XXMonitor | object | `{"enabled":true,"period":"5m","runbookUrl":null,"severity":null,"threshold":0.0005}` | Configuration related to the 5xx monitor for the VirtualService. |
-| virtualService.http5XXMonitor.enabled | bool | `true` | Whether to enable the monitor on 5xxs returned by the VirtualService. |
-| virtualService.http5XXMonitor.period | string | `"5m"` | How long to evaluate the rate of 5xxs over. |
-| virtualService.http5XXMonitor.runbookUrl | string | `nil` | The runbook URL for the 5xx alarm. |
-| virtualService.http5XXMonitor.severity | string | `nil` | Severity of the 5xx monitor |
-| virtualService.http5XXMonitor.threshold | float | `0.0005` | The threshold for considering the 5xx monitor to be alarming. Default is 0.05% error rate, i.e 99.95% reliabilty. |
 | virtualService.matches | object | `{}` | (`map[]`) A list of Istio `HTTPMatchRequest` objects that will be applied to the VirtualService. This is the more advanced and customizable way of controlling which paths get sent to your backend. These are added _in addition_ to the `paths` or `path` settings. See https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPMatchRequest for examples. |
 | virtualService.namespace | string | `"istio-system"` | The namespace where the Istio services are operating. Do not change this. |
 | virtualService.path | string | `"/"` | The default path prefix that the `VirtualService` will match requests against to pass to the default `Service` object in this deployment. |
