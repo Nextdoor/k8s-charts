@@ -8,3 +8,8 @@ sources:
 maintainers:
   - name: pjthepooh
     email: pjhuang@nextdoor.com
+dependencies:
+  - name: flink-operator-crd
+    version: 0.3.0
+    repository: https://k8s-charts.nextdoor.com
+    condition: flink-operator-crd.enabled

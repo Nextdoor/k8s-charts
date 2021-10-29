@@ -1,3 +1,7 @@
+flink-operator-crd:
+  # -- (`bool`) whether or not to enable flink-operator-crd chart
+  enabled: false
+
 # -- (`bool`) whether or not to create namespace
 createNamespace: false
 
