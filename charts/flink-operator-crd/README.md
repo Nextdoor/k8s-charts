@@ -4,6 +4,12 @@
 
 Intalls the CRD the open-sourced flink-on-k8s-operator from Spotify
 
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| pjthepooh | pjhuang@nextdoor.com |  |
+
 ## Source Code
 
 * <https://github.com/spotify/flink-on-k8s-operator/releases>
