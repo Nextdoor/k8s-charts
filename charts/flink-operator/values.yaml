@@ -7,3 +7,7 @@ createNamespace: false
 
 # -- (`bool`) whether or not to enable global network policy
 enableGlobalNetworkPolicy: true
+
+podMonitor:
+  # -- (`bool`) whether or not to enable pod monitor
+  enabled: true

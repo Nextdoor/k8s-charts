@@ -1,1 +1,4 @@
 enableGlobalNetworkPolicy: false
+
+podMonitor:
+  enabled: false
