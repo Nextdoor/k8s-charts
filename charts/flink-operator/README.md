@@ -24,8 +24,6 @@ Intalls the Spotify-version of the Flink-on-K8S-Operator
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| createNamespace | bool | `false` | (`bool`) whether or not to create namespace |
-| enableGlobalNetworkPolicy | bool | `true` | (`bool`) whether or not to enable global network policy |
 | flink-operator-crd.enabled | bool | `false` | (`bool`) whether or not to enable flink-operator-crd chart |
 | podMonitor.enabled | bool | `true` | (`bool`) whether or not to enable pod monitor |
 

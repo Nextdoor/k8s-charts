@@ -2,12 +2,6 @@ flink-operator-crd:
   # -- (`bool`) whether or not to enable flink-operator-crd chart
   enabled: false
 
-# -- (`bool`) whether or not to create namespace
-createNamespace: false
-
-# -- (`bool`) whether or not to enable global network policy
-enableGlobalNetworkPolicy: true
-
 podMonitor:
   # -- (`bool`) whether or not to enable pod monitor
   enabled: true

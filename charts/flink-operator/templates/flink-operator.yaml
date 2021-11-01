@@ -1,14 +1,13 @@
 # This is original from https://github.com/spotify/flink-on-k8s-operator/releases/download/v0.3.0/flink-operator.yaml
 # with modifications for general usage
-{{ if .Values.createNamespace }}
-apiVersion: v1
-kind: Namespace
-metadata:
-  labels:
-    control-plane: controller-manager
-  name: {{ .Release.Namespace }}
-{{ end -}}
----
+#
+#apiVersion: v1
+#kind: Namespace
+#metadata:
+#  labels:
+#    control-plane: controller-manager
+#  name: {{ .Release.Namespace }}
+#---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
