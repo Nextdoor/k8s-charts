@@ -1,2 +1,10 @@
 podMonitor:
   enabled: false
+
+mutatingWebhook:
+  enabled: false
+
+validatingWebhook:
+  enabled: false
+
+namespaceScoped: true

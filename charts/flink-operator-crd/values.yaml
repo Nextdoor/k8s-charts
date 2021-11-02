@@ -1,0 +1,5 @@
+# -- (`bool`) If enabled, then ClusterRoles will be created that aggregate
+# permissions to view/edit the FlinkOperator CRs to the standard admin/edit
+# cluster roles via the `rbac.authorization.k8s.io/aggregate-to-edit` and
+# `rbac.authorization.k8s.io/aggregate-to-admin` labels.
+clusterRoles: true

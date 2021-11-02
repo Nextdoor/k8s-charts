@@ -2,6 +2,40 @@ flink-operator-crd:
   # -- (`bool`) whether or not to enable flink-operator-crd chart
   enabled: false
 
+image:
+  # -- (`string`) The Docker Image to pull for the operator. Override to pull a custom image.
+  repository: ghcr.io/spotify/flink-operator
+
+  # -- (`string`) The Docker Image Tag to pull - defaults to the Chart AppVersion value in Chart.yaml.
+  tag:
+
 podMonitor:
   # -- (`bool`) whether or not to enable pod monitor
   enabled: true
+
+leaderElection:
+  # -- (`bool`) Whether or not to enable Leader Election. If enabled, then a
+  # ClusterRole will be created with the appropriate privileges. Optionally
+  # disable-able if you are instaling in a non-privileged environment.
+  enabled: true
+
+  # -- (`string` The name of the Lease to hold if Leader Election is enabled.
+  name: flink-operator-lock
+
+mutatingWebhook:
+  # -- (`bool`) Whether or not to create the MutatingWebhookConfiguration.
+  # Optionally disable-able if you are installing in a non-privileged
+  # environment where you cannot create Cluster-scoped resources.
+  enabled: true
+
+validatingWebhook:
+  # -- (`bool`) Whether or not to create the ValidatingWebhookConfiguration.
+  # Optionally disable-able if you are installing in a non-privileged
+  # environment where you cannot create Cluster-scoped resources.
+  enabled: true
+
+# -- (`int`) The verbosity level to set logging to.
+logLevel: 10
+
+# -- (`bool`) If enabled, then the Flink Operator will be scoped to watch only this local namespace.
+namespaceScoped: false

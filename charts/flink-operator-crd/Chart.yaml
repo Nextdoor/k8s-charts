@@ -2,7 +2,7 @@ apiVersion: v2
 appVersion: "1.0"
 description: Intalls the CRD the open-sourced flink-on-k8s-operator from Spotify
 name: flink-operator-crd
-version: 0.3.0
+version: 0.3.1
 sources:
   - https://github.com/spotify/flink-on-k8s-operator/releases
 maintainers:
