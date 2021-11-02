@@ -89,3 +89,11 @@ serviceRules:
     threshold: 0.0005
     # -- Severity of the 5xx monitor
     severity: critical
+
+  highRequestLatency:
+    # -- Severity of the latency monitor
+    severity: warning
+    # -- The threshold for considering the latency monitor to be alarming.
+    threshold: 0.5
+    # -- How long to evaluate the latency of services.
+    for: 15m

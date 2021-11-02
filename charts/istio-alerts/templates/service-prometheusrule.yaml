@@ -32,4 +32,27 @@ spec:
         {{- end }}
     {{- end }}
     {{- end }}
+
+     # Adding latency alarm to trigger when request latency is above > threshold
+    {{ with .Values.serviceRules.highRequestLatency }}
+    - alert: HighRequestLatency
+      annotations:
+        summary: Processes experience latency above {{ .threshold }}.
+        runbook_url: {{ $values.defaults.runbookUrl }} #HighRequestLatency
+        description: >-
+          {{`{{ $value | humanizePercentage }} latency is above
+          namespace {{ $labels.namespace }} for container {{ $labels.container
+          }} in pod {{ $labels.pod }}.`}}
+      expr: |-
+        sum(irate(istio_request_duration_milliseconds_bucket{reporter=~"destination",destination_service=~"featurestore-featurestore-api.featurestore.svc.cluster.local"}[1m])) by (le)) / 1000) by (container, pod, namespace)
+        |
+        sum(irate(istio_request_duration_seconds_bucket{reporter=~"destination",destination_service=~"featurestore-featurestore-api.featurestore.svc.cluster.local"}[1m])) by (le) by (container, pod, namespace)
+          > {{ .threshold }}
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        {{- if $values.defaults.additionalRuleLabels }}
+        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- end }}
+    {{- end }}
 {{- end }}
