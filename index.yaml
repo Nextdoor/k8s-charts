@@ -221,6 +221,21 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/flink-job-0.0.1/flink-job-0.0.1.tgz
     version: 0.0.1
+  flink-operator-crd:
+  - apiVersion: v2
+    appVersion: "1.0"
+    created: "2021-11-02T14:01:15.762418764Z"
+    description: Intalls the CRD the open-sourced flink-on-k8s-operator from Spotify
+    digest: 02d9117e0de0f32bb70f93ebef769b60684c3dfce28fabb136b1ad34b866b7d6
+    maintainers:
+    - email: pjhuang@nextdoor.com
+      name: pjthepooh
+    name: flink-operator-crd
+    sources:
+    - https://github.com/spotify/flink-on-k8s-operator/releases
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/flink-operator-crd-0.3.0/flink-operator-crd-0.3.0.tgz
+    version: 0.3.0
   istio-alerts:
   - apiVersion: v2
     appVersion: 0.0.1
