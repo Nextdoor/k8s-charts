@@ -13,3 +13,7 @@ dependencies:
     version: 0.3.0
     repository: https://k8s-charts.nextdoor.com
     condition: flink-operator-crd.enabled
+  - name: cert-manager
+    version: v1.6.1
+    repository: https://charts.jetstack.io
+    condition: cert-manager.enabled

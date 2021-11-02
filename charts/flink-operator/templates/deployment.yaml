@@ -7,7 +7,7 @@ metadata:
   name: {{ .Release.Name }}-controller-manager
   namespace: {{ .Release.Namespace }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}
@@ -18,54 +18,52 @@ spec:
         app: {{ .Release.Name }}
         control-plane: controller-manager
     spec:
+      securityContext:
+        runAsNonRoot: false
+      serviceAccountName: {{ .Release.Name }}-controller-manager
+      terminationGracePeriodSeconds: 10
       containers:
-      - args:
-        - --metrics-addr=127.0.0.1:8080
-        - --enable-leader-election
-        - --zap-devel=false
+      - name: manager
+        image: {{ include "flink-operator.imageFqdn" . }}
         command:
         - /flink-operator
-        image: {{ include "flink-operator.imageFqdn" . }}
-        name: manager
+        args:
+        - --metrics-addr=127.0.0.1:8080
+        - --zap-devel=false
+        - --enable-leader-election={{ .Values.leaderElection.enabled }}
+        - --leader-election-id={{ .Values.leaderElection.name }}
+        {{- if .Values.namespaceScoped }}
+        - --watch-namespace={{ .Release.Namespace }}
+        {{- end }}
         ports:
         - containerPort: 9443
           name: webhook-server
           protocol: TCP
+        {{- with .Values.resources }}
         resources:
-          limits:
-            #cpu: 100m
-            #memory: 30Mi
-            memory: 256Mi
-          requests:
-            #cpu: 100m
-            #memory: 20Mi
-            cpu: 500m
-            memory: 256Mi
+          {- toYaml . | nindent 10 }}
+        {{- end }}
         securityContext:
           allowPrivilegeEscalation: false
         volumeMounts:
         - mountPath: /tmp/k8s-webhook-server/serving-certs
           name: cert
           readOnly: true
-      - args:
+
+      - name: kube-rbac-proxy
+        image: {{ .Values.rbacProxy.image.repository}}:{{ .Values.rbacProxy.image.tag }}
+        args:
         - --secure-listen-address=0.0.0.0:8443
         - --upstream=http://127.0.0.1:8080/
         - --logtostderr=true
-        - --v={{ .Values.logLevel }}
-        - --enable-leader-election={{ .Values.leaderElection.enabled }}
-        - --leader-election-id={{ .Values.leaderElection.name }}
-        {{- if .Values.namespaceScoped }}
-        - --watch-namespace={{ .Release.Namespace }}
-        {{- end }}
-        image: gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0
-        name: kube-rbac-proxy
+        - --v={{ .Values.rbacProxy.logLevel }}
         ports:
         - containerPort: 8443
           name: https
-      securityContext:
-        runAsNonRoot: false
-      serviceAccountName: flink-operator-controller-manager
-      terminationGracePeriodSeconds: 10
+        {{- with .Values.rbacProxy.resources }}
+        resources:
+          {- toYaml . | nindent 10 }}
+        {{- end }}
       volumes:
       - name: cert
         secret:

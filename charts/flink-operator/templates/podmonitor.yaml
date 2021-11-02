@@ -1,12 +1,9 @@
-# see https://raw.githubusercontent.com/GoogleCloudPlatform/flink-on-k8s-operator/master/examples/prometheus/flink_metric_cluster.yaml
 {{ if .Values.podMonitor.enabled }}
+# see https://raw.githubusercontent.com/GoogleCloudPlatform/flink-on-k8s-operator/master/examples/prometheus/flink_metric_cluster.yaml
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: flink-pod-monitor
-  namespace: {{ .Release.Namespace }}
-  annotations:
-    argocd.argoproj.io/hook: PostSync
+  name: {{ .Release.Name }}
 spec:
   podTargetLabels:
     - cluster

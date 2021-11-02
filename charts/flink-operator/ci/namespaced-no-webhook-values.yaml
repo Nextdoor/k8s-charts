@@ -1,0 +1,13 @@
+podMonitor:
+  enabled: false
+
+mutatingWebhook:
+  enabled: false
+
+validatingWebhook:
+  enabled: false
+
+namespaceScoped: true
+
+cert-manager:
+  enabled: true
