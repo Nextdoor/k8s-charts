@@ -44,10 +44,8 @@ spec:
           namespace {{ $labels.namespace }} for container {{ $labels.container
           }} in pod {{ $labels.pod }}.`}}
       expr: |-
-        sum by (destination_service_name) (irate(istio_request_duration_milliseconds_bucket{reporter=~"destination",destination_service_namespace="{{ $release.Namespace }}"}[1m])) by (le)) / 1000)
-        |
-        sum by (destination_service_name) (irate(istio_request_duration_seconds_bucket{reporter=~"destination", destination_service_namespace="{{ $release.Namespace }}"}[1m])) by (le)
-          > {{ .threshold }}
+        sum by (destination_service_name) (irate(istio_request_duration_milliseconds_bucket{reporter=~"destination",destination_service_namespace="{{ $release.Namespace }}"}[1m]) / 1000)
+        > {{ .threshold }}
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
