@@ -35,7 +35,8 @@ spec:
 
      # Adding latency alarm to trigger when request latency is above > threshold
     {{ with .Values.serviceRules.highRequestLatency }}
-    - alert: HighRequestLatency
+    {{ if .enabled }}
+    - alert: {{ $release.Name }}-HighRequestLatency
       annotations:
         summary: Processes experience latency above {{ .threshold }}.
         runbook_url: {{ $values.defaults.runbookUrl}} #HighRequestLatency
@@ -53,4 +54,5 @@ spec:
         {{ toYaml $values.defaults.additionalRuleLabels | nindent 8}}
         {{- end }}
     {{- end }}
+  {{- end }}
 {{- end }}

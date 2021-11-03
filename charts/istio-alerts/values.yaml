@@ -91,6 +91,8 @@ serviceRules:
     severity: critical
 
   highRequestLatency:
+    # -- Whether to enable the monitor on latency returned by the VirtualService.
+    enabled: true
     # -- Severity of the latency monitor
     severity: warning
     # -- The threshold for considering the latency monitor to be alarming.

@@ -25,6 +25,7 @@ A Helm chart that provisions a series of alerts for istio VirtualServices
 | defaults.additionalRuleLabels | object | `{}` | Additional custom labels attached to every PrometheusRule |
 | defaults.runbookUrl | string | `"https://github.com/Nextdoor/k8s-charts/blob/main/charts/istio-alerts/runbook.md"` | The prefix URL to the runbook_urls that will be applied to each PrometheusRule |
 | serviceRules.enabled | bool | `true` | Whether to enable the service rules template |
+| serviceRules.highRequestLatency.enabled | bool | `true` | Whether to enable the monitor on latency returned by the VirtualService. |
 | serviceRules.highRequestLatency.for | string | `"15m"` | How long to evaluate the latency of services. |
 | serviceRules.highRequestLatency.severity | string | `"warning"` | Severity of the latency monitor |
 | serviceRules.highRequestLatency.threshold | float | `0.5` | The threshold for considering the latency monitor to be alarming. |
