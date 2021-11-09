@@ -18,7 +18,7 @@ webhooks:
   {{- if .Values.namespaceScoped }}
   namespaceSelector:
     matchExpressions:
-      - key: flink-operator-namespace
+      - key: kubernetes.io/metadata.name
         operator: In
         values:
           - {{ .Release.Namespace }}
