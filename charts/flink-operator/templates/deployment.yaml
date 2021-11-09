@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Release.Name }}
+    control-plane: controller-manager
+  name: {{ .Release.Name }}-controller-manager
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+      control-plane: controller-manager
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        control-plane: controller-manager
+    spec:
+      securityContext:
+        runAsNonRoot: false
+      serviceAccountName: {{ .Release.Name }}-controller-manager
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: manager
+        image: {{ include "flink-operator.imageFqdn" . }}
+        command:
+        - /flink-operator
+        args:
+        - --metrics-addr=127.0.0.1:8080
+        - --zap-devel=false
+        - --enable-leader-election={{ .Values.leaderElection.enabled }}
+        - --leader-election-id={{ .Values.leaderElection.name }}
+        {{- if .Values.namespaceScoped }}
+        - --watch-namespace={{ .Release.Namespace }}
+        {{- end }}
+        ports:
+        - containerPort: 9443
+          name: webhook-server
+          protocol: TCP
+        {{- with .Values.resources }}
+        resources:
+          {- toYaml . | nindent 10 }}
+        {{- end }}
+        securityContext:
+          allowPrivilegeEscalation: false
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
+
+      - name: kube-rbac-proxy
+        image: {{ .Values.rbacProxy.image.repository}}:{{ .Values.rbacProxy.image.tag }}
+        args:
+        - --secure-listen-address=0.0.0.0:8443
+        - --upstream=http://127.0.0.1:8080/
+        - --logtostderr=true
+        - --v={{ .Values.rbacProxy.logLevel }}
+        ports:
+        - containerPort: 8443
+          name: https
+        {{- with .Values.rbacProxy.resources }}
+        resources:
+          {- toYaml . | nindent 10 }}
+        {{- end }}
+      volumes:
+      - name: cert
+        secret:
+          defaultMode: 420
+          secretName: {{ .Release.Name }}-webhook-server-cert

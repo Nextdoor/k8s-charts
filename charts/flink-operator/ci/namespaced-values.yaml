@@ -1,0 +1,7 @@
+podMonitor:
+  enabled: false
+
+namespaceScoped: true
+
+cert-manager:
+  enabled: true

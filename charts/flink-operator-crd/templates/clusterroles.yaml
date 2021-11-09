@@ -1,0 +1,28 @@
+{{- if .Values.clusterRoles }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Release.Name }}-flink-resources-edit
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+rules:
+  - apiGroups: [ flinkoperator.k8s.io ]
+    resources: [ "*" ]
+    verbs: [ create, delete, deletecollection, patch, update]
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Release.Name }}-flink-resources-view
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+rules:
+  - apiGroups: [ flinkoperator.k8s.io ]
+    resources: [ "*" ]
+    verbs: [get, list, watch]
+{{- end }}

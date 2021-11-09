@@ -1,0 +1,17 @@
+{{ if .Values.podMonitor.enabled }}
+# see https://raw.githubusercontent.com/GoogleCloudPlatform/flink-on-k8s-operator/master/examples/prometheus/flink_metric_cluster.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  podTargetLabels:
+    - cluster
+    - component
+  selector:
+    matchLabels:
+      app: flink
+  # Specify the port name of the exposed metric port
+  podMetricsEndpoints:
+    - port: prom
+{{ end -}}

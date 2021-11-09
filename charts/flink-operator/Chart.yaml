@@ -1,0 +1,19 @@
+apiVersion: v2
+description: Intalls the Spotify-version of the Flink-on-K8S-Operator
+name: flink-operator
+version: 0.0.1
+appVersion: v0.3.0
+sources:
+  - https://github.com/spotify/flink-on-k8s-operator/releases
+maintainers:
+  - name: pjthepooh
+    email: pjhuang@nextdoor.com
+dependencies:
+  - name: flink-operator-crd
+    version: 0.3.0
+    repository: https://k8s-charts.nextdoor.com
+    condition: flink-operator-crd.enabled
+  - name: cert-manager
+    version: v1.6.1
+    repository: https://charts.jetstack.io
+    condition: cert-manager.enabled

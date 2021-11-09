@@ -1,0 +1,64 @@
+{{- if .Values.tests.enabled }}
+apiVersion: flinkoperator.k8s.io/v1beta1
+kind: FlinkCluster
+metadata:
+  name: {{ .Release.Name}}-wordcount
+  annotations:
+    'helm.sh/hook': test
+spec:
+  flinkVersion: 1.9.3
+  recreateOnUpdate: false
+  serviceAccountName: default
+  image:
+    name: flink:1.9.3
+  jobManager:
+    accessScope: Cluster
+    memoryProcessRatio: 80
+    ports:
+      ui: 8081
+      rpc: 6123
+      blob: 6124
+      query: 6125
+    resources:
+      requests:
+        memory: 512Mi
+      limits:
+        memory: 512Mi
+  taskManager:
+    replicas: 2
+    memoryProcessRatio: 80
+    ports:
+      data: 6121
+      rpc: 6122
+      query: 6125
+    resources:
+      requests:
+        memory: 512Mi
+      limits:
+        memory: 512Mi
+  job:
+    jarFile: /cache/flink-app.jar
+    className: org.apache.flink.streaming.examples.wordcount.WordCount
+    args: [--input, ./NOTICE]
+    parallelism: 2
+    savepointsDir: /cache/savepoints
+    takeSavepointOnUpdate: false
+    restartPolicy: Never
+    initContainers:
+      - name: downloader
+        image: curlimages/curl
+        env:
+          - name: JAR_URL
+            value: https://repo1.maven.org/maven2/org/apache/flink/flink-examples-streaming_2.12/1.9.3/flink-examples-streaming_2.12-1.9.3-WordCount.jar
+          - name: DEST_PATH
+            value: /cache/flink-app.jar
+        command: ['sh', '-c', 'curl -o ${DEST_PATH} ${JAR_URL}']
+    volumes:
+      - name: cache
+        emptyDir: {}
+    volumeMounts:
+      - mountPath: /cache
+        name: cache
+  flinkProperties:
+    taskmanager.numberOfTaskSlots: '1'
+{{- end }}

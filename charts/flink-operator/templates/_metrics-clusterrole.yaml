@@ -1,0 +1,12 @@
+# Disabled: Unclear that this is needed. I am not seeing this actually bound to
+# any ServiceAccounts in https://github.com/spotify/flink-on-k8s-operator/tree/master/config/rbac.
+#
+#apiVersion: rbac.authorization.k8s.io/v1
+#kind: ClusterRole
+#metadata:
+#  name: {{ .Release.Name }}-metrics-reader
+#rules:
+#- nonResourceURLs:
+#  - /metrics
+#  verbs:
+#  - get
