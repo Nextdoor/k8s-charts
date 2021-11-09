@@ -233,7 +233,45 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/flink-job-0.0.1/flink-job-0.0.1.tgz
     version: 0.0.1
+  flink-operator:
+  - apiVersion: v2
+    appVersion: v0.3.0
+    created: "2021-11-09T23:22:42.158426853Z"
+    dependencies:
+    - condition: flink-operator-crd.enabled
+      name: flink-operator-crd
+      repository: https://k8s-charts.nextdoor.com
+      version: 0.3.0
+    - condition: cert-manager.enabled
+      name: cert-manager
+      repository: https://charts.jetstack.io
+      version: v1.6.1
+    description: Intalls the Spotify-version of the Flink-on-K8S-Operator
+    digest: 80f7928668ee83b7081c4186a886c403e12578b3e8b2faf6d5571418721495a3
+    maintainers:
+    - email: pjhuang@nextdoor.com
+      name: pjthepooh
+    name: flink-operator
+    sources:
+    - https://github.com/spotify/flink-on-k8s-operator/releases
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/flink-operator-0.0.1/flink-operator-0.0.1.tgz
+    version: 0.0.1
   flink-operator-crd:
+  - apiVersion: v2
+    appVersion: "1.0"
+    created: "2021-11-09T23:22:42.371933351Z"
+    description: Intalls the CRD the open-sourced flink-on-k8s-operator from Spotify
+    digest: 33fac782a29731b94865b99d97a03162c60295d260203b59d3717a5b3a3b1972
+    maintainers:
+    - email: pjhuang@nextdoor.com
+      name: pjthepooh
+    name: flink-operator-crd
+    sources:
+    - https://github.com/spotify/flink-on-k8s-operator/releases
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/flink-operator-crd-0.3.1/flink-operator-crd-0.3.1.tgz
+    version: 0.3.1
   - apiVersion: v2
     appVersion: "1.0"
     created: "2021-11-02T14:01:15.762418764Z"
