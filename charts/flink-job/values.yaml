@@ -76,6 +76,8 @@ logConfig:
     </configuration>
 
 jobManager:
+  # -- (`int`) The number of JobManager replicas
+  replicas: 1
   # -- (String) Access scope of the JobManager service. enum("Cluster", "VPC", "External", "NodePort", "Headless")
   accessScope: Cluster
   ports:
@@ -145,6 +147,8 @@ taskManager:
   memoryProcessRatio: 80
 
 job:
+  # -- (String) JobMode of the job submitter, either Detached or Blocking
+  mode: Detached
   # -- (String) JAR file of the job
   jarFile: ./examples/streaming/WordCount.jar
   # -- (String) Java class name of the job

@@ -17,6 +17,7 @@ spec:
   serviceAccountName: {{ template "flink-job-cluster.fullname" . }}
   recreateOnUpdate: {{ .Values.recreateOnUpdate }}
   jobManager:
+    replicas: {{ .Values.jobManager.replicas }}
     accessScope: {{ .Values.jobManager.accessScope }}
     ports:
       ui: {{ .Values.jobManager.ports.ui }}
@@ -112,6 +113,7 @@ spec:
       {{- toYaml .Values.taskManager.securityContext | nindent 6 }}
     memoryProcessRatio: {{ .Values.taskManager.memoryProcessRatio }}
   job:
+    mode: {{ .Values.job.mode }}
     jarFile: {{ .Values.job.jarFile }}
     className: {{ .Values.job.className }}
     args: {{ .Values.job.args }}
