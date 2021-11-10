@@ -45,7 +45,7 @@ label.
 https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/?tab=kubernetes
 */}}
 {{- define "daemonset-app.labels" -}}
-{{- $_tag := default .Chart.AppVersion .Values.image.tag -}}
+{{- $_tag := include "daemonset-app.imageTag" . }}
 {{- $tag  := $_tag | replace ":" "_" | trunc 63 | quote -}}
 {{- if not (hasKey .Values.podLabels "app") }}
 app: {{ .Release.Name }}
@@ -93,10 +93,19 @@ Create the name of the service account to use
 Proxy and Main App Image Names
 */}}
 {{- define "daemonset-app.imageFqdn" -}}
-{{- $tag := default .Chart.AppVersion .Values.image.tag }}
+{{- $tag := include "daemonset-app.imageTag" . }}
 {{- if hasPrefix "sha256:" $tag }}
 {{- .Values.image.repository }}@{{ $tag }}
 {{- else }}
 {{- .Values.image.repository }}:{{ $tag }}
 {{- end }}
+{{- end }}
+
+{{/*
+Gathers the application image tag. This allows overriding the tag with a master
+`forceTag` setting, as well as the more common mechanism of setting the `tag`
+setting.
+*/}}
+{{- define "daemonset-app.imageTag" -}}
+{{- default .Chart.AppVersion (default .Values.image.tag .Values.image.forceTag) }}
 {{- end }}

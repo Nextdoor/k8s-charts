@@ -26,6 +26,12 @@ image:
   # -- (String) Overrides the image tag whose default is the chart appVersion.
   tag: null
 
+  # -- (String) Forcefully overrides the `image.tag` setting - this is useful
+  # if you have an outside too that automatically updates the `image.tag`
+  # value, but you want your application operators to be able to squash that
+  # override themselves.
+  forceTag: null
+
 # -- The command run by the container. This overrides `ENTRYPOINT`. If not
 # specified, the container's default entrypoint is used. The exact rules of how
 # commadn and args are interpreted can be # found at:

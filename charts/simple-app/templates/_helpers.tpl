@@ -45,7 +45,7 @@ label.
 https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/?tab=kubernetes
 */}}
 {{- define "simple-app.labels" -}}
-{{- $_tag := default .Chart.AppVersion .Values.image.tag -}}
+{{- $_tag := include "simple-app.imageTag" . }}
 {{- $tag  := $_tag | replace ":" "_" | trunc 63 | quote -}}
 {{- if not (hasKey .Values.podLabels "app") }}
 app: {{ .Release.Name }}
@@ -93,7 +93,7 @@ Create the name of the service account to use
 Proxy and Main App Image Names
 */}}
 {{- define "simple-app.imageFqdn" -}}
-{{- $tag := default .Chart.AppVersion .Values.image.tag }}
+{{- $tag := include "simple-app.imageTag" . }}
 {{- if hasPrefix "sha256:" $tag }}
 {{- .Values.image.repository }}@{{ $tag }}
 {{- else }}
@@ -101,8 +101,17 @@ Proxy and Main App Image Names
 {{- end }}
 {{- end }}
 
+{{/*
+Gathers the application image tag. This allows overriding the tag with a master
+`forceTag` setting, as well as the more common mechanism of setting the `tag`
+setting.
+*/}}
+{{- define "simple-app.imageTag" -}}
+{{- default .Chart.AppVersion (default .Values.image.tag .Values.image.forceTag) }}
+{{- end }}
+
 {{- define "simple-app.proxyImageFqdn" -}}
-{{- $tag := .Values.proxySidecar.image.tag }}
+{{- $tag := include "simple-app.imageTag" . }}
 {{- if hasPrefix "sha256:" $tag }}
 {{- .Values.proxySidecar.image.repository }}@{{ $tag }}
 {{- else }}

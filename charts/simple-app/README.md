@@ -87,6 +87,7 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | env | list | `[]` | Environment Variables for the primary container. These are all run through the tpl function (the key name and value), so you can dynamically name resources as you need. |
 | envFrom | list | `[]` | Pull all of the environment variables listed in a ConfigMap into the Pod. See https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables for more details. |
 | fullnameOverride | string | `""` |  |
+| image.forceTag | String | `nil` | Forcefully overrides the `image.tag` setting - this is useful if you have an outside too that automatically updates the `image.tag` value, but you want your application operators to be able to squash that override themselves. |
 | image.pullPolicy | string | `"IfNotPresent"` | (String) Always, Never or IfNotPresent |
 | image.repository | string | `"nginx"` | (String) The Docker image name and repository for your application |
 | image.tag | String | `nil` | Overrides the image tag whose default is the chart appVersion. |
