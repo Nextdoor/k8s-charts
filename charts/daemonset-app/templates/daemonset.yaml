@@ -101,7 +101,7 @@ spec:
         */}}
         {{- if and .Values.datadog.enabled .Values.monitor.enabled .Values.datadog.scrapeMetrics }}
         {{- if .Values.istio.enabled }}
-        ad.datadoghq.com/istio-proxy.check_names: ['prometheus']
+        ad.datadoghq.com/istio-proxy.check_names: '["prometheus"]'
         ad.datadoghq.com/istio-proxy.init_configs: '[{}]'
         ad.datadoghq.com/istio-proxy.instances: |-
           [
@@ -111,7 +111,7 @@ spec:
             }
           ]
         {{- else }}
-        ad.datadoghq.com/{{ .Chart.Name }}.check_names: ['prometheus']
+        ad.datadoghq.com/{{ .Chart.Name }}.check_names: '["prometheus"]'
         ad.datadoghq.com/{{ .Chart.Name }}.init_configs: '[{}]'
         ad.datadoghq.com/{{ .Chart.Name }}.instances: |-
           [
