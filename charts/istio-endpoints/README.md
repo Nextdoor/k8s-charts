@@ -2,7 +2,7 @@
 
 Per-Namespace Istio Configuration Chart
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [elasticache]: https://aws.amazon.com/elasticache/
 [serviceentry]: https://istio.io/latest/docs/reference/config/networking/service-entry/
@@ -60,7 +60,7 @@ plugin, then you must also be running Istio 1.11+.
 + dependencies:
 +   - name: istio-endpoints
 +     repository: https://k8s-charts.nextdoor.com
-+     version: 0.2.0
++     version: 0.2.1
   maintainers:
     - name: diranged
       email: matt@nextdoor.com
@@ -97,6 +97,7 @@ istio-endpoints:
 | elasticacheEndpoints | object | `{}` | (`Map`) A key/value map with all of the elasticacheEndpoints that need to be configured for the Namespace. Each Key is a human-readable name for the endpoint, and then each value is a Map with a configuration. See the [README](#elasticache-endpoint-options) for more instructions. |
 | fullnameOverride | string | `""` | (`String`) Overrides the full prefix of all of the resources. |
 | nameOverride | string | `""` | (`String`) Overrides the main "release name" of the resources. |
+| sidecar.annotations | object | `{}` | (`Map`) Custom annotations to apply to the `Sidecar` resource, such as whether Argo should created it as a pre-sync hook or in a specific wave. |
 | sidecar.catchAllCaptureMode | string | `"IPTABLES"` | (`String`) Default `captureMode` that the final "catch all" [IstioEgressListener](https://istio.io/latest/docs/reference/config/networking/sidecar/#IstioEgressListener) will run in. Default values are here for your reference. |
 | sidecar.catchAllHosts | list | `["*/*"]` | (`Strings[]`) Default `hosts` that the final "catch all" [IstioEgressListener](https://istio.io/latest/docs/reference/config/networking/sidecar/#IstioEgressListener) will monitor for. The default value catches all resources across the cluster. |
 | sidecar.enabled | bool | `true` | (`Bool`) Controls whether or not a `Sidecar` resource is created within the Namespace to help reconfigure the local listeners and routing configuration for your Pods. This defaults to `true` because it is required in order to properly set up Listeners that work for ElastiCache. You can disable this if you are going to manage your own `Sidecar` resource. |
