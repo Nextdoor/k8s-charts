@@ -53,6 +53,10 @@ sidecar:
   # cluster.
   catchAllHosts: ['*/*']
 
+  # -- (`Map`) Custom annotations to apply to the `Sidecar` resource, such as whether
+  # Argo should created it as a pre-sync hook or in a specific wave.
+  annotations: {}
+
 # -- (`Map`) A key/value map with all of the elasticacheEndpoints that need to be
 # configured for the Namespace. Each Key is a human-readable name for the
 # endpoint, and then each value is a Map with a configuration. See the

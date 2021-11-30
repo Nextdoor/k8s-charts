@@ -6,6 +6,12 @@ metadata:
   name: {{ include "istio-endpoints.fullname" . }}-proxy-config
   labels:
     {{- include "istio-endpoints.labels" . | nindent 4 }}
+  {{- with .Values.sidecar.annotations }}
+  annotations:
+    {{- range $key, $value := . }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  {{- end }}
 spec:
   workloadSelector:
     labels:
