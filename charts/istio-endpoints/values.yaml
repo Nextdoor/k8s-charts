@@ -62,3 +62,9 @@ sidecar:
 # endpoint, and then each value is a Map with a configuration. See the
 # [README](#elasticache-endpoint-options) for more instructions.
 elasticacheEndpoints: {}
+
+# -- (`Strings[]`) A list of HTTPS endpoints that will have ServiceEntry
+# resources created along with a DestinationRule that routes internal plaintext
+# HTTP to HTTPS. This is used to let the service-mesh handle doing SSL
+# negotiation, while still ensuring end-to-end security.
+httpsEndpoints: []

@@ -1,0 +1,45 @@
+{{- $global := . }}
+{{- with .Values.httpsEndpoints }}
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: {{ include "istio-endpoints.fullname" $global }}-https-endpoints
+  labels:
+    {{- include "istio-endpoints.labels" $global | nindent 4 }}
+spec:
+  {{- /*
+  Configure the SerivceEntry to understand that this is a remotely hosted
+  service outside of the cluster. The Sidecar will do DNS lookups to discover
+  the endpoint addresses.
+  */}}
+  location: MESH_EXTERNAL
+  resolution: DNS
+
+  {{- /*
+  These are the external hostnames that we are going to route traffic to. DNS
+  interception will cause lookups for these entries to be re-routed to the
+  Envoy sidecar.
+  */}}
+  hosts:
+    {{- toYaml . | nindent 4 }}
+
+  {{- /*
+  These ServiceEntries are designed to be accessed only by Pods within the
+  application namespace - we are not exposing these to the rest of the cluster.
+  */}}
+  exportTo:
+    - .
+
+  {{- /*
+  Inform Istio about the protocol that we are passing here. This is what
+  triggers Istio to use the RedisProxy EnvoyFilter.
+  */}}
+  ports:
+    - number: 80
+      name: http
+      protocol: HTTP
+      targetPort: 443
+    - number: 443
+      name: https
+      protocol: HTTPS
+{{- end }}
