@@ -1,6 +1,9 @@
 defaults:
   createDefaultElasticacheEnvoyFilter: true
 
+httpsEndpoints:
+  - google.com
+
 elasticacheEndpoints:
   test:
     address: foo.com
