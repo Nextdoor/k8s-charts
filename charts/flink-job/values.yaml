@@ -30,6 +30,7 @@ logConfig:
     rootLogger.level = INFO
     rootLogger.appenderRef.file.ref = LogFile
     rootLogger.appenderRef.console.ref = LogConsole
+    rootLogger.formatMsgNoLookups = true
     appender.file.name = LogFile
     appender.file.type = File
     appender.file.append = false
