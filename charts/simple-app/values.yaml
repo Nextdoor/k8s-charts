@@ -444,6 +444,13 @@ datadog:
   # dashboard creation as well as comparision between applications.
   metricsNamespace: eks
 
+  # -- (`strings[]`) A list of strings that match the metric names that Datadog
+  # should scrape from the endpoint. This defaults to `"*"` to tell it to
+  # scrape ALL metrics - however, if your app exposes too many metrics (>
+  # 2000), Datadog will drop them all on the ground.
+  metricsToScrape:
+    - '"*"'
+
 tests:
   connection:
     # -- The command used to trigger the test.

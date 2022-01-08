@@ -1,5 +1,11 @@
 # For local development, we turn on the Ingress controller and set up a simple
 # local ingress.
+datadog:
+  enabled: true
+monitor:
+  enabled: true
+datadog:
+  scrapeMetrics: true
 ingress:
   # -- Enable local ingress for local development.
   enabled: true
