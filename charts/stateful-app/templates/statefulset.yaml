@@ -116,7 +116,7 @@ spec:
             {
               "prometheus_url": "http://%%host%%:15020/stats/prometheus",
               "namespace": "{{ .Values.datadog.metricsNamespace }}",
-              "metrics": [ {{- join ", " .Values.datadog.metricsToScrape }} ]
+              "metrics": [ {{ join ", " .Values.datadog.metricsToScrape }} ]
             }
           ]
         {{- else }}
@@ -127,7 +127,7 @@ spec:
             {
               "prometheus_url": "http://%%host%%:{{ .Values.monitor.portNumber }}{{ .Values.monitor.path }}",
               "namespace": "{{ .Values.datadog.metricsNamespace }}",
-              "metrics": [ {{- join ", " .Values.datadog.metricsToScrape }} ]
+              "metrics": [ {{ join ", " .Values.datadog.metricsToScrape }} ]
             }
           ]
 
