@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.15.2](https://img.shields.io/badge/Version-0.15.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.15.3](https://img.shields.io/badge/Version-0.15.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -65,7 +65,7 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../istio-alerts/ | istio-alerts | 0.1.0 |
+| file://../istio-alerts/ | istio-alerts | 0.1.1 |
 
 ## Values
 
@@ -81,6 +81,7 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | datadog.enabled | bool | `true` | (`bool`) Whether or not the various datadog labels and options should be included or not. |
 | datadog.env | string | `"dev"` | (`string`) The "env" tag to configure for the application - this maps to the Datadog environment concept for isolating traces/apm data. |
 | datadog.metricsNamespace | string | `"eks"` | (`string`) The prefix to append to all metrics that are scraped by Datadog. We set this to one common value so that common metrics (like `istio_.*` or `go_.*`) are shared across all apps in Datadog for easier dashboard creation as well as comparision between applications. |
+| datadog.metricsToScrape | list | `["\"*\""]` | (`strings[]`) A list of strings that match the metric names that Datadog should scrape from the endpoint. This defaults to `"*"` to tell it to scrape ALL metrics - however, if your app exposes too many metrics (> 2000), Datadog will drop them all on the ground. |
 | datadog.scrapeMetrics | bool | `false` | (`bool`) If true, then we will configure the Datadog agent to scrape metrics from the Pod (or the `istio-proxy` sidecar). |
 | datadog.service | `string` | `nil` | If set, this configures the "service" tag. If this is not set, the tag defaults to the `.Release.Name` for the application. |
 | deploymentStrategy | object | `{}` | https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |
