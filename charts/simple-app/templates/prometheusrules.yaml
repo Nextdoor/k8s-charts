@@ -1,8 +1,9 @@
-{{ $values           := .Values }}
-{{ $global           := . }}
-{{ $targetNamespace  := .Release.Namespace }}
-{{ $runbookUrl       := required "Values.runbookUrl can not be blank!" .Values.runbookUrl }}
-{{ $appName          := include "simple-app.fullname" . }}
+{{ $values          := .Values }}
+{{ $global          := . }}
+{{ $targetNamespace := .Release.Namespace }}
+{{ $runbookUrl      := required "Values.runbookUrl can not be blank!" .Values.runbookUrl }}
+{{ $appName         := include "simple-app.fullname" . }}
+{{ $podName         := trunc 56 $appName | printf "%s.*" }}
 {{ if .Values.prometheusRules.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
@@ -30,7 +31,7 @@ spec:
             kube_pod_container_status_terminated_reason{
               reason=~"{{ join "|" .reasons }}",
               namespace="{{ $targetNamespace }}",
-              pod=~"{{ include "simple-app.fullname" $global }}-.*"
+              pod=~"{{ $podName }}"
             }[{{ .over }}]
           )
         ) > {{ .threshold }}
@@ -56,7 +57,7 @@ spec:
           kube_pod_container_status_restarts_total{
             job="kube-state-metrics",
             namespace=~"{{ $targetNamespace }}",
-            pod=~"{{ include "simple-app.fullname" $global }}-.*"
+            pod=~"{{ $podName }}"
           }[5m]
         ) * 60 * 5 > 0
       for: {{ .for }}
@@ -82,7 +83,7 @@ spec:
               job="kube-state-metrics",
               namespace=~"{{ $targetNamespace }}",
               phase=~"Pending|Unknown",
-              pod=~"{{ include "simple-app.fullname" $global }}-.*"
+              pod=~"{{ $podName }}"
             }
           ) * on(namespace, pod) group_left(owner_kind) topk by(namespace, pod) (
             1, max by(namespace, pod, owner_kind) (kube_pod_owner{owner_kind!="Job"})
@@ -114,7 +115,7 @@ spec:
             container_cpu_cfs_throttled_periods_total{
               container!="",
               namespace=~"{{ $targetNamespace }}",
-              pod=~"{{ include "simple-app.fullname" $global }}-.*"
+              pod=~"{{ $podName }}"
             }[5m]
           )
         ) by (container, pod, namespace)
