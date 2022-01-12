@@ -124,10 +124,6 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | prometheusRules.DeploymentGenerationMismatch | object | `{"for":"15m","severity":"warning"}` | Deployment generation mismatch due to possible roll-back |
 | prometheusRules.DeploymentReplicasMismatch.for | string | `"15m"` |  |
 | prometheusRules.DeploymentReplicasMismatch.severity | string | `"warning"` |  |
-| prometheusRules.HpaMaxedOut.for | string | `"15m"` |  |
-| prometheusRules.HpaMaxedOut.severity | string | `"warning"` |  |
-| prometheusRules.HpaReplicasMismatch.for | string | `"15m"` |  |
-| prometheusRules.HpaReplicasMismatch.severity | string | `"warning"` |  |
 | prometheusRules.PodContainerTerminated | object | `{"for":"1m","over":"10m","reasons":["ContainerCannotRun","DeadlineExceeded"],"severity":"warning","threshold":0}` | Monitors Pods for Containers that are terminated either for unexpected reasons like ContainerCannotRun. If that number breaches the $threshold (1) for $for (1m), then it will alert. |
 | prometheusRules.PodCrashLooping | object | `{"for":"15m","severity":"warning"}` | Pod is crash looping |
 | prometheusRules.PodNotReady | object | `{"for":"15m","severity":"warning"}` | Pod has been in a non-ready state for more than a specific threshold |

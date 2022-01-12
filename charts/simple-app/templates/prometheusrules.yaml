@@ -168,9 +168,9 @@ spec:
           indicates that the Deployment has failed but has not been rolled
           back.
       expr: |-
-        kube_deployment_status_observed_generation{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+        kube_deployment_status_observed_generation{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", deployment="{{ $appName }}"}
           !=
-        kube_deployment_metadata_generation{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+        kube_deployment_metadata_generation{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", deployment="{{ $appName }}"}
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
@@ -190,11 +190,11 @@ spec:
           replicas for longer than {{ .for }}.
       expr: |-
         (
-          kube_deployment_spec_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+          kube_deployment_spec_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", deployment="{{ $appName }}"}
             !=
-          kube_deployment_status_replicas_available{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+          kube_deployment_status_replicas_available{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", deployment="{{ $appName }}"}
         ) and (
-          changes(kube_deployment_status_replicas_updated{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}[5m])
+          changes(kube_deployment_status_replicas_updated{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", deployment="{{ $appName }}"}[5m])
             ==
           0
         )
@@ -205,61 +205,5 @@ spec:
         {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
-
-  {{- if .Values.autoscaling.enabled }}
-  - name: {{ .Release.Namespace }}.{{ .Release.Name }}.{{ .Chart.Name }}.HorizontalPodAutoscalerRules
-    rules:
-
-    {{ with .Values.prometheusRules.HpaReplicasMismatch -}}
-    - alert: HpaReplicasMismatch
-      annotations:
-        summary: HPA has not matched descired number of replicas.
-        runbook_url: {{ $runbookUrl }}#hpareplicasmismatch
-        description: >-
-          HPA {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.hpa {{`}}`}}
-          has not matched the desired number of replicas for longer than 15
-          minutes.
-      expr: |-
-        (kube_horizontalpodautoscaler_status_desired_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"}
-          !=
-        kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"})
-          and
-        (kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"}
-          >
-        kube_horizontalpodautoscaler_spec_min_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"})
-          and
-        (kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"}
-          <
-        kube_horizontalpodautoscaler_spec_max_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"})
-          and
-        changes(kube_horizontalpodautoscaler_status_current_replicas[15m]) == 0
-      for: {{ .for }}
-      labels:
-        severity: {{ .severity }}
-        {{- with $values.prometheusRules.additionalRuleLabels }}
-        {{ toYaml . | nindent 8 }}
-        {{- end }}
-    {{- end }}
-
-    {{ with .Values.prometheusRules.HpaMaxedOut -}}
-    - alert: HpaMaxedOut
-      annotations:
-        summary: HPA is running at max replicas
-        runbook_url: {{ $runbookUrl }}#hpamaxedout
-        description: >-
-          HPA {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.hpa {{`}}`}}
-          has been running at max replicas for longer than 15 minutes.
-      expr: |-
-        kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"}
-          ==
-        kube_horizontalpodautoscaler_spec_max_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"}
-      for: {{ .for }}
-      labels:
-        severity: {{ .severity }}
-        {{- with $values.prometheusRules.additionalRuleLabels }}
-        {{ toYaml . | nindent 8 }}
-        {{- end }}
-    {{- end }}
-  {{- end }}
 
 {{- end }}
