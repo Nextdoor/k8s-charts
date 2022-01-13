@@ -122,8 +122,9 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | prometheusRules.CPUThrottlingHigh | object | `{"for":"15m","severity":"warning","threshold":65}` | Container is being throttled by the CGroup - needs more resources. |
 | prometheusRules.ContainerWaiting | object | `{"for":"1h","severity":"warning"}` | Pod container waiting longer than threshold |
 | prometheusRules.DeploymentGenerationMismatch | object | `{"for":"15m","severity":"warning"}` | Deployment generation mismatch due to possible roll-back |
-| prometheusRules.DeploymentReplicasMismatch.for | string | `"15m"` |  |
-| prometheusRules.DeploymentReplicasMismatch.severity | string | `"warning"` |  |
+| prometheusRules.DeploymentReplicasMismatch | object | `{"for":"15m","severity":"warning"}` | Deployment has not matched the expected number of replicas |
+| prometheusRules.HpaMaxedOut | object | `{"for":"15m","severity":"warning"}` | HPA is running at max replicas |
+| prometheusRules.HpaReplicasMismatch | object | `{"for":"15m","severity":"warning"}` | HPA has not matched descired number of replicas |
 | prometheusRules.PodContainerTerminated | object | `{"for":"1m","over":"10m","reasons":["ContainerCannotRun","DeadlineExceeded"],"severity":"warning","threshold":0}` | Monitors Pods for Containers that are terminated either for unexpected reasons like ContainerCannotRun. If that number breaches the $threshold (1) for $for (1m), then it will alert. |
 | prometheusRules.PodCrashLooping | object | `{"for":"15m","severity":"warning"}` | Pod is crash looping |
 | prometheusRules.PodNotReady | object | `{"for":"15m","severity":"warning"}` | Pod has been in a non-ready state for more than a specific threshold |

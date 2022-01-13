@@ -534,7 +534,17 @@ prometheusRules:
     severity: warning
     for: 15m
 
-  # Deployment has not matched the expected number of replicas
+  # -- Deployment has not matched the expected number of replicas
   DeploymentReplicasMismatch:
+    severity: warning
+    for: 15m
+
+  # -- HPA has not matched descired number of replicas
+  HpaReplicasMismatch:
+    severity: warning
+    for: 15m
+
+  # -- HPA is running at max replicas
+  HpaMaxedOut:
     severity: warning
     for: 15m
