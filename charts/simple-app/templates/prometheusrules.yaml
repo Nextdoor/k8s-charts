@@ -1,10 +1,10 @@
-{{ $values          := .Values }}
-{{ $global          := . }}
-{{ $targetNamespace := .Release.Namespace }}
-{{ $runbookUrl      := required "Values.runbookUrl can not be blank!" .Values.runbookUrl }}
-{{ $appName         := include "simple-app.fullname" . }}
-{{ $podName         := trunc 56 $appName | printf "%s.*" }}
-{{ if .Values.prometheusRules.enabled }}
+{{- $values          := .Values }}
+{{- $global          := . }}
+{{- $targetNamespace := .Release.Namespace }}
+{{- $runbookUrl      := required "Values.runbookUrl can not be blank!" .Values.runbookUrl }}
+{{- $appName         := include "simple-app.fullname" . }}
+{{- $podName         := trunc 56 $appName | printf "%s.*" }}
+{{- if .Values.prometheusRules.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -16,7 +16,7 @@ spec:
   - name: {{ .Release.Namespace }}.{{ .Release.Name }}.{{ .Chart.Name }}.PodRules
     rules:
 
-    {{ with .Values.prometheusRules.PodContainerTerminated -}}
+    {{- with .Values.prometheusRules.PodContainerTerminated }}
     - alert: PodContainerTerminated
       annotations:
         summary: {{`Pod {{$labels.pod}} in namespace {{$labels.namespace}} in error status`}}
@@ -41,17 +41,18 @@ spec:
         {{- with $values.prometheusRules.additionalRuleLabels }}
         {{ toYaml . | nindent 8 }}
         {{- end }}
-    {{ end -}}
+    {{- end }}
 
     {{- with .Values.prometheusRules.PodCrashLooping }}
     - alert: PodCrashLooping
       annotations:
-        summary: Pod is crash looping.
+        summary: >-
+          {{`{{ $labels.pod }}`}} is crash looping.
         runbook_url: {{ $runbookUrl }}#alert-name-kubepodcrashlooping
         description: >-
-          Pod {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.pod {{`}}`}}
-          ({{`{{`}} $labels.container {{`}}`}}) is restarting {{`{{`}} printf
-          "%.2f" $value {{`}}`}} times / 5 minutes.
+          Container {{`{{ $labels.container }}`}} in pod
+          {{`{{ $labels.pod }}`}} (namespace: {{`{{ $labels.namespace }}`}})
+          is restarting {{`{{ printf "%.2f" $value }}`}} times / 5 minutes.
       expr: |-
         rate(
           kube_pod_container_status_restarts_total{
@@ -71,10 +72,11 @@ spec:
     {{- with .Values.prometheusRules.PodNotReady }}
     - alert: PodNotReady
       annotations:
-        summary: Pod has been in a non-ready state for more than {{ .for }}
+        summary: >-
+          {{`{{ $labels.pod }}`}} has been in a non-ready state for more than {{ .for }}
         runbook_url: {{ $runbookUrl }}#alert-name-kubepodnotready
         description: >-
-          Pod {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.pod {{`}}`}}
+          Pod {{`{{ $labels.pod }}`}} (namespace: {{`{{ $labels.namespace }}`}})
           has been in a non-ready state for longer than {{ .for }}.
       expr: |-
         sum by (namespace, pod) (
@@ -103,12 +105,13 @@ spec:
     {{- with .Values.prometheusRules.CPUThrottlingHigh }}
     - alert: CPUThrottlingHigh
       annotations:
-        summary: Processes experience elevated CPU throttling.
+        summary: >-
+          {{`{{ $labels.pod }}`}} processes are experiencing elevated CPU throttling
         runbook_url: {{ $runbookUrl }}#CPUThrottlingHigh
         description: >-
-          {{`{{ $value | humanizePercentage }} throttling of CPU in
-          namespace {{ $labels.namespace }} for container {{ $labels.container
-          }} in pod {{ $labels.pod }}.`}}
+          {{`{{ $value | humanizePercentage }}`}} throttling of CPU in
+          namespace {{`{{ $labels.namespace }}`}} for container
+          {{`{{ $labels.container }}`}} in pod {{`{{ $labels.pod }}`}}.
       expr: |-
         sum(
           increase(
@@ -137,14 +140,15 @@ spec:
         {{- end }}
     {{- end }}
 
-    {{ with .Values.prometheusRules.ContainerWaiting -}}
+    {{- with .Values.prometheusRules.ContainerWaiting }}
     - alert: ContainerWaiting
       annotations:
-        summary: Pod container waiting longer than {{ .for }}
+        summary: >-
+          {{`{{ $labels.pod }}`}} container ({{`{{ $labels.container }}`}}) waiting longer than {{ .for }}
         runbook_url: {{ $runbookUrl }}#containerwaiting
         description: >-
-          Pod {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.pod {{`}}`}}
-          container {{`{{`}} $labels.container{{`}}`}} has been in waiting
+          Container {{`{{ $labels.container }}`}} in pod {{`{{ $labels.pod }}`}}
+          (namespace: {{`{{ $labels.namespace }}`}} has been in a waiting
           state for longer than 1 hour.
       expr: sum by (namespace, pod, container) (kube_pod_container_status_waiting_reason{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}) > 0
       for: {{ .for }}
@@ -158,20 +162,22 @@ spec:
   - name: {{ .Release.Namespace }}.{{ .Release.Name }}.{{ .Chart.Name }}.DeploymentRules
     rules:
 
-    {{ with .Values.prometheusRules.DeploymentGenerationMismatch -}}
+    {{- with .Values.prometheusRules.DeploymentGenerationMismatch }}
     - alert: DeploymentGenerationMismatch
       annotations:
-        summary: Deployment generation mismatch due to possible roll-back
+        summary: >-
+          {{`{{ $labels.deployment }}`}} deployment generation mismatch due to possible roll-back
         runbook_url: {{ $runbookUrl }}#deploymentgenerationmismatch
         description: >-
-          Deployment generation for {{`{{`}} $labels.namespace
-          {{`}}`}}/{{`{{`}} $labels.deployment {{`}}`}} does not match, this
-          indicates that the Deployment has failed but has not been rolled
+          Deployment generation for {{`{{ $labels.namespace }}`}}/{{`{{ $labels.deployment }}`}}
+          does not match, this indicates that the Deployment has failed but has not been rolled
           back.
       expr: |-
-        kube_deployment_status_observed_generation{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", deployment="{{ $appName }}"}
-          !=
-        kube_deployment_metadata_generation{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", deployment="{{ $appName }}"}
+        sum by(namespace, deployment) (
+          kube_deployment_status_observed_generation{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", deployment="{{ $appName }}"}
+            !=
+          kube_deployment_metadata_generation{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", deployment="{{ $appName }}"}
+        )
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
@@ -180,24 +186,26 @@ spec:
         {{- end }}
     {{- end }}
 
-    {{ with .Values.prometheusRules.DeploymentReplicasMismatch -}}
+    {{- with .Values.prometheusRules.DeploymentReplicasMismatch }}
     - alert: DeploymentReplicasMismatch
       annotations:
-        summary: Deployment has not matched the expected number of replicas.
+        summary: >-
+          {{`{{ $labels.deployment }}`}} deployment has not matched the expected number of replicas.
         runbook_url: {{ $runbookUrl }}#deploymentreplicasmismatch
         description: >-
-          Deployment {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}}
-          $labels.deployment {{`}}`}} has not matched the expected number of
-          replicas for longer than {{ .for }}.
+          Deployment {{`{{ $labels.namespace }}`}}/{{`{{ $labels.deployment }}`}}
+          has not matched the expected number of replicas for longer than {{ .for }}.
       expr: |-
-        (
-          kube_deployment_spec_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", deployment="{{ $appName }}"}
-            !=
-          kube_deployment_status_replicas_available{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", deployment="{{ $appName }}"}
-        ) and (
-          changes(kube_deployment_status_replicas_updated{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", deployment="{{ $appName }}"}[5m])
-            ==
-          0
+        sum by(namespace, deployment) (
+          (
+            kube_deployment_spec_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", deployment="{{ $appName }}"}
+              !=
+            kube_deployment_status_replicas_available{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", deployment="{{ $appName }}"}
+          ) and (
+            changes(kube_deployment_status_replicas_updated{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", deployment="{{ $appName }}"}[5m])
+              ==
+            0
+          )
         )
       for: {{ .for }}
       labels:
@@ -211,29 +219,32 @@ spec:
   - name: {{ .Release.Namespace }}.{{ .Release.Name }}.{{ .Chart.Name }}.HorizontalPodAutoscalerRules
     rules:
 
-    {{ with .Values.prometheusRules.HpaReplicasMismatch -}}
+    {{- with .Values.prometheusRules.HpaReplicasMismatch }}
     - alert: HpaReplicasMismatch
       annotations:
-        summary: HPA has not matched descired number of replicas.
+        summary: >-
+          {{`{{ $labels.horizontalpodautoscaler }}`}} HPA has not matched descired number of replicas.
         runbook_url: {{ $runbookUrl }}#hpareplicasmismatch
         description: >-
-          HPA {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.hpa {{`}}`}}
+          HPA {{`{{ $labels.namespace }}`}}/{{`{{ $labels.horizontalpodautoscaler }}`}}
           has not matched the desired number of replicas for longer than 15
           minutes.
       expr: |-
-        (kube_horizontalpodautoscaler_status_desired_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"}
-          !=
-        kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"})
-          and
-        (kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"}
-          >
-        kube_horizontalpodautoscaler_spec_min_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"})
-          and
-        (kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"}
-          <
-        kube_horizontalpodautoscaler_spec_max_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"})
-          and
-        changes(kube_horizontalpodautoscaler_status_current_replicas[15m]) == 0
+        sum by(namespace, horizontalpodautoscaler) (
+          (kube_horizontalpodautoscaler_status_desired_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"}
+            !=
+          kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"})
+            and
+          (kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"}
+            >
+          kube_horizontalpodautoscaler_spec_min_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"})
+            and
+          (kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"}
+            <
+          kube_horizontalpodautoscaler_spec_max_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"})
+            and
+          changes(kube_horizontalpodautoscaler_status_current_replicas[15m]) == 0
+        )
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
@@ -242,18 +253,21 @@ spec:
         {{- end }}
     {{- end }}
 
-    {{ with .Values.prometheusRules.HpaMaxedOut -}}
+    {{- with .Values.prometheusRules.HpaMaxedOut }}
     - alert: HpaMaxedOut
       annotations:
-        summary: HPA is running at max replicas
+        summary: >-
+          {{`{{ $labels.horizontalpodautoscaler }}`}} HPA is running at max replicas
         runbook_url: {{ $runbookUrl }}#hpamaxedout
         description: >-
-          HPA {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.hpa {{`}}`}}
+          HPA {{`{{ $labels.namespace }}`}}/{{`{{ $labels.horizontalpodautoscaler }}`}}
           has been running at max replicas for longer than 15 minutes.
       expr: |-
-        kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"}
-          ==
-        kube_horizontalpodautoscaler_spec_max_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"}
+        sum by(namespace, horizontalpodautoscaler) (
+          kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"}
+            ==
+          kube_horizontalpodautoscaler_spec_max_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", horizontalpodautoscaler="{{ $appName }}"}
+        )
       for: {{ .for }}
       labels:
         severity: {{ .severity }}

@@ -11,6 +11,6 @@ dependencies:
 
   - name: istio-alerts
     alias: istioRules
-    version: 0.1.1
+    version: 0.1.2
     repository: https://k8s-charts.nextdoor.com
     condition: istioRules.enabled
