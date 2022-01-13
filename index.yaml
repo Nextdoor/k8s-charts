@@ -327,6 +327,19 @@ entries:
   istio-alerts:
   - apiVersion: v2
     appVersion: 0.0.1
+    created: "2022-01-13T18:32:50.454486002Z"
+    description: A Helm chart that provisions a series of alerts for istio VirtualServices
+    digest: aa8a2436fcb5022a7296b155e9b1572d6e692f8c97e099bbba634af7d569ea3c
+    maintainers:
+    - email: aaron@nextdoor.com
+      name: sabw8217
+    name: istio-alerts
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/istio-alerts-0.1.2/istio-alerts-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: 0.0.1
     created: "2021-11-10T22:25:20.006691306Z"
     description: A Helm chart that provisions a series of alerts for istio VirtualServices
     digest: df6bca4c5b17e184984e5759a3dd43eedd37a972ed5ef30d404eb7f29701978c
