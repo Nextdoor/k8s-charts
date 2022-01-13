@@ -65,7 +65,7 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../istio-alerts/ | istioRules(istio-alerts) | 0.1.2 |
+| https://k8s-charts.nextdoor.com | istioRules(istio-alerts) | 0.1.1 |
 
 ## Values
 
