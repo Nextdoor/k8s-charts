@@ -1,7 +1,6 @@
-{{ $values     := .Values }}
-{{ $release    := .Release }}
-
-{{ if .Values.serviceRules.enabled }}
+{{- $values     := .Values }}
+{{- $release    := .Release }}
+{{- if .Values.serviceRules.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -13,14 +12,17 @@ spec:
   groups:
   - name: {{ .Release.Namespace }}.{{ .Release.Name }}.{{ .Chart.Name }}.IstioServiceRules
     rules:
-    {{ with .Values.serviceRules.http5XXMonitor }}
-    {{ if .enabled }}
+    {{- with .Values.serviceRules.http5XXMonitor }}
+    {{- if .enabled }}
     - alert: 5xx-Rate-Too-High
       annotations:
-        summary: {{`High rate of 5xx errors from {{$labels.destination_service_name}} in namespace {{$labels.namespace}}`}}
+        summary: >-
+          {{`{{$labels.destination_service_name}} is throwing too many 5xx errors (namespace: {{$labels.namespace}})`}}
         runbook_url: {{ $values.defaults.runbookUrl }}#5xx-Rate-Too-High
         description: >-
-          High rate of 5xx responses from the {{`$labels.destination_service_name`}} VirtualService in namespace {{`{{$labels.namespace}}`}}.
+          High rate of 5xx responses from the {{`{{$labels.destination_service_name}}`}} VirtualService
+          in namespace {{`{{$labels.namespace}}`}}.
+
       expr: >-
         sum by (destination_service_name) (
             increase(istio_requests_total{response_code=~"5.*", destination_service_namespace="{{ $release.Namespace }}"}[60s])
@@ -42,16 +44,16 @@ spec:
     {{- end }}
 
      # Adding latency alarm to trigger when request latency is above > threshold
-    {{ with .Values.serviceRules.highRequestLatency }}
-    {{ if .enabled }}
+    {{- with .Values.serviceRules.highRequestLatency }}
+    {{- if .enabled }}
     - alert: HighRequestLatency
       annotations:
-        summary: Processes experience latency above {{ .threshold }}.
+        summary: >-
+          {{`{{$labels.destination_service_name}}`}} avg request latencies are above {{ .threshold }}s!
         runbook_url: {{ $values.defaults.runbookUrl}} #HighRequestLatency
         description: >-
-          {{`{{ $value | humanizePercentage }} latency is above
-          namespace {{ $labels.namespace }} for container {{ $labels.container
-          }} in pod {{ $labels.pod }}.`}}
+          Average request latency of {{`{{ $value | humanizePercentage }}`}} is above threshold ({{ .threshold }}s)
+          in namespace {{`{{ $labels.namespace }}`}} for pod {{`{{ $labels.pod }}`}} (container: {{`{{ $labels.container }}`}}).
       expr: |-
         sum by (destination_service_name) (
           irate(
