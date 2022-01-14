@@ -479,7 +479,7 @@ runbookUrl: https://github.com/Nextdoor/k8s-charts/blob/main/charts/simple-app/R
 # to reproduce similar behavior to services launched on ECS with dedicated ALBs. For more
 # complex scenarios, you may want to disable this, and have your application chart directly
 # depend on istio-alerts.
-istioRules:
+istio-alerts:
   # -- (`bool`) Whether or not to enable the istio-alerts chart.
   enabled: true
 
