@@ -84,3 +84,13 @@ Events:
 ```
 
 The events will most likely tell you what is wrong, and how to fix it.
+
+## Alert Name: `KubePodNotReady`
+
+This alert indicates that a pod has not managed to reach the "running" state 
+within 15 minutes. Investigating the pod state and the events for the pod should
+help you determine the root cause of the issue. Follow the instructions in the
+(k8s repo wiki)[https://github.com/Nextdoor/k8s/wiki#remote-cluster-access] to log
+into the relevant cluster and namespace, and use the `kubectl describe pod <podname>`
+to see the status of the pod and any events related to it. The pod logs may also 
+provide hints as to what may be going wrong.
