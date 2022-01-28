@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.16.2](https://img.shields.io/badge/Version-0.16.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.17.0](https://img.shields.io/badge/Version-0.17.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -10,6 +10,23 @@ Default Microservice Helm Chart
 This chart provides a default deployment for a simple application that operates
 in a [Deployment][deployments]. The chart automatically configures various
 defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
+
+## Upgrade Notes
+
+### 0.16.x -> 0.17.x
+
+**New Feature: Customize User-Facing Ports**
+
+You can now expose a custom port for your users (eg: `80`) while your service
+continues to listen on a private containerPort (eg: `5000`). In the maps in
+`.Values.ports` simply add a `port: <int>` key and the `Service` resource
+will be reconfigured to route that port to the backend container port.
+
+**Bug Fix: ServiceMonitor resources were broken**
+
+Previously the `ServiceMonitor` resources were pointing to the `Service` but
+the `Service` did not expose a `metrics` endpoint, which caused the resource to
+be invalid. This has been fixed.
 
 ## Monitoring
 
@@ -116,7 +133,7 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | podDisruptionBudget | object | `{}` | Set up a PodDisruptionBudget for the Deployment. See https://kubernetes.io/docs/tasks/run-application/configure-pdb/ for more details. |
 | podLabels | object | `{}` | (`Map`) List of Labels to be added to the PodSpec |
 | podSecurityContext | object | `{}` |  |
-| ports | list | `[{"containerPort":80,"name":"http","protocol":"TCP"},{"containerPort":443,"name":"https","protocol":"TCP"}]` | A list of Port objects that are exposed by the service. These ports are applied to the main container, or the proxySidecar container (if enabled). The port list is also used to generate Network Policies that allow ingress into the pods. |
+| ports | list | `[{"containerPort":80,"name":"http","port":null,"protocol":"TCP"}]` | (`ContainerPort[]`) A list of Port objects that are exposed by the service. These ports are applied to the main container, or the proxySidecar container (if enabled). The port list is also used to generate Network Policies that allow ingress into the pods. See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#containerport-v1-core for details. **Note: We have added an optional "port" field to this list that allows the user to override the Service Port (for example 80) that a client  connects to, without altering the Container Port (say, 8080) that is listening for connections. |
 | preStopCommand | list | `["/bin/sleep","10"]` | Before a pod gets terminated, Kubernetes sends a SIGTERM signal to every container and waits for period of time (10s by default) for all containers to exit gracefully. If your app doesn't handle the SIGTERM signal or if it doesn't exit within the grace period, Kubernetes will kill the container and any inflight requests that your app is processing will fail. Make sure you set this to SHORTER than the terminationGracePeriod (30s default) setting. https://docs.flagger.app/tutorials/zero-downtime-deployments#graceful-shutdown |
 | progressDeadlineSeconds | string | `nil` | https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#progress-deadline-seconds |
 | prometheusRules.CPUThrottlingHigh | object | `{"for":"15m","severity":"warning","threshold":65}` | Container is being throttled by the CGroup - needs more resources. |

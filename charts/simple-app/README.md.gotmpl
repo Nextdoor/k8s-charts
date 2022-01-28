@@ -10,6 +10,23 @@ This chart provides a default deployment for a simple application that operates
 in a [Deployment][deployments]. The chart automatically configures various
 defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
+## Upgrade Notes
+
+### 0.16.x -> 0.17.x
+
+**New Feature: Customize User-Facing Ports**
+
+You can now expose a custom port for your users (eg: `80`) while your service
+continues to listen on a private containerPort (eg: `5000`). In the maps in
+`.Values.ports` simply add a `port: <int>` key and the `Service` resource
+will be reconfigured to route that port to the backend container port.
+
+**Bug Fix: ServiceMonitor resources were broken**
+
+Previously the `ServiceMonitor` resources were pointing to the `Service` but
+the `Service` did not expose a `metrics` endpoint, which caused the resource to
+be invalid. This has been fixed.
+
 ## Monitoring
 
 This chart makes the assumption that you _do_ have a Prometheus-style

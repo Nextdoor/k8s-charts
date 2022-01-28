@@ -116,17 +116,23 @@ readinessProbe:
     path: /
     port: http
 
-# -- A list of Port objects that are exposed by the service. These ports are
-# applied to the main container, or the proxySidecar container (if enabled).
-# The port list is also used to generate Network Policies that allow ingress
-# into the pods.
+# -- (`ContainerPort[]`) A list of Port objects that are exposed by the
+# service. These ports are applied to the main container, or the proxySidecar
+# container (if enabled). The port list is also used to generate Network
+# Policies that allow ingress into the pods. See
+# https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#containerport-v1-core
+# for details.
+#
+# **Note: We have added an optional "port" field to this list that allows the
+# user to override the Service Port (for example 80) that a client  connects
+# to, without altering the Container Port (say, 8080) that is listening for
+# connections.
 ports:
   - name: http
     containerPort: 80
     protocol: TCP
-  - name: https
-    containerPort: 443
-    protocol: TCP
+    # Optional flag to override the client-facing port for service requests.
+    port:
 
 # -- Supply a reference to a Secret that can be used by Kubernetes to pull down
 # the Docker image. This is only used in local development, in combination with
