@@ -1,5 +1,9 @@
-{{- if .Values.ports }}
-{{- if gt (len .Values.ports) 0 }}
+{{/*
+The Service resource is  created any time the "ports" key has ports. It is
+also created any time the Values.monitor.enabled is set true - because we use
+a ServiceMonitor in this chart to monitor pods.
+*/}}
+{{- if or .Values.ports .Values.monitor.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -9,13 +13,12 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    {{- range $port := .Values.ports }}
-    - port: {{ $port.containerPort }}
-      targetPort: {{ $port.name }}
-      protocol: {{ $port.protocol }}
-      name: {{ $port.name }}
+    {{- include "simple-app.servicePorts" . | nindent 4 }}
+    {{- if .Values.monitor.enabled }}
+    - port: {{ .Values.monitor.portNumber }}
+      targetPort: {{ .Values.monitor.portNumber }}
+      name: {{ .Values.monitor.portName }}
     {{- end }}
   selector:
     {{- include "simple-app.selectorLabels" . | nindent 4 }}
-{{- end }}
 {{- end }}
