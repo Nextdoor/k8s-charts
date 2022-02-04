@@ -177,7 +177,7 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | terminationGracePeriodSeconds | string | `nil` | https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#hook-handler-execution |
 | tests.connection.args | list | `["{{ include \"simple-app.fullname\" . }}"]` | A list of arguments passed into the command. These are run through the tpl function. |
 | tests.connection.command | list | `["curl","--retry-connrefused","--retry","5"]` | The command used to trigger the test. |
-| tests.connection.image.repository | string | `nil` | Sets the image-name that will be used in the "connection" integration test. If this is left empty, then the .image.repository value will be used instead (and the .image.tag will also be used). |
+| tests.connection.image.repository | string | `"curlimages/curl"` | Sets the image-name that will be used in the "connection" integration test. If this is left empty, then the .image.repository value will be used instead (and the .image.tag will also be used). By default, prefer the latest official version to handle cases where the app image provides either no curl binary or an outdated one. |
 | tests.connection.image.tag | string | `nil` | Sets the tag that will be used in the "connection" integration test. If this is left empty, the default is "latest" |
 | tolerations | list | `[]` |  |
 | topologySpreadConstraints | list | `[]` |  |
