@@ -177,6 +177,17 @@ envFrom: []
   # - configMapRef:
   #     name: my-config-vars
 
+# Configuration for managing KMS secrets. KMS Secrets Controller will decrypt each KMS secret and generate a K8 Secret Resource.
+# See https://github.com/h3poteto/kms-secrets for more details. For local development, sensitive environment variables can be injected through the `env` label.
+kms:
+  # -- (`Map`) Map of environment variables to KMS encrypted secrets.
+  secrets: {}
+  # Example:
+  # - SECRET_ENV: AQICAHhgSPI/REDACTED
+
+  # -- (String) AWS region where the KMS key is located
+  region: ""
+
 # -- List of VolumeMounts that are applied to the application container -
 # these must refer to volumes set in the `Values.volumes` parameter.
 volumeMounts: []
