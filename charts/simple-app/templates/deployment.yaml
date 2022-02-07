@@ -241,8 +241,13 @@ spec:
                 command:
                   {{- toYaml . | nindent 18 }}
           {{- end }}
-          {{- with .Values.envFrom }}
+          {{- if or (.Values.envFrom) (.Values.kms.secrets) }}
           envFrom:
+            {{- if .Values.kms.secrets }}
+            - secretRef:
+                name:  {{ .Release.Name }}-kms-secrets
+            {{- end }}
+            {{- with .Values.envFrom}}
             {{- range $env := index .}}
             {{- with $env.configMapRef }}
             - configMapRef:
@@ -251,6 +256,7 @@ spec:
             {{- with $env.secretRef }}
             - secretRef:
                 name: {{ tpl (required ".name key must be set on secretRef" .name) $ }}
+            {{- end }}
             {{- end }}
             {{- end }}
           {{- end }}
