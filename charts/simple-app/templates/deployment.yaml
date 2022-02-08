@@ -27,6 +27,9 @@ spec:
   template:
     metadata:
       annotations:
+        {{- if .Values.kms.secrets }}
+        checksum/config: {{ include (print $.Template.BasePath "/kmssecrets.yaml") . | sha256sum }}
+        {{- end}}
         {{- with .Values.podAnnotations }}
         {{- range $annotation, $value := index . }}
         {{ $annotation }}: {{ tpl $value $ | quote }}
