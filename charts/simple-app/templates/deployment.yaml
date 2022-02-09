@@ -29,7 +29,7 @@ spec:
       annotations:
         {{- if .Values.kms.secrets }}
         checksum/secrets: {{ include (print $.Template.BasePath "/kmssecrets.yaml") . | sha256sum }}
-        {{- end}}
+        {{- end }}
         {{- with .Values.podAnnotations }}
         {{- range $annotation, $value := index . }}
         {{ $annotation }}: {{ tpl $value $ | quote }}
@@ -244,7 +244,7 @@ spec:
                 command:
                   {{- toYaml . | nindent 18 }}
           {{- end }}
-          {{- if or (.Values.envFrom) (.Values.kms.secrets) }}
+          {{- if or .Values.envFrom .Values.kms.secrets }}
           envFrom:
             {{- if .Values.kms.secrets }}
             - secretRef:

@@ -186,7 +186,7 @@ kms:
   # - SECRET_ENV: AQICAHhgSPI/REDACTED
 
   # -- (String) AWS region where the KMS key is located
-  region: ""
+  region:
 
 # -- List of VolumeMounts that are applied to the application container -
 # these must refer to volumes set in the `Values.volumes` parameter.
