@@ -27,7 +27,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/secrets: {{ toYaml .Values.kms.secrets | sha256sum }}
+        checksum/secrets: {{ toYaml .Values.secrets | sha256sum }}
         {{- with .Values.podAnnotations }}
         {{- range $annotation, $value := index . }}
         {{ $annotation }}: {{ tpl $value $ | quote }}
@@ -242,11 +242,11 @@ spec:
                 command:
                   {{- toYaml . | nindent 18 }}
           {{- end }}
-          {{- if or .Values.envFrom .Values.kms.secrets }}
+          {{- if or .Values.envFrom .Values.secrets }}
           envFrom:
-            {{- if .Values.kms.secrets }}
+            {{- if .Values.secrets }}
             - secretRef:
-                name:  {{ .Release.Name }}-kms-secrets
+                name:  {{ .Release.Name }}-secrets
             {{- end }}
             {{- with .Values.envFrom}}
             {{- range $env := index .}}
