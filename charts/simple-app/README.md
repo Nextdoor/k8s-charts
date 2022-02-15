@@ -17,7 +17,7 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 **New Feature: Secrets Management**
 
-You can now manage `Secret` and `KMS Secret` Resources through `Values.secrets`.
+You can now manage `Secret` and `KMSSecret` Resources through `Values.secrets`.
 See the [Secrets](#secrets) section below for details on how secrets work.
 
 ### 0.16.x -> 0.17.x
