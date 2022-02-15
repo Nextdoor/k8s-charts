@@ -29,6 +29,7 @@ spec:
   template:
     metadata:
       annotations:
+        checksum/secrets: {{ toYaml .Values.secrets | sha256sum }}
         {{- with .Values.podAnnotations }}
         {{- range $annotation, $value := index . }}
         {{ $annotation }}: {{ tpl $value $ | quote }}
@@ -243,8 +244,13 @@ spec:
                 command:
                   {{- toYaml . | nindent 18 }}
           {{- end }}
-          {{- with .Values.envFrom }}
+          {{- if or .Values.envFrom .Values.secrets }}
           envFrom:
+            {{- if .Values.secrets }}
+            - secretRef:
+                name:  {{ .Release.Name }}-secrets
+            {{- end }}
+            {{- with .Values.envFrom}}
             {{- range $env := index .}}
             {{- with $env.configMapRef }}
             - configMapRef:
@@ -253,6 +259,7 @@ spec:
             {{- with $env.secretRef }}
             - secretRef:
                 name: {{ tpl (required ".name key must be set on secretRef" .name) $ }}
+            {{- end }}
             {{- end }}
             {{- end }}
           {{- end }}

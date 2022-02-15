@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.17.2](https://img.shields.io/badge/Version-0.17.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.18.0](https://img.shields.io/badge/Version-0.18.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,13 @@ in a [Deployment][deployments]. The chart automatically configures various
 defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
+
+### 0.17.x -> 0.18.x
+
+**New Feature: Secrets Management**
+
+You can now manage `Secret` and `KMSSecret` Resources through `Values.secrets`.
+See the [Secrets](#secrets) section below for details on how secrets work.
 
 ### 0.16.x -> 0.17.x
 
@@ -78,6 +85,24 @@ There are several advantages to this model.
 This feature is turned on by default if you set `Values.istio.enabled=true` and
 `Values.monitor.enabled=true`.
 
+## Secrets
+A `Secret` or `KMSSecret` resource would be created and mounted into the container
+based upon the `Values.secrets` and `Values.secretsEngine` being populated.
+The `Secret` resource is generally used for local dev and/or CI test.
+Secret` resources can be created by setting the following:
+```
+secrets:
+  FOO_BAR: my plaintext secret
+secretsEngine: plaintext
+```
+Alternatively, `KMSSecret` can be generated using the following example:
+```
+secrets:
+  FOO_BAR: AQIA...
+secretsEngine: kms
+kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
+```
+
 ## Requirements
 
 | Repository | Name | Version |
@@ -121,6 +146,7 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | istio-alerts.enabled | bool | `true` | (`bool`) Whether or not to enable the istio-alerts chart. |
 | istio.enabled | bool | `false` | (`bool`) Whether or not the service should be part of an Istio Service Mesh. If this is turned on and `Values.monitor.enabled=true`, then the Istio Sidecar containers will be configured to pull and merge the metrics from the application, rather than creating a new `ServiceMonitor` object. |
 | istio.preStopCommand | `list <str>` | `nil` | If supplied, this is the command that will be passed into the `istio-proxy` sidecar container as a pre-stop function. This is used to delay the shutdown of the istio-proxy sidecar in some way or another. Our own default behavior is applied if this value is not set - which is that the sidecar will wait until it does not see the application container listening on any TCP ports, and then it will shut down. eg: preStopCommand: [ /bin/sleep, "30" ] |
+| kmsSecretsRegion | String | `nil` | AWS region where the KMS key is located |
 | livenessProbe | object | `{"httpGet":{"path":"/","port":"http"}}` | A PodSpec container "livenessProbe" configuration object. Note that this livenessProbe will be applied to the proxySidecar container instead if that is enabled. |
 | minReadySeconds | string | `nil` | https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#min-ready-seconds |
 | monitor.enabled | bool | `true` | (`bool`) If enabled, ServiceMonitor resources for Prometheus Operator are created or if `Values.istio.enabled` is `True`, then the appropriate Pod Annotations will be added for the istio-proxy sidecar container to scrape the metrics. |
@@ -161,6 +187,8 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | resources | object | `{}` |  |
 | revisionHistoryLimit | int | `3` | (`int`) The default revisionHistoryLimit in Kubernetes is 10 - which is just really noisy. Set our default to 3. https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy |
 | runbookUrl | string | `"https://github.com/Nextdoor/k8s-charts/blob/main/charts/simple-app/README.md"` | The URL of the runbook for this service. |
+| secrets | object | `{}` | (`Map`) Map of environment variables to plaintext secrets or KMS encrypted secrets. |
+| secretsEngine | string | `"plaintext"` | (String) Secrets Engine determines the type of Secret Resource that will be created (`KMSSecret`, `Secret`). kms || plaintext are possible values. |
 | securityContext | object | `{}` |  |
 | service.type | string | `"ClusterIP"` |  |
 | serviceAccount.annotations | object | `{}` |  |

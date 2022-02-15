@@ -12,6 +12,13 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
 
+### 0.17.x -> 0.18.x
+
+**New Feature: Secrets Management**
+
+You can now manage `Secret` and `KMSSecret` Resources through `Values.secrets`.
+See the [Secrets](#secrets) section below for details on how secrets work.
+
 ### 0.16.x -> 0.17.x
 
 **New Feature: Customize User-Facing Ports**
@@ -76,6 +83,24 @@ There are several advantages to this model.
 
 This feature is turned on by default if you set `Values.istio.enabled=true` and
 `Values.monitor.enabled=true`.
+
+## Secrets
+A `Secret` or `KMSSecret` resource would be created and mounted into the container
+based upon the `Values.secrets` and `Values.secretsEngine` being populated.
+The `Secret` resource is generally used for local dev and/or CI test.
+Secret` resources can be created by setting the following:
+```
+secrets:
+  FOO_BAR: my plaintext secret
+secretsEngine: plaintext
+```
+Alternatively, `KMSSecret` can be generated using the following example:
+```
+secrets:
+  FOO_BAR: AQIA...
+secretsEngine: kms
+kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
+```
 
 {{ template "chart.requirementsSection" . }}
 

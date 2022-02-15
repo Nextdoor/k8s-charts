@@ -2,7 +2,7 @@
 
 Default DaemonSet Helm Chart
 
-![Version: 0.0.6](https://img.shields.io/badge/Version-0.0.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -10,6 +10,15 @@ Default DaemonSet Helm Chart
 This chart provides a standard deployment for operating a [stateful application
 in Kubernetes][statefulsets]. The chart provides all of the common pieces like
 ServiceAccounts, Services, etc.
+
+## Upgrade Notes
+
+### 0.0.6 -> 0.1.x
+
+**New Feature: Secrets Management**
+
+You can now manage `Secret` and `KMSSecret` Resources through `Values.secrets`.
+See the [Secrets](#secrets) section below for details on how secrets work.
 
 ## Monitoring
 
@@ -61,6 +70,24 @@ There are several advantages to this model.
 This feature is turned on by default if you set `Values.istio.enabled=true` and
 `Values.monitor.enabled=true`.
 
+## Secrets
+A `Secret` or `KMSSecret` resource would be created and mounted into the container
+based upon the `Values.secrets` and `Values.secretsEngine` being populated.
+The `Secret` resource is generally used for local dev and/or CI test.
+Secret` resources can be created by setting the following:
+```
+secrets:
+  FOO_BAR: my plaintext secret
+secretsEngine: plaintext
+```
+Alternatively, `KMSSecret` can be generated using the following example:
+```
+secrets:
+  FOO_BAR: AQIA...
+secretsEngine: kms
+kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
+```
+
 ## Values
 
 | Key | Type | Default | Description |
@@ -94,6 +121,7 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | ingress.sslRedirect | bool | `true` | If `true`, then this will annotate the Ingress with a special AWS ALB Ingress Controller annotation that configures an SSL-redirect at the ALB level. |
 | istio.enabled | bool | `false` | (`bool`) Whether or not the service should be part of an Istio Service Mesh. If this is turned on and `Values.monitor.enabled=true`, then the Istio Sidecar containers will be configured to pull and merge the metrics from the application, rather than creating a new `ServiceMonitor` object. |
 | istio.preStopCommand | `list <str>` | `nil` | If supplied, this is the command that will be passed into the `istio-proxy` sidecar container as a pre-stop function. This is used to delay the shutdown of the istio-proxy sidecar in some way or another. Our own default behavior is applied if this value is not set - which is that the sidecar will wait until it does not see the application container listening on any TCP ports, and then it will shut down. eg: preStopCommand: [ /bin/sleep, "30" ] |
+| kmsSecretsRegion | String | `nil` | AWS region where the KMS key is located |
 | livenessProbe | object | `{"httpGet":{"path":"/","port":"http"}}` | A PodSpec container "livenessProbe" configuration object. Note that this livenessProbe will be applied to the proxySidecar container instead if that is enabled. |
 | minReadySeconds | string | `nil` | https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#daemonsetspec-v1-apps |
 | monitor.enabled | bool | `true` | (`bool`) If enabled, ServiceMonitor resources for Prometheus Operator are created or if `Values.istio.enabled` is `True`, then the appropriate Pod Annotations will be added for the istio-proxy sidecar container to scrape the metrics. |
@@ -119,6 +147,8 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 | readinessProbe | object | `{"httpGet":{"path":"/","port":"http"}}` | A PodSpec container "readinessProbe" configuration object. Note that this readinessProbe will be applied to the proxySidecar container instead if that is enabled. |
 | resources | object | `{}` |  |
 | revisionHistoryLimit | int | `3` | (`int`) The default revisionHistoryLimit in Kubernetes is 10 - which is just really noisy. Set our default to 3. https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy |
+| secrets | object | `{}` | (`Map`) Map of environment variables to plaintext secrets or KMS encrypted secrets. |
+| secretsEngine | string | `"plaintext"` | (String) Secrets Engine determines the type of Secret Resource that will be created (`KMSSecret`, `Secret`). kms || plaintext are possible values. |
 | securityContext | object | `{}` |  |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |

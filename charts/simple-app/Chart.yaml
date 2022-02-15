@@ -2,13 +2,12 @@ apiVersion: v2
 name: simple-app
 description: Default Microservice Helm Chart
 type: application
-version: 0.17.2
+version: 0.18.0
 appVersion: latest
 maintainers:
   - name: diranged
     email: matt@nextdoor.com
 dependencies:
-
   - name: istio-alerts
     version: 0.1.2
     repository: https://k8s-charts.nextdoor.com
