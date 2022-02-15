@@ -3,6 +3,19 @@ entries:
   daemonset-app:
   - apiVersion: v2
     appVersion: latest
+    created: "2022-02-15T18:59:27.527915202Z"
+    description: Default DaemonSet Helm Chart
+    digest: 6832099cbbc09d3b5ce00ad3eb10953b1288ac1320f1b732018eef7a776c26d0
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: daemonset-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/daemonset-app-0.1.0/daemonset-app-0.1.0.tgz
+    version: 0.1.0
+  - apiVersion: v2
+    appVersion: latest
     created: "2022-01-08T18:18:22.189677406Z"
     description: Default DaemonSet Helm Chart
     digest: 12300d4e9ac8842a8f924e1bcbd9752c836f8bc98690fc3984d4953ca3f017a9
@@ -648,6 +661,24 @@ entries:
     - https://github.com/Nextdoor/k8s-charts/releases/download/prometheus-alerts-0.1.0/prometheus-alerts-0.1.0.tgz
     version: 0.1.0
   simple-app:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2022-02-15T18:59:27.648158638Z"
+    dependencies:
+    - condition: istio-alerts.enabled
+      name: istio-alerts
+      repository: https://k8s-charts.nextdoor.com
+      version: 0.1.2
+    description: Default Microservice Helm Chart
+    digest: db2842298f3dd6ce02bcd96fe95a212228aa7208317baf731f54a653b579457e
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: simple-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/simple-app-0.18.0/simple-app-0.18.0.tgz
+    version: 0.18.0
   - apiVersion: v2
     appVersion: latest
     created: "2022-02-04T19:31:55.200079884Z"
@@ -1366,6 +1397,24 @@ entries:
   stateful-app:
   - apiVersion: v2
     appVersion: latest
+    created: "2022-02-15T18:59:27.792457901Z"
+    dependencies:
+    - condition: istio-alerts.enabled
+      name: istio-alerts
+      repository: file://../istio-alerts/
+      version: 0.1.1
+    description: Default StatefulSet Helm Chart
+    digest: 222a24edd27e02857688130a4104ad1c9dcbaa712e330d9bfe57a1bcb2851c71
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: stateful-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.2.0/stateful-app-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
+    appVersion: latest
     created: "2022-01-08T18:18:22.478402327Z"
     dependencies:
     - condition: istio-alerts.enabled
@@ -1449,4 +1498,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2022-02-04T19:31:55.200660316Z"
+generated: "2022-02-15T18:59:27.793068502Z"
