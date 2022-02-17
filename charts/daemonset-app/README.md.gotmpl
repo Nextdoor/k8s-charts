@@ -12,6 +12,16 @@ ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
 
+### 0.1.0 -> 0.2.0
+
+**New Feature: Vertical Pod Autoscaling**
+
+The `.Values.verticalAutoscaling` settings now control the creation of a
+[`VerticalPodAutoscaler`](https://github.com/kubernetes/autoscaler/tree/vertical-pod-autoscaler-0.9.2/vertical-pod-autoscaler)
+resource. This is useful for DaemonSet services where the resources rquired by
+them can change over time as the environment grows, and over-asking vs
+under-asking for resources can cause cluster scheduling difficulties.
+
 ### 0.0.6 -> 0.1.x
 
 **New Feature: Secrets Management**
