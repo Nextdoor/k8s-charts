@@ -6,7 +6,7 @@ metadata:
 spec:
   targetRef:
     apiVersion: apps/v1
-    kind: Daemonset
+    kind: DaemonSet
     name: {{ include "daemonset-app.fullname" . }}
   updatePolicy:
     updateMode: {{ .Values.verticalAutoscaling.updateMode | quote }}
