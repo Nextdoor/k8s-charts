@@ -2,7 +2,7 @@
 
 Default DaemonSet Helm Chart
 
-![Version: 0.2.3](https://img.shields.io/badge/Version-0.2.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.2.4](https://img.shields.io/badge/Version-0.2.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -171,7 +171,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | tolerations | list | `[]` |  |
 | updateStrategy | `DaemonSetUpdateStrategy` | `nil` | updateStrategy indicates the StatefulSetUpdateStrategy that will be employed to update Pods in the StatefulSet when a revision is made to Template. https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#daemonsetupdatestrategy-v1-apps |
 | verticalAutoscaling.controlledResources | list | `["cpu","memory"]` | (`string[]`) List of strings of controlled resources. Allowed values: "cpu", "memory". |
-| verticalAutoscaling.controlledValues | string | `"Requests"` | (`string[]`) Either `RequestsAndLimits` or `Requests`. If `RequestsAndLimits` are set, read [this doc](https://github.com/kubernetes/autoscaler/tree/vertical-pod-autoscaler-0.9.2/vertical-pod-autoscaler#limits-control) in detail to understand the behavior. |
+| verticalAutoscaling.controlledValues | string | `"RequestsOnly"` | (`string[]`) Either `RequestsAndLimits` or `RequestsOnly`. If `RequestsAndLimits` are set, read [this doc](https://github.com/kubernetes/autoscaler/tree/vertical-pod-autoscaler-0.9.2/vertical-pod-autoscaler#limits-control) in detail to understand the behavior. |
 | verticalAutoscaling.enabled | bool | `false` | (`bool`) Controls whether or not an VerticalPodAutoscaler resource is created. |
 | verticalAutoscaling.maxCpu | `string` | `nil` | Sets the maximum CPU resources to request for the container. This is the upper-bound that the VPA will set. |
 | verticalAutoscaling.maxMemory | `string` | `nil` | Sets the maximum Memory resources to request for the container. This is the upper-bound of the resource requests that will be set by the VPA. |

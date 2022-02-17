@@ -11,11 +11,11 @@ verticalAutoscaling:
   # -- (`string[]`) List of strings of controlled resources. Allowed values: "cpu", "memory".
   controlledResources: [cpu, memory]
 
-  # -- (`string[]`) Either `RequestsAndLimits` or `Requests`. If
+  # -- (`string[]`) Either `RequestsAndLimits` or `RequestsOnly`. If
   # `RequestsAndLimits` are set, read [this
   # doc](https://github.com/kubernetes/autoscaler/tree/vertical-pod-autoscaler-0.9.2/vertical-pod-autoscaler#limits-control)
   # in detail to understand the behavior.
-  controlledValues: Requests
+  controlledValues: RequestsOnly
 
   # -- (`string`) Sets the minimum CPU resources to request for the container.
   # This is the lower-bound of the resource requests that will be set by the
