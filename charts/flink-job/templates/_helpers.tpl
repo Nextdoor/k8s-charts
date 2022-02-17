@@ -51,7 +51,7 @@ Common labels
 */}}
 {{- define "flink-job.labels" -}}
 {{- $_tag := default .Chart.AppVersion .Values.image.tag -}}
-{{- $tag  := $_tag | replace ":" "_" | trunc 63 | quote -}}
+{{- $tag  := $_tag | replace "@" "_" | replace ":" "_" | trunc 63 | quote -}}
 helm.sh/chart: {{ include "flink-job.chart" . }}
 app.kubernetes.io/version: {{ $tag }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
