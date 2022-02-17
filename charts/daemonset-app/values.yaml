@@ -1,3 +1,41 @@
+verticalAutoscaling:
+  # -- (`bool`) Controls whether or not an VerticalPodAutoscaler resource is created.
+  enabled: false
+
+  # -- (`string`) Either `Off`, `Initial`, `Recreate` or `Auto` - Sets the
+  # operational mode for the `VerticalPodAutoscaler`. See [the
+  # code](https://github.com/kubernetes/autoscaler/blob/vertical-pod-autoscaler-0.9.2/vertical-pod-autoscaler/pkg/apis/autoscaling.k8s.io/v1beta2/types.go#L98-L118)
+  # for details.
+  updateMode: Auto
+
+  # -- (`string[]`) List of strings of controlled resources. Allowed values: "cpu", "memory".
+  controlledResources: [cpu, memory]
+
+  # -- (`string[]`) Either `RequestsAndLimits` or `Requests`. If
+  # `RequestsAndLimits` are set, read [this
+  # doc](https://github.com/kubernetes/autoscaler/tree/vertical-pod-autoscaler-0.9.2/vertical-pod-autoscaler#limits-control)
+  # in detail to understand the behavior.
+  controlledValues: Requests
+
+  # -- (`string`) Sets the minimum CPU resources to request for the container.
+  # This is the lower-bound of the resource requests that will be set by the
+  # VPA.
+  minCpu:
+
+  # -- (`string`) Sets the maximum CPU resources to request for the container.
+  # This is the upper-bound that the VPA will set.
+  maxCpu:
+
+  # -- (`string`) Sets the minimum Memory resources to request for the
+  # container. This is the lower-bound of the resource requests that will be
+  # set by the VPA.
+  minMemory:
+
+  # -- (`string`) Sets the maximum Memory resources to request for the
+  # container. This is the upper-bound of the resource requests that will be
+  # set by the VPA.
+  maxMemory:
+
 # -- https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#daemonsetspec-v1-apps
 minReadySeconds: null
 

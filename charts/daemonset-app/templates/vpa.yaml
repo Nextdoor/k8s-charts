@@ -1,0 +1,24 @@
+{{- if .Values.verticalAutoscaling.enabled }}
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: {{ include "daemonset-app.fullname" . }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Daemonset
+    name: {{ include "daemonset-app.fullname" . }}
+  updatePolicy:
+    updateMode: {{ .Values.verticalAutoscaling.updateMode | quote }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: {{ .Chart.Name }}
+        controlledResources:
+          {{- toYaml .Values.verticalAutoscaling.controlledResources | nindent 10 }}
+        minAllowed:
+          cpu: {{ required "You must set .verticalAutoscaling.minCpu"  .Values.verticalAutoscaling.minCpu }}
+          memory: {{ required "You must set .verticalAutoscaling.minMemory"  .Values.verticalAutoscaling.minMemory }}
+        maxAllowed:
+          cpu: {{ required "You must set .verticalAutoscaling.maxCpu"  .Values.verticalAutoscaling.maxCpu }}
+          memory: {{ required "You must set .verticalAutoscaling.maxMemory"  .Values.verticalAutoscaling.maxMemory }}
+{{- end }}

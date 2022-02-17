@@ -2,7 +2,7 @@
 
 Default DaemonSet Helm Chart
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,16 @@ in Kubernetes][statefulsets]. The chart provides all of the common pieces like
 ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
+
+### 0.1.0 -> 0.2.0
+
+**New Feature: Vertical Pod Autoscaling**
+
+The `.Values.verticalAutoscaling` settings now control the creation of a
+[`VerticalPodAutoscaler`](https://github.com/kubernetes/autoscaler/tree/vertical-pod-autoscaler-0.9.2/vertical-pod-autoscaler)
+resource. This is useful for DaemonSet services where the resources rquired by
+them can change over time as the environment grows, and over-asking vs
+under-asking for resources can cause cluster scheduling difficulties.
 
 ### 0.0.6 -> 0.1.x
 
@@ -160,6 +170,14 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | tests.connection.image.tag | string | `nil` | Sets the tag that will be used in the "connection" integration test. If this is left empty, the default is "latest" |
 | tolerations | list | `[]` |  |
 | updateStrategy | `DaemonSetUpdateStrategy` | `nil` | updateStrategy indicates the StatefulSetUpdateStrategy that will be employed to update Pods in the StatefulSet when a revision is made to Template. https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#daemonsetupdatestrategy-v1-apps |
+| verticalAutoscaling.controlledResources | list | `["cpu","memory"]` | (`string[]`) List of strings of controlled resources. Allowed values: "cpu", "memory". |
+| verticalAutoscaling.controlledValues | string | `"Requests"` | (`string[]`) Either `RequestsAndLimits` or `Requests`. If `RequestsAndLimits` are set, read [this doc](https://github.com/kubernetes/autoscaler/tree/vertical-pod-autoscaler-0.9.2/vertical-pod-autoscaler#limits-control) in detail to understand the behavior. |
+| verticalAutoscaling.enabled | bool | `false` | (`bool`) Controls whether or not an VerticalPodAutoscaler resource is created. |
+| verticalAutoscaling.maxCpu | `string` | `nil` | Sets the maximum CPU resources to request for the container. This is the upper-bound that the VPA will set. |
+| verticalAutoscaling.maxMemory | `string` | `nil` | Sets the maximum Memory resources to request for the container. This is the upper-bound of the resource requests that will be set by the VPA. |
+| verticalAutoscaling.minCpu | `string` | `nil` | Sets the minimum CPU resources to request for the container. This is the lower-bound of the resource requests that will be set by the VPA. |
+| verticalAutoscaling.minMemory | `string` | `nil` | Sets the minimum Memory resources to request for the container. This is the lower-bound of the resource requests that will be set by the VPA. |
+| verticalAutoscaling.updateMode | string | `"Auto"` | (`string`) Either `Off`, `Initial`, `Recreate` or `Auto` - Sets the operational mode for the `VerticalPodAutoscaler`. See [the code](https://github.com/kubernetes/autoscaler/blob/vertical-pod-autoscaler-0.9.2/vertical-pod-autoscaler/pkg/apis/autoscaling.k8s.io/v1beta2/types.go#L98-L118) for details. |
 | volumeMounts | list | `[]` | List of VolumeMounts that are applied to the application container - these must refer to volumes set in the `Values.volumes` parameter. |
 | volumes | list | `[]` | A list of 'volumes' that can be mounted into the Pod. See https://kubernetes.io/docs/concepts/storage/volumes/. |
 | volumesString | string | `""` | A stringified list of 'volumes' similar to the `Values.volumes` parameter, but this one gets run through the `tpl` function so that you can use templatized values if you need to. See https://kubernetes.io/docs/concepts/storage/volumes/. |
