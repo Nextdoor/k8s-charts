@@ -15,6 +15,7 @@ spec:
       - containerName: {{ .Chart.Name }}
         controlledResources:
           {{- toYaml .Values.verticalAutoscaling.controlledResources | nindent 10 }}
+        controlledValues: {{ required "You must set .verticalAutoScaling.controlledValues" .Values.verticalAutoscaling.controlledValues }}
         minAllowed:
           cpu: {{ required "You must set .verticalAutoscaling.minCpu"  .Values.verticalAutoscaling.minCpu }}
           memory: {{ required "You must set .verticalAutoscaling.minMemory"  .Values.verticalAutoscaling.minMemory }}
