@@ -46,7 +46,7 @@ https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/?tab=
 */}}
 {{- define "daemonset-app.labels" -}}
 {{- $_tag := include "daemonset-app.imageTag" . }}
-{{- $tag  := $_tag | replace ":" "_" | trunc 63 | quote -}}
+{{- $tag  := $_tag | replace "@" "_" | replace ":" "_" | trunc 63 | quote -}}
 {{- if not (hasKey .Values.podLabels "app") }}
 app: {{ .Release.Name }}
 {{- end }}
