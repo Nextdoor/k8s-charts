@@ -359,6 +359,18 @@ autoscaling:
   # -- If supplied, configures the HPA to target a particular Memory utilization percentage
   # targetMemoryUtilizationPercentage: 80
 
+# -- (`string`) If set, this value will be used in the .spec.nodeSelector to
+# ensure that these pods specifically launch on the desired target Operating
+# System. Must be set.
+targetOperatingSystem: linux
+
+# -- (`string`) If set, this value will be used in the .spec.nodeSelector to
+# ensure that these pods specifically launch on the desired target host
+# architecture. If set to null/empty-string, then this value will not be set.
+targetArchitecture: amd64
+
+# -- (`map`) A list of key/value pairs that will be added in to the
+# nodeSelector spec for the pods.
 nodeSelector: {}
 
 tolerations: []

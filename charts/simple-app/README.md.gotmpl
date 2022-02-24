@@ -12,6 +12,16 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
 
+### 0.18.x -> 0.19.x
+
+**Automatic NodeSelectors**
+
+By default the chart now sets the `kubernetes.io/os` and `kubernetes.io/arch`
+values in the `nodeSelector` field for your pods! The default values are
+targeted towards our most common deployment environments - `linux` on `amd64`
+hosts. Pay close attention to the `targetOperatingSystem` and
+`targetArchitecture` values to customize this behavior.
+
 ### 0.17.x -> 0.18.x
 
 **New Feature: Secrets Management**
