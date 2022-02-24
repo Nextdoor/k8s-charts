@@ -1,0 +1,6 @@
+apiVersion: v2
+name: nd-common
+description: A helper chart used by most of our other charts
+type: library
+version: 0.0.1
+appVersion: latest

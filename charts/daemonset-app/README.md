@@ -2,7 +2,7 @@
 
 Default DaemonSet Helm Chart
 
-![Version: 0.2.4](https://img.shields.io/badge/Version-0.2.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -13,7 +13,17 @@ ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
 
-### 0.1.0 -> 0.2.0
+### 0.2.x -> 0.3.x
+
+**Automatic NodeSelectors**
+
+By default the chart now sets the `kubernetes.io/os` and `kubernetes.io/arch`
+values in the `nodeSelector` field for your pods! The default values are
+targeted towards our most common deployment environments - `linux` on `amd64`
+hosts. Pay close attention to the `targetOperatingSystem` and
+`targetArchitecture` values to customize this behavior.
+
+### 0.1.x -> 0.2.x
 
 **New Feature: Vertical Pod Autoscaling**
 
@@ -98,6 +108,12 @@ secretsEngine: kms
 kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 ```
 
+## Requirements
+
+| Repository | Name | Version |
+|------------|------|---------|
+| file://../nd-common | nd-common | 0.0.1 |
+
 ## Values
 
 | Key | Type | Default | Description |
@@ -139,7 +155,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | monitor.portName | string | `"metrics"` | (`string`) Name of the port to scrape for metrics - this is the name of the port that will be exposed in your `PodSpec` for scraping purposes. |
 | monitor.portNumber | int | `9090` | (`int`) Number of the port to scrape for metrics - this port will be exposed in your `PodSpec` to ensure it can be scraped. |
 | nameOverride | string | `""` |  |
-| nodeSelector | object | `{}` |  |
+| nodeSelector | object | `{}` | (`map`) A list of key/value pairs that will be added in to the nodeSelector spec for the pods. |
 | podAnnotations | object | `{}` | (`Map`) List of Annotations to be added to the PodSpec |
 | podLabels | object | `{}` | (`Map`) List of Labels to be added to the PodSpec |
 | podMonitor.annotations | object | `{}` | (`map`) ServiceMonitor annotations. |
@@ -163,6 +179,8 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
+| targetArchitecture | string | `"amd64"` | (`string`) If set, this value will be used in the .spec.nodeSelector to ensure that these pods specifically launch on the desired target host architecture. If set to null/empty-string, then this value will not be set. |
+| targetOperatingSystem | string | `"linux"` | (`string`) If set, this value will be used in the .spec.nodeSelector to ensure that these pods specifically launch on the desired target Operating System. Must be set. |
 | terminationGracePeriodSeconds | string | `nil` | https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#hook-handler-execution |
 | tests.connection.args | list | `["$(HOST_IP)"]` | A list of arguments passed into the command. These are run through the tpl function. |
 | tests.connection.command | list | `["curl","--verbose","--retry-connrefused","--retry","5","--retry-delay","10"]` | The command used to trigger the test. |

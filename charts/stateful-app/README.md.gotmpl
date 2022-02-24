@@ -12,6 +12,16 @@ ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
 
+### 0.2.x -> 0.3.x
+
+**Automatic NodeSelectors**
+
+By default the chart now sets the `kubernetes.io/os` and `kubernetes.io/arch`
+values in the `nodeSelector` field for your pods! The default values are
+targeted towards our most common deployment environments - `linux` on `amd64`
+hosts. Pay close attention to the `targetOperatingSystem` and
+`targetArchitecture` values to customize this behavior.
+
 ### 0.1.3 -> 0.2.x
 
 **New Feature: Secrets Management**

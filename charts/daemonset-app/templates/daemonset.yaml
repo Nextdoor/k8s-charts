@@ -133,10 +133,8 @@ spec:
         {{- end }}
     spec:
       priorityClassName: {{ .Values.priorityClassName }}
-      {{- with .Values.nodeSelector }}
       nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- include "nd-common.nodeSelector" $ | nindent 8 }}
       {{- with .Values.hostNetwork }}
       hostNetwork: {{ . }}
       {{- end }}

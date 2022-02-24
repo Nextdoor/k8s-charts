@@ -2,7 +2,7 @@ apiVersion: v2
 name: simple-app
 description: Default Microservice Helm Chart
 type: application
-version: 0.18.2
+version: 0.19.0
 appVersion: latest
 maintainers:
   - name: diranged
@@ -12,3 +12,6 @@ dependencies:
     version: 0.1.2
     repository: https://k8s-charts.nextdoor.com
     condition: istio-alerts.enabled
+  - name: nd-common
+    version: 0.0.1
+    repository: file://../nd-common
