@@ -50,6 +50,10 @@ spec:
             host: {{ include "simple-app.fullname" . }}
             port:
               number: {{ .Values.virtualService.port }}
+      {{- with .Values.virtualService.rewrite }}
+      rewrite:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
   {{- with .Values.virtualService.tls }}
   tls:
     {{- tpl . $global | nindent 4 }}

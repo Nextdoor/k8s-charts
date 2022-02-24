@@ -291,6 +291,12 @@ virtualService:
   # for more details.
   corsPolicy: {}
 
+  # -- (`map`) If set, this will populate the rewrite setting for the
+  # VirtualService. See
+  # https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRewrite
+  # for more details.
+  rewrite: {}
+
   # -- (`map[]`) A list of Istio `HTTPMatchRequest` objects that will be
   # applied to the VirtualService. This is the more advanced and customizable
   # way of controlling which paths get sent to your backend. These are added
