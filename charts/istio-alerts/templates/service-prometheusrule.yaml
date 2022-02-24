@@ -37,6 +37,7 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
+        namespace: {{ $release.Namespace }}
         {{- with $values.defaults.additionalRuleLabels}}
         {{ toYaml . | nindent 8}}
         {{- end }}
@@ -55,7 +56,7 @@ spec:
           Average request latency of {{`{{ $value | humanizePercentage }}`}} is above threshold ({{ .threshold }}s)
           in namespace {{`{{ $labels.namespace }}`}} for pod {{`{{ $labels.pod }}`}} (container: {{`{{ $labels.container }}`}}).
       expr: |-
-        sum by (destination_service_name) (
+        avg by (destination_service_name) (
           irate(
             istio_request_duration_milliseconds_bucket{reporter=~"destination",destination_service_namespace="{{ $release.Namespace }}"}[1m]
           ) / 1000
@@ -64,6 +65,7 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
+        namespace: {{ $release.Namespace }}
         {{- with $values.defaults.additionalRuleLabels}}
         {{ toYaml . | nindent 8}}
         {{- end }}
