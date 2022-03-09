@@ -12,6 +12,16 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
 
+### 0.19.x -> 0.20.x
+
+**Default Replica Count is now 2!**
+
+In order to make sure that even our staging/development deployments have some
+guarantees of uptime, the defaults for the chart have changed. We now set
+`replicaCount: 2` and create a `podDisruptionBudget` by default. This ensures
+that a developer needs to _intentionally_ disable these settings in order to
+create a single-pod deployment.
+
 ### 0.18.x -> 0.19.x
 
 **Automatic NodeSelectors**
