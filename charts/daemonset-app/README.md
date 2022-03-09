@@ -13,6 +13,15 @@ ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
 
+### 0.3.0 -> 0.3.1
+
+**No longer setting `DD_ENV` by default**
+
+The `DD_ENV` variable in a container will override the underlying host Datadog
+Agent `env` tag. This should not be set by default, so we no longer do this. If
+you explicitly set this, it will work ... but by default you should let the
+underlying host define the environment in which your application is running.
+
 ### 0.2.x -> 0.3.x
 
 **Automatic NodeSelectors**
