@@ -136,6 +136,7 @@ spec:
         {{- end }}
       labels:
         {{- include "stateful-app.labels" . | nindent 8 }}
+        {{- include "nd-common.datadogLabels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- tpl (toYaml .) $ | nindent 8 }}
         {{- end }}
@@ -273,32 +274,7 @@ spec:
               {{- end }}
             {{- end }}
             {{- end }}
-
-            {{- if .Values.datadog.enabled }}
-            # https://www.datadoghq.com/blog/monitor-kubernetes-docker/#instrument-your-code-to-send-metrics-to-dogstatsd
-            - name: DOGSTATSD_HOST_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.hostIP
-            # https://docs.datadoghq.com/agent/docker/apm/?tab=standard#docker-apm-agent-environment-variables
-            - name: DD_AGENT_HOST
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.hostIP
-            # https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/?tab=kubernetes#full-configuration
-            - name: DD_ENV
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.labels['tags.datadoghq.com/env']
-            - name: DD_SERVICE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.labels['tags.datadoghq.com/service']
-            - name: DD_VERSION
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.labels['tags.datadoghq.com/version']
-            {{- end }}
+            {{- include "nd-common.datadogEnv" . | nindent 12 }}
           {{- end }}
 
           {{- with .Values.volumeMounts }}

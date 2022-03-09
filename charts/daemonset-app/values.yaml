@@ -361,8 +361,10 @@ datadog:
   enabled: true
 
   # -- (`string`) The "env" tag to configure for the application - this maps to
-  # the Datadog environment concept for isolating traces/apm data.
-  env: dev
+  # the Datadog environment concept for isolating traces/apm data. If you do
+  # not set this, then no `DD_ENV` variable is set, and the underlying Datadog
+  # Agent will set that value.
+  env: null
 
   # -- (`string`) If set, this configures the "service" tag. If this is not
   # set, the tag defaults to the `.Release.Name` for the application.
