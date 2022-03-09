@@ -13,7 +13,7 @@ podManagementPolicy: null
 # scale" for an application. Setting this to `null` prevents the setting from
 # being applied at all in the PodSpec, leaving it to Kubernetes to use the
 # default value (1). https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#replicas
-replicaCount: null
+replicaCount: 2
 
 # -- (`int`) The default revisionHistoryLimit in Kubernetes is 10 - which is
 # just really noisy. Set our default to 3. https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy
@@ -39,7 +39,8 @@ volumeClaimTemplates: null
 # -- Set up a PodDisruptionBudget for the Deployment. See
 # https://kubernetes.io/docs/tasks/run-application/configure-pdb/ for more
 # details.
-podDisruptionBudget: {}
+podDisruptionBudget:
+  maxUnavailable: 1
 
 image:
   # -- (String) The Docker image name and repository for your application

@@ -12,6 +12,16 @@ ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
 
+### 0.3.x -> 0.4.x
+
+**Default Replica Count is now 2!**
+
+In order to make sure that even our staging/development deployments have some
+guarantees of uptime, the defaults for the chart have changed. We now set
+`replicaCount: 2` and create a `podDisruptionBudget` by default. This ensures
+that a developer needs to _intentionally_ disable these settings in order to
+create a single-pod deployment.
+
 ### 0.2.x -> 0.3.x
 
 **Automatic NodeSelectors**
