@@ -781,6 +781,27 @@ entries:
   simple-app:
   - apiVersion: v2
     appVersion: latest
+    created: "2022-03-09T16:59:48.973505716Z"
+    dependencies:
+    - condition: istio-alerts.enabled
+      name: istio-alerts
+      repository: https://k8s-charts.nextdoor.com
+      version: 0.1.3
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.0.1
+    description: Default Microservice Helm Chart
+    digest: 5692190473101908ffdfb7619af5516bc59d38b68703d8aa7006709e7e5c82a0
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: simple-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/simple-app-0.20.0/simple-app-0.20.0.tgz
+    version: 0.20.0
+  - apiVersion: v2
+    appVersion: latest
     created: "2022-02-24T19:37:06.262314827Z"
     dependencies:
     - condition: istio-alerts.enabled
@@ -1572,6 +1593,27 @@ entries:
   stateful-app:
   - apiVersion: v2
     appVersion: latest
+    created: "2022-03-09T16:59:49.108320856Z"
+    dependencies:
+    - condition: istio-alerts.enabled
+      name: istio-alerts
+      repository: https://k8s-charts.nextdoor.com
+      version: 0.1.3
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.0.1
+    description: Default StatefulSet Helm Chart
+    digest: a90abcf6109613456200245c71d53145e046d2439dc60900e81ea2a3d55681ed
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: stateful-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.4.0/stateful-app-0.4.0.tgz
+    version: 0.4.0
+  - apiVersion: v2
+    appVersion: latest
     created: "2022-02-24T19:37:06.4766327Z"
     dependencies:
     - condition: istio-alerts.enabled
@@ -1712,4 +1754,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2022-02-24T19:37:06.477988008Z"
+generated: "2022-03-09T16:59:49.109050052Z"
