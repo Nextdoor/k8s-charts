@@ -45,7 +45,7 @@ label.
 https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/?tab=kubernetes
 */}}
 {{- define "daemonset-app.labels" -}}
-{{- $_tag := include "daemonset-app.imageTag" . }}
+{{- $_tag := include "nd-common.imageTag" . }}
 {{- $tag  := $_tag | replace "@" "_" | replace ":" "_" | trunc 63 | quote -}}
 {{- if not (hasKey .Values.podLabels "app") }}
 app: {{ .Release.Name }}
@@ -55,20 +55,7 @@ helm.sh/chart: {{ include "daemonset-app.chart" . }}
 app.kubernetes.io/version: {{ $tag }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{ include "daemonset-app.selectorLabels" . }}
-{{- if .Values.datadog.enabled }}
-# https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/?tab=kubernetes
-tags.datadoghq.com/env: {{ .Values.datadog.env | quote }}
-tags.datadoghq.com/service: {{ default .Release.Name .Values.datadog.service | quote }}
-tags.datadoghq.com/version: {{ $tag }}
 {{- end }}
-{{- end }}
-{{- /*
-https://docs.datadoghq.com/agent/cluster_agent/admission_controller/
-(Disabled for now, here for future reference. Disabled because we can get
-the same value through the Kubernetes downward API, which doesn't introduce
-a potential Pod launching failure point.)
-# admission.datadoghq.com/enabled: "true"
-*/}}
 
 {{/*
 Selector labels
@@ -93,19 +80,10 @@ Create the name of the service account to use
 Proxy and Main App Image Names
 */}}
 {{- define "daemonset-app.imageFqdn" -}}
-{{- $tag := include "daemonset-app.imageTag" . }}
+{{- $tag := include "nd-common.imageTag" . }}
 {{- if hasPrefix "sha256:" $tag }}
 {{- .Values.image.repository }}@{{ $tag }}
 {{- else }}
 {{- .Values.image.repository }}:{{ $tag }}
 {{- end }}
-{{- end }}
-
-{{/*
-Gathers the application image tag. This allows overriding the tag with a master
-`forceTag` setting, as well as the more common mechanism of setting the `tag`
-setting.
-*/}}
-{{- define "daemonset-app.imageTag" -}}
-{{- default .Chart.AppVersion (default .Values.image.tag .Values.image.forceTag) }}
 {{- end }}
