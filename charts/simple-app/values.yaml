@@ -334,6 +334,12 @@ virtualService:
 
   tls: ""
 
+  # -- (`map`) Pass in an optional
+  # [`HTTPRetry`](https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRetry)
+  # configuration here to control how services retry their failed requests to
+  # the backend service. The default behavior is to retry 2 times if a 503 is returned.
+  retries: {}
+
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
