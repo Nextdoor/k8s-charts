@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.20.1](https://img.shields.io/badge/Version-0.20.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.20.2](https://img.shields.io/badge/Version-0.20.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -249,6 +249,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | virtualService.path | string | `"/"` | The default path prefix that the `VirtualService` will match requests against to pass to the default `Service` object in this deployment. |
 | virtualService.paths | list | `[]` | (`string[]`) List of optional path prefixes that the `VirtualService` will use to match requests against and will pass to the `Service` object in this deployment. This list replaces the `path` prefix above - use one or the other, do not use both. |
 | virtualService.port | int | `80` | This is the backing Pod port _number_ to route traffic to. This must match a `containerPort` in the `Values.ports` list. |
+| virtualService.retries | object | `{}` | (`map`) Pass in an optional [`HTTPRetry`](https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRetry) configuration here to control how services retry their failed requests to the backend service. The default behavior is to retry 2 times if a 503 is returned. |
 | virtualService.tls | string | `""` |  |
 | volumeMounts | list | `[]` | List of VolumeMounts that are applied to the application container - these must refer to volumes set in the `Values.volumes` parameter. |
 | volumes | list | `[]` | A list of 'volumes' that can be mounted into the Pod. See https://kubernetes.io/docs/concepts/storage/volumes/. |

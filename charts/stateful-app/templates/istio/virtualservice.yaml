@@ -44,6 +44,11 @@ spec:
       corsPolicy:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRetry */}}
+      {{- with .Values.virtualService.retries }}
+      retries:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRouteDestination */}}
       route:
         - destination:
