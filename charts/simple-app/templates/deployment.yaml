@@ -132,6 +132,9 @@ spec:
 
         {{- end }}
         {{- end }}
+        {{- if and .Values.datadog.enabled .Values.datadog.enableLogging .Values.datadog.service }}
+        ad.datadoghq.com/writer.logs: '[{"source":{{ .Values.datadog.service | quote}},"service":{{ .Values.datadog.service | quote}}]'
+        {{- end }}
       labels:
         {{- include "simple-app.labels" . | nindent 8 }}
         {{- include "nd-common.datadogLabels" . | nindent 8 }}
