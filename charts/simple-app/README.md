@@ -148,11 +148,14 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | autoscaling.minReplicas | int | `1` | Sets the minimum number of Pods to run |
 | autoscaling.targetCPUUtilizationPercentage | int | `80` | Configures the HPA to target a particular CPU utilization percentage |
 | command | list | `[]` | The command run by the container. This overrides `ENTRYPOINT`. If not specified, the container's default entrypoint is used. The exact rules of how commadn and args are interpreted can be # found at: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/ |
-| datadog.enableLogging | bool | `false` | (`bool`) If true, then it will enable application logging to datadog. To enable datadog logging, datadog.service value must be set as it's being used as source and service name in datadog logging configuration. |
 | datadog.enabled | bool | `true` | (`bool`) Whether or not the various datadog labels and options should be included or not. |
 | datadog.env | `string` | `nil` | The "env" tag to configure for the application - this maps to the Datadog environment concept for isolating traces/apm data. If you do not set this, then no `DD_ENV` variable is set, and the underlying Datadog Agent will set that value. |
 | datadog.metricsNamespace | string | `"eks"` | (`string`) The prefix to append to all metrics that are scraped by Datadog. We set this to one common value so that common metrics (like `istio_.*` or `go_.*`) are shared across all apps in Datadog for easier dashboard creation as well as comparision between applications. |
 | datadog.metricsToScrape | list | `["\"*\""]` | (`strings[]`) A list of strings that match the metric names that Datadog should scrape from the endpoint. This defaults to `"*"` to tell it to scrape ALL metrics - however, if your app exposes too many metrics (> 2000), Datadog will drop them all on the ground. |
+| datadog.scrapeLogs | object | `{"enabled":false,"source":null}` | (`map`) If true, then it will enable application logging to datadog. To enable datadog logging, datadog.service value must be set as it's being used as source and service name in datadog logging configuration. |
+| datadog.scrapeLogs.enabled | bool | `false` | (`bool`) If true, then it will enable application logging to datadog. |
+| datadog.scrapeLogs.source | `string` | `nil` | If set, this configures the "source" tag. If this is not set, the tag defaults to the `.Release.Name` for the application. |
+| datadog.scrapeLogsProcessingRules | list | `[]` | (`map[]`) A list of map that sets different log processing rules. https://docs.datadoghq.com/agent/logs/advanced_log_collection/?tab=configurationfile |
 | datadog.scrapeMetrics | bool | `false` | (`bool`) If true, then we will configure the Datadog agent to scrape metrics from the Pod (or the `istio-proxy` sidecar). |
 | datadog.service | `string` | `nil` | If set, this configures the "service" tag. If this is not set, the tag defaults to the `.Release.Name` for the application. |
 | deploymentStrategy | object | `{}` | https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |

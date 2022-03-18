@@ -487,10 +487,20 @@ datadog:
   metricsToScrape:
     - '"*"'
 
-  # -- (`bool`) If true, then it will enable application logging to datadog.
+  # -- (`map`) If true, then it will enable application logging to datadog.
   # To enable datadog logging, datadog.service value must be set as it's
   # being used as source and service name in datadog logging configuration.
-  enableLogging: false
+  scrapeLogs:
+    # -- (`bool`) If true, then it will enable application logging to datadog.
+    enabled: false
+    # -- (`string`) If set, this configures the "source" tag. If this is not
+    # set, the tag defaults to the `.Release.Name` for the application.
+    source: null
+
+  # -- (`map[]`) A list of map that sets different log processing rules.
+  # https://docs.datadoghq.com/agent/logs/advanced_log_collection/?tab=configurationfile
+  scrapeLogsProcessingRules: []
+
 
 tests:
   connection:

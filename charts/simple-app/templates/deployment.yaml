@@ -132,8 +132,8 @@ spec:
 
         {{- end }}
         {{- end }}
-        {{- if and .Values.datadog.enabled .Values.datadog.enableLogging .Values.datadog.service }}
-        ad.datadoghq.com/writer.logs: '[{"source":{{ .Values.datadog.service | quote}},"service":{{ .Values.datadog.service | quote}}]'
+        {{- if and .Values.datadog.enabled .Values.datadog.scrapeLogs.enabled }}
+        ad.datadoghq.com/{{ include "simple-app.name" . }}.logs: {{ include "simple-app.datadogScrapeLoggingConfig" . | toJson }}
         {{- end }}
       labels:
         {{- include "simple-app.labels" . | nindent 8 }}
