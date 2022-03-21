@@ -12,6 +12,16 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
 
+### 0.20.x -> 0.21.x
+
+**BREAKING: Default behavior is to turn on the Istio Annotations/Labels**
+
+We now default setting `.Values.istio.enabled=true` in the `values.yaml` file.
+This was done because the vast majority of our applications operate within the
+mesh, and this default behavior is simpler for most users. If your service is
+_not_ running within the mesh, then you must set the value to `false`.
+
+
 ### 0.19.x -> 0.20.x
 
 **Default Replica Count is now 2!**

@@ -22,9 +22,6 @@ ports:
 
 
 terminationGracePeriodSeconds: 30
-istio:
-  enabled: true
-
 autoscaling:
   enabled: true
 

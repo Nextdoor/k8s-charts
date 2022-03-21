@@ -13,6 +13,8 @@ another chart, and the functions that it exposes are then available for use.
 
 [unified_service_tagging]: https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/?tab=kubernetes
 
+### Values Parameters
+
 Each of the functions in the [`templates/_datadog.tpl`](templates/_datadog.tpl)
 functions file looks for particularly named values keys. In particular:
 
@@ -70,9 +72,29 @@ spec:
   functions are enabled or disabled. Also used in some other monitoring
   functions.
 
+* `.Values.istio.preStopCommand`: A string representing a command that will run
+  within the pod before the Istio Envoy sidecar will begin shutting down. This
+  setting can be used to ensure that the `envoy` process continues to allow
+  traffic to flow while your application begins handling the `SIGTERM` from the
+  Kubelet. Eg: `/bin/sleep 30`. _If this is set, then this takes priority over
+  the value of `.Values.ports[]` below.
+
+* `.Values.ports[]`: If your application exposes ports, and you do _not_ set a
+  `preStopCommand`, then we will configure the `istio-proxy` sidecar to loop
+  until it finds no TCP ports in the `LISTENING` state. This is a reasonably
+  safe default behavior to ensure that the proxy does not shut down until all
+  other traffic has stopped.
+
 ### `nd-common.istioAnnotations`
 
+There are a number of common [Istio Resource
+Annotations](https://istio.io/latest/docs/reference/config/annotations/) that
+we want to apply to most of our workloads. These annotations are generally safe
+to apply as defaults, and then we have certain `Values` parameters that we can
+override to change the behavior when necessary.
+
 _Example Usage_:
+```yaml
 # templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment

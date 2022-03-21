@@ -441,7 +441,7 @@ istio:
   # Mesh. If this is turned on and `Values.monitor.enabled=true`, then the
   # Istio Sidecar containers will be configured to pull and merge the metrics
   # from the application, rather than creating a new `ServiceMonitor` object.
-  enabled: false
+  enabled: true
 
   # -- (`list <str>`) If supplied, this is the command that will be passed into
   # the `istio-proxy` sidecar container as a pre-stop function. This is used to
