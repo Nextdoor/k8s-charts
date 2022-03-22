@@ -1,0 +1,24 @@
+Pulling dependencies in...
+helm dependency update .
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "wave" chart repository
+...Successfully got an update from the "fission-diranged" chart repository
+...Successfully got an update from the "diranged-redis" chart repository
+...Successfully got an update from the "k8s-public-charts" chart repository
+...Successfully got an update from the "mogaal" chart repository
+...Successfully got an update from the "descheduler" chart repository
+...Successfully got an update from the "strimzi" chart repository
+...Successfully got an update from the "k8s-charts" chart repository
+...Successfully got an update from the "kiali" chart repository
+...Successfully got an update from the "kyverno" chart repository
+...Successfully got an update from the "localstack" chart repository
+...Successfully got an update from the "oauth2-proxy" chart repository
+...Successfully got an update from the "jetstack" chart repository
+...Successfully got an update from the "ekscharts" chart repository
+...Successfully got an update from the "localstack-charts" chart repository
+...Successfully got an update from the "kubecost-source" chart repository
+...Successfully got an update from the "crossplane-stable" chart repository
+...Successfully got an update from the "harness" chart repository
+...Successfully got an update from the "datadog" chart repository
+...Successfully got an update from the "eks-charts" chart repository
+...Successfully got an update from the "aws-ebs-csi-driver" chart repository

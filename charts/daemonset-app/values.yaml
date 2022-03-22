@@ -322,7 +322,7 @@ monitor:
   # https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig
   relabelings: []
 
-  # -- ServiceMonitor will use http by default, but you can pick https as well
+  # -- (`enum: http, https`) PodMonitor will use http by default, but you can pick https as well
   scheme: http
 
   # -- ServiceMonitor will use these tlsConfig settings to make the health check requests
@@ -336,6 +336,9 @@ istio:
   # Mesh. If this is turned on and `Values.monitor.enabled=true`, then the
   # Istio Sidecar containers will be configured to pull and merge the metrics
   # from the application, rather than creating a new `ServiceMonitor` object.
+  #
+  # This is disabled by default on DaemonSets because it is fairly uncommon for
+  # a DaemonSet to be part of the service mesh.
   enabled: false
 
   # -- (`list <str>`) If supplied, this is the command that will be passed into
@@ -357,9 +360,9 @@ datadog:
   enabled: true
 
   # -- (`string`) The "env" tag to configure for the application - this maps to
-  # the Datadog environment concept for isolating traces/apm data. If you do
-  # not set this, then no `DD_ENV` variable is set, and the underlying Datadog
-  # Agent will set that value.
+  # the Datadog environment concept for isolating traces/apm data. _We default
+  # to not setting this, so that the Datadog Agent's own "ENV" setting is used
+  # as the default behavior. Only override this in special cases._
   env: null
 
   # -- (`string`) If set, this configures the "service" tag. If this is not
@@ -367,7 +370,8 @@ datadog:
   service: null
 
   # -- (`bool`) If true, then we will configure the Datadog agent to scrape
-  # metrics from the Pod (or the `istio-proxy` sidecar).
+  # metrics from the application pod via the values set in the
+  # .Values.monitor.* map.
   scrapeMetrics: false
 
   # -- (`string`) The prefix to append to all metrics that are scraped by

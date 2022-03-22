@@ -2,7 +2,7 @@
 
 Default DaemonSet Helm Chart
 
-![Version: 0.3.2](https://img.shields.io/badge/Version-0.3.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,37 @@ in Kubernetes][statefulsets]. The chart provides all of the common pieces like
 ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
+
+### 0.3.x -> 0.4.0
+
+**BREAKING: ServiceMonitor has been replaced with PodMonitor**
+
+We have replaced the behavior of creating a `ServiceMonitor` resource with a
+`PodMonitor` resource. This is done because not all applications will use a
+`Service` (in fact, the creation of the `Service` resource is optional), and
+that can cause the monitoring to fail. `PodMonitor` resources will configure
+Prometheus to monitor the pods regardless of whether or not they are part of a
+Service.
+ 
+**BREAKING: All .Values.serviceMonitor parameters moved to .Values.monitor**
+ 
+We have condensed the Values a bit, so the entire `.Values.serviceMonitor` key
+has been removed, and all of the parameters have been moved into
+`.Values.monitor`. Make sure to update your values appropriately!
+
+**BREAKING: Istio Injection is now explicitly controlled**
+
+In previous versions of the chart, setting `.Values.istio.enabled=true/false`
+only impacted whether or not certain lables and annotations were created... it
+did not impact whether or not your pod actually got injected with the Istio
+sidecar.
+
+_As of this new release, setting `.Values.istio.enabled=true` will explicitly
+add the `sidecar.istio.io/inject="true"` label to your pods, which will inject
+them regardless of the namespace config. Alternatively, setting
+`.Values.istio.enabled=false` will explicitly set
+`sidecar.istio.io/inject="false"` which will prevent injection, regardless of
+the namespace configuration!_
 
 ### 0.3.0 -> 0.3.1
 
@@ -131,10 +162,10 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | args | list | `[]` | The arguments passed to the command. If unspecified the container defaults are used. The exact rules of how commadn and args are interpreted can be # found at: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/ |
 | command | list | `[]` | The command run by the container. This overrides `ENTRYPOINT`. If not specified, the container's default entrypoint is used. The exact rules of how commadn and args are interpreted can be # found at: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/ |
 | datadog.enabled | bool | `true` | (`bool`) Whether or not the various datadog labels and options should be included or not. |
-| datadog.env | `string` | `nil` | The "env" tag to configure for the application - this maps to the Datadog environment concept for isolating traces/apm data. If you do not set this, then no `DD_ENV` variable is set, and the underlying Datadog Agent will set that value. |
+| datadog.env | `string` | `nil` | The "env" tag to configure for the application - this maps to the Datadog environment concept for isolating traces/apm data. _We default to not setting this, so that the Datadog Agent's own "ENV" setting is used as the default behavior. Only override this in special cases._ |
 | datadog.metricsNamespace | string | `"eks"` | (`string`) The prefix to append to all metrics that are scraped by Datadog. We set this to one common value so that common metrics (like `istio_.*` or `go_.*`) are shared across all apps in Datadog for easier dashboard creation as well as comparision between applications. |
 | datadog.metricsToScrape | list | `["\"*\""]` | (`strings[]`) A list of strings that match the metric names that Datadog should scrape from the endpoint. This defaults to `"*"` to tell it to scrape ALL metrics - however, if your app exposes too many metrics (> 2000), Datadog will drop them all on the ground. |
-| datadog.scrapeMetrics | bool | `false` | (`bool`) If true, then we will configure the Datadog agent to scrape metrics from the Pod (or the `istio-proxy` sidecar). |
+| datadog.scrapeMetrics | bool | `false` | (`bool`) If true, then we will configure the Datadog agent to scrape metrics from the application pod via the values set in the .Values.monitor.* map. |
 | datadog.service | `string` | `nil` | If set, this configures the "service" tag. If this is not set, the tag defaults to the `.Release.Name` for the application. |
 | deploymentStrategy | object | `{}` | https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |
 | env | list | `[]` | Environment Variables for the primary container. These are all run through the tpl function (the key name and value), so you can dynamically name resources as you need. |
@@ -154,7 +185,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | ingress.port | string | `nil` | If set, this will override the `service.portName` parameter, and the `Service` object will point specifically to this port number on the backing Pods. |
 | ingress.portName | string | `"http"` | This is the port "name" that the `Service` will point to on the backing Pods. This value must match one of the values of `.name` in the `Values.ports` configuration. |
 | ingress.sslRedirect | bool | `true` | If `true`, then this will annotate the Ingress with a special AWS ALB Ingress Controller annotation that configures an SSL-redirect at the ALB level. |
-| istio.enabled | bool | `false` | (`bool`) Whether or not the service should be part of an Istio Service Mesh. If this is turned on and `Values.monitor.enabled=true`, then the Istio Sidecar containers will be configured to pull and merge the metrics from the application, rather than creating a new `ServiceMonitor` object. |
+| istio.enabled | bool | `false` | (`bool`) Whether or not the service should be part of an Istio Service Mesh. If this is turned on and `Values.monitor.enabled=true`, then the Istio Sidecar containers will be configured to pull and merge the metrics from the application, rather than creating a new `ServiceMonitor` object. This is disabled by default on DaemonSets because it is fairly uncommon for a DaemonSet to be part of the service mesh. |
 | istio.preStopCommand | `list <str>` | `nil` | If supplied, this is the command that will be passed into the `istio-proxy` sidecar container as a pre-stop function. This is used to delay the shutdown of the istio-proxy sidecar in some way or another. Our own default behavior is applied if this value is not set - which is that the sidecar will wait until it does not see the application container listening on any TCP ports, and then it will shut down. eg: preStopCommand: [ /bin/sleep, "30" ] |
 | kmsSecretsRegion | String | `nil` | AWS region where the KMS key is located |
 | livenessProbe | object | `{"httpGet":{"path":"/","port":"http"}}` | A PodSpec container "livenessProbe" configuration object. Note that this livenessProbe will be applied to the proxySidecar container instead if that is enabled. |
@@ -167,7 +198,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | monitor.portName | string | `"metrics"` | (`string`) Name of the port to scrape for metrics - this is the name of the port that will be exposed in your `PodSpec` for scraping purposes. |
 | monitor.portNumber | int | `9090` | (`int`) Number of the port to scrape for metrics - this port will be exposed in your `PodSpec` to ensure it can be scraped. |
 | monitor.relabelings | list | `[]` | ServiceMonitor relabel configs to apply to samples before scraping https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig |
-| monitor.scheme | string | `"http"` | ServiceMonitor will use http by default, but you can pick https as well |
+| monitor.scheme | string | `"http"` | (`enum: http, https`) PodMonitor will use http by default, but you can pick https as well |
 | monitor.scrapeTimeout | string | `nil` | ServiceMonitor scrape timeout in Go duration format (e.g. 15s) |
 | monitor.tlsConfig | string | `nil` | ServiceMonitor will use these tlsConfig settings to make the health check requests |
 | nameOverride | string | `""` |  |

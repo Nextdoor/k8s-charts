@@ -21,6 +21,35 @@ This was done because the vast majority of our applications operate within the
 mesh, and this default behavior is simpler for most users. If your service is
 _not_ running within the mesh, then you must set the value to `false`.
 
+**BREAKING: ServiceMonitor has been replaced with PodMonitor**
+
+We have replaced the behavior of creating a `ServiceMonitor` resource with a 
+`PodMonitor` resource. This is done because not all applications will use a
+`Service` (in fact, the creation of the `Service` resource is optional), and
+that can cause the monitoring to fail. `PodMonitor` resources will configure
+Prometheus to monitor the pods regardless of whether or not they are part of a
+Service.
+
+**BREAKING: All .Values.serviceMonitor parameters moved to .Values.monitor**
+
+We have condensed the Values a bit, so the entire `.Values.serviceMonitor` key 
+has been removed, and all of the parameters have been moved into
+`.Values.monitor`. Make sure to update your values appropriately!
+
+**BREAKING: Istio Injection is now explicitly controlled**
+
+In previous versions of the chart, setting `.Values.istio.enabled=true/false`
+only impacted whether or not certain lables and annotations were created... it
+did not impact whether or not your pod actually got injected with the Istio
+sidecar.
+
+_As of this new release, setting `.Values.istio.enabled=true` will explicitly
+add the `sidecar.istio.io/inject="true"` label to your pods, which will inject
+them regardless of the namespace config. Alternatively, setting
+`.Values.istio.enabled=false` will explicitly set
+`sidecar.istio.io/inject="false"` which will prevent injection, regardless of
+the namespace configuration!_
+
 ### 0.3.x -> 0.4.x
 
 **Default Replica Count is now 2!**

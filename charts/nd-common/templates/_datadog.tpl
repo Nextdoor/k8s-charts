@@ -16,30 +16,16 @@ metrics by default.
 
 {{- if and .Values.datadog.enabled .Values.monitor.enabled .Values.datadog.scrapeMetrics -}}
 {{- $metricsToScrape := default "*" .Values.datadog.metricsToScrape -}}
-{{- if .Values.istio.enabled -}}
-ad.datadoghq.com/istio-proxy.check_names: '["prometheus"]'
-ad.datadoghq.com/istio-proxy.init_configs: '[{}]'
-ad.datadoghq.com/istio-proxy.instances: |-
-  [
-    {
-      "prometheus_url": "http://%%host%%:15020/stats/prometheus",
-      "namespace": "{{ .Values.datadog.metricsNamespace }}",
-      "metrics": [{{ join ", " .Values.datadog.metricsToScrape }}]
-    }
-  ]
-{{- else -}}
 ad.datadoghq.com/{{ .Chart.Name }}.check_names: '["prometheus"]'
 ad.datadoghq.com/{{ .Chart.Name }}.init_configs: '[{}]'
 ad.datadoghq.com/{{ .Chart.Name }}.instances: |-
   [
     {
-      "prometheus_url": "http://%%host%%:{{ .Values.monitor.portNumber }}{{ .Values.monitor.path }}",
+      "prometheus_url": "{{ .Values.monitor.scheme }}://%%host%%:{{ .Values.monitor.portNumber }}{{ .Values.monitor.path }}",
       "namespace": "{{ .Values.datadog.metricsNamespace }}",
       "metrics": [ {{ join ", " .Values.datadog.metricsToScrape }} ]
     }
   ]
-
-{{- end }}
 {{- end }}
 
 {{- end }}

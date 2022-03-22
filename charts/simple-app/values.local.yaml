@@ -30,11 +30,3 @@ secrets:
 
 datadog:
   scrapeMetrics: true
-monitor:
-  enabled: true
-  portNumber: 801
-istio:
-  enabled: true
-  excludeInboundPorts:
-    - 80
-    - 1220

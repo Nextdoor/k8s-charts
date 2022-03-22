@@ -21,7 +21,7 @@ Helm charts - labels, selectorLabels, release name, etc.
 * `.Values.fullnameOverride`: Optional string used to completely rename the
   prefix for all of the chart resources. Using this will avoid any other values
   going into the chart resource names, giving you complete control.
-* `.Values.podLabels`
+* `.Values.podLabels`: List of labels to be applied to the Pods
 * `.Values.serviceAccount.create`
 * `.Values.serviceAccount.name`
 * `.Values.image.repository`
@@ -103,6 +103,24 @@ Returns the target Docker image tag that should be used. Defaults to
 Returns back the fully qualified image name to use for the application. Takes
 into account whether or not the image name includes a `sha256:` prefix, and
 formats the value appropriately so that Kubernetes is happy.
+
+## [Monitoring Functions](templates/_monitors.tpl)
+
+These functions are specific to setting up monitoring of your application
+through Prometheus, Grafana, etc. We keep this separate from Datadog functions
+because they are not mutually exclusive - you may monitor with either of these
+platforms, or both.
+
+### `nd-common.podMonitor`
+
+This function creates an entire `PodMonitor` resource. All you have to do is
+put it into a template:
+
+_Example Usage_:
+```yaml
+# templates/podmonitor.yaml
+{{`{{- include "nd-common.podMonitor" . }}`}}
+```
 
 ## [Datadog Functions](templates/_datadog.tpl)
 

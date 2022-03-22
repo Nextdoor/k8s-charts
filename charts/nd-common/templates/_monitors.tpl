@@ -24,3 +24,49 @@ Monitoring port number.
   protocol: TCP
 {{- end }}
 {{- end }}
+  
+{{/*
+
+This function creates an optional `PodMonitor` resource for monitoring metrics
+from our pods in Prometheus.
+
+*/}}
+{{- define "nd-common.podMonitor" }}
+{{- if .Values.monitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ include "nd-common.fullname" . }}
+  {{- with .Values.monitor.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "nd-common.labels" . | nindent 4 }}
+    {{- with .Values.monitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "nd-common.selectorLabels" . | nindent 6 }}
+  podMetricsEndpoints:
+    - port: {{ .Values.monitor.portName }}
+      path: {{ .Values.monitor.path }}
+      scheme: {{ .Values.monitor.scheme }}
+      {{- with .Values.monitor.interval }}
+      interval: {{ . }}
+      {{- end }}
+      {{- with .Values.monitor.scrapeTimeout }}
+      scrapeTimeout: {{ . }}
+      {{- end }}
+      {{- with .Values.monitor.relabelings }}
+      relabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.monitor.tlsConfig }}
+      tlsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+{{- end }}
