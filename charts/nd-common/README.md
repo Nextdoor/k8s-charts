@@ -21,6 +21,30 @@ functions file looks for particularly named values keys. In particular:
 * `.Values.datadog.enabled`: This `boolean` parameter will enable or disable the functions documented below.
 * `.Values.datadog.env`: Optionally this value will override the ["env" concept in Datadog][unified_service_tagging]
 * `.Values.datadog.service`: This string maps to the ["service" concept in Datadog][unified_service_tagging]
+* `.Values.datadog.scrapeMetrics`
+* `.Values.datadog.metricsToScrape`
+* `.Values.istio.enabled`
+
+### `nd-common.datadogAnnotations`
+
+This function creates a series of `ad.datadoghq.com/...` annotations that are
+used to control the behavior of the Datadog Agent and Cluster Agent with the
+pod. These labels include features like automatically scraping metrics from the
+pod, scraping logs, parsing logs, and more.
+
+_Example Usage_:
+```yaml
+# templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ...
+...
+spec:
+  template:
+    metadata:
+      annotations:
+        {{- include "nd-common.datadogAnnotations" . | nindent 8 }}
 
 ### `nd-common.datadogLabels`
 
@@ -72,12 +96,17 @@ spec:
   functions are enabled or disabled. Also used in some other monitoring
   functions.
 
+* `.Values.istio.excludeInboundPorts[]` (default: `[]`): If supplied, this is a
+  list of TCP ports that are excluded from being proxied by the Istio-proxy
+  Envoy sidecar process. _The `.Values.monitor.portNumber` is already included
+  by default.
+
 * `.Values.istio.preStopCommand`: A string representing a command that will run
   within the pod before the Istio Envoy sidecar will begin shutting down. This
   setting can be used to ensure that the `envoy` process continues to allow
   traffic to flow while your application begins handling the `SIGTERM` from the
   Kubelet. Eg: `/bin/sleep 30`. _If this is set, then this takes priority over
-  the value of `.Values.ports[]` below.
+  the value of `.Values.ports[]` below._
 
 * `.Values.ports[]`: If your application exposes ports, and you do _not_ set a
   `preStopCommand`, then we will configure the `istio-proxy` sidecar to loop

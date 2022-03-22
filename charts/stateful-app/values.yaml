@@ -443,6 +443,11 @@ istio:
   # from the application, rather than creating a new `ServiceMonitor` object.
   enabled: true
 
+  # -- (`int[]`) If supplied, this is a list of TCP ports that are excluded from being
+  # proxied by the Istio-proxy Envoy sidecar process. _The
+  # `.Values.monitor.portNumber` is already included by default.
+  excludeInboundPorts: []
+
   # -- (`list <str>`) If supplied, this is the command that will be passed into
   # the `istio-proxy` sidecar container as a pre-stop function. This is used to
   # delay the shutdown of the istio-proxy sidecar in some way or another. Our

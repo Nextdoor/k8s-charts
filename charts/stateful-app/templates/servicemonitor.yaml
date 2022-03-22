@@ -1,4 +1,4 @@
-{{- if and .Values.monitor.enabled (not .Values.istio.enabled) }}
+{{- if and .Values.monitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:

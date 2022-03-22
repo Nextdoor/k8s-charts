@@ -30,41 +30,11 @@ spec:
     metadata:
       annotations:
         checksum/secrets: {{ toYaml .Values.secrets | sha256sum }}
+        {{- include "nd-common.istioAnnotations" . | nindent 8 }}
+        {{- include "nd-common.datadogAnnotations" . | nindent 8 }}
         {{- with .Values.podAnnotations }}
         {{- range $annotation, $value := index . }}
         {{ $annotation }}: {{ tpl $value $ | quote }}
-        {{- end }}
-        {{- end }}
-
-        {{- include "nd-common.istioAnnotations" . | nindent 8 }}
-
-        {{- /*
-        If the datadog agent is enabled,
-        */}}
-        {{- if and .Values.datadog.enabled .Values.monitor.enabled .Values.datadog.scrapeMetrics }}
-        {{- if .Values.istio.enabled }}
-        ad.datadoghq.com/istio-proxy.check_names: '["prometheus"]'
-        ad.datadoghq.com/istio-proxy.init_configs: '[{}]'
-        ad.datadoghq.com/istio-proxy.instances: |-
-          [
-            {
-              "prometheus_url": "http://%%host%%:15020/stats/prometheus",
-              "namespace": "{{ .Values.datadog.metricsNamespace }}",
-              "metrics": [ {{ join ", " .Values.datadog.metricsToScrape }} ]
-            }
-          ]
-        {{- else }}
-        ad.datadoghq.com/{{ .Chart.Name }}.check_names: '["prometheus"]'
-        ad.datadoghq.com/{{ .Chart.Name }}.init_configs: '[{}]'
-        ad.datadoghq.com/{{ .Chart.Name }}.instances: |-
-          [
-            {
-              "prometheus_url": "http://%%host%%:{{ .Values.monitor.portNumber }}{{ .Values.monitor.path }}",
-              "namespace": "{{ .Values.datadog.metricsNamespace }}",
-              "metrics": [ {{ join ", " .Values.datadog.metricsToScrape }} ]
-            }
-          ]
-
         {{- end }}
         {{- end }}
       labels:
@@ -224,11 +194,7 @@ spec:
             {{- toYaml .Values.ports | nindent 12 }}
             {{- end }}
             {{- end }}
-            {{- if .Values.monitor.enabled }}
-            - name: {{ .Values.monitor.portName }}
-              containerPort: {{ .Values.monitor.portNumber }}
-              protocol: TCP
-            {{- end }}
+            {{- include "nd-common.monitorPodPorts" . | nindent 12 }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:

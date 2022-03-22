@@ -14,6 +14,22 @@ conditions.
 */ -}}
 proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
 
+{{- /*
+Explicitly exclude our "metrics" port from being proxied by the Istio service,
+and instead let traffic flow right into it. Also beacuse a user might have set
+this annotation on their own, we need to merge our value with whatever they've
+supplied.
+*/ -}}
+{{- $portsToExclude := default (list) .Values.istio.excludeInboundPorts }}
+{{- if and .Values.monitor.portNumber .Values.monitor.enabled }}
+{{- $portsToExclude := append $portsToExclude .Values.monitor.portNumber }}
+traffic.sidecar.istio.io/excludeInboundPorts: {{ join ", " $portsToExclude }}
+{{- else }}
+{{- if gt (len $portsToExclude) 0 }}
+traffic.sidecar.istio.io/excludeInboundPorts: {{ join ", " $portsToExclude }}
+{{- end }}
+{{- end }}
+
 {{- /* 
 If the service has any ports exposed at all, we're going to make the
 Istio Sidecar wait to shut down until after the application stops
@@ -60,16 +76,5 @@ proxy.istio.io/overrides: >-
   } 
 {{- end }}
 
-{{- /*
-If monitoring is enabled, and we're in an Istio environment, then we
-default to using the Isto metrics-merging feature where the sidecar
-scrapes the metrics.
-*/}}
-{{- if .Values.monitor.enabled }}
-prometheus.io/scrape: "true"
-prometheus.io/port: {{ .Values.monitor.portNumber | quote }}
-prometheus.io/path: {{ .Values.monitor.path }}
 {{- end }}
-{{- end }}
-
 {{- end }}
