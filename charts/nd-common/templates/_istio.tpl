@@ -23,10 +23,10 @@ supplied.
 {{- $portsToExclude := default (list) .Values.istio.excludeInboundPorts }}
 {{- if and .Values.monitor.portNumber .Values.monitor.enabled }}
 {{- $portsToExclude := append $portsToExclude .Values.monitor.portNumber }}
-traffic.sidecar.istio.io/excludeInboundPorts: {{ join ", " $portsToExclude }}
+traffic.sidecar.istio.io/excludeInboundPorts: {{ join ", " $portsToExclude | quote }}
 {{- else }}
 {{- if gt (len $portsToExclude) 0 }}
-traffic.sidecar.istio.io/excludeInboundPorts: {{ join ", " $portsToExclude }}
+traffic.sidecar.istio.io/excludeInboundPorts: {{ join ", " $portsToExclude | quote }}
 {{- end }}
 {{- end }}
 
@@ -76,5 +76,28 @@ proxy.istio.io/overrides: >-
   } 
 {{- end }}
 
+{{- end }}
+{{- end }}
+
+{{/*
+
+The "istioLabels" function creates a few common labels that the Istio team (and
+Kiali teams) have decided make sense for tracking applications inside of a
+mesh.
+
+*/}}
+{{- define "nd-common.istioLabels" -}}
+{{- $_tag := include "nd-common.imageTag" . -}}
+{{- $tag  := $_tag | replace "@" "_" | replace ":" "_" | trunc 63 | quote -}}
+{{- if .Values.istio.enabled -}}
+
+{{- /* https://istio.io/latest/docs/ops/configuration/mesh/injection-concepts/ */ -}}
+sidecar.istio.io/inject: "true"
+
+{{- with .Values.datadog.env -}}
+tags.datadoghq.com/env: {{ . | quote }}
+{{- end }}
+tags.datadoghq.com/service: {{ default .Release.Name .Values.datadog.service | quote }}
+tags.datadoghq.com/version: {{ $tag }}
 {{- end }}
 {{- end }}

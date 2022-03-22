@@ -96,7 +96,7 @@ volumesString: ""
 # volumesString: |-
 #   - name: test-html-mount
 #     configMap:
-#       name: "{{ include "daemonset-app.fullname" . }}-test-map"
+#       name: "{{ include "nd-common.fullname" . }}-test-map"
 
 # -- A PodSpec container "livenessProbe" configuration object. Note that this
 # livenessProbe will be applied to the proxySidecar container instead if that
@@ -231,7 +231,7 @@ ingress:
   # this hostname. It _also_ ties into the external-dns controller and
   # automatically provisions DNS hostnames matching this value (presuming that
   # they are allowed by the cluster settings).
-  host: '{{ include "daemonset-app.fullname" . }}.{{ .Release.Namespace }}'
+  host: '{{ include "nd-common.fullname" . }}.{{ .Release.Namespace }}'
 
   # -- https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types
   pathType: Prefix

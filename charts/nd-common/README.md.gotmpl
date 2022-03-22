@@ -9,6 +9,101 @@ this means that the chart itself deploys no resources, and has no `.yaml`
 template files. Instead the intention is for this chart to be included inside
 another chart, and the functions that it exposes are then available for use.
 
+## [Common Functions](templates/_common.tpl)
+
+These common functions are the most basic functions that you tend to need in
+Helm charts - labels, selectorLabels, release name, etc.
+
+### Values Parameters
+
+* `.Values.nameOverride`: Optional string used to control the name of the
+  chart, and most of the chart resources.
+* `.Values.fullnameOverride`: Optional string used to completely rename the
+  prefix for all of the chart resources. Using this will avoid any other values
+  going into the chart resource names, giving you complete control.
+* `.Values.podLabels`
+* `.Values.serviceAccount.create`
+* `.Values.serviceAccount.name`
+* `.Values.image.repository`
+* `.Values.image.tag`
+* `.Values.image.forceTag`
+
+### `nd-common.name`
+
+Expands the name of the chart (`.Chart.Name`), or optionally returns an
+override of the string from `.Values.nameOverride`. This is mostly used for
+building our other labels and annotations.
+
+_Example Usage_:
+```yaml
+app.kubernetes.io/name: {{`{{ include "nd-common.name" . }}`}}
+```
+
+### `nd-common.chart`
+
+Expands out the name of the chart (`.Chart.Name`) and the version of the chart
+(`.Chart.Version`), used for setting the `helm.sh/chart` label.
+
+_Example Usage_:
+```yaml
+helm.sh/chart: {{`{{ include "nd-common.chart" . }}`}}
+```
+
+### `nd-common.fullname`
+
+Expands out the name of the chart, along with the name of the release to create
+a DNS-compatible set of resource names. ptionally, if
+`.Values.fullnameOverride` is set, then that value is used instead of any of
+the other values as the resource prefix.
+
+_Example Usage_:
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{`{{ include "nd-common.fullname" . }}`}}
+  ...
+```
+
+### `nd-common.labels`
+
+Creates a set of common and reasonable labels applied to most of the resources
+in the chart. The Kubernetes team has defined [common
+labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels)
+that we use, and we add in a few of our own as well.
+
+### `nd-common.serviceAccountName`
+
+Returns the name of the ServiceAccount that should be used by the pods in your
+application. Has two modes - one mode where you have decided to create the
+`ServiceAccount` within your chart, and another where you are leveraging an
+already existing `ServiceAccount.
+
+#### Mode 1: Creating the ServiceAccount
+
+As long as `.Values.serviceAccount.create` is set to `true`, then the
+`ServiceAccountName` will be set to the output of the `nd-common.fullname`
+function. Alternatively you can override this by setting
+`.Values.serviceAccount.name`.
+
+#### Mode 2: Using an existing ServiceAccount
+
+If `.Values.serviceAccount.create` is set to `false`, then `ServiceAccountName`
+will be returend as `"default"`, or alternatively whatever value you set in
+`.Values.serviceAccount.name`.
+
+### `nd-common.imageTag`
+
+Returns the target Docker image tag that should be used. Defaults to
+`.Values.image.forceTag`, then falls back to `.Values.image.tag` and finally
+`.Chart.AppVersion`
+
+### `nd-common.imageFqdn`
+
+Returns back the fully qualified image name to use for the application. Takes
+into account whether or not the image name includes a `sha256:` prefix, and
+formats the value appropriately so that Kubernetes is happy.
+
 ## [Datadog Functions](templates/_datadog.tpl)
 
 [unified_service_tagging]: https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/?tab=kubernetes

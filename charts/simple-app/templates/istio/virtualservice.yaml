@@ -4,9 +4,9 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: {{ include "simple-app.fullname" . }}
+  name: {{ include "nd-common.fullname" . }}
   labels:
-    {{- include "simple-app.labels" . | nindent 4 }}
+    {{- include "nd-common.labels" . | nindent 4 }}
   {{- with .Values.virtualService.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -52,7 +52,7 @@ spec:
       {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRouteDestination */}}
       route:
         - destination:
-            host: {{ include "simple-app.fullname" . }}
+            host: {{ include "nd-common.fullname" . }}
             port:
               number: {{ .Values.virtualService.port }}
   {{- with .Values.virtualService.tls }}

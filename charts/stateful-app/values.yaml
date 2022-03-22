@@ -84,7 +84,7 @@ volumesString: ""
 # volumesString: |-
 #   - name: test-html-mount
 #     configMap:
-#       name: "{{ include "stateful-app.fullname" . }}-test-map"
+#       name: "{{ include "nd-common.fullname" . }}-test-map"
 
 # An optional proxy sidecar configuration is provided - but its a rough
 # beginning here, it doesn't provide any real configuration for the proxy, so
@@ -264,7 +264,7 @@ ingress:
   # this hostname. It _also_ ties into the external-dns controller and
   # automatically provisions DNS hostnames matching this value (presuming that
   # they are allowed by the cluster settings).
-  host: '{{ include "stateful-app.fullname" . }}.{{ .Release.Namespace }}'
+  host: '{{ include "nd-common.fullname" . }}.{{ .Release.Namespace }}'
 
   # -- https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types
   pathType: Prefix
@@ -320,7 +320,7 @@ virtualService:
   # https://istio.io/latest/docs/reference/config/networking/virtual-service/#VirtualService
   # for more details.
   hosts:
-    - '{{ include "stateful-app.fullname" . }}'
+    - '{{ include "nd-common.fullname" . }}'
 
   # -- The name of the Istio `Gateway` resource that this `VirtualService`
   # will register with. You can get a list of the avaialable `Gateways` by
@@ -499,7 +499,7 @@ tests:
     command: ['curl', '--retry-connrefused', '--retry', '5']
     # -- A list of arguments passed into the command. These are run through the tpl function.
     args:
-      - '{{ include "stateful-app.fullname" . }}'
+      - '{{ include "nd-common.fullname" . }}'
     # By default, we actually use the source-image for the main application as
     # the image for testing, This allows the image to contain its own "client"
     # (curl, in this example) for testing the application. Alternatively, you

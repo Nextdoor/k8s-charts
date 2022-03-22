@@ -2,12 +2,12 @@
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
-  name: {{ include "daemonset-app.fullname" . }}
+  name: {{ include "nd-common.fullname" . }}
 spec:
   targetRef:
     apiVersion: apps/v1
     kind: DaemonSet
-    name: {{ include "daemonset-app.fullname" . }}
+    name: {{ include "nd-common.fullname" . }}
   updatePolicy:
     updateMode: {{ .Values.verticalAutoscaling.updateMode | quote }}
   resourcePolicy:

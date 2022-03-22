@@ -7,7 +7,7 @@ metrics from the application itself.
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ include "simple-app.fullname" . }}
+  name: {{ include "nd-common.fullname" . }}
   {{- with .Values.serviceMonitor.namespace }}
   namespace: {{ . }}
   {{- end }}
@@ -16,14 +16,14 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   labels:
-    {{- include "simple-app.labels" . | nindent 4 }}
+    {{- include "nd-common.labels" . | nindent 4 }}
     {{- with .Values.serviceMonitor.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
   selector:
     matchLabels:
-      {{- include "simple-app.selectorLabels" . | nindent 6 }}
+      {{- include "nd-common.selectorLabels" . | nindent 6 }}
   endpoints:
     - port: {{ .Values.monitor.portName }}
       path: {{ .Values.monitor.path }}

@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "simple-app.fullname" . }}
+  name: {{ include "nd-common.fullname" . }}
   labels:
-    {{- include "simple-app.labels" . | nindent 4 }}
+    {{- include "nd-common.labels" . | nindent 4 }}
 spec:
   {{- with .Values.minReadySeconds }}
   minReadySeconds: {{ . }}
@@ -19,7 +19,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "simple-app.selectorLabels" . | nindent 6 }}
+      {{- include "nd-common.selectorLabels" . | nindent 6 }}
   {{- with .Values.deploymentStrategy }}
   strategy:
     {{- toYaml . | nindent 8 }}
@@ -36,7 +36,7 @@ spec:
         {{- end }}
         {{- end }}
       labels:
-        {{- include "simple-app.labels" . | nindent 8 }}
+        {{- include "nd-common.labels" . | nindent 8 }}
         {{- include "nd-common.datadogLabels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- tpl (toYaml .) $ | nindent 8 }}
@@ -62,7 +62,7 @@ spec:
       {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      serviceAccountName: {{ include "simple-app.serviceAccountName" . }}
+      serviceAccountName: {{ include "nd-common.serviceAccountName" . }}
       {{- with .Values.terminationGracePeriodSeconds }}
       terminationGracePeriodSeconds: {{ . }}
       {{- end }}
@@ -127,7 +127,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: {{ include "simple-app.imageFqdn" . }}
+          image: {{ include "nd-common.imageFqdn" . }}
           {{- with .Values.command }}
           command:
             {{- toYaml . | nindent 12 }}

@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ include "stateful-app.fullname" . }}
+  name: {{ include "nd-common.fullname" . }}
   {{- with .Values.serviceMonitor.namespace }}
   namespace: {{ . }}
   {{- end }}
@@ -11,14 +11,14 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   labels:
-    {{- include "stateful-app.labels" . | nindent 4 }}
+    {{- include "nd-common.labels" . | nindent 4 }}
     {{- with .Values.serviceMonitor.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
   selector:
     matchLabels:
-      {{- include "stateful-app.selectorLabels" . | nindent 6 }}
+      {{- include "nd-common.selectorLabels" . | nindent 6 }}
   endpoints:
     - port: {{ .Values.monitor.portName }}
       path: {{ .Values.monitor.path }}

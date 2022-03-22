@@ -12,7 +12,6 @@ If the Datadog Agent is enabled, AND we're in an Istio Service Mesh, AND we
 have been asked to scrape the metrics from the pod... _then_ we scrape the
 metrics. Otherwise, we do not auto-populate Datadog with all of our application
 metrics by default.
-
 */ -}}
 
 {{- if and .Values.datadog.enabled .Values.monitor.enabled .Values.datadog.scrapeMetrics -}}

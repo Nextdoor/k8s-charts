@@ -1,8 +1,15 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "daemonset-app.name" -}}
+{{- define "nd-common.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "nd-common.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
@@ -10,7 +17,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "daemonset-app.fullname" -}}
+{{- define "nd-common.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -23,12 +30,7 @@ If release name contains chart name it will be used as a full name.
 {{- end }}
 {{- end }}
 
-{{/*
-Create chart name and version as used by the chart label.
-*/}}
-{{- define "daemonset-app.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
-{{- end }}
+
 
 {{- /*
 Common labels
@@ -44,42 +46,55 @@ label.
 *tags.datadoghq.com/<labels>*
 https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/?tab=kubernetes
 */}}
-{{- define "daemonset-app.labels" -}}
+{{- define "nd-common.labels" -}}
 {{- $_tag := include "nd-common.imageTag" . }}
 {{- $tag  := $_tag | replace "@" "_" | replace ":" "_" | trunc 63 | quote -}}
 {{- if not (hasKey .Values.podLabels "app") }}
 app: {{ .Release.Name }}
 {{- end }}
 version: {{ $tag }}
-helm.sh/chart: {{ include "daemonset-app.chart" . }}
+helm.sh/chart: {{ include "nd-common.chart" . }}
 app.kubernetes.io/version: {{ $tag }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{ include "daemonset-app.selectorLabels" . }}
+{{ include "nd-common.selectorLabels" . }}
 {{- end }}
 
 {{/*
 Selector labels
 */}}
-{{- define "daemonset-app.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "daemonset-app.name" . }}
+{{- define "nd-common.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "nd-common.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "daemonset-app.serviceAccountName" -}}
+{{- define "nd-common.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "daemonset-app.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "nd-common.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
 
 {{/*
-Proxy and Main App Image Names
+
+Gathers the application image tag. This allows overriding the tag with a master
+`forceTag` setting, as well as the more common mechanism of setting the `tag`
+setting.
+
 */}}
-{{- define "daemonset-app.imageFqdn" -}}
+{{- define "nd-common.imageTag" -}}
+{{- default .Chart.AppVersion (default .Values.image.tag .Values.image.forceTag) }}
+{{- end }}
+
+{{/*
+
+Generates a fully qualified Docker image name.
+
+*/}}
+{{- define "nd-common.imageFqdn" -}}
 {{- $tag := include "nd-common.imageTag" . }}
 {{- if hasPrefix "sha256:" $tag }}
 {{- .Values.image.repository }}@{{ $tag }}

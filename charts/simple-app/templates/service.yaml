@@ -7,9 +7,9 @@ a ServiceMonitor in this chart to monitor pods.
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "simple-app.fullname" . }}
+  name: {{ include "nd-common.fullname" . }}
   labels:
-    {{- include "simple-app.labels" . | nindent 4 }}
+    {{- include "nd-common.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -20,5 +20,5 @@ spec:
       name: {{ .Values.monitor.portName }}
     {{- end }}
   selector:
-    {{- include "simple-app.selectorLabels" . | nindent 4 }}
+    {{- include "nd-common.selectorLabels" . | nindent 4 }}
 {{- end }}
