@@ -38,6 +38,7 @@ spec:
       labels:
         {{- include "nd-common.labels" . | nindent 8 }}
         {{- include "nd-common.datadogLabels" . | nindent 8 }}
+        {{- include "nd-common.istioLabels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- tpl (toYaml .) $ | nindent 8 }}
         {{- end }}

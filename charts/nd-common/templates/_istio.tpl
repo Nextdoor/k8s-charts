@@ -89,15 +89,13 @@ mesh.
 {{- define "nd-common.istioLabels" -}}
 {{- $_tag := include "nd-common.imageTag" . -}}
 {{- $tag  := $_tag | replace "@" "_" | replace ":" "_" | trunc 63 | quote -}}
-{{- if .Values.istio.enabled -}}
 
 {{- /* https://istio.io/latest/docs/ops/configuration/mesh/injection-concepts/ */ -}}
-sidecar.istio.io/inject: "true"
+sidecar.istio.io/inject: "{{ eq true .Values.istio.enabled }}"
+{{- /* https://istio.io/latest/docs/ops/deployment/requirements/ */ -}}
+{{- if not (hasKey .Values.podLabels "app") }}
+app: {{ .Release.Name }}
+{{- end }}
+version: {{ $tag }}
 
-{{- with .Values.datadog.env -}}
-tags.datadoghq.com/env: {{ . | quote }}
-{{- end }}
-tags.datadoghq.com/service: {{ default .Release.Name .Values.datadog.service | quote }}
-tags.datadoghq.com/version: {{ $tag }}
-{{- end }}
 {{- end }}

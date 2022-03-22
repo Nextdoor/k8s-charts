@@ -187,6 +187,8 @@ spec:
 
 ### Values Parameters
 
+* `.Values.podLabels`
+
 * `.Values.istio.enabled` (default: `True`): Controls whether or not the Istio
   functions are enabled or disabled. Also used in some other monitoring
   functions.
@@ -230,6 +232,29 @@ spec:
     metadata:
       annotations:
         {{`{{- include "nd-common.istioAnnotations" . | nindent 8 }}`}}
+```
+
+### `nd-common.istioLabels`
+
+This function creates the common labels that Istio uses for routing traffic,
+deciding to inject the pods with sidecars, and more. See the [Istio Application
+Requirements](https://istio.io/latest/docs/ops/deployment/requirements/) for
+more details about the `app` and `version` labels.
+
+_Example Usage_:
+
+```yaml
+# templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ...
+...
+spec:
+  template:
+    metadata:
+      labels:
+        {{`{{- include "nd-common.istioLabels" . | nindent 8 }}`}}
 ```
 
 {{ template "helm-docs.versionFooter" . }}

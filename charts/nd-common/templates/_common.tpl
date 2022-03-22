@@ -49,10 +49,6 @@ https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/?tab=
 {{- define "nd-common.labels" -}}
 {{- $_tag := include "nd-common.imageTag" . }}
 {{- $tag  := $_tag | replace "@" "_" | replace ":" "_" | trunc 63 | quote -}}
-{{- if not (hasKey .Values.podLabels "app") }}
-app: {{ .Release.Name }}
-{{- end }}
-version: {{ $tag }}
 helm.sh/chart: {{ include "nd-common.chart" . }}
 app.kubernetes.io/version: {{ $tag }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
