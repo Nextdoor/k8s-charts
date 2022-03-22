@@ -407,10 +407,6 @@ monitor:
   # -- (`string`) Path to scrape metrics from within your Pod.
   path: /metrics
 
-serviceMonitor:
-  # -- (`string`) Alternative namespace for ServiceMonitor resources.
-  namespace: null
-
   # -- (`map`) ServiceMonitor annotations.
   annotations: {}
 
