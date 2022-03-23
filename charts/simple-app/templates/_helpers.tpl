@@ -140,10 +140,15 @@ we add default values to it.
 */}}
 {{- define "simple-app.datadogScrapeLoggingConfig" -}}
 {{- if and .Values.datadog.enabled .Values.datadog.scrapeLogs.enabled }}
-- source: {{- default (include "simple-app.name" .) .Values.datadog.scrapeLogs.source }}
-  service: {{- default (include "simple-app.name" .) .Values.datadog.service }}
-{{- if .Values.datadog.scrapeLogsProcessingRules }}
-  log_processing_rules: {{- .Values.datadog.scrapeLogsProcessingRules }}
-{{- end }}
+ad.datadoghq.com/{{ include "simple-app.name" . }}.logs: >-
+  [
+    {
+      "source": {{- default (include "simple-app.name" .) .Values.datadog.scrapeLogs.source | toJson }},
+      "service": {{- default (include "simple-app.name" .) .Values.datadog.service | toJson }},
+      {{- if .Values.datadog.scrapeLogsProcessingRules }}
+      "log_processing_rules": {{- .Values.datadog.scrapeLogsProcessingRules | toJson }}
+       {{- end }}
+    }
+  ]
 {{- end }}
 {{- end -}}

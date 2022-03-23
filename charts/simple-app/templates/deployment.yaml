@@ -133,7 +133,7 @@ spec:
         {{- end }}
         {{- end }}
         {{- if and .Values.datadog.enabled .Values.datadog.scrapeLogs.enabled }}
-        ad.datadoghq.com/{{ include "simple-app.name" . }}.logs: {{ include "simple-app.datadogScrapeLoggingConfig" . | toJson }}
+        {{ include "simple-app.datadogScrapeLoggingConfig" . | nindent 8 }}
         {{- end }}
       labels:
         {{- include "simple-app.labels" . | nindent 8 }}
