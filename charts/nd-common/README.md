@@ -2,7 +2,7 @@
 
 A helper chart used by most of our other charts
 
-![Version: 0.0.4](https://img.shields.io/badge/Version-0.0.4-informational?style=flat-square) ![Type: library](https://img.shields.io/badge/Type-library-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.0.5](https://img.shields.io/badge/Version-0.0.5-informational?style=flat-square) ![Type: library](https://img.shields.io/badge/Type-library-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 **This chart is a [Library Chart](https://helm.sh/docs/topics/library_charts/)** -
 this means that the chart itself deploys no resources, and has no `.yaml`
@@ -206,6 +206,8 @@ spec:
 ### Values Parameters
 
 * `.Values.podLabels`
+* `.Values.monitor.path`
+* `.Values.monitor.portNumber`
 
 * `.Values.istio.enabled` (default: `True`): Controls whether or not the Istio
   functions are enabled or disabled. Also used in some other monitoring
@@ -228,6 +230,12 @@ spec:
   until it finds no TCP ports in the `LISTENING` state. This is a reasonably
   safe default behavior to ensure that the proxy does not shut down until all
   other traffic has stopped.
+
+* `.Values.istio.metricsMerging`: If set to "True", then the Istio Metrics
+  Merging system will be turned on and Envoy will attempt to scrape metrics
+  from the application pod and merge them with its own. This defaults to False
+  beacuse in most environments we want to explicitly split up the metrics and
+  collect Istio metrics separate from Application metrics.
 
 ### `nd-common.istioAnnotations`
 
