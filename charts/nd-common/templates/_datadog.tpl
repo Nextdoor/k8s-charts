@@ -1,5 +1,37 @@
 {{/*
 
+The "datadogAnnotations" function creates a series of datadog-specific
+annotations. These annotations influence how the Datadog Agent might read the
+metrics from the pods, collect logs, etc.
+
+*/}}
+{{- define "nd-common.datadogAnnotations" -}}
+{{- /*
+
+If the Datadog Agent is enabled, AND we're in an Istio Service Mesh, AND we
+have been asked to scrape the metrics from the pod... _then_ we scrape the
+metrics. Otherwise, we do not auto-populate Datadog with all of our application
+metrics by default.
+*/ -}}
+
+{{- if and .Values.datadog.enabled .Values.monitor.enabled .Values.datadog.scrapeMetrics -}}
+{{- $metricsToScrape := default "*" .Values.datadog.metricsToScrape -}}
+ad.datadoghq.com/{{ .Chart.Name }}.check_names: '["prometheus"]'
+ad.datadoghq.com/{{ .Chart.Name }}.init_configs: '[{}]'
+ad.datadoghq.com/{{ .Chart.Name }}.instances: |-
+  [
+    {
+      "prometheus_url": "{{ .Values.monitor.scheme }}://%%host%%:{{ .Values.monitor.portNumber }}{{ .Values.monitor.path }}",
+      "namespace": "{{ .Values.datadog.metricsNamespace }}",
+      "metrics": [ {{ join ", " .Values.datadog.metricsToScrape }} ]
+    }
+  ]
+{{- end }}
+
+{{- end }}
+
+{{/*
+
 The "datadogLabels" function creates common Datadog labels that can be applied
 to Pods. These labels help configure the Datadog Tracing libraries. This
 function automatically checks if `.Values.datadog.enabled` is True, so you do

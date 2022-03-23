@@ -1,11 +1,11 @@
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "simple-app.fullname" . }}
+{{- $fullName := include "nd-common.fullname" . }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-    {{- include "simple-app.labels" . | nindent 4 }}
+    {{- include "nd-common.labels" . | nindent 4 }}
   annotations:
     {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}

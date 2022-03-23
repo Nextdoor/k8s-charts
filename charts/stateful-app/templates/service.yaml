@@ -3,9 +3,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "stateful-app.fullname" . }}
+  name: {{ include "nd-common.fullname" . }}
   labels:
-    {{- include "stateful-app.labels" . | nindent 4 }}
+    {{- include "nd-common.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -16,6 +16,6 @@ spec:
       name: {{ $port.name }}
     {{- end }}
   selector:
-    {{- include "stateful-app.selectorLabels" . | nindent 4 }}
+    {{- include "nd-common.selectorLabels" . | nindent 4 }}
 {{- end }}
 {{- end }}

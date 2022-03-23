@@ -1,5 +1,3 @@
 terminationGracePeriodSeconds: 30
 priorityClassName: system-node-critical
 hostNetwork: true  # makes the tests work
-istio:
-  enabled: true

@@ -2,7 +2,7 @@
 
 Default StatefulSet Helm Chart
 
-![Version: 0.4.2](https://img.shields.io/badge/Version-0.4.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,44 @@ in Kubernetes][statefulsets]. The chart provides all of the common pieces like
 ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
+
+### 0.4.x -> 0.5.x
+
+**BREAKING: Default behavior is to turn on the Istio Annotations/Labels**
+
+We now default setting `.Values.istio.enabled=true` in the `values.yaml` file.
+This was done because the vast majority of our applications operate within the
+mesh, and this default behavior is simpler for most users. If your service is
+_not_ running within the mesh, then you must set the value to `false`.
+
+**BREAKING: ServiceMonitor has been replaced with PodMonitor**
+
+We have replaced the behavior of creating a `ServiceMonitor` resource with a
+`PodMonitor` resource. This is done because not all applications will use a
+`Service` (in fact, the creation of the `Service` resource is optional), and
+that can cause the monitoring to fail. `PodMonitor` resources will configure
+Prometheus to monitor the pods regardless of whether or not they are part of a
+Service.
+
+**BREAKING: All .Values.serviceMonitor parameters moved to .Values.monitor**
+
+We have condensed the Values a bit, so the entire `.Values.serviceMonitor` key
+has been removed, and all of the parameters have been moved into
+`.Values.monitor`. Make sure to update your values appropriately!
+
+**BREAKING: Istio Injection is now explicitly controlled**
+
+In previous versions of the chart, setting `.Values.istio.enabled=true/false`
+only impacted whether or not certain lables and annotations were created... it
+did not impact whether or not your pod actually got injected with the Istio
+sidecar.
+
+_As of this new release, setting `.Values.istio.enabled=true` will explicitly
+add the `sidecar.istio.io/inject="true"` label to your pods, which will inject
+them regardless of the namespace config. Alternatively, setting
+`.Values.istio.enabled=false` will explicitly set
+`sidecar.istio.io/inject="false"` which will prevent injection, regardless of
+the namespace configuration!_
 
 ### 0.3.x -> 0.4.x
 
@@ -119,7 +157,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.0.2 |
+| file://../nd-common | nd-common | 0.0.3 |
 | https://k8s-charts.nextdoor.com | istio-alerts | 0.1.3 |
 
 ## Values
@@ -130,10 +168,10 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | args | list | `[]` | The arguments passed to the command. If unspecified the container defaults are used. The exact rules of how commadn and args are interpreted can be # found at: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/ |
 | command | list | `[]` | The command run by the container. This overrides `ENTRYPOINT`. If not specified, the container's default entrypoint is used. The exact rules of how commadn and args are interpreted can be # found at: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/ |
 | datadog.enabled | bool | `true` | (`bool`) Whether or not the various datadog labels and options should be included or not. |
-| datadog.env | `string` | `nil` | The "env" tag to configure for the application - this maps to the Datadog environment concept for isolating traces/apm data. If you do not set this, then no `DD_ENV` variable is set, and the underlying Datadog Agent will set that value. |
+| datadog.env | `string` | `nil` | The "env" tag to configure for the application - this maps to the Datadog environment concept for isolating traces/apm data. _We default to not setting this, so that the Datadog Agent's own "ENV" setting is used as the default behavior. Only override this in special cases._ |
 | datadog.metricsNamespace | string | `"eks"` | (`string`) The prefix to append to all metrics that are scraped by Datadog. We set this to one common value so that common metrics (like `istio_.*` or `go_.*`) are shared across all apps in Datadog for easier dashboard creation as well as comparision between applications. |
 | datadog.metricsToScrape | list | `["\"*\""]` | (`strings[]`) A list of strings that match the metric names that Datadog should scrape from the endpoint. This defaults to `"*"` to tell it to scrape ALL metrics - however, if your app exposes too many metrics (> 2000), Datadog will drop them all on the ground. |
-| datadog.scrapeMetrics | bool | `false` | (`bool`) If true, then we will configure the Datadog agent to scrape metrics from the Pod (or the `istio-proxy` sidecar). |
+| datadog.scrapeMetrics | bool | `false` | (`bool`) If true, then we will configure the Datadog agent to scrape metrics from the application pod via the values set in the .Values.monitor.* map. |
 | datadog.service | `string` | `nil` | If set, this configures the "service" tag. If this is not set, the tag defaults to the `.Release.Name` for the application. |
 | deploymentStrategy | object | `{}` | https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |
 | env | list | `[]` | Environment Variables for the primary container. These are all run through the tpl function (the key name and value), so you can dynamically name resources as you need. |
@@ -146,21 +184,29 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | imagePullSecrets | list | `[]` | Supply a reference to a Secret that can be used by Kubernetes to pull down the Docker image. This is only used in local development, in combination with our `kube_create_ecr_creds` function from dotfiles. |
 | ingress.annotations | object | `{}` | Any annotations you wish to add to the ALB. See https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.2/guide/ingress/annotations/ for more details. |
 | ingress.enabled | bool | `false` |  |
-| ingress.host | string | `"{{ include \"stateful-app.fullname\" . }}.{{ .Release.Namespace }}"` | This setting configures the ALB to listen specifically to requests for this hostname. It _also_ ties into the external-dns controller and automatically provisions DNS hostnames matching this value (presuming that they are allowed by the cluster settings). |
+| ingress.host | string | `"{{ include \"nd-common.fullname\" . }}.{{ .Release.Namespace }}"` | This setting configures the ALB to listen specifically to requests for this hostname. It _also_ ties into the external-dns controller and automatically provisions DNS hostnames matching this value (presuming that they are allowed by the cluster settings). |
 | ingress.path | string | `"/"` | See the `ingress.pathType` setting documentation. |
 | ingress.pathType | string | `"Prefix"` | https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types |
 | ingress.port | string | `nil` | If set, this will override the `service.portName` parameter, and the `Service` object will point specifically to this port number on the backing Pods. |
 | ingress.portName | string | `"http"` | This is the port "name" that the `Service` will point to on the backing Pods. This value must match one of the values of `.name` in the `Values.ports` configuration. |
 | ingress.sslRedirect | bool | `true` | If `true`, then this will annotate the Ingress with a special AWS ALB Ingress Controller annotation that configures an SSL-redirect at the ALB level. |
 | istio-alerts.enabled | bool | `true` | (`bool`) Whether or not to enable the istio-alerts chart. |
-| istio.enabled | bool | `false` | (`bool`) Whether or not the service should be part of an Istio Service Mesh. If this is turned on and `Values.monitor.enabled=true`, then the Istio Sidecar containers will be configured to pull and merge the metrics from the application, rather than creating a new `ServiceMonitor` object. |
+| istio.enabled | bool | `true` | (`bool`) Whether or not the service should be part of an Istio Service Mesh. If this is turned on and `Values.monitor.enabled=true`, then the Istio Sidecar containers will be configured to pull and merge the metrics from the application, rather than creating a new `PodMonitor` object. |
+| istio.excludeInboundPorts | list | `[]` | (`int[]`) If supplied, this is a list of TCP ports that are excluded from being proxied by the Istio-proxy Envoy sidecar process. _The `.Values.monitor.portNumber` is already included by default. |
 | istio.preStopCommand | `list <str>` | `nil` | If supplied, this is the command that will be passed into the `istio-proxy` sidecar container as a pre-stop function. This is used to delay the shutdown of the istio-proxy sidecar in some way or another. Our own default behavior is applied if this value is not set - which is that the sidecar will wait until it does not see the application container listening on any TCP ports, and then it will shut down. eg: preStopCommand: [ /bin/sleep, "30" ] |
 | kmsSecretsRegion | String | `nil` | AWS region where the KMS key is located |
 | livenessProbe | object | `{"httpGet":{"path":"/","port":"http"}}` | A PodSpec container "livenessProbe" configuration object. Note that this livenessProbe will be applied to the proxySidecar container instead if that is enabled. |
-| monitor.enabled | bool | `true` | (`bool`) If enabled, ServiceMonitor resources for Prometheus Operator are created or if `Values.istio.enabled` is `True`, then the appropriate Pod Annotations will be added for the istio-proxy sidecar container to scrape the metrics. |
+| monitor.annotations | object | `{}` | (`map`) PodMonitor annotations. |
+| monitor.enabled | bool | `true` | (`bool`) If enabled, PodMonitor resources for Prometheus Operator are created or if `Values.istio.enabled` is `True`, then the appropriate Pod Annotations will be added for the istio-proxy sidecar container to scrape the metrics. |
+| monitor.interval | string | `nil` | PodMonitor scrape interval |
+| monitor.labels | object | `{}` | Additional PodMonitor labels. |
 | monitor.path | string | `"/metrics"` | (`string`) Path to scrape metrics from within your Pod. |
 | monitor.portName | string | `"metrics"` | (`string`) Name of the port to scrape for metrics - this is the name of the port that will be exposed in your `PodSpec` for scraping purposes. |
 | monitor.portNumber | int | `9090` | (`int`) Number of the port to scrape for metrics - this port will be exposed in your `PodSpec` to ensure it can be scraped. |
+| monitor.relabelings | list | `[]` | PodMonitor relabel configs to apply to samples before scraping https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig |
+| monitor.scheme | string | `"http"` | (`enum: http, https`) PodMonitor will use http by default, but you can pick https as well |
+| monitor.scrapeTimeout | string | `nil` | PodMonitor scrape timeout in Go duration format (e.g. 15s) |
+| monitor.tlsConfig | string | `nil` | PodMonitor will use these tlsConfig settings to make the health check requests |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` | (`map`) A list of key/value pairs that will be added in to the nodeSelector spec for the pods. |
 | podAnnotations | object | `{}` | (`Map`) List of Annotations to be added to the PodSpec |
@@ -190,18 +236,10 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
-| serviceMonitor.annotations | object | `{}` | (`map`) ServiceMonitor annotations. |
-| serviceMonitor.interval | string | `nil` | ServiceMonitor scrape interval |
-| serviceMonitor.labels | object | `{}` | Additional ServiceMonitor labels. |
-| serviceMonitor.namespace | `string` | `nil` | Alternative namespace for ServiceMonitor resources. |
-| serviceMonitor.relabelings | list | `[]` | ServiceMonitor relabel configs to apply to samples before scraping https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig |
-| serviceMonitor.scheme | string | `"http"` | ServiceMonitor will use http by default, but you can pick https as well |
-| serviceMonitor.scrapeTimeout | string | `nil` | ServiceMonitor scrape timeout in Go duration format (e.g. 15s) |
-| serviceMonitor.tlsConfig | string | `nil` | ServiceMonitor will use these tlsConfig settings to make the health check requests |
 | targetArchitecture | string | `"amd64"` | (`string`) If set, this value will be used in the .spec.nodeSelector to ensure that these pods specifically launch on the desired target host architecture. If set to null/empty-string, then this value will not be set. |
 | targetOperatingSystem | string | `"linux"` | (`string`) If set, this value will be used in the .spec.nodeSelector to ensure that these pods specifically launch on the desired target Operating System. Must be set. |
 | terminationGracePeriodSeconds | string | `nil` | https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#hook-handler-execution |
-| tests.connection.args | list | `["{{ include \"stateful-app.fullname\" . }}"]` | A list of arguments passed into the command. These are run through the tpl function. |
+| tests.connection.args | list | `["{{ include \"nd-common.fullname\" . }}"]` | A list of arguments passed into the command. These are run through the tpl function. |
 | tests.connection.command | list | `["curl","--retry-connrefused","--retry","5"]` | The command used to trigger the test. |
 | tests.connection.image.repository | string | `nil` | Sets the image-name that will be used in the "connection" integration test. If this is left empty, then the .image.repository value will be used instead (and the .image.tag will also be used). |
 | tests.connection.image.tag | string | `nil` | Sets the tag that will be used in the "connection" integration test. If this is left empty, the default is "latest" |
@@ -212,7 +250,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | virtualService.corsPolicy | object | `{}` | (`map`) If set, this will populate the corsPolicy setting for the VirtualService. See https://istio.io/latest/docs/reference/config/networking/virtual-service/#CorsPolicy for more details. |
 | virtualService.enabled | bool | `false` | (Boolean) Maps the Service to an Istio IngressGateway, exposing the service outside of the Kubernetes cluster. |
 | virtualService.gateways | list | `[]` | The name of the Istio `Gateway` resource that this `VirtualService` will register with. You can get a list of the avaialable `Gateways` by running `kubectl -n istio-system get gateways`. Not specifying a Gateway means that you are creating a VirtualService routing definition only inside of the Kubernetes cluster, which is totally reasonable if you want to do that. |
-| virtualService.hosts | list | `["{{ include \"stateful-app.fullname\" . }}"]` | A list of destination hostnames that this VirtualService will accept traffic for. Multiple names can be listed here. See https://istio.io/latest/docs/reference/config/networking/virtual-service/#VirtualService for more details. |
+| virtualService.hosts | list | `["{{ include \"nd-common.fullname\" . }}"]` | A list of destination hostnames that this VirtualService will accept traffic for. Multiple names can be listed here. See https://istio.io/latest/docs/reference/config/networking/virtual-service/#VirtualService for more details. |
 | virtualService.matches | object | `{}` | (`map[]`) A list of Istio `HTTPMatchRequest` objects that will be applied to the VirtualService. This is the more advanced and customizable way of controlling which paths get sent to your backend. These are added _in addition_ to the `paths` or `path` settings. See https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPMatchRequest for examples. |
 | virtualService.namespace | string | `"istio-system"` | The namespace where the Istio services are operating. Do not change this. |
 | virtualService.path | string | `"/"` | The default path prefix that the `VirtualService` will match requests against to pass to the default `Service` object in this deployment. |

@@ -22,11 +22,11 @@ ports:
 
 
 terminationGracePeriodSeconds: 30
-istio:
-  enabled: true
-
 autoscaling:
   enabled: true
 
 secrets:
   TEST_SECRET: junksecret
+
+datadog:
+  scrapeMetrics: true

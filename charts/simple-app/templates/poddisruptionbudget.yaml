@@ -2,12 +2,12 @@
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
-  name: {{ template "simple-app.fullname" . }}
+  name: {{ template "nd-common.fullname" . }}
   labels:
-    {{- include "simple-app.labels" . | nindent 4 }}
+    {{- include "nd-common.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      {{- include "simple-app.selectorLabels" . | nindent 8 }}
+      {{- include "nd-common.selectorLabels" . | nindent 8 }}
   {{ toYaml .Values.podDisruptionBudget | nindent 2 }}
 {{- end }}
