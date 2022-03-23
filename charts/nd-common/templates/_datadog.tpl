@@ -36,12 +36,12 @@ we add default values to it.
 */}}
 
 {{- if and .Values.datadog.enabled .Values.datadog.scrapeLogs.enabled }}
-ad.datadoghq.com/{{ .Release.Name }}.logs: |-
+ad.datadoghq.com/{{ .Chart.Name }}.logs: |-
   [
     {
-      "source": {{- default .Release.Name .Values.datadog.scrapeLogs.source | toJson }},
-      "service": {{- default .Release.Name .Values.datadog.service | toJson }},
-      "log_processing_rules": {{- .Values.datadog.processingRules | toJson }}
+      "source": {{- default .Chart.Name .Values.datadog.scrapeLogs.source }},
+      "service": {{- default .Chart.Name .Values.datadog.service  }},
+      "log_processing_rules": {{- tpl (toJson .Values.datadog.scrapeLogs.processingRules) $ }}
     }
   ]
 {{- end }}

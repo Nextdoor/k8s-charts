@@ -505,9 +505,6 @@ datadog:
   metricsToScrape:
     - '"*"'
 
-  # -- (`map`) If true, then it will enable application logging to datadog.
-  # To enable datadog logging, datadog.service value must be set as it's
-  # being used as source and service name in datadog logging configuration.
   scrapeLogs:
     # -- (`bool`) If true, then it will enable application logging to datadog.
     enabled: false
