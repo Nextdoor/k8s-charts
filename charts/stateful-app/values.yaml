@@ -459,6 +459,13 @@ istio:
   # preStopCommand: [ /bin/sleep, "30" ]
   preStopCommand: null
 
+  # -- (`bool`) If set to "True", then the Istio Metrics Merging system will be
+  # turned on and Envoy will attempt to scrape metrics from the application pod
+  # and merge them with its own. This defaults to False beacuse in most
+  # environments we want to explicitly split up the metrics and collect Istio
+  # metrics separate from Application metrics.
+  metricsMerging: false
+
 # Configures labels and other parameters assuming that the Datadog Agent is
 # installed on the underlying hosts and is part of the Kubernetes cluster.
 datadog:
