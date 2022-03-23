@@ -64,6 +64,10 @@ spec:
       relabelings:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.monitor.metricRelabelings }}
+      metricRelabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.monitor.tlsConfig }}
       tlsConfig:
         {{- toYaml . | nindent 8 }}
