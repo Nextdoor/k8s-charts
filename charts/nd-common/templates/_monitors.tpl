@@ -47,6 +47,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
+  sampleLimit: {{ default 25000 .Values.monitor.sampleLimit }}
   selector:
     matchLabels:
       {{- include "nd-common.selectorLabels" . | nindent 6 }}
@@ -60,10 +61,25 @@ spec:
       {{- with .Values.monitor.scrapeTimeout }}
       scrapeTimeout: {{ . }}
       {{- end }}
-      {{- with .Values.monitor.relabelings }}
       relabelings:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- if .Values.monitor.relabelings }}
+        {{- toYaml .Values.monitor.relabelings | nindent 8 }}
+        {{- else }}
+        # Standard app.kubernetes.io labels: instance, name, version
+        - regex: __meta_kubernetes_pod_label_(app_kubernetes_io_(instance|name|version))
+          replacement: $1
+          action: labelmap
+
+        # Standard tags.datadoghq.com labels: service, version
+        - regex: __meta_kubernetes_pod_label_(tags_datadoghq_com_(service|version))
+          replacement: $1
+          action: labelmap
+
+        # Map the pod name into the pod_name label
+        - sourceLabels: [__meta_kubernetes_pod_name]
+          action: replace
+          targetLabel: pod_name
+        {{- end }}
       {{- with .Values.monitor.metricRelabelings }}
       metricRelabelings:
         {{- toYaml . | nindent 8 }}

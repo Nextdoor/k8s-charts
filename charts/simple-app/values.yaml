@@ -415,6 +415,11 @@ monitor:
   # -- PodMonitor scrape interval
   interval: null
 
+  # -- (`int`) The maximum number of metrics that can be scraped - if there are
+  # more than this, then scraping will fail entirely by Prometheus. This is
+  # used as a circuit breaker to avoid blowing up Prometheus memory footprints.
+  sampleLimit: 25000
+
   # -- PodMonitor scrape timeout in Go duration format (e.g. 15s)
   scrapeTimeout: null
 

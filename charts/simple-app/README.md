@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.21.3](https://img.shields.io/badge/Version-0.21.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.21.4](https://img.shields.io/badge/Version-0.21.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -172,7 +172,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.0.5 |
+| file://../nd-common | nd-common | 0.0.6 |
 | https://k8s-charts.nextdoor.com | istio-alerts | 0.1.3 |
 
 ## Values
@@ -226,6 +226,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | monitor.portName | string | `"metrics"` | (`string`) Name of the port to scrape for metrics - this is the name of the port that will be exposed in your `PodSpec` for scraping purposes. |
 | monitor.portNumber | int | `9090` | (`int`) Number of the port to scrape for metrics - this port will be exposed in your `PodSpec` to ensure it can be scraped. |
 | monitor.relabelings | list | `[]` | PodMonitor relabel configs to apply to samples before scraping https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig |
+| monitor.sampleLimit | int | `25000` | (`int`) The maximum number of metrics that can be scraped - if there are more than this, then scraping will fail entirely by Prometheus. This is used as a circuit breaker to avoid blowing up Prometheus memory footprints. |
 | monitor.scheme | string | `"http"` | (`enum: http, https`) PodMonitor will use http by default, but you can pick https as well |
 | monitor.scrapeTimeout | string | `nil` | PodMonitor scrape timeout in Go duration format (e.g. 15s) |
 | monitor.tlsConfig | string | `nil` | PodMonitor will use these tlsConfig settings to make the health check requests |
