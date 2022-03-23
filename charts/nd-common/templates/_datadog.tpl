@@ -41,7 +41,7 @@ ad.datadoghq.com/{{ .Release.Name }}.logs: |-
     {
       "source": {{- default .Release.Name .Values.datadog.scrapeLogs.source | toJson }},
       "service": {{- default .Release.Name .Values.datadog.service | toJson }},
-      "log_processing_rules": {{- .Values.datadog.scrapeLogsProcessingRules | toJson }}
+      "log_processing_rules": {{- .Values.datadog.processingRules | toJson }}
     }
   ]
 {{- end }}
