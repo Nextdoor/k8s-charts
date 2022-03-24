@@ -1,3 +1,7 @@
 terminationGracePeriodSeconds: 30
 priorityClassName: system-node-critical
 hostNetwork: true  # makes the tests work
+datadog:
+  scrapeMetrics: true
+  scrapeLogs:
+    enabled: true

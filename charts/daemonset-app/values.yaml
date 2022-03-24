@@ -403,6 +403,16 @@ datadog:
   metricsToScrape:
     - '"*"'
 
+  scrapeLogs:
+    # -- (`bool`) If true, then it will enable application logging to datadog.
+    enabled: false
+    # -- (`string`) If set, this configures the "source" tag. If this is not
+    # set, the tag defaults to the `.Release.Name` for the application.
+    source: null
+    # -- (`map[]`) A list of map that sets different log processing rules.
+    # https://docs.datadoghq.com/agent/logs/advanced_log_collection/?tab=configurationfile
+    processingRules: []
+
 tests:
   connection:
     # -- The command used to trigger the test.
