@@ -30,3 +30,5 @@ secrets:
 
 datadog:
   scrapeMetrics: true
+  scrapeLogs:
+    enabled: true

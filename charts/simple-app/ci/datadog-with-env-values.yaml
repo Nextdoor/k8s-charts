@@ -1,6 +1,14 @@
 # TEST: Make sure it works to set the env
 datadog:
   env: some_value
+  service: ci_test
+  scrapeLogs:
+    enabled: true
+    source: ci
+    processingRules:
+      - type: include_at_match
+        name: include_ci_test_users
+        pattern: "\w+@nextdoorci-test.com"
 
 # For local development, we turn on the Ingress controller and set up a simple
 # local ingress.

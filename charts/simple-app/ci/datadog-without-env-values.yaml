@@ -1,6 +1,8 @@
 # TEST: Make sure it works to NOT set the env
 datadog:
   env: null
+  scrapeLogs:
+    enabled: true
 
 # For local development, we turn on the Ingress controller and set up a simple
 # local ingress.
