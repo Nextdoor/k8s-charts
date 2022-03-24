@@ -132,6 +132,7 @@ ports:
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+containerName: ""
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -402,6 +403,16 @@ datadog:
   # 2000), Datadog will drop them all on the ground.
   metricsToScrape:
     - '"*"'
+
+  scrapeLogs:
+    # -- (`bool`) If true, then it will enable application logging to datadog.
+    enabled: false
+    # -- (`string`) If set, this configures the "source" tag. If this is not
+    # set, the tag defaults to the `.Release.Name` for the application.
+    source: null
+    # -- (`map[]`) A list of map that sets different log processing rules.
+    # https://docs.datadoghq.com/agent/logs/advanced_log_collection/?tab=configurationfile
+    processingRules: [ ]
 
 tests:
   connection:

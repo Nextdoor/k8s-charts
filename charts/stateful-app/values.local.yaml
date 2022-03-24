@@ -11,3 +11,5 @@ ingress:
 terminationGracePeriodSeconds: 30
 datadog:
   scrapeMetrics: true
+  scrapeLogs:
+    enabled: true

@@ -34,7 +34,7 @@ into json supported by datadog config. If source and service tag values not prov
 we add default values to it.
 */ -}}
 {{- if and .Values.datadog.enabled .Values.datadog.scrapeLogs.enabled }}
-ad.datadoghq.com/{{ include "nd-common.containerName" }}.logs: |-
+ad.datadoghq.com/{{ include "nd-common.containerName" . }}.logs: |-
   [
     {
       "source": {{- default .Chart.Name .Values.datadog.scrapeLogs.source }},
