@@ -28,7 +28,7 @@ ad.datadoghq.com/{{ .Chart.Name }}.instances: |-
   ]
 {{- end }}
 {{- /*
-This is datalog logging configuration. We take the .Values.scrapeLogs and
+This is datadog logging configuration. We take the .Values.scrapeLogs and
 .Values.scrapeLogsProcessingRules map and convert into list of objects converted
 into json supported by datadog config. If source and service tag values not provided
 we add default values to it.
