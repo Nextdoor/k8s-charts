@@ -9,6 +9,6 @@ maintainers:
     email: matt@nextdoor.com
 dependencies:
   - name: nd-common
-    version: 0.0.6
+    version: 0.0.7
     # Temporary while we're under active development of this dependency chart.
     repository: file://../nd-common
