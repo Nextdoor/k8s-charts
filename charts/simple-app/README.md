@@ -186,7 +186,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | autoscaling.minReplicas | int | `1` | Sets the minimum number of Pods to run |
 | autoscaling.targetCPUUtilizationPercentage | int | `80` | Configures the HPA to target a particular CPU utilization percentage |
 | command | list | `[]` | The command run by the container. This overrides `ENTRYPOINT`. If not specified, the container's default entrypoint is used. The exact rules of how commadn and args are interpreted can be # found at: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/ |
-| containerNameOverride | string | `""` |  |
+| containerName | string | `""` |  |
 | datadog.enabled | bool | `true` | (`bool`) Whether or not the various datadog labels and options should be included or not. |
 | datadog.env | `string` | `nil` | The "env" tag to configure for the application - this maps to the Datadog environment concept for isolating traces/apm data. _We default to not setting this, so that the Datadog Agent's own "ENV" setting is used as the default behavior. Only override this in special cases._ |
 | datadog.metricsNamespace | string | `"eks"` | (`string`) The prefix to append to all metrics that are scraped by Datadog. We set this to one common value so that common metrics (like `istio_.*` or `go_.*`) are shared across all apps in Datadog for easier dashboard creation as well as comparision between applications. |

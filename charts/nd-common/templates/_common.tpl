@@ -34,7 +34,7 @@ If release name contains chart name it will be used as a full name.
 Create a container name.
 */}}
 {{-define "nd-common.containerName" -}}
-{{- default .Chart.Name .Values.containerNameOverride | trunc 63 | trimSuffix "-" }}
+{{- default .Chart.Name .Values.containerName | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 
