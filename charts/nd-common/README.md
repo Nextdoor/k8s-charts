@@ -2,7 +2,7 @@
 
 A helper chart used by most of our other charts
 
-![Version: 0.0.6](https://img.shields.io/badge/Version-0.0.6-informational?style=flat-square) ![Type: library](https://img.shields.io/badge/Type-library-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.0.7](https://img.shields.io/badge/Version-0.0.7-informational?style=flat-square) ![Type: library](https://img.shields.io/badge/Type-library-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 **This chart is a [Library Chart](https://helm.sh/docs/topics/library_charts/)** -
 this means that the chart itself deploys no resources, and has no `.yaml`
@@ -62,6 +62,27 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ include "nd-common.fullname" . }}
+  ...
+```
+
+### `nd-common.containerName`
+
+Returns the name of the application container which by default
+is set to (`.Chart.Name`), or optionally returns an override of
+the string from `.Values.containerName`. This is mostly used for
+specifying application container name.
+
+_Example Usage_:
+```yaml
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: {{ include "nd-common.fullname" . }}
+spec:
+  template:
+    spec:
+      containers:
+        - name: {{ include "nd-common.containerName" . }}
   ...
 ```
 

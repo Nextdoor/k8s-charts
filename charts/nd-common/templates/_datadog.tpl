@@ -27,7 +27,20 @@ ad.datadoghq.com/{{ .Chart.Name }}.instances: |-
     }
   ]
 {{- end }}
-
+{{- /*
+This is datadog logging configuration. If source and service tag values not provided
+we add default values to it.
+*/ -}}
+{{- if and .Values.datadog.enabled .Values.datadog.scrapeLogs.enabled }}
+ad.datadoghq.com/{{ include "nd-common.containerName" . }}.logs: |-
+  [
+    {
+      "source": {{- default .Chart.Name .Values.datadog.scrapeLogs.source }},
+      "service": {{- default .Chart.Name .Values.datadog.service  }},
+      "log_processing_rules": {{- tpl (toJson .Values.datadog.scrapeLogs.processingRules) $ }}
+    }
+  ]
+{{- end }}
 {{- end }}
 
 {{/*
