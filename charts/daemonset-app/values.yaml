@@ -412,7 +412,7 @@ datadog:
     source: null
     # -- (`map[]`) A list of map that sets different log processing rules.
     # https://docs.datadoghq.com/agent/logs/advanced_log_collection/?tab=configurationfile
-    processingRules: [ ]
+    processingRules: []
 
 tests:
   connection:
