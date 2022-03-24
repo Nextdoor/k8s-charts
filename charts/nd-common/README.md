@@ -65,6 +65,27 @@ metadata:
   ...
 ```
 
+### `nd-common.containerName`
+
+Returns the name of the application container which by default
+is set to (`.Chart.Name`), or optionally returns an override of
+the string from `.Values.containerName`. This is mostly used for
+specifying application container name.
+
+_Example Usage_:
+```yaml
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: {{ include "nd-common.fullname" . }}
+spec:
+  template:
+    spec:
+      containers:
+        - name: {{ include "nd-common.containerName" . }}
+  ...
+```
+
 ### `nd-common.labels`
 
 Creates a set of common and reasonable labels applied to most of the resources
