@@ -125,7 +125,7 @@ spec:
           resources:
             {{- toYaml .Values.proxySidecar.resources | nindent 12 }}
         {{- end }}
-        - name: {{ .Chart.Name }}
+        - name: {{ include "nd-common.containerName" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: {{ include "nd-common.imageFqdn" . }}
