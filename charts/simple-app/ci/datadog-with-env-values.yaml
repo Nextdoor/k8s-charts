@@ -8,7 +8,7 @@ datadog:
     processingRules:
       - type: include_at_match
         name: include_ci_test_users
-        pattern: "\w+@nextdoorci-test.com"
+        pattern: "@nextdoorci-test.com"
 
 # For local development, we turn on the Ingress controller and set up a simple
 # local ingress.
