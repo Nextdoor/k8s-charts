@@ -35,9 +35,9 @@ we add default values to it.
 ad.datadoghq.com/{{ include "nd-common.containerName" . }}.logs: |-
   [
     {
-      "source": {{- default .Chart.Name .Values.datadog.scrapeLogs.source }},
-      "service": {{- default .Chart.Name .Values.datadog.service  }},
-      "log_processing_rules": {{- tpl (toJson .Values.datadog.scrapeLogs.processingRules) $ }}
+      "source": {{ default .Chart.Name .Values.datadog.scrapeLogs.source | toJson }},
+      "service": {{ default .Chart.Name .Values.datadog.service | toJson }},
+      "log_processing_rules": {{ tpl (toJson .Values.datadog.scrapeLogs.processingRules) $ }}
     }
   ]
 {{- end }}
