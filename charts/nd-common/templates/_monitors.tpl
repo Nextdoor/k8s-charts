@@ -52,7 +52,7 @@ spec:
     matchLabels:
       {{- include "nd-common.selectorLabels" . | nindent 6 }}
   podMetricsEndpoints:
-    - port: {{ .Values.monitor.portName }}
+    - port: {{ .Values.monitor.portNumber }}
       path: {{ .Values.monitor.path }}
       scheme: {{ .Values.monitor.scheme }}
       {{- with .Values.monitor.interval }}
