@@ -118,9 +118,9 @@ spec:
           ports:
             {{- include "simple-app.containerPorts" . | nindent 12 }}
           {{- end }}
-          {{- if .Values.startupProbe }}
+          {{- with .Values.startupProbe }}
           startupProbe:
-            {{- toYaml .Values.startupProbe | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
@@ -194,9 +194,9 @@ spec:
           ports:
             {{- include "simple-app.containerPorts" . | nindent 12 }}
             {{- include "nd-common.monitorPodPorts" . | nindent 12 }}
-          {{- if .Values.startupProbe }}
+          {{- with .Values.startupProbe }}
           startupProbe:
-            {{- toYaml .Values.startupProbe | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
