@@ -2,7 +2,7 @@
 
 A helper chart used by most of our other charts
 
-![Version: 0.0.9](https://img.shields.io/badge/Version-0.0.9-informational?style=flat-square) ![Type: library](https://img.shields.io/badge/Type-library-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.0.10](https://img.shields.io/badge/Version-0.0.10-informational?style=flat-square) ![Type: library](https://img.shields.io/badge/Type-library-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 **This chart is a [Library Chart](https://helm.sh/docs/topics/library_charts/)** -
 this means that the chart itself deploys no resources, and has no `.yaml`
@@ -141,6 +141,35 @@ _Example Usage_:
 ```yaml
 # templates/podmonitor.yaml
 {{- include "nd-common.podMonitor" . }}
+```
+
+## [Network Functions](templates/_networkpolicy.tpl)
+
+These functions are focused around providing network-level access into the
+resources within your namespace, or controlling the network permissions in
+other ways.
+
+### Values Parameters
+
+Each of the functions in the
+[`templates/_networkpolicy.tpl`](templates/_networkpolicy.tpl) functions file
+look for particularly named value keys. In particular:
+
+* `.Values.ports`: This must be a list of maps that contain `containerPort` and `protocol` keys.
+* `.Values.network.allowedNamespace`: This is a list of strings that represent
+  `Namespaces` that you want to grant access into your service.
+
+### `nd-common.networkPolicy`
+
+This function creates a `NetworkPolicy` resource that grants access into the
+Pods running in your namespace. The ports are picked from the `.Values.ports`
+key, and the clients are listed by-namespace in the
+`.Values.network.allowedNamespace` list of strings.
+
+_Example Usage_:
+```yaml
+# templates/networkpolicy.yaml
+{{- include "nd-common.networkPolicy" . }}
 ```
 
 ## [Datadog Functions](templates/_datadog.tpl)

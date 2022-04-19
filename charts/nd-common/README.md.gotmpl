@@ -143,6 +143,35 @@ _Example Usage_:
 {{`{{- include "nd-common.podMonitor" . }}`}}
 ```
 
+## [Network Functions](templates/_networkpolicy.tpl)
+
+These functions are focused around providing network-level access into the
+resources within your namespace, or controlling the network permissions in
+other ways.
+
+### Values Parameters
+
+Each of the functions in the
+[`templates/_networkpolicy.tpl`](templates/_networkpolicy.tpl) functions file
+look for particularly named value keys. In particular:
+
+* `.Values.ports`: This must be a list of maps that contain `containerPort` and `protocol` keys.
+* `.Values.network.allowedNamespace`: This is a list of strings that represent
+  `Namespaces` that you want to grant access into your service.
+
+### `nd-common.networkPolicy`
+
+This function creates a `NetworkPolicy` resource that grants access into the
+Pods running in your namespace. The ports are picked from the `.Values.ports`
+key, and the clients are listed by-namespace in the
+`.Values.network.allowedNamespace` list of strings.
+
+_Example Usage_:
+```yaml
+# templates/networkpolicy.yaml
+{{`{{- include "nd-common.networkPolicy" . }}`}}
+```
+
 ## [Datadog Functions](templates/_datadog.tpl)
 
 [unified_service_tagging]: https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/?tab=kubernetes

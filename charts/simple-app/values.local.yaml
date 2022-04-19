@@ -32,3 +32,6 @@ datadog:
   scrapeMetrics: true
   scrapeLogs:
     enabled: true
+
+network:
+  allowedNamespaces: [foo, bar]
