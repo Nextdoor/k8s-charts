@@ -101,7 +101,7 @@ volumesString: ""
 # -- A PodSpec container "startupProbe" configuration object. Note that this
 # startupProbe will be applied to the proxySidecar container instead if that
 # is enabled.
-startupProbe: 
+startupProbe:
 
 # -- A PodSpec container "livenessProbe" configuration object. Note that this
 # livenessProbe will be applied to the proxySidecar container instead if that
