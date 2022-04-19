@@ -120,6 +120,8 @@ spec:
           ports:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          startupProbe:
+            {{- toYaml .Values.startupProbe | nindent 12 }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
@@ -196,6 +198,8 @@ spec:
             {{- end }}
             {{- end }}
             {{- include "nd-common.monitorPodPorts" . | nindent 12 }}
+          startupProbe:
+            {{- toYaml .Values.startupProbe | nindent 12 }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
