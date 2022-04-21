@@ -35,6 +35,19 @@ listeners:
 
 # These settings directly get passed into the Strimzi Kafka Operator helm chart.
 strimzi-kafka-operator:
+
+  # These overwrite default Cluster Operator image settings.
+  # E.g. one may need to set image.tag "0.28.0-arm64" explicitly for ARM64 arch
+  image:
+    # -- (`str`) Override default Cluster Operator image registry
+    registry: ""
+    # -- (`str`) Override default Cluster Operator image repository
+    repository: ""
+    # -- (`str`) Cluster Operator image name
+    name: operator
+    # -- (`str`) Override default Cluster Operator image tag
+    tag: ""
+
   # -- Set to `false` to intentionally disable installation of the Operator.
   # This is useful if you are running this stack in a local dev environment
   # where you might have multiple Kafka environments, and are already running
