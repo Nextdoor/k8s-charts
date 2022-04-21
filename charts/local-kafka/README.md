@@ -2,7 +2,7 @@
 
 Local Development spinup of Strimzi-managed Kafka
 
-![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [strimzi_op]: https://github.com/strimzi/strimzi-kafka-operator
 
@@ -34,7 +34,7 @@ project's development namespace.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://strimzi.io/charts | strimzi-kafka-operator | 0.26.0 |
+| https://strimzi.io/charts | strimzi-kafka-operator | 0.28.0 |
 
 ## Values
 
@@ -47,6 +47,10 @@ project's development namespace.
 | listeners | list | `[{"configuration":{"brokers":[{"advertisedHost":"127.0.0.1","broker":0,"nodePort":32000}]},"name":"external","port":9094,"tls":false,"type":"nodeport"}]` | Additional configurable listeners for connecting to brokers. |
 | namespaceOverride | string | `nil` | Optionally force the namespace that the resources in this stack are launched in. Without this, the default namespace that the Helm chart is being put into is used. It is recommended to keep this empty. |
 | strimzi-kafka-operator.enabled | bool | `true` | Set to `false` to intentionally disable installation of the Operator. This is useful if you are running this stack in a local dev environment where you might have multiple Kafka environments, and are already running the Strimzi operator. |
+| strimzi-kafka-operator.image.name | string | `"operator"` |  |
+| strimzi-kafka-operator.image.registry | string | `""` |  |
+| strimzi-kafka-operator.image.repository | string | `""` |  |
+| strimzi-kafka-operator.image.tag | string | `""` |  |
 | strimzi-kafka-operator.livenessProbe.initialDelaySeconds | int | `300` |  |
 | strimzi-kafka-operator.logLevel | string | `"DEBUG"` | Run the Operator in a pretty verbose mode - allowing developers to more easily understand if there are any problems with the operator installation or its behavior. |
 | strimzi-kafka-operator.readinessProbe.initialDelaySeconds | int | `300` |  |

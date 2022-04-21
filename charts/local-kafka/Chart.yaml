@@ -2,13 +2,13 @@ apiVersion: v2
 name: local-kafka
 description: Local Development spinup of Strimzi-managed Kafka
 type: application
-version: 0.2.1
+version: 0.3.0
 appVersion: latest
 maintainers:
   - name: diranged
     email: matt@nextdoor.com
 dependencies:
   - name: strimzi-kafka-operator
-    version: 0.26.0
+    version: 0.28.0
     repository: https://strimzi.io/charts
     condition: strimzi-kafka-operator.enabled
