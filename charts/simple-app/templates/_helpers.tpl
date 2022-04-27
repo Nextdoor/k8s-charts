@@ -4,7 +4,7 @@ Gathers the application image tag. This allows overriding the tag with a master
 setting.
 */}}
 {{- define "simple-app.proxyImageFqdn" -}}
-{{- $tag := include "nd-common.imageTag" . }}
+{{- $tag := .Values.proxySidecar.image.tag | default (include "nd-common.imageTag" .) }}
 {{- if hasPrefix "sha256:" $tag }}
 {{- .Values.proxySidecar.image.repository }}@{{ $tag }}
 {{- else }}
