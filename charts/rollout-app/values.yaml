@@ -1,0 +1,774 @@
+# -- (`int`) The number of Pods to start up by default. If the
+# `autoscaling.enabled` parameter is set, then this serves as the "start
+# scale" for an application. Setting this to `null` prevents the setting from
+# being applied at all in the PodSpec, leaving it to Kubernetes to use the
+# default value (1). https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#replicas
+replicaCount: 2
+
+# -- (`int`) The default revisionHistoryLimit in Kubernetes is 10 - which is
+# just really noisy. Set our default to 3. https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy
+revisionHistoryLimit: 3
+
+# -- Set up a PodDisruptionBudget for the Deployment. See
+# https://kubernetes.io/docs/tasks/run-application/configure-pdb/ for more
+# details.
+podDisruptionBudget:
+  maxUnavailable: 1
+
+image:
+  # -- (String) The Docker image name and repository for your application
+  repository: nginx
+
+  # -- (String) Always, Never or IfNotPresent
+  pullPolicy: IfNotPresent
+
+  # -- (String) Overrides the image tag whose default is the chart appVersion.
+  tag: null
+
+  # -- (String) Forcefully overrides the `image.tag` setting - this is useful
+  # if you have an outside too that automatically updates the `image.tag`
+  # value, but you want your application operators to be able to squash that
+  # override themselves.
+  forceTag: null
+
+# -- The command run by the container. This overrides `ENTRYPOINT`. If not
+# specified, the container's default entrypoint is used. The exact rules of how
+# commadn and args are interpreted can be # found at:
+# https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/
+command: []
+
+# -- The arguments passed to the command. If unspecified the container defaults
+# are used. The exact rules of how commadn and args are interpreted can be #
+# found at:
+# https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/
+args: []
+
+# -- A list of 'volumes' that can be mounted into the Pod. See
+# https://kubernetes.io/docs/concepts/storage/volumes/.
+volumes: []
+
+# -- A stringified list of 'volumes' similar to the `Values.volumes` parameter,
+# but this one gets run through the `tpl` function so that you can use
+# templatized values if you need to. See
+# https://kubernetes.io/docs/concepts/storage/volumes/.
+volumesString: ""
+# eg:
+#
+# volumesString: |-
+#   - name: test-html-mount
+#     configMap:
+#       name: "{{ include "nd-common.fullname" . }}-test-map"
+
+# An optional proxy sidecar configuration is provided - but its a rough
+# beginning here, it doesn't provide any real configuration for the proxy, so
+# we expect that the proxy container is preconfigured (for example,
+# Okta-proxy). In the future we'll add support in for creating ConfigMaps and
+# Secrets that can be bound into the sidecar container for a more complete
+# solution.
+proxySidecar:
+  # -- (Boolean) Enables injecting a pre-defined reverse proxy sidecar
+  # container into the Pod containers list.
+  enabled: false
+
+  # -- (String) The name of the proxy sidecar container
+  name: proxy
+
+  image:
+    # -- (String) The Docker image name and repository for the sidecar
+    repository: nginx
+
+    # -- (String) The Docker tag for the sidecar
+    tag: latest
+
+    # -- (String) Always, Never or IfNotPresent
+    pullPolicy: IfNotPresent
+
+  # -- Environment Variables for the primary container. These are all run
+  # through the tpl function (the key name and value), so you can dynamically
+  # name resources as you need.
+  env: []
+
+  # -- Pull all of the environment variables listed in a ConfigMap into the
+  # Pod. See
+  # https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables
+  # for more details.
+  envFrom: []
+
+  # -- List of VolumeMounts that are applied to the proxySidecar container -
+  # these must refer to volumes set in the `Values.volumes` parameter.
+  volumeMounts: []
+
+  # -- A PodSpec "Resources" object for the proxy container
+  resources: {}
+
+# -- A PodSpec container "startupProbe" configuration object. Note that this
+# startupProbe will be applied to the proxySidecar container instead if that
+# is enabled.
+startupProbe:
+
+# -- A PodSpec container "livenessProbe" configuration object. Note that this
+# livenessProbe will be applied to the proxySidecar container instead if that
+# is enabled.
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+
+# -- A PodSpec container "readinessProbe" configuration object. Note that this
+# readinessProbe will be applied to the proxySidecar container instead if that
+# is enabled.
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+# -- (`ContainerPort[]`) A list of Port objects that are exposed by the
+# service. These ports are applied to the main container, or the proxySidecar
+# container (if enabled). The port list is also used to generate Network
+# Policies that allow ingress into the pods. See
+# https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#containerport-v1-core
+# for details.
+#
+# **Note: We have added an optional "port" field to this list that allows the
+# user to override the Service Port (for example 80) that a client  connects
+# to, without altering the Container Port (say, 8080) that is listening for
+# connections.
+ports:
+  - name: http
+    containerPort: 80
+    protocol: TCP
+    # Optional flag to override the client-facing port for service requests.
+    port:
+
+# -- Supply a reference to a Secret that can be used by Kubernetes to pull down
+# the Docker image. This is only used in local development, in combination with
+# our `kube_create_ecr_creds` function from dotfiles.
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+containerName: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# -- https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#hook-handler-execution
+terminationGracePeriodSeconds: null
+
+# -- Environment Variables for the primary container. These are all run
+# through the tpl function (the key name and value), so you can dynamically
+# name resources as you need.
+env: []
+  # Example
+  # - name: VAR
+  #   value: MyString
+  #
+  # - name: MY-DYNAMIC-VAR-{{ .Release.Name }}
+  #   value:
+  #     secretKeyRef:
+  #       name: {{ .Release.Name }}-secret
+  #       key: foo
+  #
+
+# -- Pull all of the environment variables listed in a ConfigMap into the
+# Pod. See
+# https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables
+# for more details.
+envFrom: []
+  # Example:
+  # - configMapRef:
+  #     name: my-config-vars
+
+# -- (`Map`) Map of environment variables to plaintext secrets or KMS encrypted secrets.
+secrets: {}
+
+# -- (String) AWS region where the KMS key is located
+kmsSecretsRegion:
+
+# -- (String) Secrets Engine determines the type of Secret Resource that will be created (`KMSSecret`, `Secret`). kms || plaintext are possible values.
+secretsEngine: plaintext
+
+# -- List of VolumeMounts that are applied to the application container -
+# these must refer to volumes set in the `Values.volumes` parameter.
+volumeMounts: []
+
+# -- (`Map`) List of Labels to be added to the PodSpec
+podLabels: {}
+
+# -- (`Map`) List of Annotations to be added to the PodSpec
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+# -- https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#min-ready-seconds
+minReadySeconds: null
+
+# -- https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#progress-deadline-seconds
+progressDeadlineSeconds: null
+
+# -- (`map`) Required - Either a
+# [`BlueGreen`](https://argoproj.github.io/argo-rollouts/features/bluegreen/)
+# or [`Canary`](https://argoproj.github.io/argo-rollouts/features/canary/)
+# strategy map.
+#
+# -- (`string`) Chooses which Rollout strategy to use - either `blueGreen` or
+# `canary`. Use `.Values.blueGreen` and `.Values.canary` to customize the
+# actual behavior of the rollout.
+strategy: blueGreen
+
+blueGreen:
+  # -- (`bool`) The AutoPromotionEnabled will make the rollout automatically
+  # promote the new ReplicaSet to the active service once the new ReplicaSet is
+  # healthy. This field is defaulted to true if it is not specified.
+  autoPromotionEnabled: null
+
+  # -- (`int`) The AutoPromotionSeconds will make the rollout automatically
+  # promote the new ReplicaSet to active Service after the AutoPromotionSeconds
+  # time has passed since the rollout has entered a paused state. If the
+  # AutoPromotionEnabled field is set to true, this field will be ignored
+  autoPromotionSeconds: null
+
+  # -- (`map`) Check out the Anti Affinity document document for more information.
+  antiAffinity: null
+
+  # -- (`int`) The PreviewReplicaCount field will indicate the number of
+  # replicas that the new version of an application should run. Once the
+  # application is ready to promote to the active service, the controller will
+  # scale the new ReplicaSet to the value of the spec.replicas. The rollout
+  # will not switch over the active service to the new ReplicaSet until it
+  # matches the spec.replicas count.
+  #
+  # This feature is mainly used to save resources during the testing phase. If
+  # the application does not need a fully scaled up application for the tests,
+  # this feature can help save some resources.
+  #
+  # If omitted, the preview ReplicaSet stack will be scaled to 100% of the
+  # replicas.
+  previewReplicaCount: null
+
+  # -- (`int`) The maximum number of pods that can be unavailable during the
+  # update. Value can be an absolute number (ex: 5) or a percentage of desired
+  # pods (ex: 10%). This can not be 0 if MaxSurge is 0.
+  maxUnavailable: null
+
+  # -- (`map`) Configures the
+  # [Analysis](https://argoproj.github.io/argo-rollouts/features/analysis/#bluegreen-pre-promotion-analysis)
+  # before it switches traffic to the new version. The AnalysisRun can be used
+  # to block the Service selector switch until the AnalysisRun finishes
+  # successful. The success or failure of the analysis run decides if the
+  # Rollout will switch traffic, or abort the Rollout completely.
+  prePromotionAnalysis: null
+
+  # -- (`map`) Configures the
+  # [Analysis](https://argoproj.github.io/argo-rollouts/features/analysis/#bluegreen-pre-promotion-analysis)
+  # after the traffic switch to new version. If the analysis run fails or
+  # errors out, the Rollout enters an aborted state and switch traffic back to
+  # the previous stable Replicaset. If `scaleDownDelaySeconds` is specified, the
+  # controller will cancel any AnalysisRuns at time of `scaleDownDelay` to scale
+  # down the ReplicaSet. If it is omitted, and post analysis is specified, it
+  # will scale down the ReplicaSet only after the AnalysisRun completes (with a
+  # minimum of 30 seconds).
+  postPromotionAnalysis: null
+
+  # -- (`int`) The ScaleDownDelaySeconds is used to delay scaling down the old
+  # ReplicaSet after the active Service is switched to the new ReplicaSet.
+  scaleDownDelaySeconds: null
+
+  # -- (`int`) The ScaleDownDelayRevisionLimit limits the number of old active
+  # ReplicaSets to keep scaled up while they wait for the scaleDownDelay to
+  # pass after being removed from the active service.
+  #
+  # If omitted, all ReplicaSets will be retained for the specified
+  # scaleDownDelay
+  scaleDownDelayRevisionLimit: null
+
+canary:
+  # -- (`map`) Check out the Anti Affinity document document for more information.
+  antiAffinity: null
+
+  # -- (`map`) Metadata which will be attached to the canary pods. This
+  # metadata will only exist during an update, since there are no canary pods
+  # in a fully promoted rollout.
+  canaryMetadata: null
+
+  # -- (`map`) metadata which will be attached to the stable pods
+  stableMetadata: null
+
+  # -- (`int` or `string`) The maximum number of pods that can be unavailable
+  # during the update. Value can be an absolute number (ex: 5) or a percentage
+  # of total pods at the start of update (ex: 10%). Absolute number is
+  # calculated from percentage by rounding down. This can not be 0 if  MaxSurge
+  # is 0. By default, a fixed value of 1 is used. Example: when this is set to
+  # 30%, the old RC can be scaled down by 30% immediately when the rolling
+  # update starts. Once new pods are ready, old RC can be scaled down further,
+  # followed by scaling up the new RC, ensuring that at least 70% of original
+  # number of pods are available at all times during the update. +optional
+  maxUnavailable: null
+
+  # -- (`int` or `string`) The maximum number of pods that can be scheduled
+  # above the original number of pods. Value can be an absolute number (ex: 5)
+  # or a percentage of total pods at the start of the update (ex: 10%). This
+  # can not be 0 if MaxUnavailable is 0. Absolute number is calculated from
+  # percentage by rounding up. By default, a value of 1 is used.# Example: when
+  # this is set to 30%, the new RC can be scaled up by 30% immediately when the
+  # rolling update starts. Once old pods have been killed, new RC can be scaled
+  # up further, ensuring that total number of pods running at any time during
+  # the update is at most 130% of original pods. +optional
+  maxSurge: null
+
+  # -- (`int`) Adds a delay before scaling down the previous ReplicaSet when
+  # the canary strategy is used with traffic routing (default 30 seconds). A
+  # delay in scaling down the previous ReplicaSet is needed after switching the
+  # stable service selector to point to the new ReplicaSet, in order to give
+  # time for traffic providers to re-target the new pods. This value is ignored
+  # with basic, replica-weighted canary without traffic routing.
+  scaleDownDelaySeconds: null
+
+  # -- (`int`) Limits the number of old RS that can run at one time before
+  # getting scaled down. Defaults to nil
+  scaleDownDelayRevisionLimit: null
+
+  # -- (`map`) Configure the background
+  # [Analysis](https://argoproj.github.io/argo-rollouts/features/analysis/) to
+  # execute during the rollout. If the analysis is unsuccessful the rollout
+  # will be aborted.
+  analysis: null
+
+  # -- (`map[]`) This **required** parameter defines the canary rollout
+  # process. Strictly speaking, the Argo Rollouts controller does not require
+  # that you define a set of steps .. but the ArgoCD integration with Argo
+  # Rollouts does require that these steps be defined, otherwise it fails.
+  #
+  # Read the [documentation
+  # here](https://argoproj.github.io/argo-rollouts/features/canary/#example) to
+  # learn more about the available steps, and how you can configure them.
+  steps:
+    - setWeight: 20
+    - pause:
+        duration: 5m
+    - setWeight: 40
+    - pause:
+        duration: 5m
+    - setWeight: 80
+
+# -- Before a pod gets terminated, Kubernetes sends a SIGTERM signal to every
+# container and waits for period of time (10s by default) for all containers to
+# exit gracefully. If your app doesn't handle the SIGTERM signal or if it
+# doesn't exit within the grace period, Kubernetes will kill the container and
+# any inflight requests that your app is processing will fail.
+#
+# Make sure you set this to SHORTER than the terminationGracePeriod (30s
+# default) setting.
+#
+# https://docs.flagger.app/tutorials/zero-downtime-deployments#graceful-shutdown
+preStopCommand:
+  - /bin/sleep
+  - '10'
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+
+# Configuration for creating a dedicated ALB for your service. This is
+# acceptable - but not the preferred method (see the IngressGateway setup
+# below).
+ingress:
+  enabled: false
+
+  # -- Any annotations you wish to add to the ALB. See
+  # https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.2/guide/ingress/annotations/
+  # for more details.
+  annotations: {}
+
+  # -- This setting configures the ALB to listen specifically to requests for
+  # this hostname. It _also_ ties into the external-dns controller and
+  # automatically provisions DNS hostnames matching this value (presuming that
+  # they are allowed by the cluster settings).
+  host: '{{ include "nd-common.fullname" . }}.{{ .Release.Namespace }}'
+
+  # -- https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types
+  pathType: Prefix
+
+  # -- See the `ingress.pathType` setting documentation.
+  path: '/'
+
+  # -- If `true`, then this will annotate the Ingress with a special AWS ALB
+  # Ingress Controller annotation that configures an SSL-redirect at the ALB
+  # level.
+  sslRedirect: true  # ties into "actions.ssl-redirect" above
+
+  # -- This is the port "name" that the `Service` will point to on the backing
+  # Pods. This value must match one of the values of `.name` in the
+  # `Values.ports` configuration.
+  portName: http
+
+  # -- If set, this will override the `service.portName` parameter, and the
+  # `Service` object will point specifically to this port number on the backing
+  # Pods.
+  port: null
+
+# Configuration for creating a VirtualService inside the Istio Service Mesh
+# Ingress Gateways. This is the preferred method for exposing a service because
+# we have far greater visbility and granularity into the performance, it costs
+# less, and deployments are actually faster this way.
+virtualService:
+  # -- (Boolean) Maps the Service to an Istio IngressGateway, exposing the
+  # service outside of the Kubernetes cluster.
+  enabled: false
+
+  # -- Any annotations you wish to add to the `VirtualService` resource. See
+  # https://istio.io/latest/docs/reference/config/annotations/ for more
+  # details.
+  annotations: {}
+
+  # -- (`map`) If set, this will populate the corsPolicy setting for the
+  # VirtualService. See
+  # https://istio.io/latest/docs/reference/config/networking/virtual-service/#CorsPolicy
+  # for more details.
+  corsPolicy: {}
+
+  # -- (`map[]`) A list of Istio `HTTPMatchRequest` objects that will be
+  # applied to the VirtualService. This is the more advanced and customizable
+  # way of controlling which paths get sent to your backend. These are added
+  # _in addition_ to the `paths` or `path` settings. See
+  # https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPMatchRequest
+  # for examples.
+  matches: {}
+
+  # -- A list of destination hostnames that this VirtualService will accept
+  # traffic for. Multiple names can be listed here. See
+  # https://istio.io/latest/docs/reference/config/networking/virtual-service/#VirtualService
+  # for more details.
+  hosts:
+    - '{{ include "nd-common.fullname" . }}'
+
+  # -- The name of the Istio `Gateway` resource that this `VirtualService`
+  # will register with. You can get a list of the avaialable `Gateways` by
+  # running `kubectl -n istio-system get gateways`. Not specifying a Gateway
+  # means that you are creating a VirtualService routing definition only inside
+  # of the Kubernetes cluster, which is totally reasonable if you want to do
+  # that.
+  gateways: []
+
+  # -- The namespace where the Istio services are operating. Do not change this.
+  namespace: istio-system
+
+  # -- The default path prefix that the `VirtualService` will match requests
+  # against to pass to the default `Service` object in this deployment.
+  path: '/'
+
+  # -- (`string[]`) List of optional path prefixes that the `VirtualService`
+  # will use to match requests against and will pass to the `Service` object in
+  # this deployment. This list replaces the `path` prefix above - use one or
+  # the other, do not use both.
+  paths: []
+
+  # -- This is the backing Pod port _number_ to route traffic to. This must
+  # match a `containerPort` in the `Values.ports` list.
+  port: 80
+
+  tls: ""
+
+  # -- (`map`) Pass in an optional
+  # [`HTTPRetry`](https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRetry)
+  # configuration here to control how services retry their failed requests to
+  # the backend service. The default behavior is to retry 2 times if a 503 is returned.
+  retries: {}
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Enabling Horizontal Pod Autoscaling (HPA) ensures that your application
+# scales up to meet demand.
+autoscaling:
+  # -- Controls whether or not an HorizontalPodAutoscaler resource is created.
+  enabled: false
+  # -- Sets the minimum number of Pods to run
+  minReplicas: 1
+  # -- Sets the maximum number of Pods to run
+  maxReplicas: 100
+  # -- Configures the HPA to target a particular CPU utilization percentage
+  targetCPUUtilizationPercentage: 80
+  # -- If supplied, configures the HPA to target a particular Memory utilization percentage
+  # targetMemoryUtilizationPercentage: 80
+
+# -- (`string`) If set, this value will be used in the .spec.nodeSelector to
+# ensure that these pods specifically launch on the desired target Operating
+# System. Must be set.
+targetOperatingSystem: linux
+
+# -- (`string`) If set, this value will be used in the .spec.nodeSelector to
+# ensure that these pods specifically launch on the desired target host
+# architecture. If set to null/empty-string, then this value will not be set.
+targetArchitecture: amd64
+
+# -- (`map`) A list of key/value pairs that will be added in to the
+# nodeSelector spec for the pods.
+nodeSelector: {}
+
+tolerations: []
+
+topologySpreadConstraints: []
+
+affinity: {}
+
+# Monitoring configuration for metric scraping against the Prometheus-style
+# metrics endpoint.
+monitor:
+  # -- (`bool`) If enabled, PodMonitor resources for Prometheus Operator
+  # are created or if `Values.istio.enabled` is `True`, then the appropriate
+  # Pod Annotations will be added for the istio-proxy sidecar container to
+  # scrape the metrics.
+  enabled: true
+
+  # -- (`string`) Name of the port to scrape for metrics - this is the name of
+  # the port that will be exposed in your `PodSpec` for scraping purposes.
+  portName: metrics
+
+  # -- (`int`) Number of the port to scrape for metrics - this port will be
+  # exposed in your `PodSpec` to ensure it can be scraped.
+  portNumber: 9090
+
+  # -- (`string`) Path to scrape metrics from within your Pod.
+  path: /metrics
+
+  # -- (`map`) PodMonitor annotations.
+  annotations: {}
+
+  # -- Additional PodMonitor labels.
+  labels: {}
+
+  # -- PodMonitor scrape interval
+  interval: null
+
+  # -- (`int`) The maximum number of metrics that can be scraped - if there are
+  # more than this, then scraping will fail entirely by Prometheus. This is
+  # used as a circuit breaker to avoid blowing up Prometheus memory footprints.
+  sampleLimit: 25000
+
+  # -- PodMonitor scrape timeout in Go duration format (e.g. 15s)
+  scrapeTimeout: null
+
+  # -- PodMonitor relabel configs to apply to samples before scraping
+  # https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig
+  relabelings: []
+
+  # -- PodMonitor MetricRelabelConfigs to apply to samples before ingestion.
+  # https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
+  metricRelabelings: []
+
+  # -- (`enum: http, https`) PodMonitor will use http by default, but you can pick https as well
+  scheme: http
+
+  # -- PodMonitor will use these tlsConfig settings to make the health check requests
+  tlsConfig: null
+
+# Configuration that lets the chart know that it's operating inside of an Istio
+# service mesh or not. If it is, certain defaults are applied to various Pod
+# and other resource configurations.
+istio:
+  # -- (`bool`) Whether or not the service should be part of an Istio Service
+  # Mesh. If this is turned on and `Values.monitor.enabled=true`, then the
+  # Istio Sidecar containers will be configured to pull and merge the metrics
+  # from the application, rather than creating a new `PodMonitor` object.
+  enabled: true
+
+  # -- (`int[]`) If supplied, this is a list of TCP ports that are excluded from being
+  # proxied by the Istio-proxy Envoy sidecar process. _The
+  # `.Values.monitor.portNumber` is already included by default.
+  excludeInboundPorts: []
+
+  # -- (`list <str>`) If supplied, this is the command that will be passed into
+  # the `istio-proxy` sidecar container as a pre-stop function. This is used to
+  # delay the shutdown of the istio-proxy sidecar in some way or another. Our
+  # own default behavior is applied if this value is not set - which is that
+  # the sidecar will wait until it does not see the application container
+  # listening on any TCP ports, and then it will shut down.
+  #
+  # eg:
+  # preStopCommand: [ /bin/sleep, "30" ]
+  preStopCommand: null
+
+  # -- (`bool`) If set to "True", then the Istio Metrics Merging system will be
+  # turned on and Envoy will attempt to scrape metrics from the application pod
+  # and merge them with its own. This defaults to False beacuse in most
+  # environments we want to explicitly split up the metrics and collect Istio
+  # metrics separate from Application metrics.
+  metricsMerging: false
+
+# Network access controls for the Pods in this application
+network:
+  # -- (`strings[]`) A list of namespaces that are allowed to access the Pods
+  # in this application. If not supplied, then no `NetworkPolicy` is created,
+  # and your application may be isolated to itself. Note, enabling
+    # `VirtualService` or `Ingress` configurations will create their own
+  # dedicated `NetworkPolicy` resources, so this is only intended for internal
+  # service-to-service communication grants.
+  allowedNamespaces: []
+
+# Configures labels and other parameters assuming that the Datadog Agent is
+# installed on the underlying hosts and is part of the Kubernetes cluster.
+datadog:
+  # -- (`bool`) Whether or not the various datadog labels and options should be
+  # included or not.
+  enabled: true
+
+  # -- (`string`) The "env" tag to configure for the application - this maps to
+  # the Datadog environment concept for isolating traces/apm data. _We default
+  # to not setting this, so that the Datadog Agent's own "ENV" setting is used
+  # as the default behavior. Only override this in special cases._
+  env: null
+
+  # -- (`string`) If set, this configures the "service" tag. If this is not
+  # set, the tag defaults to the `.Release.Name` for the application.
+  service: null
+
+  # -- (`bool`) If true, then we will configure the Datadog agent to scrape
+  # metrics from the application pod via the values set in the
+  # .Values.monitor.* map.
+  scrapeMetrics: false
+
+  # -- (`string`) The prefix to append to all metrics that are scraped by
+  # Datadog. We set this to one common value so that common metrics (like
+  # `istio_.*` or `go_.*`) are shared across all apps in Datadog for easier
+  # dashboard creation as well as comparision between applications.
+  metricsNamespace: eks
+
+  # -- (`strings[]`) A list of strings that match the metric names that Datadog
+  # should scrape from the endpoint. This defaults to `"*"` to tell it to
+  # scrape ALL metrics - however, if your app exposes too many metrics (>
+  # 2000), Datadog will drop them all on the ground.
+  metricsToScrape:
+    - '"*"'
+
+  scrapeLogs:
+    # -- (`bool`) If true, then it will enable application logging to datadog.
+    enabled: false
+    # -- (`string`) If set, this configures the "source" tag. If this is not
+    # set, the tag defaults to the `.Release.Name` for the application.
+    source: null
+    # -- (`map[]`) A list of map that sets different log processing rules.
+    # https://docs.datadoghq.com/agent/logs/advanced_log_collection/?tab=configurationfile
+    processingRules: []
+
+tests:
+  connection:
+    # -- The command used to trigger the test.
+    command: ['curl', '--retry-connrefused', '--retry', '5']
+    # -- A list of arguments passed into the command. These are run through the tpl function.
+    args:
+      - '{{ include "nd-common.fullname" . }}'
+    # By default, we actually use the source-image for the main application as
+    # the image for testing, This allows the image to contain its own "client"
+    # (curl, in this example) for testing the application. Alternatively, you
+    # can configure your own testing image.
+    image:
+      # -- Sets the image-name that will be used in the "connection"
+      # integration test. If this is left empty, then the .image.repository
+      # value will be used instead (and the .image.tag will also be used).
+      # By default, prefer the latest official version to handle cases where the
+      # app image provides either no curl binary or an outdated one.
+      repository: curlimages/curl
+      # -- Sets the tag that will be used in the "connection" integration test.
+      # If this is left empty, the default is "latest"
+      tag:
+
+# -- The URL of the runbook for this service.
+runbookUrl: https://github.com/Nextdoor/k8s-charts/blob/main/charts/simple-app/README.md
+
+# Configure alerts for all istio VirtualServices in the namespace this chart is launched in.
+# If you are launching a single copy of simple-app in a namespace, just leave this enabled
+# to reproduce similar behavior to services launched on ECS with dedicated ALBs. For more
+# complex scenarios, you may want to disable this, and have your application chart directly
+# depend on istio-alerts.
+istio-alerts:
+  # -- (`bool`) Whether or not to enable the istio-alerts chart.
+  enabled: true
+
+# Container Alerting Rules
+#
+# These rules are designed to provide very basic but critical monitoring for
+# the health of your containers and pods. More specific alerts can be created
+# by you - but these apply to the pods and resources managed by this chart.
+prometheusRules:
+  # -- (`bool`) Whether or not to enable the container rules template
+  enabled: true
+
+  # -- (`map`) Additional custom labels attached to every PrometheusRule
+  additionalRuleLabels: {}
+
+  # -- Monitors Pods for Containers that are terminated either for unexpected
+  # reasons like ContainerCannotRun. If that number breaches the $threshold (1)
+  # for $for (1m), then it will alert.
+  PodContainerTerminated:
+    severity: warning
+    threshold: 0
+    over: 10m
+    for: 1m
+    reasons:
+      # - Error  < when a container is evicted gracefully, the "error" state is used.
+      - ContainerCannotRun
+      - DeadlineExceeded
+
+  # -- Pod is crash looping
+  PodCrashLooping:
+    severity: warning
+    for: 15m
+
+  # -- Pod has been in a non-ready state for more than a specific threshold
+  PodNotReady:
+    severity: warning
+    for: 15m
+
+  # -- Container is being throttled by the CGroup - needs more resources.
+  CPUThrottlingHigh:
+    severity: warning
+    threshold: 65
+    for: 15m
+
+  # -- Pod container waiting longer than threshold
+  ContainerWaiting:
+    severity: warning
+    for: 1h
+
+  # -- Deployment generation mismatch due to possible roll-back
+  DeploymentGenerationMismatch:
+    severity: warning
+    for: 15m
+
+  # -- Deployment has not matched the expected number of replicas
+  DeploymentReplicasMismatch:
+    severity: warning
+    for: 15m
+
+  # -- HPA has not matched descired number of replicas
+  HpaReplicasMismatch:
+    severity: warning
+    for: 15m
+
+  # -- HPA is running at max replicas
+  HpaMaxedOut:
+    severity: warning
+    for: 15m

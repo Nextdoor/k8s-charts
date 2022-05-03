@@ -1,0 +1,60 @@
+# Simplify local dev testing
+targetArchitecture: null
+
+canary:
+  maxUnavailable: 0
+  canaryMetadata:
+    annotations:
+      foo: canary
+    labels:
+      foo: canary
+  stableMetadata:
+    annotations:
+      foo: stable
+    labels:
+      foo: stable
+
+# Various settings to test slowing down the rollout process for local development
+blueGreen:
+  autoPromotionEnabled: false
+  autoPromotionSeconds: 30
+  maxUnavailable: 0
+  scaleDownDelaySeconds: 30
+
+# For local development, we turn on the Ingress controller and set up a simple
+# local ingress.
+ingress:
+  # -- Enable local ingress for local development.
+  enabled: true
+
+  # -- Disable the SSL-Redirect explicitly because it only applies to
+  # ALB-ingress controllers.
+  sslRedirect: false
+
+ports:
+  - name: http
+    containerPort: 80
+    protocol: TCP
+    # Optional flag to override the client-facing port for service requests.
+    port:
+  - name: https
+    containerPort: 8443
+    protocol: TCP
+    # Optional flag to override the client-facing port for service requests.
+    port: 443
+
+
+terminationGracePeriodSeconds: 30
+autoscaling:
+  enabled: true
+
+secrets:
+  TEST_SECRET: junksecret
+
+datadog:
+  scrapeMetrics: true
+  scrapeLogs:
+    enabled: true
+
+network:
+  allowedNamespaces: [foo, bar]

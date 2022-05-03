@@ -1,0 +1,17 @@
+strategy: canary
+canary:
+  maxUnavailable: 0
+  canaryMetadata:
+    annotations:
+      foo: canary
+    labels:
+      foo: canary
+  stableMetadata:
+    annotations:
+      foo: stable
+    labels:
+      foo: stable
+ingress:
+  enabled: true
+virtualService:
+  enabled: true

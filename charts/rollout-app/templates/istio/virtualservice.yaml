@@ -1,0 +1,86 @@
+{{- if .Values.virtualService.enabled }}
+{{- $global := . }}
+{{- $istioNs := .Values.virtualService.namespace }}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ include "nd-common.fullname" . }}
+  labels:
+    {{- include "nd-common.labels" . | nindent 4 }}
+  {{- with .Values.virtualService.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.virtualService.gateways }}
+  gateways:
+    {{- range $gw := . }}
+    - {{ $istioNs }}/{{ $gw }}
+    {{- end }}
+  {{- end }}
+  hosts:
+    {{- range .Values.virtualService.hosts }}
+    - {{ tpl . $global | quote }}
+    {{- end }}
+
+  {{- /*
+  https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRoute
+  */}}
+  http:
+    - match:
+      {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPMatchRequest */}}
+      {{- with .Values.virtualService.matches }}
+      {{- tpl (toYaml .) $ | nindent 6 }}
+      {{- end }}
+      {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPMatchRequest */}}
+      {{- if .Values.virtualService.paths }}
+      {{- range $path := .Values.virtualService.paths }}
+      - uri:
+          prefix: {{ $path }}
+      {{- end }}
+      {{- else }}
+      - uri:
+          prefix: {{ .Values.virtualService.path }}
+      {{- end }}
+      {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#CorsPolicy */}}
+      {{- with .Values.virtualService.corsPolicy }}
+      corsPolicy:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRetry */}}
+      {{- with .Values.virtualService.retries }}
+      retries:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRouteDestination */}}
+      route:
+        {{- /*
+        This is the primary "active" or "stable" service that we will route traffic
+        to most of the time. The weight is set to 100 here in the template, but Argo
+        Rollouts will override it during rollout sessions.
+        */}}
+        - destination:
+            host: {{ include "nd-common.fullname" . }}
+            port:
+              number: {{ .Values.virtualService.port }}
+          weight: 100
+
+        {{- /*
+        This is the optional "canary" service that we will route to for the "canary"
+        deployment strategy. This extra route is used by Rollouts to precicely
+        control the traffic routing to the new service through the Istio weight
+        settings. Weight is set to 0 in here, and then Rollouts controls it.
+        */}}
+        {{- if eq .Values.strategy "canary" }}
+        - destination:
+            host: {{ include "nd-common.fullname" . }}-canary
+            port:
+              number: {{ .Values.virtualService.port }}
+          weight: 0
+        {{- end }}
+
+  {{- with .Values.virtualService.tls }}
+  tls:
+    {{- tpl . $global | nindent 4 }}
+  {{- end }}
+{{- end }}
