@@ -24,15 +24,13 @@ jobs:
 
       - name: Set up Helm
         uses: azure/setup-helm@v1
-        with:
-          version: v3.4.0
 
       - uses: actions/setup-python@v2
         with:
           python-version: 3.7
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.0.1
+        uses: helm/chart-testing-action@v2.2.1
 
       - name: Run chart-testing (list-changed)
         id: list-changed
@@ -40,6 +38,9 @@ jobs:
           changed=$(ct --config ct.yaml list-changed)
           if [[ -n "$changed" ]]; then
             echo "::set-output name=changed::true"
+          fi
+          if [[ "$changed" == *"rollout-app"* ]]; then
+            echo "::set-output name=rollout::true"
           fi
 
       - name: Run chart-testing (lint)
@@ -49,14 +50,14 @@ jobs:
         uses: helm/kind-action@v1.2.0
         if: steps.list-changed.outputs.changed == 'true'
 
+      - name: Install Argo Rollouts Controller
+        if: steps.list-changed.outputs.rollout == 'true'
+        run: |
+          make -C charts/rollout-app install_rollouts
+
       - name: Install CRDs
         if: steps.list-changed.outputs.changed == 'true'
-        run: |
-          kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml \
-                        -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml \
-                        -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml \
-                        -f https://raw.githubusercontent.com/istio/istio/1.13.2/manifests/charts/base/crds/crd-all.gen.yaml \
-                        -f https://github.com/jetstack/cert-manager/releases/download/v1.6.1/cert-manager.crds.yaml
+        run: make crds
 
       - name: Run chart-testing (install)
         run: ct --config ct.yaml install

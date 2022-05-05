@@ -1,0 +1,10 @@
+strategy: blueGreen
+blueGreen:
+  autoPromotionEnabled: false
+  autoPromotionSeconds: 30
+  maxUnavailable: 0
+  scaleDownDelaySeconds: 30
+ingress:
+  enabled: true
+virtualService:
+  enabled: true

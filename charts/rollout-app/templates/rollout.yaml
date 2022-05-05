@@ -1,0 +1,309 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ include "nd-common.fullname" . }}
+  labels:
+    {{- include "nd-common.labels" . | nindent 4 }}
+spec:
+  {{- with .Values.minReadySeconds }}
+  minReadySeconds: {{ . }}
+  {{- end }}
+  {{- with .Values.progressDeadlineSeconds }}
+  progressDeadlineSeconds: {{ . }}
+  {{- end }}
+  {{- if and .Values.replicaCount (not .Values.autoscaling.enabled) }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  {{- with .Values.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ . }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "nd-common.selectorLabels" . | nindent 6 }}
+  strategy:
+    {{- if (eq .Values.strategy "blueGreen") }}
+    blueGreen:
+      activeService: {{ include "nd-common.fullname" . }}
+      previewService: {{ include "nd-common.fullname" . }}-preview
+
+      {{- if (ne .Values.blueGreen.autoPromotionEnabled nil) }}
+      autoPromotionEnabled: {{ .Values.blueGreen.autoPromotionEnabled }}
+      {{- end }}
+
+      {{- with .Values.blueGreen.autoPromotionSeconds }}
+      autoPromotionSeconds: {{ int . }}
+      {{- end }}
+
+      {{- with .Values.blueGreen.previewReplicaCount }}
+      previewReplicaCount: {{ int . }}
+      {{- end }}
+
+      {{- if (ne .Values.blueGreen.maxUnavailable nil) }}
+      maxUnavailable: {{ .Values.blueGreen.maxUnavailable }}
+      {{- end }}
+
+      {{- with .Values.blueGreen.prePromotionAnalysis }}
+      prePromotionAnalysis:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- with .Values.blueGreen.postPromotionAnalysis }}
+      postPromotionAnalysis:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- with .Values.blueGreen.scaleDownDelaySeconds }}
+      scaleDownDelaySeconds: {{ int . }}
+      {{- end }}
+
+      {{- with .Values.blueGreen.scaleDownDelayRevisionLimit }}
+      scaleDownDelayRevisionLimit: {{ int . }}
+      {{- end }}
+
+      {{- with .Values.blueGreen.antiAffinity }}
+      antiAffinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }} 
+
+    {{- else if (eq .Values.strategy "canary") }}
+    canary:
+      stableService: {{ include "nd-common.fullname" . }}
+      canaryService: {{ include "nd-common.fullname" . }}-canary
+
+      {{- if or .Values.virtualService.enabled .Values.ingress.enabled }}
+      trafficRouting:
+        {{- if .Values.virtualService.enabled }}
+        istio:
+          virtualService:
+            name: {{ include "nd-common.fullname" . }}
+        {{- end }}
+        {{- if .Values.ingress.enabled }}
+        alb:
+          ingress: {{ include "nd-common.fullname" . }}
+          servicePort: {{ default (first .Values.ports).containerPort .Values.ingress.port }}
+        {{- end }}
+      {{- end }}
+
+      {{- with .Values.canary.canaryMetadata }}
+      canaryMetadata:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- with .Values.canary.stableMetadata }}
+      stableMetadata:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- if (ne .Values.canary.maxUnavailable nil) }}
+      maxUnavailable: {{ .Values.canary.maxUnavailable }}
+      {{- end }}
+
+      {{- if (ne .Values.canary.maxSurge nil) }}
+      maxSurge: {{ .Values.canary.maxSurge }}
+      {{- end }}
+
+      {{- with .Values.canary.scaleDownDelaySeconds }}
+      scaleDownDelaySeconds: {{ int . }}
+      {{- end }}
+
+      {{- with .Values.canary.scaleDownDelayRevisionLimit }}
+      scaleDownDelayRevisionLimit: {{ int . }}
+      {{- end }}
+
+      {{- with .Values.canary.analysis }}
+      analysis:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- with .Values.canary.antiAffinity }}
+      antiAffinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }} 
+
+      {{- with .Values.canary.steps }}
+      steps:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+    {{- else }}
+    {{- fail (printf "Must set .Values.strategy to 'blueGreen' or 'canary', '%s' is invalid" .Values.strategy) }}
+    {{- end }}
+  template:
+    metadata:
+      annotations:
+        checksum/secrets: {{ toYaml .Values.secrets | sha256sum }}
+        {{- include "nd-common.istioAnnotations" . | nindent 8 }}
+        {{- include "nd-common.datadogAnnotations" . | nindent 8 }}
+        {{- with .Values.podAnnotations }}
+        {{- range $annotation, $value := index . }}
+        {{ $annotation }}: {{ tpl $value $ | quote }}
+        {{- end }}
+        {{- end }}
+      labels:
+        {{- include "nd-common.labels" . | nindent 8 }}
+        {{- include "nd-common.datadogLabels" . | nindent 8 }}
+        {{- include "nd-common.istioLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- tpl (toYaml .) $ | nindent 8 }}
+        {{- end }}
+    spec:
+      nodeSelector:
+        {{- include "nd-common.nodeSelector" $ | nindent 8 }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      serviceAccountName: {{ include "nd-common.serviceAccountName" . }}
+      {{- with .Values.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ . }}
+      {{- end }}
+      {{- if or .Values.volumes .Values.volumesString }}
+      volumes:
+        {{- with .Values.volumes }}{{ toYaml . | nindent 8 }}{{ end }}
+        {{- with .Values.volumesString }}{{ tpl . $ | nindent 8 }}{{ end }}
+      {{- end }}
+      containers:
+        {{- if .Values.proxySidecar.enabled }}
+        - name: {{ .Values.proxySidecar.name }}
+          image: {{ include "rollout-app.proxyImageFqdn" . }}
+          imagePullPolicy: {{ .Values.proxySidecar.image.pullPolicy }}
+          {{- with .Values.preStopCommand }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  {{ toYaml . | nindent 18 }}
+          {{- end }}
+
+          {{- with .Values.proxySidecar.envFrom }}
+          envFrom:
+            {{- range $env := index .}}
+            {{- with $env.configMapRef }}
+            - configMapRef:
+                name: {{ tpl (required ".name key must be set in configMapRef" .name) $ }}
+            {{- end }}
+            {{- with $env.secretRef }}
+            - secretRef:
+                name: {{ tpl (required ".name key must be set on secretRef" .name) $ }}
+            {{- end }}
+            {{- end }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.proxySidecar.env }}
+          env:
+            {{- range $env := index . }}
+            - name: {{ tpl $env.name $ }}
+              {{- if $env.value }}
+              value: {{ tpl $env.value $ | quote }}
+              {{- else if $env.valueFrom }}
+              valueFrom: {{ tpl (toYaml $env.valueFrom) $ | nindent 16 }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.proxySidecar.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.ports }}
+          ports:
+            {{- include "rollout-app.containerPorts" . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.proxySidecar.resources | nindent 12 }}
+        {{- end }}
+        - name: {{ include "nd-common.containerName" . }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: {{ include "nd-common.imageFqdn" . }}
+          {{- with .Values.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.preStopCommand }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  {{- toYaml . | nindent 18 }}
+          {{- end }}
+          {{- if or .Values.envFrom .Values.secrets }}
+          envFrom:
+            {{- if .Values.secrets }}
+            - secretRef:
+                name:  {{ .Release.Name }}-secrets
+            {{- end }}
+            {{- with .Values.envFrom}}
+            {{- range $env := index .}}
+            {{- with $env.configMapRef }}
+            - configMapRef:
+                name: {{ tpl (required ".name key must be set in configMapRef" .name) $ }}
+            {{- end }}
+            {{- with $env.secretRef }}
+            - secretRef:
+                name: {{ tpl (required ".name key must be set on secretRef" .name) $ }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- if or .Values.env .Values.datadog.enabled }}
+          env:
+            {{- with .Values.env }}
+            {{- range $env := index . }}
+            - name: {{ tpl $env.name $ }}
+              {{- if $env.value }}
+              value: {{ tpl $env.value $ | quote }}
+              {{- else if $env.valueFrom }}
+              valueFrom: {{ tpl (toYaml $env.valueFrom) $ | nindent 16 }}
+              {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- include "nd-common.datadogEnv" . | nindent 12 }}
+          {{- end }}
+
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.proxySidecar.enabled }}
+          {{- else }}
+          ports:
+            {{- include "rollout-app.containerPorts" . | nindent 12 }}
+            {{- include "nd-common.monitorPodPorts" . | nindent 12 }}
+          {{- with .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}

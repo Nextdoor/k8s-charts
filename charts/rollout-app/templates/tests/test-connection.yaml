@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "nd-common.fullname" . }}-test-connection"
+  labels:
+    {{- include "nd-common.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  restartPolicy: Never
+  containers:
+    - name: test
+      image: >-
+        {{- if .Values.tests.connection.image.repository }}
+        {{ .Values.tests.connection.image.repository }}:{{ default "latest" .Values.tests.connection.image.tag }}
+        {{- else }}
+        {{ include "nd-common.imageFqdn" . }}
+        {{- end }}
+      command:
+        {{- toYaml .Values.tests.connection.command | nindent 8 }}
+      args:
+        {{- $global := . }}
+        {{- range $arg := index .Values.tests.connection.args }}
+        - {{ tpl $arg $global }}
+        {{- end }}

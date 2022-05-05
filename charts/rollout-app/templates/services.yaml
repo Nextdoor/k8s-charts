@@ -1,0 +1,73 @@
+{{/*
+The "Active" service is the primary service that is receiving web traffic from
+users. This is the always-created and always-on service that Argo will use to
+route traffic to.
+*/}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "nd-common.fullname" . }}
+  labels:
+    {{- include "nd-common.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    {{- include "rollout-app.servicePorts" . | nindent 4 }}
+  selector:
+    {{- include "nd-common.selectorLabels" . | nindent 4 }}
+
+---
+
+{{/*
+This optional "Preview" service is created when the .Values.strategy is set to
+"blueGreen". The intention is that this service is used either for running
+experiments against, or for humans to manually test and verify before allowing
+a deployment to continue.
+
+https://argoproj.github.io/argo-rollouts/features/bluegreen/#previewservice
+
+*/}}
+
+{{- if eq .Values.strategy "blueGreen" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "nd-common.fullname" . }}-preview
+  labels:
+    {{- include "nd-common.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    {{- include "rollout-app.servicePorts" . | nindent 4 }}
+  selector:
+    {{- include "nd-common.selectorLabels" . | nindent 4 }}
+{{- end }}
+
+---
+
+{{/*
+This optional "Canary" service is created only when the .Values.strategy is set
+to "canary". Rollouts will then use this service to route canary traffic to, in
+order to test releases.
+
+When using Istio VirtualServices (if .Values.virtualService.enabled=true), the
+VirtualService will be configured to use this Service as the canary service,
+and it will automatically adjust the weights to move traffic between the stable
+and canary service.
+*/}}
+
+{{- if eq .Values.strategy "canary" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "nd-common.fullname" . }}-canary
+  labels:
+    {{- include "nd-common.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    {{- include "rollout-app.servicePorts" . | nindent 4 }}
+  selector:
+    {{- include "nd-common.selectorLabels" . | nindent 4 }}
+{{- end }}

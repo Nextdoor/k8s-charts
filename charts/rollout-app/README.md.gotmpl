@@ -1,0 +1,120 @@
+{{ template "chart.header" . }}
+{{ template "chart.description" . }}
+
+{{ template "chart.versionBadge" .  }}{{ template "chart.typeBadge" .  }}{{ template "chart.appVersionBadge" .  }}
+
+[analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
+[argo_rollouts]: https://argoproj.github.io/argo-rollouts/
+[bluegreen]: https://argoproj.github.io/argo-rollouts/features/bluegreen/
+[canary]: https://argoproj.github.io/argo-rollouts/features/canary/
+[experiment]: https://argoproj.github.io/argo-rollouts/features/experiment/
+[rollout]: https://argoproj.github.io/argo-rollouts/features/specification/
+
+This chart launches a horizontally scalable application through the use of the
+Argo [`Rollout`][rollout] custom resource. See the [Argo Rollouts - Kubernetes
+Progressive Delivery Controller][argo_rollouts] for more information about
+how these work, and the various custom resource definitions.
+
+## Rollout Resources Supported
+
+### [`Rollout`][rollout]
+
+The [`templates/rollout.yaml`](templates/rollout.yaml) template controls the
+creation of the [`Rollout`][rollout] resource. This resource is the replacement
+for the standard Kubernetes `Deployment` resource, but has two new deployment
+strategies - [`BlueGreen`][bluegreen] and [`Canary`][canary].
+
+The `.strategy` value can be set to `blueGreen` or `canary` to control which
+behavior you are looking for in your `Rollout` resource. From there, you can
+customize the deployment behavior through the `.blueGreen` or `.canary` values.
+
+### [`AnalysisTemplate`][analysistemplate] (_Not Supported_)
+
+At this time, you will need to create your own
+[`AnalysisTemplate`][analysistemplate] resources to describe how to analyze the
+behavior of an application and decide if it is healthy or not. In future
+releases, we may build support into this chart to manage those resources.
+
+_You can refer to an `AnalysisTemplate` you have created through the
+`.blueGreen.postPromotionAnalysis`, `.blueGreen.prePromotionAnalysis` and
+`.canary.analysis` parameters_.
+
+### [`Experiment`][experiment] (_Not Supported_)
+
+At this time, you will need to create your own [`Experiment`][experiment]
+resources. These resources are highly customized, and likely not worth trying
+to build in any default experiments into this chart.
+
+## Monitoring
+
+This chart makes the assumption that you _do_ have a Prometheus-style
+monitoring endpoint configured. See the `Values.monitor.portName`,
+`Values.monitor.portNumber` and `Values.monitor.path` settings for informing
+the chart of where your metrics are exposed.
+
+If you are operating in an Istio Service Mesh, see the
+[Istio](#istio-networking-support) section below for details on how monitoring
+works. Otherwise, see the `Values.serviceMonitor` settings to configure a
+Prometheus ServiceMonitor resource to monitor your application.
+
+## Datadog Agent Support
+
+This chart supports operating in environments where the Datadog Agent is
+running. If you set the `Values.datadog.enabled` flag, then a series of
+additional Pod Annotations, Labels and Environment Variables will be
+automatically added in to your deployment. See the `Values.datadog` parameters
+for further information.
+
+## Istio Networking Support
+
+### Monitoring through the Sidecar Proxy
+
+[metrics_merging]: https://istio.io/latest/docs/ops/integrations/prometheus/#option-1-metrics-merging
+
+When running your Pod within an Istio Mesh, access to the `metrics` endpoint
+for your Pod can be obscured by the mesh itself which sits in front of the
+metrics port and may require that all clients are coming in through the
+mesh natively. The simplest way around this is to use [Istio Metrics
+Merging][metrics_merging] - where the Sidecar container is responsible for
+scraping your application's `metrics` port, merging the metrics with its own,
+and then Prometheus is configured to pull all of the metrics from the Sidecar.
+
+There are several advantages to this model.
+
+* It's much simpler - developers do not need to create `ServiceMonitor` or
+  `PodMonitor` resources because the Prometheus system is already configured to
+  discover all `istio-proxy` sidecar containers and collect their metrics.
+
+* Your application is not exposed outside of the service mesh to anybody - the
+  `istio-proxy` sidecar handles that for you.
+
+* There are fewer individual configurations for Prometheus, letting it's
+  configuration be simpler and lighter weight. It runs fewer "scrape" jobs,
+  improving its overall performance.
+
+This feature is turned on by default if you set `Values.istio.enabled=true` and
+`Values.monitor.enabled=true`.
+
+## Secrets
+A `Secret` or `KMSSecret` resource would be created and mounted into the container
+based upon the `Values.secrets` and `Values.secretsEngine` being populated.
+The `Secret` resource is generally used for local dev and/or CI test.
+Secret` resources can be created by setting the following:
+```
+secrets:
+  FOO_BAR: my plaintext secret
+secretsEngine: plaintext
+```
+Alternatively, `KMSSecret` can be generated using the following example:
+```
+secrets:
+  FOO_BAR: AQIA...
+secretsEngine: kms
+kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}
