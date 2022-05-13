@@ -2,7 +2,7 @@
 
 Local Development spinup of Strimzi-managed Kafka
 
-![Version: 0.3.1](https://img.shields.io/badge/Version-0.3.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.3.2](https://img.shields.io/badge/Version-0.3.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [strimzi_op]: https://github.com/strimzi/strimzi-kafka-operator
 
@@ -47,8 +47,6 @@ project's development namespace.
 | listeners | list | `[{"configuration":{"brokers":[{"advertisedHost":"127.0.0.1","broker":0,"nodePort":32000}]},"name":"external","port":9094,"tls":false,"type":"nodeport"}]` | Additional configurable listeners for connecting to brokers. |
 | namespaceOverride | string | `nil` | Optionally force the namespace that the resources in this stack are launched in. Without this, the default namespace that the Helm chart is being put into is used. It is recommended to keep this empty. |
 | strimzi-kafka-operator.enabled | bool | `true` | Set to `false` to intentionally disable installation of the Operator. This is useful if you are running this stack in a local dev environment where you might have multiple Kafka environments, and are already running the Strimzi operator. |
-| strimzi-kafka-operator.extraEnvs[0].name | string | `"STRIMZI_IMAGE_PULL_POLICY"` |  |
-| strimzi-kafka-operator.extraEnvs[0].value | string | `"Always"` |  |
 | strimzi-kafka-operator.image.name | string | `"operator"` | (`str`) Cluster Operator image name |
 | strimzi-kafka-operator.image.registry | string | `""` | (`str`) Override default Cluster Operator image registry |
 | strimzi-kafka-operator.image.repository | string | `""` | (`str`) Override default Cluster Operator image repository |
