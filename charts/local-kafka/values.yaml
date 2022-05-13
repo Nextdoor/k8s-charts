@@ -48,14 +48,6 @@ strimzi-kafka-operator:
     # -- (`str`) Override default Cluster Operator image tag
     tag: ""
 
-  extraEnvs:
-    # https://strimzi.io/docs/operators/latest/full/configuring.html#con-customizing-image-pull-policy-str
-    #
-    # This ensures that for local-dev we are always pulling the latest version
-    # of images we're building and sideloading into kubernetes.
-    - name: STRIMZI_IMAGE_PULL_POLICY
-      value: Always
-
   # -- Set to `false` to intentionally disable installation of the Operator.
   # This is useful if you are running this stack in a local dev environment
   # where you might have multiple Kafka environments, and are already running
