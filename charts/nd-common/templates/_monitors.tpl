@@ -1,11 +1,14 @@
+{{- $defaultSampleLimit := 25000 -}}
+
 {{/*
+
 The monitoring port needs to be exposed on a Pod in order for Prometheus or
 Datadog to scrape it. We automatically open that port up as long as
 .Values.monitor.enabled and .Values.monitor.portNumber are set. We also use
 this function to error out if the user tries to set the same Application and
 Monitoring port number.
-*/}}
 
+*/}}
 {{- define "nd-common.monitorPodPorts" }}
 {{- $monitoringPort := .Values.monitor.portNumber }}
 {{- /* If no monitors are turned on, do not expose the port */ -}}
@@ -47,7 +50,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
-  sampleLimit: {{ default 25000 .Values.monitor.sampleLimit }}
+  sampleLimit: {{ default $defaultSampleLimit .Values.monitor.sampleLimit }}
   selector:
     matchLabels:
       {{- include "nd-common.selectorLabels" . | nindent 6 }}
@@ -88,5 +91,40 @@ spec:
       tlsConfig:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+
+This function creates Prometheus recording rules that are useful to include in
+other queries about the configuration of this chart.
+
+*/}}
+
+{{- define "nd-common.monitorRules" }}
+{{- if .Values.monitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "nd-common.fullname" . }}
+  {{- with .Values.monitor.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "nd-common.labels" . | nindent 4 }}
+    {{- with .Values.monitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  groups:
+  - name: {{ include "nd-common.fullname" . }}.monitorRules
+    rules:
+      - record: namespace:enforced_sample_limit
+        expr: {{ (default $defaultSampleLimit .Values.monitor.sampleLimit) | quote }}
+        labels:
+          namespace: {{ .Release.Namespace }}
+          name: {{ include "nd-common.name" . }}
+          instance: {{ .Release.Name }}
 {{- end }}
 {{- end }}
