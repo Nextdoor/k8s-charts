@@ -31,30 +31,3 @@ spec:
   sampleLimit: {{ . }}
   {{- end -}}
 {{- end -}}
-
----
-
-{{- if .Values.podMonitor.enabled }}
-apiVersion: monitoring.coreos.com/v1
-kind: PrometheusRule
-metadata:
-  name: {{ template "flink-job-cluster.fullname" . }}
-  {{- with .Values.podMonitor.annotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-  {{- if .Values.podMonitor.podMonitorSelectorLabels }}
-  labels:
-    {{- toYaml .Values.podMonitor.podMonitorSelectorLabels | nindent 4 }}
-  {{- end }}
-spec:
-  groups:
-  - name: {{ template "flink-job-cluster.fullname" . }}.monitorRules
-    rules:
-      - record: pod_monitor_sample_limit
-        expr: {{ (default 25000 .Values.podMonitor.sampleLimit) | quote }}
-        labels:
-          namespace: {{ .Release.Namespace }}
-          name: {{ template "flink-job-cluster.fullname" . }}
-          instance: {{ .Release.Name }}
-{{- end }}
