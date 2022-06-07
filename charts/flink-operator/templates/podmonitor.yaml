@@ -15,3 +15,7 @@ spec:
   podMetricsEndpoints:
     - port: prom
 {{ end -}}
+
+---
+
+{{- include "nd-common.monitorRules" . }}

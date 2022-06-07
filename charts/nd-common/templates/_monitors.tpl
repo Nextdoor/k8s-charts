@@ -6,7 +6,9 @@ use a reasonably sane default of 25,000 so the PodMonitor and its associated
 recording rule can still be used in queries and return a plausible value.
 
 */}}
-{{- $defaultSampleLimit := 25000 -}}
+{{- define "nd-common.monitorSampleLimit" }}
+{{- default 25000 .Values.monitor.sampleLimit }}
+{{- end }}
 
 {{/*
 
@@ -58,7 +60,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
-  sampleLimit: {{ default $defaultSampleLimit .Values.monitor.sampleLimit }}
+  sampleLimit: {{ include "nd-common.monitorSampleLimit" . }}
   selector:
     matchLabels:
       {{- include "nd-common.selectorLabels" . | nindent 6 }}
@@ -129,7 +131,7 @@ spec:
   - name: {{ include "nd-common.fullname" . }}.monitorRules
     rules:
       - record: pod_monitor_sample_limit
-        expr: {{ (default $defaultSampleLimit .Values.monitor.sampleLimit) | quote }}
+        expr: {{ (include "nd-common.monitorSampleLimit" .) | quote }}
         labels:
           namespace: {{ .Release.Namespace }}
           name: {{ include "nd-common.name" . }}
