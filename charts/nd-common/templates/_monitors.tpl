@@ -116,7 +116,7 @@ other queries about the configuration of this chart.
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: {{ include "nd-common.fullname" . }}
+  name: {{ include "nd-common.fullname" . }}-monitor-rules
   {{- with .Values.monitor.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
