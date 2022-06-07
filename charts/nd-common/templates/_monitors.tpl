@@ -1,3 +1,11 @@
+{{/*
+
+Many applications using k8s-charts do so without setting custom sample limits,
+inheriting the default from the base chart. In the event that *that* is missing,
+use a reasonably sane default of 25,000 so the PodMonitor and its associated
+recording rule can still be used in queries and return a plausible value.
+
+*/}}
 {{- $defaultSampleLimit := 25000 -}}
 
 {{/*
@@ -120,7 +128,7 @@ spec:
   groups:
   - name: {{ include "nd-common.fullname" . }}.monitorRules
     rules:
-      - record: namespace:enforced_sample_limit
+      - record: pod_monitor_sample_limit
         expr: {{ (default $defaultSampleLimit .Values.monitor.sampleLimit) | quote }}
         labels:
           namespace: {{ .Release.Namespace }}
