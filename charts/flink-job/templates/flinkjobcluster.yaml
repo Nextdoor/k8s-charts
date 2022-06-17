@@ -54,17 +54,13 @@ spec:
       {{- end }}
     {{- end }}
     # volumeClaimTemplates, initContainers, sideCars not exposed
-    {{- if .Values.nodeSelector }}
+    {{- with .Values.nodeSelector }}
     nodeSelector:
-      {{- with .Values.nodeSelector }}
       {{- toYaml . | nindent 6 }}
-      {{- end }}
     {{- end }}
-    {{- if .Values.tolerations }}
+    {{- with .Values.tolerations }}
     tolerations:
-      {{- with .Values.tolerations }}
       {{- toYaml . | nindent 6 }}
-      {{- end }}
     {{- end }}
     podAnnotations:
       {{- with .Values.podAnnotations }}
@@ -113,17 +109,13 @@ spec:
     {{- end }}
     resources:
       {{- toYaml .Values.taskManager.resources | nindent 6 }}
-    {{- if .Values.nodeSelector }}
+    {{- with .Values.nodeSelector }}
     nodeSelector:
-      {{- with .Values.nodeSelector }}
       {{- toYaml . | nindent 6 }}
-      {{- end }}
     {{- end }}
-    {{- if .Values.tolerations }}
+    {{- with .Values.tolerations }}
     tolerations:
-      {{- with .Values.tolerations }}
       {{- toYaml . | nindent 6 }}
-      {{- end }}
     {{- end }}
     podAnnotations:
       {{- with .Values.podAnnotations }}
