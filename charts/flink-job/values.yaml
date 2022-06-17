@@ -200,6 +200,12 @@ flinkProperties:
   metrics.reporters: prom
   metrics.reporter.prom.class: org.apache.flink.metrics.prometheus.PrometheusReporter
 
+# -- (`map`) [Node selector] for Job Manager and Task Manager
+nodeSelector:
+
+# -- (`map`) [Tolerations] for Job Manager and Task Manager
+tolerations:
+
 # -- Extra Labels to be added to pod
 podLabels:
   sidecar.istio.io/inject: "false"

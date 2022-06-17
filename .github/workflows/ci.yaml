@@ -59,5 +59,9 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         run: make crds
 
+      - name: Wait
+        if: steps.list-changed.outputs.changed == 'true'
+        run: sleep 1
+
       - name: Run chart-testing (install)
         run: ct --config ct.yaml install
