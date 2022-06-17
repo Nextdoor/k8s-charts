@@ -202,19 +202,9 @@ flinkProperties:
 
 # -- (`map`) [Node selector] for Job Manager and Task Manager
 nodeSelector:
-  nextdoor.com/type: memory
-  node.kubernetes.io/instance-type: r6i.16xlarge
 
 # -- (`map`) [Tolerations] for Job Manager and Task Manager
 tolerations:
-  - key: "node.kubernetes.io/not-ready"
-    operator: "Exists"
-    effect: "NoExecute"
-    tolerationSeconds: 300
-  - key: "node.kubernetes.io/unreachable"
-    operator: "Exists"
-    effect: "NoExecute"
-    tolerationSeconds: 300
 
 # -- Extra Labels to be added to pod
 podLabels:
