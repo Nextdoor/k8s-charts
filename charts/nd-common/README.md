@@ -2,7 +2,7 @@
 
 A helper chart used by most of our other charts
 
-![Version: 0.0.11](https://img.shields.io/badge/Version-0.0.11-informational?style=flat-square) ![Type: library](https://img.shields.io/badge/Type-library-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.0.12](https://img.shields.io/badge/Version-0.0.12-informational?style=flat-square) ![Type: library](https://img.shields.io/badge/Type-library-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 **This chart is a [Library Chart](https://helm.sh/docs/topics/library_charts/)** -
 this means that the chart itself deploys no resources, and has no `.yaml`
@@ -141,6 +141,35 @@ _Example Usage_:
 ```yaml
 # templates/podmonitor.yaml
 {{- include "nd-common.podMonitor" . }}
+```
+
+## [TopologySpreadConstraint Functions](templates/_topology_spread_constraints.tpl)
+
+This common function creates some sane `TopologySpreadConstraint` settings in a
+PodSpec. The default behavior can be turned on with a simple boolean flag,
+which spreads pods across AZs. More custom topologies can be described as well.
+
+### Values Parameters
+
+* `.Values.topologySpreadConstraints`: A list of maps that conform to the
+    [`TopologySpreadConstraint` API](https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#api).
+* `.Values.enableTopologySpread`: A boolean to control the creation of the
+    "default" topology spread constraint across AZs.
+* `.Values.topologyKey`: The default `topologyKey` to use when the
+    `enableTopologySpread` boolean flag is enabled.
+* `.Values.topologySkew`: The default `maxSkew` to use when
+    `enableTopologySpread` boolean flag is enabled.
+
+### `nd-common.topologySpreadConstraints`
+
+_Example Usage_:
+```yaml
+
+{{- if or .Values.topologySpreadConstraints .Values.enableTopologySpread }}
+topologySpreadConstraints:
+  {{- include "nd-common.topologySpreadConstraints" . | nindent 8 }}
+{{- end }}
+
 ```
 
 ## [Network Functions](templates/_networkpolicy.tpl)

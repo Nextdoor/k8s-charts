@@ -8,6 +8,7 @@ ingress:
   # ALB-ingress controllers.
   sslRedirect: false
 
+enableTopologySpread: true
 terminationGracePeriodSeconds: 30
 datadog:
   scrapeMetrics: true
