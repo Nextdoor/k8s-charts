@@ -389,7 +389,30 @@ nodeSelector: {}
 
 tolerations: []
 
+# -- (`string`) An array of custom TopologySpreadConstraint settings applied to
+# the PodSpec within the Deployment. Each of these TopologySpreadObjects should
+# conform to the
+# [`pod.spec.topologySpreadConstraints`](https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#api)
+# API - but the `labelSelector` field should be left out, it will be inserted
+# automatically for you.
 topologySpreadConstraints: []
+
+# -- (`string`) The topologyKey to use when asking Kubernetes to schedule the
+# pods in a particular distribution. The default is to spread across zones
+# evenly. Other options could be `kubernetes.io/hostname` to spread across EC2
+# instances, or `node.kubernetes.io/instance-type` to spread across instance
+# types for example.
+topologyKey: topology.kubernetes.io/zone
+
+# -- (`int`) The maxSkew setting applied to the default
+# TopologySpreadConstraint if `enableTopologySpread` is set to `true`.
+topologySkew: 1
+
+# -- (`bool`) If set to `true`, then a default `TopologySpreadConstraint` will
+# be created that forces your pods to be evenly distributed across nodes based
+# on the `topologyKey` setting. The maximum skew between the spread is
+# controlled with `topologySkew`.
+enableTopologySpread: false
 
 affinity: {}
 

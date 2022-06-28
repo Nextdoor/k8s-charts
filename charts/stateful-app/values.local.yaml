@@ -8,6 +8,8 @@ ingress:
   # ALB-ingress controllers.
   sslRedirect: false
 
+topologyKey: kubernetes.io/hostname
+enableTopologySpread: true
 terminationGracePeriodSeconds: 30
 datadog:
   scrapeMetrics: true
