@@ -48,7 +48,7 @@ TopologySpreadConstraint. The default value if not supplied is `1`.
 - labelSelector:
     matchLabels:
       {{- include "nd-common.selectorLabels" . | nindent 6 }}
-  maxSkew: {{ default .Values.topologySkew 1 }}
+  maxSkew: {{ default 1 .Values.topologySkew }}
   topologyKey: {{ default "topology.kubernetes.io/zone" .Values.topologyKey }}
   whenUnsatisfiable: DoNotSchedule
 {{- end }}

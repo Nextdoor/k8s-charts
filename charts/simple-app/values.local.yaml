@@ -20,6 +20,7 @@ ports:
     # Optional flag to override the client-facing port for service requests.
     port: 443
 
+topologyKey: kubernetes.io/hostname
 enableTopologySpread: true
 terminationGracePeriodSeconds: 30
 autoscaling:
