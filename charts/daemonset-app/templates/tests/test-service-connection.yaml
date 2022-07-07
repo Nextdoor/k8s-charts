@@ -1,0 +1,27 @@
+{{- if and .Values.ports .Values.service.enabled }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "nd-common.fullname" . }}-test-service-connection"
+  labels:
+    {{- include "nd-common.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  containers:
+    - name: test
+      image: >-
+        {{- if .Values.tests.svcConnection.image.repository }}
+        {{ .Values.tests.svcConnection.image.repository }}:{{ default "latest" .Values.tests.svcConnection.image.tag }}
+        {{- else }}
+        {{ include "nd-common.imageFqdn" . }}
+        {{- end }}
+      command:
+        {{- toYaml .Values.tests.svcConnection.command | nindent 8 }}
+      args:
+      {{- range $arg := index .Values.tests.svcConnection.args }}
+      - {{ tpl $arg $ }}
+      {{- end }}
+{{- end }}

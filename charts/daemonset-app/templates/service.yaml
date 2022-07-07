@@ -1,0 +1,20 @@
+{{/*
+The Service resource is  created any time the "ports" key has ports. It is
+also created any time the Values.monitor.enabled is set true - because we use
+a ServiceMonitor in this chart to monitor pods.
+*/}}
+{{- if and .Values.ports .Values.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ default (include "nd-common.fullname" .) .Values.service.name }}
+  labels:
+    {{- include "nd-common.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    {{- include "daemonset-app.servicePorts" . | nindent 4 }}
+  selector:
+    {{- include "nd-common.selectorLabels" . | nindent 4 }}
+{{- end }}
+
