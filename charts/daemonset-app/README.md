@@ -2,7 +2,7 @@
 
 Default DaemonSet Helm Chart
 
-![Version: 0.4.11](https://img.shields.io/badge/Version-0.4.11-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,18 @@ in Kubernetes][statefulsets]. The chart provides all of the common pieces like
 ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
+
+### 0.4.0 -> 0.5.0
+
+**New Feature: `Service` resource for DaemonSet**
+
+Not all `DaemonSets` need to be (or should be) accessed directly by hitting the
+local host IP. Sometimes it makes sense to run a service on every node, but
+access the service through a standard network endpoint within the cluster.
+
+To support this, the `daemonset-app` chart now supports creating a `Service`
+resource by making sure that `.Values.service.enabled: true` and
+`.Values.ports` contains at least one port mapping.
 
 ### 0.3.x -> 0.4.0
 
@@ -213,7 +225,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | podAnnotations | object | `{}` | (`Map`) List of Annotations to be added to the PodSpec |
 | podLabels | object | `{}` | (`Map`) List of Labels to be added to the PodSpec |
 | podSecurityContext | object | `{}` |  |
-| ports | list | `[{"containerPort":80,"name":"http","protocol":"TCP"},{"containerPort":443,"name":"https","protocol":"TCP"}]` | A list of Port objects that are exposed by the service. These ports are applied to the main container, or the proxySidecar container (if enabled). The port list is also used to generate Network Policies that allow ingress into the pods. |
+| ports | list | `[{"containerPort":80,"name":"http","protocol":"TCP"}]` | A list of Port objects that are exposed by the service. These ports are applied to the main container, or the proxySidecar container (if enabled). The port list is also used to generate Network Policies that allow ingress into the pods. |
 | preStopCommand | list | `["/bin/sleep","10"]` | Before a pod gets terminated, Kubernetes sends a SIGTERM signal to every container and waits for period of time (10s by default) for all containers to exit gracefully. If your app doesn't handle the SIGTERM signal or if it doesn't exit within the grace period, Kubernetes will kill the container and any inflight requests that your app is processing will fail. Make sure you set this to SHORTER than the terminationGracePeriod (30s default) setting. https://docs.flagger.app/tutorials/zero-downtime-deployments#graceful-shutdown |
 | priorityClassName | string | `"default"` | (`string`) The priorityClassName for the Pod. See https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/#pod-priority. |
 | readinessProbe | object | `{"httpGet":{"path":"/","port":"http"}}` | A PodSpec container "readinessProbe" configuration object. Note that this readinessProbe will be applied to the proxySidecar container instead if that is enabled. |
@@ -222,6 +234,9 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | secrets | object | `{}` | (`Map`) Map of environment variables to plaintext secrets or KMS encrypted secrets. |
 | secretsEngine | string | `"plaintext"` | (String) Secrets Engine determines the type of Secret Resource that will be created (`KMSSecret`, `Secret`). kms || plaintext are possible values. |
 | securityContext | object | `{}` |  |
+| service.enabled | bool | `false` | (`bool`) If enabled, a `Service` resource is created for the DaemonSet. This enables the pods to be accessed at a common network endpoint rather than accessing directly a hostNetwork'd pod. |
+| service.name | `string` | `nil` | Optional override for the Service name. Can be used to create a simpler more friendly service name that is not specific to the application name. |
+| service.type | string | `"ClusterIP"` | (`string`) `ClusterIP`, `NodePort`, `LoadBalancer` or `ExternalName`. |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
@@ -233,6 +248,10 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | tests.connection.command | list | `["curl","--verbose","--retry-connrefused","--retry","5","--retry-delay","10"]` | The command used to trigger the test. |
 | tests.connection.image.repository | string | `nil` | Sets the image-name that will be used in the "connection" integration test. If this is left empty, then the .image.repository value will be used instead (and the .image.tag will also be used). |
 | tests.connection.image.tag | string | `nil` | Sets the tag that will be used in the "connection" integration test. If this is left empty, the default is "latest" |
+| tests.svcConnection.args | list | `["{{ include \"nd-common.fullname\" . }}"]` | A list of arguments passed into the command. These are run through the tpl function. |
+| tests.svcConnection.command | list | `["curl","--verbose","--retry-connrefused","--retry","5","--retry-delay","10"]` | The command used to trigger the test. |
+| tests.svcConnection.image.repository | string | `nil` | Sets the image-name that will be used in the "connection" integration test. If this is left empty, then the .image.repository value will be used instead (and the .image.tag will also be used). |
+| tests.svcConnection.image.tag | string | `nil` | Sets the tag that will be used in the "connection" integration test. If this is left empty, the default is "latest" |
 | tolerations | list | `[]` |  |
 | updateStrategy | `DaemonSetUpdateStrategy` | `nil` | updateStrategy indicates the StatefulSetUpdateStrategy that will be employed to update Pods in the StatefulSet when a revision is made to Template. https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#daemonsetupdatestrategy-v1-apps |
 | verticalAutoscaling.controlledResources | list | `["cpu","memory"]` | (`string[]`) List of strings of controlled resources. Allowed values: "cpu", "memory". |

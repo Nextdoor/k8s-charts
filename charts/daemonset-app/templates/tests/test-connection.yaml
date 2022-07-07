@@ -20,10 +20,9 @@ spec:
       command:
         {{- toYaml .Values.tests.connection.command | nindent 8 }}
       args:
-        {{- $global := . }}
-        {{- range $arg := index .Values.tests.connection.args }}
-        - {{ tpl $arg $global }}
-        {{- end }}
+      {{- range $arg := index .Values.tests.connection.args }}
+      - {{ tpl $arg $ }}
+      {{- end }}
       env:
         - name: HOST_IP
           valueFrom:

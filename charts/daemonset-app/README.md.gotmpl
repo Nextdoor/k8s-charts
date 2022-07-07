@@ -12,6 +12,18 @@ ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
 
+### 0.4.0 -> 0.5.0
+
+**New Feature: `Service` resource for DaemonSet**
+
+Not all `DaemonSets` need to be (or should be) accessed directly by hitting the
+local host IP. Sometimes it makes sense to run a service on every node, but
+access the service through a standard network endpoint within the cluster.
+
+To support this, the `daemonset-app` chart now supports creating a `Service`
+resource by making sure that `.Values.service.enabled: true` and
+`.Values.ports` contains at least one port mapping.
+
 ### 0.3.x -> 0.4.0
 
 **BREAKING: ServiceMonitor has been replaced with PodMonitor**

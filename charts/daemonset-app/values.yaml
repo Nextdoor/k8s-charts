@@ -127,9 +127,6 @@ ports:
   - name: http
     containerPort: 80
     protocol: TCP
-  - name: https
-    containerPort: 443
-    protocol: TCP
 
 # -- Supply a reference to a Secret that can be used by Kubernetes to pull down
 # the Docker image. This is only used in local development, in combination with
@@ -221,6 +218,21 @@ securityContext: {}
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
+
+service:
+  # -- (`bool`) If enabled, a `Service` resource is created for the DaemonSet.
+  # This enables the pods to be accessed at a common network endpoint rather
+  # than accessing directly a hostNetwork'd pod.
+  enabled: false
+
+  # -- (`string`) `ClusterIP`, `NodePort`, `LoadBalancer` or `ExternalName`.
+  type: ClusterIP
+
+
+  # -- (`string`) Optional override for the Service name. Can be used to create
+  # a simpler more friendly service name that is not specific to the
+  # application name.
+  name:
 
 # Configuration for creating a dedicated ALB for your service. This is
 # acceptable - but not the preferred method (see the IngressGateway setup
@@ -426,6 +438,27 @@ tests:
     # -- A list of arguments passed into the command. These are run through the tpl function.
     args:
       - "$(HOST_IP)"
+    # By default, we actually use the source-image for the main application as
+    # the image for testing, This allows the image to contain its own "client"
+    # (curl, in this example) for testing the application. Alternatively, you
+    # can configure your own testing image.
+    image:
+      # -- Sets the image-name that will be used in the "connection"
+      # integration test. If this is left empty, then the .image.repository
+      # value will be used instead (and the .image.tag will also be used).
+      repository:
+      # -- Sets the tag that will be used in the "connection" integration test.
+      # If this is left empty, the default is "latest"
+      tag:
+
+  # Identical to above, but used to test the `Service` endpoint rather than
+  # pointing to the HOST_IP.
+  svcConnection:
+    # -- The command used to trigger the test.
+    command: [curl, --verbose, --retry-connrefused, --retry, '5', --retry-delay, '10']
+    # -- A list of arguments passed into the command. These are run through the tpl function.
+    args:
+      - '{{ include "nd-common.fullname" . }}'
     # By default, we actually use the source-image for the main application as
     # the image for testing, This allows the image to contain its own "client"
     # (curl, in this example) for testing the application. Alternatively, you
