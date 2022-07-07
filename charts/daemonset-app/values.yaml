@@ -83,20 +83,14 @@ command: []
 args: []
 
 # -- A list of 'volumes' that can be mounted into the Pod. See
-# https://kubernetes.io/docs/concepts/storage/volumes/.
+# https://kubernetes.io/docs/concepts/storage/volumes/. This is run through the
+# `tpl` function for you.
 volumes: []
 
-# -- A stringified list of 'volumes' similar to the `Values.volumes` parameter,
-# but this one gets run through the `tpl` function so that you can use
-# templatized values if you need to. See
-# https://kubernetes.io/docs/concepts/storage/volumes/.
-volumesString: ""
-# eg:
-#
-# volumesString: |-
+# volumes:
 #   - name: test-html-mount
 #     configMap:
-#       name: "{{ include "nd-common.fullname" . }}-test-map"
+#       name: "{{ .Release.Name }}-test-map"
 
 # -- A PodSpec container "startupProbe" configuration object. Note that this
 # startupProbe will be applied to the proxySidecar container instead if that
