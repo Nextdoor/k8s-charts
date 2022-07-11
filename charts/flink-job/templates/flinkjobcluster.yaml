@@ -70,6 +70,10 @@ spec:
       {{- with .Values.podLabels }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
+    {{- with .Values.affinity }}
+    affinity:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
   # securityContext, livenessProbe, readinessProbe not exposed
     memoryProcessRatio: {{ .Values.jobManager.memoryProcessRatio }}
   taskManager:
