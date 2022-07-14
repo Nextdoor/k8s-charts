@@ -32,7 +32,7 @@ TopologySpreadConstraint. The default value if not supplied is `1`.
 {{- define "nd-common.topologySpreadConstraints" -}}
 {{- range $c := index .Values.topologySpreadConstraints -}}
 {{- if $c.labelSelector -}}
-{{ fail "Do not set labelSelector in .Values.toplogySpreadConstraints maps." }}
+{{- fail "Do not set labelSelector in .Values.toplogySpreadConstraints maps." -}}
 {{- end -}}
 - maxSkew: {{ required "Must set maxSkew in .Values.topologySpreadConstraints maps." $c.maxSkew }}
   topologyKey: {{ required "Must set topologyKey in .Values.topologySpreadConstraints maps." $c.topologyKey }}
@@ -41,15 +41,15 @@ TopologySpreadConstraint. The default value if not supplied is `1`.
   minDomains: {{ . }}
   {{- end }}
   labelSelector:
-    matchLabels:
-      {{- include "nd-common.selectorLabels" $ | nindent 6 }}
-{{- end }}
-{{- if .Values.enableTopologySpread }}
-- labelSelector:
-    matchLabels:
-      {{- include "nd-common.selectorLabels" . | nindent 6 }}
-  maxSkew: {{ default 1 .Values.topologySkew }}
+    matchExpressions:
+      {{- include "nd-common.selectorLabelsExpression" $ | nindent 6 }}
+{{- end -}}
+{{- if .Values.enableTopologySpread -}}
+- maxSkew: {{ default 1 .Values.topologySkew }}
   topologyKey: {{ default "topology.kubernetes.io/zone" .Values.topologyKey }}
   whenUnsatisfiable: DoNotSchedule
+  labelSelector:
+    matchExpressions:
+      {{- include "nd-common.selectorLabelsExpression" $ | nindent 6 }}
 {{- end }}
 {{- end }}

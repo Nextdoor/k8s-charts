@@ -62,11 +62,19 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
-Selector labels
+Selector labels - two functions here, one for "matchLabels" uses, and one for "matchExpressions".
 */}}
 {{- define "nd-common.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "nd-common.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+{{- define "nd-common.selectorLabelsExpression" -}}
+- key: app.kubernetes.io/name
+  operator: In
+  values: [{{ include "nd-common.name" . }}]
+- key: app.kubernetes.io/instance
+  operator: In
+  values: [{{ .Release.Name }}]
 {{- end }}
 
 {{/*
