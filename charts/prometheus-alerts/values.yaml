@@ -67,10 +67,48 @@ alertManager:
 
 # Defaults applied to all Prometheus Rules
 defaults:
-  # -- The prefix URL to the runbook_urls that will be applied to each PrometheusRule
+  # -- (`string`) The prefix URL to the runbook_urls that will be applied to each PrometheusRule
   runbookUrl: https://github.com/Nextdoor/k8s-charts/blob/main/charts/prometheus-alerts/runbook.md
-  # -- Additional custom labels attached to every PrometheusRule
+
+  # -- (`map`) Additional custom labels attached to every PrometheusRule
   additionalRuleLabels: {}
+
+  # -- (`string`) Pattern used to scope down the alerts to only Pods that are
+  # part of this general application. Set to `None` if you want to disable this
+  # selector and apply the rules to all Pods in the namespace. This string is
+  # run through the `tpl` function.
+  podNameSelector: '{{ .Release.Name }}-.*'
+
+  # -- (`string`) Pattern used to scope down the alerts to only Jobs that are
+  # part of this general application. Set to `None` if you want to disable this
+  # selector and apply the rules to all Jobs in the namespace. This string is
+  # run through the `tpl` function.
+  jobNameSelector: '{{ .Release.Name }}-.*'
+
+  # -- (`string`) Pattern used to scope down the Deployment alerts to pods that
+  # are part of this general application. Set to `None` if you want to disable
+  # this selector and apply the rules to all the Deployments in the namespace.
+  # This string is run through the `tpl` function.
+  deploymentNameSelector: '{{ .Release.Name }}'
+
+  # -- (`string`) Pattern used to scope down the StatefulSet alerts to pods that
+  # are part of this general application. Set to `None` if you want to disable
+  # this selector and apply the rules to all the StatefulSets in the namespace.
+  # This string is run through the `tpl` function.
+  statefulsetNameSelector: '{{ .Release.Name }}'
+
+  # -- (`string`) Pattern used to scope down the DaemonSet alerts to pods that
+  # are part of this general application. Set to `None` if you want to disable
+  # this selector and apply the rules to all the DaemonSets in the namespace.
+  # This string is run through the `tpl` function.
+  daemonsetNameSelector: '{{ .Release.Name }}'
+
+  # -- (`string`) Pattern used to scope down the HorizontalPodAutoscaler alerts
+  # to pods that are part of this general application. Set to `None` if you
+  # want to disable this selector and apply the rules to all the
+  # HorizontalPodAutoscalers in the namespace. This string is run through the
+  # `tpl` function.
+  hpaNameSelector: '{{ .Release.Name }}'
 
 # Container Alerting Rules
 #

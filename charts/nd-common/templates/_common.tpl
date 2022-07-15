@@ -62,7 +62,9 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
-Selector labels - two functions here, one for "matchLabels" uses, and one for "matchExpressions".
+Selector labels - two functions here:
+  * one for "matchLabels"
+  * one for "matchExpressions"
 */}}
 {{- define "nd-common.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "nd-common.name" . }}
@@ -96,8 +98,12 @@ setting.
 
 */}}
 {{- define "nd-common.imageTag" -}}
+{{- if .Values.image -}}
 {{- default .Chart.AppVersion (default .Values.image.tag .Values.image.forceTag) }}
-{{- end }}
+{{- else -}}
+{{ .Chart.AppVersion }}
+{{- end -}}
+{{- end -}}
 
 {{/*
 

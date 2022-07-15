@@ -1,6 +1,13 @@
-{{ $values           := .Values }}
-{{ $targetNamespace  := .Release.Namespace }}
-{{ if .Values.containerRules.enabled }}
+{{ $values              := .Values }}
+{{ $daemonsetSelector   := include "prometheus-alerts.daemonsetSelector" . }}
+{{ $deploymentSelector  := include "prometheus-alerts.deploymentSelector" . }}
+{{ $namespaceSelector   := include "prometheus-alerts.namespaceSelector" . }}
+{{ $podSelector         := include "prometheus-alerts.podSelector" . }}
+{{ $jobSelector         := include "prometheus-alerts.jobSelector" . }}
+{{ $hpaSelector         := include "prometheus-alerts.hpaSelector" . }}
+{{ $statefulsetSelector := include "prometheus-alerts.statefulsetSelector" . }}
+
+{{- if .Values.containerRules.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -8,6 +15,8 @@ metadata:
   annotations:
     nextdoor.com/chart: {{ .Values.chart_name }}
     nextdoor.com/source: {{ .Values.chart_source }}
+  labels:
+    {{- include "nd-common.labels" . | nindent 4 }}
 spec:
   groups:
   - name: {{ .Release.Name }}.{{ .Release.Namespace }}.containerRules
@@ -24,7 +33,11 @@ spec:
       expr: |-
         sum by (container, instance, namespace, pod, reason) (
           sum_over_time(
-            kube_pod_container_status_terminated_reason{reason=~"{{ join "|" .reasons }}", namespace="{{ $targetNamespace }}"}[{{ .over }}]
+            kube_pod_container_status_terminated_reason{
+              reason=~"{{ join "|" .reasons }}",
+              {{ $podSelector }},
+              {{ $namespaceSelector }}
+            }[{{ .over }}]
           )
         ) > {{ .threshold }}
       for: {{ .for }}
@@ -47,7 +60,11 @@ spec:
       expr: |-
         sum by (container, instance, namespace, pod, reason) (
           sum_over_time(
-            kube_pod_container_status_terminated_reason{reason=~"OOMKilled", namespace="{{ $targetNamespace }}"}[{{ .over }}]
+            kube_pod_container_status_terminated_reason{
+              reason=~"OOMKilled",
+              {{ $podSelector }},
+              {{ $namespaceSelector }}
+            }[{{ .over }}]
           )
         ) > {{ .threshold }}
       for: {{ .for }}
@@ -68,7 +85,7 @@ spec:
           namespace {{ $labels.namespace }} for container {{ $labels.container
           }} in pod {{ $labels.pod }}.`}}
       expr: |-
-        sum(increase(container_cpu_cfs_throttled_periods_total{container!="", namespace=~"{{ $targetNamespace }}"}[5m])) by (container, pod, namespace)
+        sum(increase(container_cpu_cfs_throttled_periods_total{container!="", {{ $namespaceSelector }}"}[5m])) by (container, pod, namespace)
           /
         sum(increase(container_cpu_cfs_periods_total{}[5m])) by (container, pod, namespace)
           > ( {{ .threshold }} / 100 )
@@ -100,7 +117,14 @@ spec:
           Pod {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.pod {{`}}`}}
           ({{`{{`}} $labels.container {{`}}`}}) is restarting {{`{{`}} printf
           "%.2f" $value {{`}}`}} times / 5 minutes.
-      expr: rate(kube_pod_container_status_restarts_total{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}[5m]) * 60 * 5 > 0
+      expr: |-
+        rate(
+          kube_pod_container_status_restarts_total{
+            job="kube-state-metrics",
+            {{ $podSelector }},
+            {{ $namespaceSelector }}
+          }[5m]
+        ) * 60 * 5 > 0
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
@@ -120,9 +144,19 @@ spec:
       expr: |-
         sum by (namespace, pod) (
           max by(namespace, pod) (
-            kube_pod_status_phase{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", phase=~"Pending|Unknown"}
-          ) * on(namespace, pod) group_left(owner_kind) topk by(namespace, pod) (
-            1, max by(namespace, pod, owner_kind) (kube_pod_owner{owner_kind!="Job"})
+            kube_pod_status_phase{
+              job="kube-state-metrics",
+              phase=~"Pending|Unknown",
+              {{ $podSelector }},
+              {{ $namespaceSelector }}
+            }
+          )
+            *
+          on(namespace, pod)
+          group_left(owner_kind)
+          topk by(namespace, pod) (
+            1,
+            max by(namespace, pod, owner_kind) (kube_pod_owner{owner_kind!="Job"})
           )
         ) > 0
       for: {{ .for }}
@@ -144,9 +178,9 @@ spec:
           indicates that the Deployment has failed but has not been rolled
           back.
       expr: |-
-        kube_deployment_status_observed_generation{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+        kube_deployment_status_observed_generation{ {{- $deploymentSelector -}} }
           !=
-        kube_deployment_metadata_generation{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+        kube_deployment_metadata_generation{ {{- $deploymentSelector -}} }
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
@@ -166,11 +200,11 @@ spec:
           replicas for longer than {{ .for }}.
       expr: |-
         (
-          kube_deployment_spec_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+          kube_deployment_spec_replicas{ {{- $deploymentSelector -}} }
             !=
-          kube_deployment_status_replicas_available{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+          kube_deployment_status_replicas_available{ {{- $deploymentSelector -}} }
         ) and (
-          changes(kube_deployment_status_replicas_updated{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}[5m])
+          changes(kube_deployment_status_replicas_updated{ {{- $deploymentSelector -}} }[5m])
             ==
           0
         )
@@ -193,11 +227,11 @@ spec:
           replicas for longer than 15 minutes.
       expr: |-
         (
-          kube_statefulset_status_replicas_ready{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+          kube_statefulset_status_replicas_ready{ {{- $statefulsetSelector -}} }
             !=
-          kube_statefulset_status_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+          kube_statefulset_status_replicas{ {{- $statefulsetSelector -}} }
         ) and (
-          changes(kube_statefulset_status_replicas_updated{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}[5m])
+          changes(kube_statefulset_status_replicas_updated{ {{- $statefulsetSelector -}} }[5m])
             ==
           0
         )
@@ -220,9 +254,9 @@ spec:
           indicates that the StatefulSet has failed but has not been rolled
           back.
       expr: |-
-        kube_statefulset_status_observed_generation{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+        kube_statefulset_status_observed_generation{ {{- $statefulsetSelector -}} }
           !=
-        kube_statefulset_metadata_generation{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+        kube_statefulset_metadata_generation{ {{- $statefulsetSelector -}} }
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
@@ -242,18 +276,18 @@ spec:
       expr: |-
         (
           max without (revision) (
-            kube_statefulset_status_current_revision{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+            kube_statefulset_status_current_revision{ {{- $statefulsetSelector -}} }
               unless
-            kube_statefulset_status_update_revision{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+            kube_statefulset_status_update_revision{ {{- $statefulsetSelector -}} }
           )
             *
           (
-            kube_statefulset_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+            kube_statefulset_replicas{ {{- $statefulsetSelector -}} }
               !=
-            kube_statefulset_status_replicas_updated{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+            kube_statefulset_status_replicas_updated{ {{- $statefulsetSelector -}} }
           )
         )  and (
-          changes(kube_statefulset_status_replicas_updated{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}[5m])
+          changes(kube_statefulset_status_replicas_updated{ {{- $statefulsetSelector -}} }[5m])
             ==
           0
         )
@@ -277,24 +311,24 @@ spec:
       expr: |-
         (
           (
-            kube_daemonset_status_current_number_scheduled{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+            kube_daemonset_status_current_number_scheduled{ {{- $daemonsetSelector -}} }
              !=
-            kube_daemonset_status_desired_number_scheduled{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+            kube_daemonset_status_desired_number_scheduled{ {{- $daemonsetSelector -}} }
           ) or (
-            kube_daemonset_status_number_misscheduled{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+            kube_daemonset_status_number_misscheduled{ {{- $daemonsetSelector -}} }
              !=
             0
           ) or (
-            kube_daemonset_updated_number_scheduled{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+            kube_daemonset_updated_number_scheduled{ {{- $daemonsetSelector -}} }
              !=
-            kube_daemonset_status_desired_number_scheduled{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+            kube_daemonset_status_desired_number_scheduled{ {{- $daemonsetSelector -}} }
           ) or (
-            kube_daemonset_status_number_available{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+            kube_daemonset_status_number_available{ {{- $daemonsetSelector -}} }
              !=
-            kube_daemonset_status_desired_number_scheduled{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+            kube_daemonset_status_desired_number_scheduled{ {{- $daemonsetSelector -}} }
           )
         ) and (
-          changes(kube_daemonset_updated_number_scheduled{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}[5m])
+          changes(kube_daemonset_updated_number_scheduled{ {{- $daemonsetSelector -}} }[5m])
             ==
           0
         )
@@ -315,7 +349,10 @@ spec:
           Pod {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.pod {{`}}`}}
           container {{`{{`}} $labels.container{{`}}`}} has been in waiting
           state for longer than 1 hour.
-      expr: sum by (namespace, pod, container) (kube_pod_container_status_waiting_reason{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}) > 0
+      expr: |-
+        sum by (namespace, pod, container) (
+          kube_pod_container_status_waiting_reason{ {{- $daemonsetSelector -}} }
+        ) > 0
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
@@ -334,9 +371,9 @@ spec:
           $labels.namespace {{`}}`}}/{{`{{`}} $labels.daemonset {{`}}`}} are
           not scheduled.'
       expr: |-
-        kube_daemonset_status_desired_number_scheduled{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+        kube_daemonset_status_desired_number_scheduled{ {{- $daemonsetSelector -}} }
           -
-        kube_daemonset_status_current_number_scheduled{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"} > 0
+        kube_daemonset_status_current_number_scheduled{ {{- $daemonsetSelector -}} } > 0
       for: 10m
       labels:
         severity: {{ .severity }}
@@ -354,7 +391,7 @@ spec:
           '{{`{{`}} $value {{`}}`}} Pods of DaemonSet {{`{{`}}
           $labels.namespace {{`}}`}}/{{`{{`}} $labels.daemonset {{`}}`}} are
           running where they are not supposed to run.'
-      expr: kube_daemonset_status_number_misscheduled{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"} > 0
+      expr: kube_daemonset_status_number_misscheduled{ {{- $daemonsetSelector -}} } > 0
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
@@ -371,7 +408,11 @@ spec:
         description: >-
           Job {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.job_name
           {{`}}`}} is taking more than 12 hours to complete.
-      expr: kube_job_spec_completions{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"} - kube_job_status_succeeded{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}  > 0
+      expr: |-
+        kube_job_spec_completions{ {{- $jobSelector -}} }
+          -
+        kube_job_status_succeeded{ {{- $jobSelector -}} }
+          > 0
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
@@ -389,7 +430,7 @@ spec:
           Job {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.job_name
           {{`}}`}} failed to complete. Removing failed job after investigation
           should clear this alert.
-      expr: kube_job_failed{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}  > 0
+      expr: kube_job_failed{ {{- $jobSelector -}} }  > 0
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
@@ -408,19 +449,31 @@ spec:
           has not matched the desired number of replicas for longer than 15
           minutes.
       expr: |-
-        (kube_horizontalpodautoscaler_status_desired_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+        (
+         kube_horizontalpodautoscaler_status_desired_replicas{ {{- $hpaSelector -}} }
           !=
-        kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"})
+         kube_horizontalpodautoscaler_status_current_replicas{ {{- $hpaSelector -}} }
+        )
           and
-        (kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+
+        (
+         kube_horizontalpodautoscaler_status_current_replicas{ {{- $hpaSelector -}} }
           >
-        kube_horizontalpodautoscaler_spec_min_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"})
+         kube_horizontalpodautoscaler_spec_min_replicas{ {{- $hpaSelector -}} }
+        )
+
           and
-        (kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+
+        (
+         kube_horizontalpodautoscaler_status_current_replicas{ {{- $hpaSelector -}} }
           <
-        kube_horizontalpodautoscaler_spec_max_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"})
+         kube_horizontalpodautoscaler_spec_max_replicas{ {{- $hpaSelector -}} }
+        )
+
           and
+
         changes(kube_horizontalpodautoscaler_status_current_replicas[15m]) == 0
+
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
@@ -438,9 +491,9 @@ spec:
           HPA {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.hpa {{`}}`}}
           has been running at max replicas for longer than 15 minutes.
       expr: |-
-        kube_horizontalpodautoscaler_status_current_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+        kube_horizontalpodautoscaler_status_current_replicas{ {{- $hpaSelector -}} }
           ==
-        kube_horizontalpodautoscaler_spec_max_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}
+        kube_horizontalpodautoscaler_spec_max_replicas{ {{- $hpaSelector -}} }
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
