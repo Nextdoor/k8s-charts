@@ -131,9 +131,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/secrets: {{ toYaml .Values.secrets | sha256sum }}
-        {{- include "nd-common.istioAnnotations" . | nindent 8 }}
-        {{- include "nd-common.datadogAnnotations" . | nindent 8 }}
+        {{- include "nd-common.podAnnotations" . | nindent 8 }}
         {{- with .Values.podAnnotations }}
         {{- range $annotation, $value := index . }}
         {{ $annotation }}: {{ tpl $value $ | quote }}
