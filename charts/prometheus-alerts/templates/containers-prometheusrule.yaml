@@ -85,7 +85,11 @@ spec:
           namespace {{ $labels.namespace }} for container {{ $labels.container
           }} in pod {{ $labels.pod }}.`}}
       expr: |-
-        sum(increase(container_cpu_cfs_throttled_periods_total{container!="", {{ $namespaceSelector }}"}[5m])) by (container, pod, namespace)
+        sum(increase(container_cpu_cfs_throttled_periods_total{
+          container!="",
+          {{ $podSelector }},
+          {{ $namespaceSelector }}
+        }[5m])) by (container, pod, namespace)
           /
         sum(increase(container_cpu_cfs_periods_total{}[5m])) by (container, pod, namespace)
           > ( {{ .threshold }} / 100 )
