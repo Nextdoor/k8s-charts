@@ -109,7 +109,7 @@ setting.
 
 Generates a fully qualified Docker image name.
 
-*/}}}
+*/}}
 {{- define "nd-common.imageFqdn" -}}
 {{- $tag := include "nd-common.imageTag" . }}
 {{- if hasPrefix "sha256:" $tag }}
