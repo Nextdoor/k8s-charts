@@ -1,4 +1,4 @@
-{{- if .Values.virtualService.enabled }}
+{{- if and .Values.virtualService.enabled .Values.ports }}
 {{- $global := . }}
 {{- $istioNs := .Values.virtualService.namespace }}
 apiVersion: networking.istio.io/v1alpha3

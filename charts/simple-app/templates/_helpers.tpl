@@ -19,13 +19,15 @@ simplify exposing a customer-facing port number (eg 80) while maintaining an
 internal application port-number (eg, 8080)
 */}}
 {{- define "simple-app.containerPorts" -}}
+{{- if .Values.ports }}
 {{- range $p := index .Values.ports }}
 - name: {{ required "Must set a port name" $p.name }}
   containerPort: {{ required "Must set a containerPort" $p.containerPort }}
   {{- with $p.protocol }}
   protocol: {{ . }}
   {{- end }}
-{{- end }}
+{{- end -}}
+{{- end -}}
 {{- end -}}
 
 {{/*

@@ -12,6 +12,20 @@ ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
 
+### 0.5.x -> 0.6.x
+
+**BREAKING: If you do not set .Values.ports, then no VirtualService will be created**
+
+In the past, the `.Values.virtualService.enabled` flag was the only control
+used to determine whether or not to create the `VirtualService` resource. This
+meant that you could accidentally create a `VirtualService` pointing to a
+non-existent `Service` if your application exposes no ports (like a
+"taskworker" type application).
+
+Going forward, the chart will not create a `VirtualService` unless the
+`Values.ports` array is populated as well. This links the logic for `Service`
+and `VirtualService` creation together.
+
 ### 0.4.x -> 0.5.x
 
 **BREAKING: Default behavior is to turn on the Istio Annotations/Labels**
