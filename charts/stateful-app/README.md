@@ -2,7 +2,7 @@
 
 Default StatefulSet Helm Chart
 
-![Version: 0.5.12](https://img.shields.io/badge/Version-0.5.12-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.6.0](https://img.shields.io/badge/Version-0.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,20 @@ in Kubernetes][statefulsets]. The chart provides all of the common pieces like
 ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
+
+### 0.5.x -> 0.6.x
+
+**BREAKING: If you do not set .Values.ports, then no VirtualService will be created**
+
+In the past, the `.Values.virtualService.enabled` flag was the only control
+used to determine whether or not to create the `VirtualService` resource. This
+meant that you could accidentally create a `VirtualService` pointing to a
+non-existent `Service` if your application exposes no ports (like a
+"taskworker" type application).
+
+Going forward, the chart will not create a `VirtualService` unless the
+`Values.ports` array is populated as well. This links the logic for `Service`
+and `VirtualService` creation together.
 
 ### 0.4.x -> 0.5.x
 
