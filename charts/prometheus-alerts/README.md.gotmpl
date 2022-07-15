@@ -1,0 +1,38 @@
+
+{{ template "chart.header" . }}
+{{ template "chart.description" . }}
+
+{{ template "chart.versionBadge" .  }}{{ template "chart.typeBadge" .  }}{{ template "chart.appVersionBadge" .  }}
+
+[deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+[hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+
+This chart provides a default deployment for a simple application that operates
+in a [Deployment][deployments]. The chart automatically configures various
+defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
+
+## Upgrade Notes
+
+### 0.2.x -> 1.0.x
+
+**BREAKING: All PrometheusRules are now scoped to `.Release.Name` resources by default**
+
+All of the `PrometheusRules` within this chart are now scoped to try to
+narrowly match resources that have the {{`{{ .Release.Name }}`}} prefix. This means
+that rather than looking at _all_ `Deployment` resources in a Namespace, we're
+now only looking at {{`deployment=~{{ .Release.Name }}`}} by default now.
+
+The motivation for this change is to allow the `prometheus-rules` chart to be
+applied to each individual `Application` within a Namespace, without
+conflicting.
+
+This behavior can be tuned via the `defaults.podNameSelector`,
+`defaults.jobNameSelector`, `defaults.deploymentNameSelector`,
+`defaults.statefulsetNameSelector`, `defaults.daemonsetNameSelector` and
+`defaults.hpaNameSelector` values below.
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}
