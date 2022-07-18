@@ -11,6 +11,12 @@ This chart provides a default deployment for a simple application that operates
 in a [Deployment][deployments]. The chart automatically configures various
 defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
+## Important Note on Changs to this chart!
+
+If you make changes to the queries in this chart, you must also go duplicate
+those changes in the `charts/simple-app`, `charts/daemonset-app` and
+`charts/stateful-app` charts.
+
 ## Upgrade Notes
 
 ### 0.2.x -> 1.0.x

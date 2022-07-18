@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.23.2](https://img.shields.io/badge/Version-0.23.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.24.0](https://img.shields.io/badge/Version-0.24.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,14 @@ in a [Deployment][deployments]. The chart automatically configures various
 defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
+
+### 0.23.x -> 0.24.x
+
+**BREAKING: Rolled back to Values.prometheusRules**
+
+The use of nested charts within nested charts is problematic, and we have
+rolled it back. Please use `Values.prometheusRules` to configure alarms. We
+will deprecate the `prometheus-alerts` chart.
 
 ### 0.22.x -> 0.23.x
 
@@ -204,15 +212,12 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 |------------|------|---------|
 | file://../nd-common | nd-common | 0.0.15 |
 | https://k8s-charts.nextdoor.com | istio-alerts | 0.1.3 |
-| https://k8s-charts.nextdoor.com | alerts(prometheus-alerts) | 1.0.2 |
 
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
-| alerts.containerRules | object | `{"KubeDaemonSetMisScheduled":false,"KubeDaemonSetNotScheduled":false,"KubeDaemonSetRolloutStuck":false,"KubeJobCompletion":false,"KubeJobFailed":false,"KubeStatefulSetGenerationMismatch":false,"KubeStatefulSetReplicasMismatch":false,"KubeStatefulSetUpdateNotRolledOut":false}` | (`map`) Configure the specific Container rules that we want |
-| alerts.enabled | bool | `true` | (`bool`) Whether or not to enable the prometheus-alerts chart. |
 | args | list | `[]` | The arguments passed to the command. If unspecified the container defaults are used. The exact rules of how commadn and args are interpreted can be # found at: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/ |
 | autoscaling.behavior | object | `{"scaleDown":{"policies":[{"periodSeconds":60,"type":"Pods","value":5},{"periodSeconds":60,"type":"Percent","value":25}],"selectPolicy":"Min","stabilizationWindowSeconds":300},"scaleUp":{"policies":[{"periodSeconds":60,"type":"Pods","value":4},{"periodSeconds":60,"type":"Percent","value":100}],"selectPolicy":"Max","stabilizationWindowSeconds":0}}` | (`map`) Controls the way that the AutoScaler scales up and down. We use this to control the speed in which the scaler responds to scaleUp and scaleDown events. Explicitly set this to `null` to let Kubernetes set its default policy. |
 | autoscaling.behavior.scaleDown.policies[0] | object | `{"periodSeconds":60,"type":"Pods","value":5}` | (`map`) Allow up to 5 pods to be removed within a 60 second window. |
@@ -287,6 +292,17 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | ports | list | `[{"containerPort":80,"name":"http","port":null,"protocol":"TCP"}]` | (`ContainerPort[]`) A list of Port objects that are exposed by the service. These ports are applied to the main container, or the proxySidecar container (if enabled). The port list is also used to generate Network Policies that allow ingress into the pods. See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#containerport-v1-core for details. **Note: We have added an optional "port" field to this list that allows the user to override the Service Port (for example 80) that a client  connects to, without altering the Container Port (say, 8080) that is listening for connections. |
 | preStopCommand | list | `["/bin/sleep","10"]` | Before a pod gets terminated, Kubernetes sends a SIGTERM signal to every container and waits for period of time (10s by default) for all containers to exit gracefully. If your app doesn't handle the SIGTERM signal or if it doesn't exit within the grace period, Kubernetes will kill the container and any inflight requests that your app is processing will fail. Make sure you set this to SHORTER than the terminationGracePeriod (30s default) setting. https://docs.flagger.app/tutorials/zero-downtime-deployments#graceful-shutdown |
 | progressDeadlineSeconds | string | `nil` | https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#progress-deadline-seconds |
+| prometheusRules.CPUThrottlingHigh | object | `{"for":"15m","severity":"warning","threshold":65}` | Container is being throttled by the CGroup - needs more resources. |
+| prometheusRules.ContainerWaiting | object | `{"for":"1h","severity":"warning"}` | Pod container waiting longer than threshold |
+| prometheusRules.DeploymentGenerationMismatch | object | `{"for":"15m","severity":"warning"}` | Deployment generation mismatch due to possible roll-back |
+| prometheusRules.DeploymentReplicasMismatch | object | `{"for":"15m","severity":"warning"}` | Deployment has not matched the expected number of replicas |
+| prometheusRules.HpaMaxedOut | object | `{"for":"15m","severity":"warning"}` | HPA is running at max replicas |
+| prometheusRules.HpaReplicasMismatch | object | `{"for":"15m","severity":"warning"}` | HPA has not matched descired number of replicas |
+| prometheusRules.PodContainerTerminated | object | `{"for":"1m","over":"10m","reasons":["ContainerCannotRun","DeadlineExceeded"],"severity":"warning","threshold":0}` | Monitors Pods for Containers that are terminated either for unexpected reasons like ContainerCannotRun. If that number breaches the $threshold (1) for $for (1m), then it will alert. |
+| prometheusRules.PodCrashLooping | object | `{"for":"15m","severity":"warning"}` | Pod is crash looping |
+| prometheusRules.PodNotReady | object | `{"for":"15m","severity":"warning"}` | Pod has been in a non-ready state for more than a specific threshold |
+| prometheusRules.additionalRuleLabels | object | `{}` | (`map`) Additional custom labels attached to every PrometheusRule |
+| prometheusRules.enabled | bool | `true` | (`bool`) Whether or not to enable the prometheus-alerts chart. |
 | proxySidecar.enabled | bool | `false` | (Boolean) Enables injecting a pre-defined reverse proxy sidecar container into the Pod containers list. |
 | proxySidecar.env | list | `[]` | Environment Variables for the primary container. These are all run through the tpl function (the key name and value), so you can dynamically name resources as you need. |
 | proxySidecar.envFrom | list | `[]` | Pull all of the environment variables listed in a ConfigMap into the Pod. See https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables for more details. |

@@ -3,7 +3,7 @@
 
 Helm Chart that provisions a series of common Prometheus Alerts
 
-![Version: 1.0.2](https://img.shields.io/badge/Version-1.0.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
+![Version: 1.0.3](https://img.shields.io/badge/Version-1.0.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -11,6 +11,12 @@ Helm Chart that provisions a series of common Prometheus Alerts
 This chart provides a default deployment for a simple application that operates
 in a [Deployment][deployments]. The chart automatically configures various
 defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
+
+## Important Note on Changs to this chart!
+
+If you make changes to the queries in this chart, you must also go duplicate
+those changes in the `charts/simple-app`, `charts/daemonset-app` and
+`charts/stateful-app` charts.
 
 ## Upgrade Notes
 
@@ -36,7 +42,7 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.0.14 |
+| file://../nd-common | nd-common | 0.0.15 |
 
 ## Values
 

@@ -12,6 +12,14 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
 
+### 0.23.x -> 0.24.x
+
+**BREAKING: Rolled back to Values.prometheusRules**
+
+The use of nested charts within nested charts is problematic, and we have
+rolled it back. Please use `Values.prometheusRules` to configure alarms. We
+will deprecate the `prometheus-alerts` chart.
+
 ### 0.22.x -> 0.23.x
 
 **BREAKING: The HorizontalPodAutoscaler has been upgraded to `v2beta2`**

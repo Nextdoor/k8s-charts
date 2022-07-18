@@ -1,3 +1,6 @@
+# -- The URL of the runbook for this service.
+runbookUrl: https://github.com/Nextdoor/k8s-charts/blob/main/charts/daemonset-app/README.md
+
 verticalAutoscaling:
   # -- (`bool`) Controls whether or not an VerticalPodAutoscaler resource is created.
   enabled: false
@@ -425,26 +428,66 @@ datadog:
     # https://docs.datadoghq.com/agent/logs/advanced_log_collection/?tab=configurationfile
     processingRules: []
 
-# Configures alerts for all the pods managed by this application chart by
-# default. This chart can be overridden and reconfigured, but the default
-# behavior is generally correct for most workloads.
-alerts:
+# Container Alerting Rules
+#
+# These rules are designed to provide very basic but critical monitoring for
+# the health of your containers and pods. More specific alerts can be created
+# by you - but these apply to the pods and resources managed by this chart.
+prometheusRules:
   # -- (`bool`) Whether or not to enable the prometheus-alerts chart.
   enabled: true
 
-  # -- (`map`) Configure the specific Container rules that we want
-  containerRules:
-    # These rules are disabled because they do not match the resources this
-    # chart can create.
-    KubeDeploymentGenerationMismatch: false
-    KubeDeploymentReplicasMismatch: false
-    KubeHpaMaxedOut: false
-    KubeHpaReplicasMismatch: false
-    KubeJobCompletion: false
-    KubeJobFailed: false
-    KubeStatefulSetGenerationMismatch: false
-    KubeStatefulSetReplicasMismatch: false
-    KubeStatefulSetUpdateNotRolledOut: false
+  # -- (`map`) Additional custom labels attached to every PrometheusRule
+  additionalRuleLabels: {}
+
+  # -- Monitors Pods for Containers that are terminated either for unexpected
+  # reasons like ContainerCannotRun. If that number breaches the $threshold (1)
+  # for $for (1m), then it will alert.
+  PodContainerTerminated:
+    severity: warning
+    threshold: 0
+    over: 10m
+    for: 1m
+    reasons:
+      # - Error  < when a container is evicted gracefully, the "error" state is used.
+      - ContainerCannotRun
+      - DeadlineExceeded
+
+  # -- Pod is crash looping
+  PodCrashLooping:
+    severity: warning
+    for: 15m
+
+  # -- Pod has been in a non-ready state for more than a specific threshold
+  PodNotReady:
+    severity: warning
+    for: 15m
+
+  # -- Container is being throttled by the CGroup - needs more resources.
+  CPUThrottlingHigh:
+    severity: warning
+    threshold: 65
+    for: 15m
+
+  # -- Pod container waiting longer than threshold
+  ContainerWaiting:
+    severity: warning
+    for: 1h
+
+  # -- DaemonSet pods are not scheduled
+  KubeDaemonSetNotScheduled:
+    severity: warning
+    for: 10m
+
+  # -- DaemonSet pods are misscheduled
+  KubeDaemonSetMisScheduled:
+    severity: warning
+    for: 15m
+
+  # -- DaemonSet rollout is stuck
+  KubeDaemonSetRolloutStuck:
+    severity: warning
+    for: 15m
 
 tests:
   connection:
