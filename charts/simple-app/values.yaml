@@ -768,4 +768,3 @@ prometheusRules:
   HpaMaxedOut:
     severity: warning
     for: 15m
-
