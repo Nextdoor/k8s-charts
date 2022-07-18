@@ -597,6 +597,7 @@ alerts:
     # chart can create.
     KubeDaemonSetMisScheduled: false
     KubeDaemonSetNotScheduled: false
+    KubeDaemonSetRolloutStuck: false
     KubeDeploymentGenerationMismatch: false
     KubeDeploymentReplicasMismatch: false
     KubeJobCompletion: false
