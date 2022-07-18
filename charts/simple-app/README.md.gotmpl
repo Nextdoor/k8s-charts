@@ -20,6 +20,14 @@ The new `v2beta2` API has been used for the `HorizontalPodAutoscaler` - and a
 custom set of `behaviors` have been implemented. See
 `.Values.autoscaling.behavior for the details.
 
+**NEW: PrometheusRules are enabled by default!!**
+
+Going forward, the
+[`prometheus-alerts](https://github.com/Nextdoor/k8s-charts/tree/main/charts/prometheus-alerts)
+chart will be installed _by default_ for you and configured to monitor your
+basic resources. If you want to disable it or reconfigure the alerts, the
+configuration lives in the `.Values.alerts` key.
+
 ### 0.21.x -> 0.22.x
 
 **BREAKING: If you do not set .Values.ports, then no VirtualService will be created**
@@ -33,7 +41,6 @@ non-existent `Service` if your application exposes no ports (like a
 Going forward, the chart will not create a `VirtualService` unless the
 `Values.ports` array is populated as well. This links the logic for `Service`
 and `VirtualService` creation together.
-
 
 ### 0.20.x -> 0.21.x
 
