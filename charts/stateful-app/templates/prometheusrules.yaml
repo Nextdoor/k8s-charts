@@ -1,0 +1,250 @@
+{{- $values          := .Values }}
+{{- $global          := . }}
+{{- $targetNamespace := .Release.Namespace }}
+{{- $runbookUrl      := required "Values.runbookUrl can not be blank!" .Values.runbookUrl }}
+{{- $appName         := include "nd-common.fullname" . }}
+{{- $podName         := trunc 56 $appName | printf "%s.*" }}
+
+{{- if .Values.prometheusRules.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-rules
+  labels:
+    {{- include "nd-common.labels" . | nindent 4 }}
+spec:
+  groups:
+  - name: {{ .Release.Namespace }}.{{ .Release.Name }}.{{ .Chart.Name }}.PodRules
+    rules:
+
+    {{- with .Values.prometheusRules.PodContainerTerminated }}
+    - alert: PodContainerTerminated
+      annotations:
+        summary: {{`Pod {{$labels.pod}} in namespace {{$labels.namespace}} in error status`}}
+        runbook_url: {{ $runbookUrl }}#kube-pod-container-terminated
+        description: >-
+          Pod {{`{{$labels.pod}}`}} in namespace {{`{{$labels.namespace}}`}}
+          has a container that has been terminated ({{`{{ $value }}`}} times) due to
+          {{`{{$labels.reason}}`}} in the last {{ .for }}.
+      expr: |-
+        sum by (container, namespace, pod, reason) (
+          sum_over_time(
+            kube_pod_container_status_terminated_reason{
+              reason=~"{{ join "|" .reasons }}",
+              namespace="{{ $targetNamespace }}",
+              pod=~"{{ $podName }}"
+            }[{{ .over }}]
+          )
+        ) > {{ .threshold }}
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        {{- with $values.prometheusRules.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
+        {{- end }}
+    {{- end }}
+
+    {{- with .Values.prometheusRules.PodCrashLooping }}
+    - alert: PodCrashLooping
+      annotations:
+        summary: >-
+          {{`{{ $labels.pod }}`}} is crash looping.
+        runbook_url: {{ $runbookUrl }}#alert-name-kubepodcrashlooping
+        description: >-
+          Container {{`{{ $labels.container }}`}} in pod
+          {{`{{ $labels.pod }}`}} (namespace: {{`{{ $labels.namespace }}`}})
+          is restarting {{`{{ printf "%.2f" $value }}`}} times / 5 minutes.
+      expr: |-
+        rate(
+          kube_pod_container_status_restarts_total{
+            job="kube-state-metrics",
+            namespace=~"{{ $targetNamespace }}",
+            pod=~"{{ $podName }}"
+          }[5m]
+        ) * 60 * 5 > 0
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        {{- with $values.prometheusRules.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
+        {{- end }}
+    {{- end }}
+
+    {{- with .Values.prometheusRules.PodNotReady }}
+    - alert: PodNotReady
+      annotations:
+        summary: >-
+          {{`{{ $labels.pod }}`}} has been in a non-ready state for more than {{ .for }}
+        runbook_url: {{ $runbookUrl }}#alert-name-kubepodnotready
+        description: >-
+          Pod {{`{{ $labels.pod }}`}} (namespace: {{`{{ $labels.namespace }}`}})
+          has been in a non-ready state for longer than {{ .for }}.
+      expr: |-
+        sum by (namespace, pod) (
+          max by(namespace, pod) (
+            kube_pod_status_phase{
+              job="kube-state-metrics",
+              namespace=~"{{ $targetNamespace }}",
+              phase=~"Pending|Unknown",
+              pod=~"{{ $podName }}"
+            }
+          ) * on(namespace, pod) group_left(owner_kind) topk by(namespace, pod) (
+            1, max by(namespace, pod, owner_kind) (kube_pod_owner{owner_kind!="Job"})
+          )
+        ) > 0
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        {{- with $values.prometheusRules.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
+        {{- end }}
+    {{- end }}
+
+  - name: {{ .Release.Namespace }}.{{ .Release.Name }}.{{ .Chart.Name }}.ContainerRules
+    rules:
+
+    {{- with .Values.prometheusRules.CPUThrottlingHigh }}
+    - alert: CPUThrottlingHigh
+      annotations:
+        summary: >-
+          {{`{{ $labels.pod }}`}} processes are experiencing elevated CPU throttling
+        runbook_url: {{ $runbookUrl }}#CPUThrottlingHigh
+        description: >-
+          {{`{{ $value | humanizePercentage }}`}} throttling of CPU in
+          namespace {{`{{ $labels.namespace }}`}} for container
+          {{`{{ $labels.container }}`}} in pod {{`{{ $labels.pod }}`}}.
+      expr: |-
+        sum(
+          increase(
+            container_cpu_cfs_throttled_periods_total{
+              container!="",
+              namespace=~"{{ $targetNamespace }}",
+              pod=~"{{ $podName }}"
+            }[5m]
+          )
+        ) by (container, pod, namespace)
+
+          /
+
+        sum(
+          increase(
+            container_cpu_cfs_periods_total{}[5m]
+          )
+        ) by (container, pod, namespace)
+
+        > ( {{ .threshold }} / 100 )
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        {{- with $values.prometheusRules.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
+        {{- end }}
+    {{- end }}
+
+    {{- with .Values.prometheusRules.ContainerWaiting }}
+    - alert: ContainerWaiting
+      annotations:
+        summary: >-
+          {{`{{ $labels.pod }}`}} container ({{`{{ $labels.container }}`}}) waiting longer than {{ .for }}
+        runbook_url: {{ $runbookUrl }}#containerwaiting
+        description: >-
+          Container {{`{{ $labels.container }}`}} in pod {{`{{ $labels.pod }}`}}
+          (namespace: {{`{{ $labels.namespace }}`}} has been in a waiting
+          state for longer than 1 hour.
+      expr: sum by (namespace, pod, container) (kube_pod_container_status_waiting_reason{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}"}) > 0
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        {{- with $values.prometheusRules.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
+        {{- end }}
+    {{- end }}
+
+  - name: {{ .Release.Namespace }}.{{ .Release.Name }}.{{ .Chart.Name }}.StatefulSetRules
+    rules:
+
+    {{ with .Values.prometheusRules.KubeStatefulSetReplicasMismatch -}}
+    - alert: KubeStatefulSetReplicasMismatch
+      annotations:
+        summary: StatefulSet has not matched the expected number of replicas.
+        runbook_url: {{ $runbookUrl }}#alert-name-kubestatefulsetreplicasmismatch
+        description: >-
+          StatefulSet {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}}
+          $labels.statefulset {{`}}`}} has not matched the expected number of
+          replicas for longer than 15 minutes.
+      expr: |-
+        (
+          kube_statefulset_status_replicas_ready{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", statefulset="{{ $appName }}"}
+            !=
+          kube_statefulset_status_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", statefulset="{{ $appName }}"}
+        ) and (
+          changes(kube_statefulset_status_replicas_updated{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", statefulset="{{ $appName }}"}[5m])
+            ==
+          0
+        )
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        {{- if $values.prometheusRules.additionalRuleLabels }}
+        {{ toYaml $values.prometheusRules.additionalRuleLabels | nindent 8 }}
+        {{- end }}
+    {{- end }}
+
+    {{ with .Values.prometheusRules.KubeStatefulSetGenerationMismatch -}}
+    - alert: KubeStatefulSetGenerationMismatch
+      annotations:
+        summary: StatefulSet generation mismatch due to possible roll-back
+        runbook_url: {{ $runbookUrl }}#alert-name-kubestatefulsetgenerationmismatch
+        description: >-
+          StatefulSet generation for {{`{{`}} $labels.namespace
+          {{`}}`}}/{{`{{`}} $labels.statefulset {{`}}`}} does not match, this
+          indicates that the StatefulSet has failed but has not been rolled
+          back.
+      expr: |-
+        kube_statefulset_status_observed_generation{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", statefulset="{{ $appName }}"}
+          !=
+        kube_statefulset_metadata_generation{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", statefulset="{{ $appName }}"}
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        {{- if $values.prometheusRules.additionalRuleLabels }}
+        {{ toYaml $values.prometheusRules.additionalRuleLabels | nindent 8 }}
+        {{- end }}
+    {{- end }}
+
+    {{ with .Values.prometheusRules.KubeStatefulSetUpdateNotRolledOut -}}
+    - alert: KubeStatefulSetUpdateNotRolledOut
+      annotations:
+        summary: StatefulSet update has not been rolled out.
+        runbook_url: {{ $runbookUrl }}#alert-name-kubestatefulsetupdatenotrolledout
+        description: >-
+          StatefulSet {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}}
+          $labels.statefulset {{`}}`}} update has not been rolled out.
+      expr: |-
+        (
+          max without (revision) (
+            kube_statefulset_status_current_revision{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", statefulset="{{ $appName }}"}
+              unless
+            kube_statefulset_status_update_revision{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", statefulset="{{ $appName }}"}
+          )
+            *
+          (
+            kube_statefulset_replicas{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", statefulset="{{ $appName }}"}
+              !=
+            kube_statefulset_status_replicas_updated{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", statefulset="{{ $appName }}"}
+          )
+        )  and (
+          changes(kube_statefulset_status_replicas_updated{job="kube-state-metrics", namespace=~"{{ $targetNamespace }}", statefulset="{{ $appName }}"}[5m])
+            ==
+          0
+        )
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        {{- if $values.prometheusRules.additionalRuleLabels }}
+        {{ toYaml $values.prometheusRules.additionalRuleLabels | nindent 8 }}
+        {{- end }}
+    {{- end }}
+
+{{- end }}
+

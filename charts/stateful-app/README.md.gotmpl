@@ -12,6 +12,14 @@ ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
 
+### 0.7.x -> 0.8.x
+
+**BREAKING: Rolled back to Values.prometheusRules**
+
+The use of nested charts within nested charts is problematic, and we have
+rolled it back. Please use `Values.prometheusRules` to configure alarms. We
+will deprecate the `prometheus-alerts` chart.
+
 ### 0.6.x -> 0.7.x
 
 **NEW: PrometheusRules are enabled by default!!**

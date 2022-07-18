@@ -2,7 +2,7 @@
 apiVersion: monitoring.coreos.com/v1alpha1
 kind: AlertmanagerConfig
 metadata:
-  name: {{ .Release.Name }}-default-pagerduty
+  name: {{ include "prometheus-alerts.fullname" . }}
   labels:
     alertmanagerConfig: {{ .Values.alertManager.alertmanagerConfig }}
 spec:
@@ -19,6 +19,6 @@ spec:
         - sendResolved: true
           severity: '{{ .Files.Get "files/pagerduty_severity.tpl" | trimSuffix "\n" }}'
           routingKey:
-            name: {{ .Release.Name }}-default-pagerduty-routing-key
+            name: {{ include "prometheus-alerts.fullname" . }}
             key: routing_key
 {{ end -}}

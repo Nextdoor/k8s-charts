@@ -11,7 +11,7 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: {{ .Release.Name }}-container-rules
+  name: {{ include "prometheus-alerts.fullname" . }}
   annotations:
     nextdoor.com/chart: {{ .Values.chart_name }}
     nextdoor.com/source: {{ .Values.chart_source }}

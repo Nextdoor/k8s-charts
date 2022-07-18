@@ -2,7 +2,7 @@
 
 Default DaemonSet Helm Chart
 
-![Version: 0.6.1](https://img.shields.io/badge/Version-0.6.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.7.0](https://img.shields.io/badge/Version-0.7.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,14 @@ in Kubernetes][statefulsets]. The chart provides all of the common pieces like
 ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
+
+### 0.6.x -> 0.7.x
+
+**BREAKING: Rolled back to Values.prometheusRules**
+
+The use of nested charts within nested charts is problematic, and we have
+rolled it back. Please use `Values.prometheusRules` to configure alarms. We
+will deprecate the `prometheus-alerts` chart.
 
 ### 0.5.0 -> 0.6.0
 

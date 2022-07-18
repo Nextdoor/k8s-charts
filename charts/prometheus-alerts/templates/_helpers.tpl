@@ -1,3 +1,7 @@
+{{- define "prometheus-alerts.fullname" -}}
+{{ .Template.Name | replace ".yaml" "" | replace "/" "-" | trunc 63 }}
+{{- end }}
+
 {{- define "prometheus-alerts.namespaceSelector" -}}
 namespace="{{ .Release.Namespace }}"
 {{- end }}
