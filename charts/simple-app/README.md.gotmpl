@@ -12,6 +12,14 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
 
+### 0.22.x -> 0.23.x
+
+**BREAKING: The HorizontalPodAutoscaler has been upgraded to `v2beta2`**
+
+The new `v2beta2` API has been used for the `HorizontalPodAutoscaler` - and a
+custom set of `behaviors` have been implemented. See
+`.Values.autoscaling.behavior for the details.
+
 ### 0.21.x -> 0.22.x
 
 **BREAKING: If you do not set .Values.ports, then no VirtualService will be created**
@@ -25,6 +33,7 @@ non-existent `Service` if your application exposes no ports (like a
 Going forward, the chart will not create a `VirtualService` unless the
 `Values.ports` array is populated as well. This links the logic for `Service`
 and `VirtualService` creation together.
+
 
 ### 0.20.x -> 0.21.x
 
