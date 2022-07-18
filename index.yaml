@@ -3,6 +3,28 @@ entries:
   daemonset-app:
   - apiVersion: v2
     appVersion: latest
+    created: "2022-07-18T21:43:39.510921712Z"
+    dependencies:
+    - alias: alerts
+      condition: alerts.enabled
+      name: prometheus-alerts
+      repository: https://k8s-charts.nextdoor.com
+      version: 1.0.2
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.0.15
+    description: Default DaemonSet Helm Chart
+    digest: b6fbcf5a8c9b23745376fe23bd5a366dfbf6e688d867c97dc90f013f41af1413
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: daemonset-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/daemonset-app-0.6.1/daemonset-app-0.6.1.tgz
+    version: 0.6.1
+  - apiVersion: v2
+    appVersion: latest
     created: "2022-07-18T21:21:11.495685648Z"
     dependencies:
     - alias: alerts
@@ -3177,4 +3199,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2022-07-18T21:21:12.411754452Z"
+generated: "2022-07-18T21:43:39.512140067Z"
