@@ -436,15 +436,15 @@ alerts:
   containerRules:
     # These rules are disabled because they do not match the resources this
     # chart can create.
-    KubeDeploymentGenerationMismatch: null
-    KubeDeploymentReplicasMismatch: null
-    KubeHpaMaxedOut: null
-    KubeHpaReplicasMismatch: null
-    KubeJobCompletion: null
-    KubeJobFailed: null
-    KubeStatefulSetGenerationMismatch: null
-    KubeStatefulSetReplicasMismatch: null
-    KubeStatefulSetUpdateNotRolledOut: null
+    KubeDeploymentGenerationMismatch: false
+    KubeDeploymentReplicasMismatch: false
+    KubeHpaMaxedOut: false
+    KubeHpaReplicasMismatch: false
+    KubeJobCompletion: false
+    KubeJobFailed: false
+    KubeStatefulSetGenerationMismatch: false
+    KubeStatefulSetReplicasMismatch: false
+    KubeStatefulSetUpdateNotRolledOut: false
 
 tests:
   connection:
