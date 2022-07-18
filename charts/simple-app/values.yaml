@@ -714,10 +714,10 @@ alerts:
   containerRules:
     # These rules are disabled because they do not match the resources this
     # chart can create.
-    KubeDaemonSetMisScheduled: null
-    KubeDaemonSetNotScheduled: null
-    KubeJobCompletion: null
-    KubeJobFailed: null
-    KubeStatefulSetGenerationMismatch: null
-    KubeStatefulSetReplicasMismatch: null
-    KubeStatefulSetUpdateNotRolledOut: null
+    KubeDaemonSetMisScheduled: false
+    KubeDaemonSetNotScheduled: false
+    KubeJobCompletion: false
+    KubeJobFailed: false
+    KubeStatefulSetGenerationMismatch: false
+    KubeStatefulSetReplicasMismatch: false
+    KubeStatefulSetUpdateNotRolledOut: false
