@@ -41,15 +41,15 @@ TopologySpreadConstraint. The default value if not supplied is `1`.
   minDomains: {{ . }}
   {{- end }}
   labelSelector:
-    matchExpressions:
-      {{- include "nd-common.selectorLabelsExpression" $ | nindent 6 }}
+    matchLabels:
+      {{- include "nd-common.selectorLabels" $ | nindent 6 }}
 {{- end -}}
 {{- if .Values.enableTopologySpread -}}
 - maxSkew: {{ default 1 .Values.topologySkew }}
   topologyKey: {{ default "topology.kubernetes.io/zone" .Values.topologyKey }}
   whenUnsatisfiable: DoNotSchedule
   labelSelector:
-    matchExpressions:
-      {{- include "nd-common.selectorLabelsExpression" $ | nindent 6 }}
+    matchLabels:
+      {{- include "nd-common.selectorLabels" $ | nindent 6 }}
 {{- end }}
 {{- end }}

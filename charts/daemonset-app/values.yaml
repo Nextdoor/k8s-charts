@@ -425,6 +425,27 @@ datadog:
     # https://docs.datadoghq.com/agent/logs/advanced_log_collection/?tab=configurationfile
     processingRules: []
 
+# Configures alerts for all the pods managed by this application chart by
+# default. This chart can be overridden and reconfigured, but the default
+# behavior is generally correct for most workloads.
+alerts:
+  # -- (`bool`) Whether or not to enable the prometheus-alerts chart.
+  enabled: true
+
+  # -- (`map`) Configure the specific Container rules that we want
+  containerRules:
+    # These rules are disabled because they do not match the resources this
+    # chart can create.
+    KubeDeploymentGenerationMismatch: null
+    KubeDeploymentReplicasMismatch: null
+    KubeHpaMaxedOut: null
+    KubeHpaReplicasMismatch: null
+    KubeJobCompletion: null
+    KubeJobFailed: null
+    KubeStatefulSetGenerationMismatch: null
+    KubeStatefulSetReplicasMismatch: null
+    KubeStatefulSetUpdateNotRolledOut: null
+
 tests:
   connection:
     # -- The command used to trigger the test.

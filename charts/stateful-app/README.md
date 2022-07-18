@@ -2,7 +2,7 @@
 
 Default StatefulSet Helm Chart
 
-![Version: 0.6.1](https://img.shields.io/badge/Version-0.6.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.7.0](https://img.shields.io/badge/Version-0.7.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,16 @@ in Kubernetes][statefulsets]. The chart provides all of the common pieces like
 ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
+
+### 0.6.x -> 0.7.x
+
+**NEW: PrometheusRules are enabled by default!!**
+
+Going forward, the
+[`prometheus-alerts](https://github.com/Nextdoor/k8s-charts/tree/main/charts/prometheus-alerts)
+chart will be installed _by default_ for you and configured to monitor your
+basic resources. If you want to disable it or reconfigure the alerts, the
+configuration lives in the `.Values.alerts` key.
 
 ### 0.5.x -> 0.6.x
 
@@ -171,14 +181,17 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.0.14 |
+| file://../nd-common | nd-common | 0.0.15 |
 | https://k8s-charts.nextdoor.com | istio-alerts | 0.1.3 |
+| https://k8s-charts.nextdoor.com | alerts(prometheus-alerts) | 1.0.2 |
 
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
+| alerts.containerRules | object | `{"KubeDaemonSetMisScheduled":null,"KubeDaemonSetNotScheduled":null,"KubeDeploymentGenerationMismatch":null,"KubeDeploymentReplicasMismatch":null,"KubeJobCompletion":null,"KubeJobFailed":null}` | (`map`) Configure the specific Container rules that we want |
+| alerts.enabled | bool | `true` | (`bool`) Whether or not to enable the prometheus-alerts chart. |
 | args | list | `[]` | The arguments passed to the command. If unspecified the container defaults are used. The exact rules of how commadn and args are interpreted can be # found at: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/ |
 | command | list | `[]` | The command run by the container. This overrides `ENTRYPOINT`. If not specified, the container's default entrypoint is used. The exact rules of how commadn and args are interpreted can be # found at: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/ |
 | containerName | string | `""` |  |

@@ -583,3 +583,21 @@ tests:
 istio-alerts:
   # -- (`bool`) Whether or not to enable the istio-alerts chart.
   enabled: true
+
+# Configures alerts for all the pods managed by this application chart by
+# default. This chart can be overridden and reconfigured, but the default
+# behavior is generally correct for most workloads.
+alerts:
+  # -- (`bool`) Whether or not to enable the prometheus-alerts chart.
+  enabled: true
+
+  # -- (`map`) Configure the specific Container rules that we want
+  containerRules:
+    # These rules are disabled because they do not match the resources this
+    # chart can create.
+    KubeDaemonSetMisScheduled: null
+    KubeDaemonSetNotScheduled: null
+    KubeDeploymentGenerationMismatch: null
+    KubeDeploymentReplicasMismatch: null
+    KubeJobCompletion: null
+    KubeJobFailed: null

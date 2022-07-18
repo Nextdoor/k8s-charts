@@ -2,12 +2,17 @@ apiVersion: v2
 name: daemonset-app
 description: Default DaemonSet Helm Chart
 type: application
-version: 0.5.2
+version: 0.6.0
 appVersion: latest
 maintainers:
   - name: diranged
     email: matt@nextdoor.com
 dependencies:
+  - name: prometheus-alerts
+    alias: alerts
+    version: 1.0.2
+    repository: https://k8s-charts.nextdoor.com
+    condition: alerts.enabled
   - name: nd-common
-    version: 0.0.14
+    version: 0.0.15
     repository: file://../nd-common

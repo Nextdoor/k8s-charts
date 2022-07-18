@@ -12,6 +12,16 @@ ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
 
+### 0.6.x -> 0.7.x
+
+**NEW: PrometheusRules are enabled by default!!**
+
+Going forward, the
+[`prometheus-alerts](https://github.com/Nextdoor/k8s-charts/tree/main/charts/prometheus-alerts)
+chart will be installed _by default_ for you and configured to monitor your
+basic resources. If you want to disable it or reconfigure the alerts, the
+configuration lives in the `.Values.alerts` key.
+
 ### 0.5.x -> 0.6.x
 
 **BREAKING: If you do not set .Values.ports, then no VirtualService will be created**
