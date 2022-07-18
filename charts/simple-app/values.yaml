@@ -409,16 +409,16 @@ autoscaling:
         # -- (`map`) Increase by no more than 4 pods per 60 seconds.
         #
         # Eg: 1 -> 5 -> 9 -> 13...
-        - Type: Pods
-          Value: 4
-          PeriodSeconds: 60
+        - type: Pods
+          value: 4
+          periodSeconds: 60
 
         # -- (`map`) Increase by up to 100% of the pods per 60 seconds.
         #
         # Eg: 1 -> 2 -> 4 -> 8 -> 16...
-        - Type: Percent
-          Value: 100
-          PeriodSeconds: 60
+        - type: Percent
+          value: 100
+          periodSeconds: 60
 
     scaleDown:
       # -- (`int`) https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#stabilization-window
@@ -456,24 +456,24 @@ autoscaling:
 
       policies:
         # -- (`map`) Allow up to 5 pods to be removed within a 60 second window.
-        - Type: Pods
-          Value: 5
-          PeriodSeconds: 60
+        - type: Pods
+          value: 5
+          periodSeconds: 60
 
         # -- (`map) On larger deployments, we want to limit the scale-down so
         # that we don't have to bounce too quickly back up if the scale-down
         # was too aggressive. Limit is 25% of the containers every minute.
-        - Type: Percent
-          Value: 25
-          PeriodSeconds: 60
+        - type: Percent
+          value: 25
+          periodSeconds: 60
 
         # For record, this is the default policy:
         #
         # https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#default-behavior
         #
-        # - Type: Percent
-        #   Value: 100
-        #   PeriodSeconds: 60
+        # - type: Percent
+        #   value: 100
+        #   periodSeconds: 60
 
   # -- Sets the minimum number of Pods to run
   minReplicas: 1
