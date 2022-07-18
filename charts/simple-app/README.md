@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.23.1](https://img.shields.io/badge/Version-0.23.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.23.2](https://img.shields.io/badge/Version-0.23.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -211,7 +211,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
-| alerts.containerRules | object | `{"KubeDaemonSetMisScheduled":false,"KubeDaemonSetNotScheduled":false,"KubeJobCompletion":false,"KubeJobFailed":false,"KubeStatefulSetGenerationMismatch":false,"KubeStatefulSetReplicasMismatch":false,"KubeStatefulSetUpdateNotRolledOut":false}` | (`map`) Configure the specific Container rules that we want |
+| alerts.containerRules | object | `{"KubeDaemonSetMisScheduled":false,"KubeDaemonSetNotScheduled":false,"KubeDaemonSetRolloutStuck":false,"KubeJobCompletion":false,"KubeJobFailed":false,"KubeStatefulSetGenerationMismatch":false,"KubeStatefulSetReplicasMismatch":false,"KubeStatefulSetUpdateNotRolledOut":false}` | (`map`) Configure the specific Container rules that we want |
 | alerts.enabled | bool | `true` | (`bool`) Whether or not to enable the prometheus-alerts chart. |
 | args | list | `[]` | The arguments passed to the command. If unspecified the container defaults are used. The exact rules of how commadn and args are interpreted can be # found at: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/ |
 | autoscaling.behavior | object | `{"scaleDown":{"policies":[{"periodSeconds":60,"type":"Pods","value":5},{"periodSeconds":60,"type":"Percent","value":25}],"selectPolicy":"Min","stabilizationWindowSeconds":300},"scaleUp":{"policies":[{"periodSeconds":60,"type":"Pods","value":4},{"periodSeconds":60,"type":"Percent","value":100}],"selectPolicy":"Max","stabilizationWindowSeconds":0}}` | (`map`) Controls the way that the AutoScaler scales up and down. We use this to control the speed in which the scaler responds to scaleUp and scaleDown events. Explicitly set this to `null` to let Kubernetes set its default policy. |

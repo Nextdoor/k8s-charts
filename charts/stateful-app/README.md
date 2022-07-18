@@ -2,7 +2,7 @@
 
 Default StatefulSet Helm Chart
 
-![Version: 0.7.1](https://img.shields.io/badge/Version-0.7.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.7.2](https://img.shields.io/badge/Version-0.7.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -190,7 +190,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
-| alerts.containerRules | object | `{"KubeDaemonSetMisScheduled":false,"KubeDaemonSetNotScheduled":false,"KubeDeploymentGenerationMismatch":false,"KubeDeploymentReplicasMismatch":false,"KubeJobCompletion":false,"KubeJobFailed":false}` | (`map`) Configure the specific Container rules that we want |
+| alerts.containerRules | object | `{"KubeDaemonSetMisScheduled":false,"KubeDaemonSetNotScheduled":false,"KubeDaemonSetRolloutStuck":false,"KubeDeploymentGenerationMismatch":false,"KubeDeploymentReplicasMismatch":false,"KubeJobCompletion":false,"KubeJobFailed":false}` | (`map`) Configure the specific Container rules that we want |
 | alerts.enabled | bool | `true` | (`bool`) Whether or not to enable the prometheus-alerts chart. |
 | args | list | `[]` | The arguments passed to the command. If unspecified the container defaults are used. The exact rules of how commadn and args are interpreted can be # found at: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/ |
 | command | list | `[]` | The command run by the container. This overrides `ENTRYPOINT`. If not specified, the container's default entrypoint is used. The exact rules of how commadn and args are interpreted can be # found at: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/ |
