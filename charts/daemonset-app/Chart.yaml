@@ -2,12 +2,12 @@ apiVersion: v2
 name: daemonset-app
 description: Default DaemonSet Helm Chart
 type: application
-version: 0.9.0
+version: 0.9.1
 appVersion: latest
 maintainers:
   - name: diranged
     email: matt@nextdoor.com
 dependencies:
   - name: nd-common
-    version: 0.0.17
+    version: 0.0.18
     repository: file://../nd-common

@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.25.1](https://img.shields.io/badge/Version-0.25.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.25.2](https://img.shields.io/badge/Version-0.25.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -227,7 +227,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.0.17 |
+| file://../nd-common | nd-common | 0.0.18 |
 | https://k8s-charts.nextdoor.com | istio-alerts | 0.1.3 |
 
 ## Values
@@ -337,6 +337,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | secrets | object | `{}` | (`Map`) Map of environment variables to plaintext secrets or KMS encrypted secrets. |
 | secretsEngine | string | `"plaintext"` | (String) Secrets Engine determines the type of Secret Resource that will be created (`KMSSecret`, `Secret`). kms || plaintext are possible values. |
 | securityContext | object | `{}` |  |
+| service.name | `string` | `nil` | Optional override for the Service name. Can be used to create a simpler more friendly service name that is not specific to the application name. |
 | service.type | string | `"ClusterIP"` |  |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
