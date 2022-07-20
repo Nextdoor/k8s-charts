@@ -1,4 +1,4 @@
-{{- include "nd-common.podMonitor" . }}
+{{- include "nd-common.serviceMonitor" . }}
 
 ---
 

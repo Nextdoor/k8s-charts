@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 0.0.2](https://img.shields.io/badge/Version-0.0.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.0.3](https://img.shields.io/badge/Version-0.0.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -118,7 +118,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.0.11 |
+| file://../nd-common | nd-common | 0.0.16 |
 | https://k8s-charts.nextdoor.com | istio-alerts | 0.1.3 |
 
 ## Values
@@ -127,6 +127,15 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
 | args | list | `[]` | The arguments passed to the command. If unspecified the container defaults are used. The exact rules of how commadn and args are interpreted can be # found at: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/ |
+| autoscaling.behavior | object | `{"scaleDown":{"policies":[{"periodSeconds":60,"type":"Pods","value":5},{"periodSeconds":60,"type":"Percent","value":25}],"selectPolicy":"Min","stabilizationWindowSeconds":300},"scaleUp":{"policies":[{"periodSeconds":60,"type":"Pods","value":4},{"periodSeconds":60,"type":"Percent","value":100}],"selectPolicy":"Max","stabilizationWindowSeconds":0}}` | (`map`) Controls the way that the AutoScaler scales up and down. We use this to control the speed in which the scaler responds to scaleUp and scaleDown events. Explicitly set this to `null` to let Kubernetes set its default policy. |
+| autoscaling.behavior.scaleDown.policies[0] | object | `{"periodSeconds":60,"type":"Pods","value":5}` | (`map`) Allow up to 5 pods to be removed within a 60 second window. |
+| autoscaling.behavior.scaleDown.policies[1] | object | `{"periodSeconds":60,"type":"Percent","value":25}` | (`map) On larger deployments, we want to limit the scale-down so that we don't have to bounce too quickly back up if the scale-down was too aggressive. Limit is 25% of the containers every minute. |
+| autoscaling.behavior.scaleDown.selectPolicy | string | `"Min"` | (`string`) Ensure that we can scale down up to 5 pods at a time, so that our scale-down rate is graceful in general. We'd rather scale down quickly than constantly be bouncing around. 50 -> 45 -> 40 -> 35 -> 30 -> 25 -> 20 -> 15 -> 12 -> 9 -> 7 -> 6 -> 5 -> 4 -> 3 -> 2 -> 1 |
+| autoscaling.behavior.scaleDown.stabilizationWindowSeconds | int | `300` | (`int`) https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#stabilization-window The stabilization window is used to restrict the flapping of replica count when the metrics used for scaling keep fluctuating. The autoscaling algorithm uses this window to infer a previous desired state and avoid unwanted changes to workload scale. For example, in the following example snippet, a stabilization window is specified for scaleDown.   behavior:     scaleDown:       stabilizationWindowSeconds: 300 When the metrics indicate that the target should be scaled down the algorithm looks into previously computed desired states, and uses the highest value from the specified interval. In the above example, all desired states from the past 5 minutes will be considered. This approximates a rolling maximum, and avoids having the scaling algorithm frequently remove Pods only to trigger recreating an equivalent Pod just moments later. |
+| autoscaling.behavior.scaleUp.policies[0] | object | `{"periodSeconds":60,"type":"Pods","value":4}` | (`map`) Increase by no more than 4 pods per 60 seconds. Eg: 1 -> 5 -> 9 -> 13... |
+| autoscaling.behavior.scaleUp.policies[1] | object | `{"periodSeconds":60,"type":"Percent","value":100}` | (`map`) Increase by up to 100% of the pods per 60 seconds. Eg: 1 -> 2 -> 4 -> 8 -> 16... |
+| autoscaling.behavior.scaleUp.selectPolicy | string | `"Max"` | (`string`) When evaluating the desired scale for the service, pick from one of the below behaviors based on which one scales up the most pods. So, when scaling from 1 pod, the pattern looks like this: 1 -> 5 -> 10 -> 20 -> 40 -> 80  (over 5 minutes) |
+| autoscaling.behavior.scaleUp.stabilizationWindowSeconds | int | `0` | (`int`) https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#stabilization-window The stabilization window is used to restrict the flapping of replica count when the metrics used for scaling keep fluctuating. The autoscaling algorithm uses this window to infer a previous desired state and avoid unwanted changes to workload scale. For example, in the following example snippet, a stabilization window is specified for scaleDown.   behavior:     scaleDown:       stabilizationWindowSeconds: 300 When the metrics indicate that the target should be scaled down the algorithm looks into previously computed desired states, and uses the highest value from the specified interval. In the above example, all desired states from the past 5 minutes will be considered. This approximates a rolling maximum, and avoids having the scaling algorithm frequently remove Pods only to trigger recreating an equivalent Pod just moments later. |
 | autoscaling.enabled | bool | `false` | Controls whether or not an HorizontalPodAutoscaler resource is created. |
 | autoscaling.maxReplicas | int | `100` | Sets the maximum number of Pods to run |
 | autoscaling.minReplicas | int | `1` | Sets the minimum number of Pods to run |
@@ -160,6 +169,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | datadog.scrapeLogs.source | `string` | `nil` | If set, this configures the "source" tag. If this is not set, the tag defaults to the `.Release.Name` for the application. |
 | datadog.scrapeMetrics | bool | `false` | (`bool`) If true, then we will configure the Datadog agent to scrape metrics from the application pod via the values set in the .Values.monitor.* map. |
 | datadog.service | `string` | `nil` | If set, this configures the "service" tag. If this is not set, the tag defaults to the `.Release.Name` for the application. |
+| enableTopologySpread | bool | `false` | (`bool`) If set to `true`, then a default `TopologySpreadConstraint` will be created that forces your pods to be evenly distributed across nodes based on the `topologyKey` setting. The maximum skew between the spread is controlled with `topologySkew`. |
 | env | list | `[]` | Environment Variables for the primary container. These are all run through the tpl function (the key name and value), so you can dynamically name resources as you need. |
 | envFrom | list | `[]` | Pull all of the environment variables listed in a ConfigMap into the Pod. See https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables for more details. |
 | fullnameOverride | string | `""` |  |
@@ -249,7 +259,9 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | tests.connection.image.repository | string | `"curlimages/curl"` | Sets the image-name that will be used in the "connection" integration test. If this is left empty, then the .image.repository value will be used instead (and the .image.tag will also be used). By default, prefer the latest official version to handle cases where the app image provides either no curl binary or an outdated one. |
 | tests.connection.image.tag | string | `nil` | Sets the tag that will be used in the "connection" integration test. If this is left empty, the default is "latest" |
 | tolerations | list | `[]` |  |
-| topologySpreadConstraints | list | `[]` |  |
+| topologyKey | string | `"topology.kubernetes.io/zone"` | (`string`) The topologyKey to use when asking Kubernetes to schedule the pods in a particular distribution. The default is to spread across zones evenly. Other options could be `kubernetes.io/hostname` to spread across EC2 instances, or `node.kubernetes.io/instance-type` to spread across instance types for example. |
+| topologySkew | int | `1` | (`int`) The maxSkew setting applied to the default TopologySpreadConstraint if `enableTopologySpread` is set to `true`. |
+| topologySpreadConstraints | list | `[]` | (`string`) An array of custom TopologySpreadConstraint settings applied to the PodSpec within the Deployment. Each of these TopologySpreadObjects should conform to the [`pod.spec.topologySpreadConstraints`](https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#api) API - but the `labelSelector` field should be left out, it will be inserted automatically for you. |
 | virtualService.annotations | object | `{}` | Any annotations you wish to add to the `VirtualService` resource. See https://istio.io/latest/docs/reference/config/annotations/ for more details. |
 | virtualService.corsPolicy | object | `{}` | (`map`) If set, this will populate the corsPolicy setting for the VirtualService. See https://istio.io/latest/docs/reference/config/networking/virtual-service/#CorsPolicy for more details. |
 | virtualService.enabled | bool | `false` | (Boolean) Maps the Service to an Istio IngressGateway, exposing the service outside of the Kubernetes cluster. |

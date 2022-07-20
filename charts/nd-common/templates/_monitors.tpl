@@ -35,8 +35,8 @@ Monitoring port number.
 - name: {{ .Values.monitor.portName }}
   containerPort: {{ .Values.monitor.portNumber }}
   protocol: TCP
-{{- end }}
-{{- end }}
+{{- end -}}
+{{- end -}}
   
 {{/*
 
@@ -65,6 +65,73 @@ spec:
     matchLabels:
       {{- include "nd-common.selectorLabels" . | nindent 6 }}
   podMetricsEndpoints:
+    - port: {{ .Values.monitor.portName }}
+      path: {{ .Values.monitor.path }}
+      scheme: {{ .Values.monitor.scheme }}
+      {{- with .Values.monitor.interval }}
+      interval: {{ . }}
+      {{- end }}
+      {{- with .Values.monitor.scrapeTimeout }}
+      scrapeTimeout: {{ . }}
+      {{- end }}
+      relabelings:
+        {{- if .Values.monitor.relabelings }}
+        {{- toYaml .Values.monitor.relabelings | nindent 8 }}
+        {{- else }}
+        # Standard app.kubernetes.io labels: instance, name, version
+        - regex: __meta_kubernetes_pod_label_(app_kubernetes_io_(instance|name|version))
+          replacement: $1
+          action: labelmap
+
+        # Standard tags.datadoghq.com labels: service, version
+        - regex: __meta_kubernetes_pod_label_(tags_datadoghq_com_(service|version))
+          replacement: $1
+          action: labelmap
+
+        # Map the pod name into the pod_name label
+        - sourceLabels: [__meta_kubernetes_pod_name]
+          action: replace
+          targetLabel: pod_name
+        {{- end }}
+      {{- with .Values.monitor.metricRelabelings }}
+      metricRelabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.monitor.tlsConfig }}
+      tlsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+
+This function creates an optional `ServiceMonitor` resource for monitoring metrics
+from our pods in Prometheus. A ServiceMonitor is used any time you have a
+Service pointing at your pods.
+
+*/}}
+{{- define "nd-common.serviceMonitor" }}
+{{- if .Values.monitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "nd-common.fullname" . }}
+  {{- with .Values.monitor.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    {{- include "nd-common.labels" . | nindent 4 }}
+    {{- with .Values.monitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  sampleLimit: {{ include "nd-common.monitorSampleLimit" . }}
+  selector:
+    matchLabels:
+      {{- include "nd-common.selectorLabels" . | nindent 6 }}
+  endpoints:
     - port: {{ .Values.monitor.portName }}
       path: {{ .Values.monitor.path }}
       scheme: {{ .Values.monitor.scheme }}
