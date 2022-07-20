@@ -15,7 +15,7 @@ details.
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "nd-common.fullname" $ }}
+  name: {{ default (include "nd-common.fullname" $) .Values.service.name }}
   labels:
     {{- include "nd-common.labels" $ | nindent 4 }}
 spec:

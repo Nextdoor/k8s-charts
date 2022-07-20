@@ -217,14 +217,8 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  # -- (`bool`) If enabled, a `Service` resource is created for the DaemonSet.
-  # This enables the pods to be accessed at a common network endpoint rather
-  # than accessing directly a hostNetwork'd pod.
-  enabled: false
-
   # -- (`string`) `ClusterIP`, `NodePort`, `LoadBalancer` or `ExternalName`.
   type: ClusterIP
-
 
   # -- (`string`) Optional override for the Service name. Can be used to create
   # a simpler more friendly service name that is not specific to the

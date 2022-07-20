@@ -255,6 +255,11 @@ securityContext: {}
 service:
   type: ClusterIP
 
+  # -- (`string`) Optional override for the Service name. Can be used to create
+  # a simpler more friendly service name that is not specific to the
+  # application name.
+  name:
+
 # Configuration for creating a dedicated ALB for your service. This is
 # acceptable - but not the preferred method (see the IngressGateway setup
 # below).
