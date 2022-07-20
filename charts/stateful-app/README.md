@@ -2,7 +2,7 @@
 
 Default StatefulSet Helm Chart
 
-![Version: 0.8.0](https://img.shields.io/badge/Version-0.8.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.9.0](https://img.shields.io/badge/Version-0.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,23 @@ in Kubernetes][statefulsets]. The chart provides all of the common pieces like
 ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
+
+### 0.8.x -> 0.9.x
+
+**NEW: Always create a `Service` Resource**
+
+In order to make sure that the Istio Service Mesh can always determine
+"locality" for client and server workloads, we _always_ create a `Service`
+object now that is used by Istio to track the endpoints and determine their
+locality. This `Service` may not expose any real ports to the rest of the
+network, but is still critical for Istio.
+
+**Switched `PodMonitor` to `ServiceMonitor`**
+
+Because we are always creating a `Service` resource now, we've followed the
+Prometheus Operator recommendations and switched to using a `ServiceMonitor`
+object. The metrics stay the same, but for some reason the `ServiceMonitor` is
+preferred.
 
 ### 0.7.x -> 0.8.x
 
@@ -189,7 +206,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.0.15 |
+| file://../nd-common | nd-common | 0.0.16 |
 | https://k8s-charts.nextdoor.com | istio-alerts | 0.1.3 |
 
 ## Values

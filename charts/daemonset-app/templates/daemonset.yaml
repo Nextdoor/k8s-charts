@@ -127,7 +127,7 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           ports:
-            {{- include "daemonset-app.containerPorts" . | nindent 12 }}
+            {{- include "nd-common.containerPorts" . | nindent 12 }}
             {{- include "nd-common.monitorPodPorts" . | nindent 12 }}
           {{- with .Values.startupProbe }}
           startupProbe:

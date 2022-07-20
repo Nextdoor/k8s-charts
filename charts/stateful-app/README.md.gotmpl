@@ -12,6 +12,23 @@ ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
 
+### 0.8.x -> 0.9.x
+
+**NEW: Always create a `Service` Resource**
+
+In order to make sure that the Istio Service Mesh can always determine
+"locality" for client and server workloads, we _always_ create a `Service`
+object now that is used by Istio to track the endpoints and determine their
+locality. This `Service` may not expose any real ports to the rest of the
+network, but is still critical for Istio.
+
+**Switched `PodMonitor` to `ServiceMonitor`**
+
+Because we are always creating a `Service` resource now, we've followed the
+Prometheus Operator recommendations and switched to using a `ServiceMonitor`
+object. The metrics stay the same, but for some reason the `ServiceMonitor` is
+preferred.
+
 ### 0.7.x -> 0.8.x
 
 **BREAKING: Rolled back to Values.prometheusRules**
