@@ -2,6 +2,8 @@ terminationGracePeriodSeconds: 30
 targetArchitecture: ""
 priorityClassName: system-node-critical
 hostNetwork: true  # makes the tests work
+network:
+  allowedNamespaces: ['*']
 datadog:
   scrapeMetrics: true
   scrapeLogs:

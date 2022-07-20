@@ -2,7 +2,7 @@
 
 Default DaemonSet Helm Chart
 
-![Version: 0.8.0](https://img.shields.io/badge/Version-0.8.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.9.0](https://img.shields.io/badge/Version-0.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,16 @@ in Kubernetes][statefulsets]. The chart provides all of the common pieces like
 ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
+
+### 0.8.x -> 0.9.x
+
+**BREAKING: `NetworkPolicy` no longer allows all traffic by default**
+
+It is not the rule that `DaemonSets` should always allow all traffic from all
+Namespaces by default. In fact, it is likely not true in a large shared
+cluster. A new setting `.Values.allowedNamespaces` is set up for you to
+explicitly define which namespaces can access the service. If you need all
+services to access it, use `.Values.network.allowedNamespaces: ['*']`.
 
 ### 0.7.x -> 0.8.x
 

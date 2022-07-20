@@ -12,6 +12,16 @@ ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
 
+### 0.8.x -> 0.9.x
+
+**BREAKING: `NetworkPolicy` no longer allows all traffic by default**
+
+It is not the rule that `DaemonSets` should always allow all traffic from all
+Namespaces by default. In fact, it is likely not true in a large shared
+cluster. A new setting `.Values.allowedNamespaces` is set up for you to
+explicitly define which namespaces can access the service. If you need all
+services to access it, use `.Values.network.allowedNamespaces: ['*']`.
+
 ### 0.7.x -> 0.8.x
 
 **NEW: Always create a `Service` Resource**

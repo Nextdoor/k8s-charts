@@ -30,9 +30,13 @@ spec:
       {{- end }}
       from:
         {{- range .Values.network.allowedNamespaces }}
+        {{- if eq . "*" }}
+        - namespaceSelector: {}
+        {{- else }}
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: {{ . }}
+        {{- end }}
         {{- end }}
 {{- end }}
 {{- end }}
