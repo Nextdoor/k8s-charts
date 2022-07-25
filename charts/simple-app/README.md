@@ -44,7 +44,7 @@ will deprecate the `prometheus-alerts` chart.
 
 The new `v2beta2` API has been used for the `HorizontalPodAutoscaler` - and a
 custom set of `behaviors` have been implemented. See
-`.Values.autoscaling.behavior for the details.
+`.Values.autoscaling.behavior` for the details.
 
 **NEW: PrometheusRules are enabled by default!!**
 
