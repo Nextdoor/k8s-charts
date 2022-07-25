@@ -49,7 +49,7 @@ custom set of `behaviors` have been implemented. See
 **NEW: PrometheusRules are enabled by default!!**
 
 Going forward, the
-[`prometheus-alerts](https://github.com/Nextdoor/k8s-charts/tree/main/charts/prometheus-alerts)
+[`prometheus-alerts`](https://github.com/Nextdoor/k8s-charts/tree/main/charts/prometheus-alerts)
 chart will be installed _by default_ for you and configured to monitor your
 basic resources. If you want to disable it or reconfigure the alerts, the
 configuration lives in the `.Values.alerts` key.
