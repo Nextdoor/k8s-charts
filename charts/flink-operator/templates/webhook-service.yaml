@@ -2,6 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Release.Name }}-webhook-service
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: kubernetes_namespace={{ .Releases.Namespace }}
 spec:
   ports:
   - port: 443

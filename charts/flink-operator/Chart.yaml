@@ -1,7 +1,7 @@
 apiVersion: v2
 description: Intalls the Spotify-version of the Flink-on-K8S-Operator
 name: flink-operator
-version: 0.0.1
+version: 0.0.2
 appVersion: v0.3.0
 sources:
   - https://github.com/spotify/flink-on-k8s-operator/releases

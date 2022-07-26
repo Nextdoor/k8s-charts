@@ -10,6 +10,8 @@ metadata:
   name: {{ include "nd-common.fullname" . }}
   labels:
     {{- include "nd-common.labels" . | nindent 4 }}
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: kubernetes_namespace={{ .Releases.Namespace }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -36,6 +38,8 @@ metadata:
   name: {{ include "nd-common.fullname" . }}-preview
   labels:
     {{- include "nd-common.labels" . | nindent 4 }}
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: kubernetes_namespace={{ .Releases.Namespace }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -64,6 +68,8 @@ metadata:
   name: {{ include "nd-common.fullname" . }}-canary
   labels:
     {{- include "nd-common.labels" . | nindent 4 }}
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: kubernetes_namespace={{ .Releases.Namespace }}
 spec:
   type: {{ .Values.service.type }}
   ports:

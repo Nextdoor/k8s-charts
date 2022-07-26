@@ -18,6 +18,8 @@ metadata:
   name: {{ default (include "nd-common.fullname" $) .Values.service.name }}
   labels:
     {{- include "nd-common.labels" $ | nindent 4 }}
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: kubernetes_namespace={{ .Releases.Namespace }}
 spec:
   type: {{ .Values.service.type }}
   ports:
