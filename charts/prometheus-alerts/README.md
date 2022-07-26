@@ -42,7 +42,7 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.0.16 |
+| file://../nd-common | nd-common | 0.0.19 |
 
 ## Values
 
