@@ -5,7 +5,6 @@ metadata:
     prometheus.io/port: "8443"
     prometheus.io/scheme: https
     prometheus.io/scrape: "true"
-    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: kubernetes_namespace={{ .Release.Namespace }}
   name: {{ .Release.Name }}-controller-manager-metrics-service
   labels:
     control-plane: controller-manager
