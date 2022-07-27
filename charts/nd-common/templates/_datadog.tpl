@@ -73,6 +73,11 @@ Datadog Client libraries want.
 */}}
 {{- define "nd-common.datadogEnv" -}}
 {{- if .Values.datadog.enabled -}}
+# https://docs.datadoghq.com/developers/dogstatsd/?tab=kubernetes#origin-detection-over-udp
+- name: DD_ENTITY_ID
+  valueFrom:
+    fieldRef:
+      fieldPath: metadata.uid
 # https://www.datadoghq.com/blog/monitor-kubernetes-docker/#instrument-your-code-to-send-metrics-to-dogstatsd
 - name: DOGSTATSD_HOST_IP
   valueFrom:
