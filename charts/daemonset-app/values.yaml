@@ -459,10 +459,10 @@ prometheusRules:
       - ContainerCannotRun
       - DeadlineExceeded
 
-  # -- Pod is crash looping
-  PodCrashLooping:
+  # -- Pod is in a CrashLoopBackOff state and is not becoming healthy.
+  PodCrashLoopBackOff:
     severity: warning
-    for: 15m
+    for: 10m
 
   # -- Pod has been in a non-ready state for more than a specific threshold
   PodNotReady:
