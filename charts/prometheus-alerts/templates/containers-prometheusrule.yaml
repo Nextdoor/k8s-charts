@@ -75,6 +75,27 @@ spec:
         {{- end }}
     {{ end -}}
 
+    {{ with .Values.containerRules.ContainerWaiting -}}
+    - alert: ContainerWaiting
+      annotations:
+        summary: Pod container waiting longer than {{ .for }}
+        runbook_url: {{ $values.defaults.runbookUrl }}#alert-name-kubecontainerwaiting
+        description: >-
+          Pod {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.pod {{`}}`}}
+          container {{`{{`}} $labels.container{{`}}`}} has been in waiting
+          state for longer than 1 hour.
+      expr: |-
+        sum by (namespace, pod, container) (
+          kube_pod_container_status_waiting_reason{ {{- $podSelector -}} }
+        ) > 0
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        {{- if $values.defaults.additionalRuleLabels }}
+        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- end }}
+    {{- end }}
+
     {{- with .Values.containerRules.CPUThrottlingHigh }}
     - alert: CPUThrottlingHigh
       annotations:
@@ -112,23 +133,24 @@ spec:
   - name: {{ .Release.Name }}.{{ .Release.Namespace }}.kubernetesAppsRules
     rules:
 
-    {{ with .Values.containerRules.KubePodCrashLooping -}}
-    - alert: KubePodCrashLooping
+    {{ with .Values.containerRules.PodCrashLoopBackOff -}}
+    - alert: PodCrashLoopBackOff
       annotations:
-        summary: Pod is crash looping.
+        summary: {{`Container inside pod {{ $labels.pod }} is crash looping`}}
         runbook_url: {{ $values.defaults.runbookUrl }}#alert-name-kubepodcrashlooping
         description: >-
-          Pod {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.pod {{`}}`}}
-          ({{`{{`}} $labels.container {{`}}`}}) is restarting {{`{{`}} printf
-          "%.2f" $value {{`}}`}} times / 5 minutes.
+          {{`Container {{ $labels.container }} within pod {{ $labels.pod }} is in
+          a {{ $labels.reason }} state. Investigate because it indicates that
+          the Pod is unable to become fully healthy.`}}
       expr: |-
-        rate(
-          kube_pod_container_status_restarts_total{
+        sum by(namespace, pod, container, reason) (
+          kube_pod_container_status_waiting_reason{
             job="kube-state-metrics",
+            reason="CrashLoopBackOff",
             {{ $podSelector }},
             {{ $namespaceSelector }}
-          }[5m]
-        ) * 60 * 5 > 0
+          }
+        ) > 0
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
@@ -137,8 +159,8 @@ spec:
         {{- end }}
     {{- end }}
 
-    {{ with .Values.containerRules.KubePodNotReady -}}
-    - alert: KubePodNotReady
+    {{ with .Values.containerRules.PodNotReady -}}
+    - alert: PodNotReady
       annotations:
         summary: Pod has been in a non-ready state for more than {{ .for }}
         runbook_url: {{ $values.defaults.runbookUrl }}#alert-name-kubepodnotready
@@ -336,27 +358,6 @@ spec:
             ==
           0
         )
-      for: {{ .for }}
-      labels:
-        severity: {{ .severity }}
-        {{- if $values.defaults.additionalRuleLabels }}
-        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
-        {{- end }}
-    {{- end }}
-
-    {{ with .Values.containerRules.KubeContainerWaiting -}}
-    - alert: KubeContainerWaiting
-      annotations:
-        summary: Pod container waiting longer than {{ .for }}
-        runbook_url: {{ $values.defaults.runbookUrl }}#alert-name-kubecontainerwaiting
-        description: >-
-          Pod {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.pod {{`}}`}}
-          container {{`{{`}} $labels.container{{`}}`}} has been in waiting
-          state for longer than 1 hour.
-      expr: |-
-        sum by (namespace, pod, container) (
-          kube_pod_container_status_waiting_reason{ {{- $daemonsetSelector -}} }
-        ) > 0
       for: {{ .for }}
       labels:
         severity: {{ .severity }}

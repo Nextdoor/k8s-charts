@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.25.7](https://img.shields.io/badge/Version-0.25.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.25.8](https://img.shields.io/badge/Version-0.25.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -316,7 +316,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | prometheusRules.HpaMaxedOut | object | `{"for":"15m","severity":"warning"}` | HPA is running at max replicas |
 | prometheusRules.HpaReplicasMismatch | object | `{"for":"15m","severity":"warning"}` | HPA has not matched descired number of replicas |
 | prometheusRules.PodContainerTerminated | object | `{"for":"1m","over":"10m","reasons":["ContainerCannotRun","DeadlineExceeded"],"severity":"warning","threshold":0}` | Monitors Pods for Containers that are terminated either for unexpected reasons like ContainerCannotRun. If that number breaches the $threshold (1) for $for (1m), then it will alert. |
-| prometheusRules.PodCrashLooping | object | `{"for":"15m","severity":"warning"}` | Pod is crash looping |
+| prometheusRules.PodCrashLoopBackOff | object | `{"for":"10m","severity":"warning"}` | Pod is in a CrashLoopBackOff state and is not becoming healthy. |
 | prometheusRules.PodNotReady | object | `{"for":"15m","severity":"warning"}` | Pod has been in a non-ready state for more than a specific threshold |
 | prometheusRules.additionalRuleLabels | object | `{}` | (`map`) Additional custom labels attached to every PrometheusRule |
 | prometheusRules.enabled | bool | `true` | (`bool`) Whether or not to enable the prometheus-alerts chart. |

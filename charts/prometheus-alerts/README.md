@@ -3,7 +3,7 @@
 
 Helm Chart that provisions a series of common Prometheus Alerts
 
-![Version: 1.0.6](https://img.shields.io/badge/Version-1.0.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
+![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -59,8 +59,8 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 | containerRules.CPUThrottlingHigh.for | string | `"15m"` |  |
 | containerRules.CPUThrottlingHigh.severity | string | `"warning"` |  |
 | containerRules.CPUThrottlingHigh.threshold | int | `65` |  |
-| containerRules.KubeContainerWaiting.for | string | `"1h"` |  |
-| containerRules.KubeContainerWaiting.severity | string | `"warning"` |  |
+| containerRules.ContainerWaiting.for | string | `"1h"` |  |
+| containerRules.ContainerWaiting.severity | string | `"warning"` |  |
 | containerRules.KubeDaemonSetMisScheduled.for | string | `"15m"` |  |
 | containerRules.KubeDaemonSetMisScheduled.severity | string | `"warning"` |  |
 | containerRules.KubeDaemonSetNotScheduled.for | string | `"10m"` |  |
@@ -78,8 +78,6 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 | containerRules.KubeJobCompletion.severity | string | `"warning"` |  |
 | containerRules.KubeJobFailed.for | string | `"15m"` |  |
 | containerRules.KubeJobFailed.severity | string | `"warning"` |  |
-| containerRules.KubePodCrashLooping | object | `{"for":"15m","severity":"warning"}` | Pod is crash looping |
-| containerRules.KubePodNotReady | object | `{"for":"15m","severity":"warning"}` | Pod has been in a non-ready state for more than a specific threshold |
 | containerRules.KubeStatefulSetGenerationMismatch.for | string | `"15m"` |  |
 | containerRules.KubeStatefulSetGenerationMismatch.severity | string | `"warning"` |  |
 | containerRules.KubeStatefulSetReplicasMismatch.for | string | `"15m"` |  |
@@ -88,6 +86,8 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 | containerRules.KubeStatefulSetUpdateNotRolledOut.severity | string | `"warning"` |  |
 | containerRules.PodContainerOOMKilled | object | `{"for":"1m","over":"60m","severity":"warning","threshold":0}` | Sums up all of the OOMKilled events per pod over the $over time (60m). If that number breaches the $threshold (0) for $for (1m), then it will alert. |
 | containerRules.PodContainerTerminated | object | `{"for":"1m","over":"10m","reasons":["ContainerCannotRun","DeadlineExceeded"],"severity":"warning","threshold":0}` | Monitors Pods for Containers that are terminated either for unexpected reasons like ContainerCannotRun. If that number breaches the $threshold (1) for $for (1m), then it will alert. |
+| containerRules.PodCrashLoopBackOff | object | `{"for":"10m","severity":"warning"}` | Pod is in a CrashLoopBackOff state and is not becoming healthy. |
+| containerRules.PodNotReady | object | `{"for":"15m","severity":"warning"}` | Pod has been in a non-ready state for more than a specific threshold |
 | containerRules.enabled | bool | `true` | Whether or not to enable the container rules template |
 | defaults.additionalRuleLabels | object | `{}` | (`map`) Additional custom labels attached to every PrometheusRule |
 | defaults.daemonsetNameSelector | string | `"{{ .Release.Name }}-.*"` | (`string`) Pattern used to scope down the DaemonSet alerts to pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all the DaemonSets in the namespace. This string is run through the `tpl` function. |
