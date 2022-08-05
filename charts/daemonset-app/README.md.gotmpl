@@ -12,6 +12,15 @@ ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
 
+### 0.9.x -> 0.10.x
+
+**BREAKING: Bugfix the VPA so that it doesn't autoscale ALL containers**
+
+This change doesn't really break anything, but it may change the behavior you
+were expecting. The VPA now only auto-scales the primary container for the app,
+not any sidecars. We were seeing unexpected and unintended consequences from
+auto-scaling the `istio-proxy` sidecars.
+
 ### 0.8.x -> 0.9.x
 
 **BREAKING: `NetworkPolicy` no longer allows all traffic by default**

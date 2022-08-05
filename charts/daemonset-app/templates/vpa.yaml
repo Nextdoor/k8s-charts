@@ -22,4 +22,13 @@ spec:
         maxAllowed:
           cpu: {{ required "You must set .verticalAutoscaling.maxCpu"  .Values.verticalAutoscaling.maxCpu }}
           memory: {{ required "You must set .verticalAutoscaling.maxMemory"  .Values.verticalAutoscaling.maxMemory }}
+
+      {{- /*
+      https://medium.com/infrastructure-adventures/vertical-pod-autoscaler-deep-dive-limitations-and-real-world-examples-9195f8422724
+
+      We need to tell the VPA not to scale ALL the containers, and ONLY to
+      scale the container name defined above.
+      */}}
+      - containerName: '*'
+        mode: 'Off'
 {{- end }}
