@@ -3,6 +3,23 @@ entries:
   daemonset-app:
   - apiVersion: v2
     appVersion: latest
+    created: "2022-08-05T22:56:51.374127839Z"
+    dependencies:
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.0.20
+    description: Default DaemonSet Helm Chart
+    digest: 08a1baa64e54a327a61952a049c6ddd37183ac3d9a8ac4ce6d2b3ef56335c750
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: daemonset-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/daemonset-app-0.10.0/daemonset-app-0.10.0.tgz
+    version: 0.10.0
+  - apiVersion: v2
+    appVersion: latest
     created: "2022-08-03T14:19:14.182062471Z"
     dependencies:
     - name: nd-common
@@ -4183,4 +4200,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2022-08-03T14:19:15.005475598Z"
+generated: "2022-08-05T22:56:51.37593036Z"
