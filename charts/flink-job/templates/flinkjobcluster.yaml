@@ -53,7 +53,11 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
     {{- end }}
-    # volumeClaimTemplates, initContainers, sideCars not exposed
+    {{- if .Values.jobManager.volumeClaimTemplates }}
+    volumeClaimTemplates:
+      {{ toYaml .Values.jobManager.volumeClaimTemplates | nindent 6}}
+    {{- end }}
+    # initContainers, sideCars not exposed
     {{- with .Values.nodeSelector }}
     nodeSelector:
       {{- toYaml . | nindent 6 }}
