@@ -74,7 +74,11 @@ spec:
       {{- with .Values.podLabels }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
-  # securityContext, livenessProbe, readinessProbe not exposed
+    securityContext:
+      {{- with .Values.jobManager.securityContext }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+    # livenessProbe, readinessProbe not exposed
     memoryProcessRatio: {{ .Values.jobManager.memoryProcessRatio }}
   taskManager:
     ports:
