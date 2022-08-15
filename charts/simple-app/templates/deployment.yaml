@@ -71,6 +71,42 @@ spec:
         {{- with .Values.volumesString }}{{ tpl . $ | nindent 8 }}{{ end }}
       {{- end }}
       containers:
+        {{- if .Values.initContainer.enabled }}
+        - name: {{ .Values.initContainer.name }}
+          image: {{ include "simple-app.initContainerImageFqdn" . }}  # TODO
+          imagePullPolicy: {{ .Values.initContainer.image.pullPolicy }}
+          {{- with .Values.initContainer.envFrom }}
+          envFrom:
+            {{- range $env := index .}}
+            {{- with $env.configMapRef }}
+            - configMapRef:
+                name: {{ tpl (required ".name key must be set in configMapRef" .name) $ }}
+            {{- end }}
+            {{- with $env.secretRef }}
+            - secretRef:
+                name: {{ tpl (required ".name key must be set on secretRef" .name) $ }}
+            {{- end }}
+            {{- end }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.initContainer.env }}
+          env:
+            {{- range $env := index . }}
+            - name: {{ tpl $env.name $ }}
+              {{- if $env.value }}
+              value: {{ tpl $env.value $ | quote }}
+              {{- else if $env.valueFrom }}
+              valueFrom: {{ tpl (toYaml $env.valueFrom) $ | nindent 16 }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.initContainer.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.initContainer.resources | nindent 12 }}
+        {{- end }}
         {{- if .Values.proxySidecar.enabled }}
         - name: {{ .Values.proxySidecar.name }}
           image: {{ include "simple-app.proxyImageFqdn" . }}
