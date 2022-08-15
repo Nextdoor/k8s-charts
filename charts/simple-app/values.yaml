@@ -122,6 +122,46 @@ readinessProbe:
     path: /
     port: http
 
+# An optional init container. This container starts and exits before the
+# rest of the pod containers start.  It is useful if there is setup work that
+# needs to happen before the real containers run, but is operationally
+# decoupled from what that container does.
+initContainer:
+  # -- (Boolean) Enables injecting a pre-defined reverse proxy sidecar
+  # container into the Pod containers list.
+  enabled: false
+
+  # -- (String) The name of the proxy sidecar container
+  name: proxy
+
+  image:
+    # -- (String) The Docker image name and repository for the sidecar
+    repository: nginx
+
+    # -- (String) The Docker tag for the sidecar
+    tag: latest
+
+    # -- (String) Always, Never or IfNotPresent
+    pullPolicy: IfNotPresent
+
+  # -- Environment Variables for the primary container. These are all run
+  # through the tpl function (the key name and value), so you can dynamically
+  # name resources as you need.
+  env: []
+
+  # -- Pull all of the environment variables listed in a ConfigMap into the
+  # Pod. See
+  # https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables
+  # for more details.
+  envFrom: []
+
+  # -- List of VolumeMounts that are applied to the initContainer container -
+  # these must refer to volumes set in the `Values.volumes` parameter.
+  volumeMounts: []
+
+  # -- A PodSpec "Resources" object for the proxy container
+  resources: {}
+
 # -- (`ContainerPort[]`) A list of Port objects that are exposed by the
 # service. These ports are applied to the main container, or the proxySidecar
 # container (if enabled). The port list is also used to generate Network
