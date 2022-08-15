@@ -70,8 +70,8 @@ spec:
         {{- with .Values.volumes }}{{ toYaml . | nindent 8 }}{{ end }}
         {{- with .Values.volumesString }}{{ tpl . $ | nindent 8 }}{{ end }}
       {{- end }}
-      containers:
-        {{- if .Values.initContainer.enabled }}
+      {{- if .Values.initContainer.enabled }}
+      initContainers:
         - name: {{ .Values.initContainer.name }}
           image: {{ include "simple-app.initContainerImageFqdn" . }}  # TODO
           imagePullPolicy: {{ .Values.initContainer.image.pullPolicy }}
@@ -106,7 +106,8 @@ spec:
           {{- end }}
           resources:
             {{- toYaml .Values.initContainer.resources | nindent 12 }}
-        {{- end }}
+      {{- end }}
+      containers:
         {{- if .Values.proxySidecar.enabled }}
         - name: {{ .Values.proxySidecar.name }}
           image: {{ include "simple-app.proxyImageFqdn" . }}
