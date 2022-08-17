@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.25.8](https://img.shields.io/badge/Version-0.25.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.26.0](https://img.shields.io/badge/Version-0.26.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -278,6 +278,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | ingress.port | string | `nil` | If set, this will override the `service.portName` parameter, and the `Service` object will point specifically to this port number on the backing Pods. |
 | ingress.portName | string | `"http"` | This is the port "name" that the `Service` will point to on the backing Pods. This value must match one of the values of `.name` in the `Values.ports` configuration. |
 | ingress.sslRedirect | bool | `true` | If `true`, then this will annotate the Ingress with a special AWS ALB Ingress Controller annotation that configures an SSL-redirect at the ALB level. |
+| initContainers | list | `[]` | A list of init containers that are run before the main containers start https://kubernetes.io/docs/concepts/workloads/pods/init-containers/ |
 | istio-alerts.enabled | bool | `true` | (`bool`) Whether or not to enable the istio-alerts chart. |
 | istio.enabled | bool | `true` | (`bool`) Whether or not the service should be part of an Istio Service Mesh. If this is turned on and `Values.monitor.enabled=true`, then the Istio Sidecar containers will be configured to pull and merge the metrics from the application, rather than creating a new `PodMonitor` object. |
 | istio.excludeInboundPorts | list | `[]` | (`int[]`) If supplied, this is a list of TCP ports that are excluded from being proxied by the Istio-proxy Envoy sidecar process. _The `.Values.monitor.portNumber` is already included by default. |

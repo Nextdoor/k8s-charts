@@ -47,6 +47,10 @@ args: []
 # https://kubernetes.io/docs/concepts/storage/volumes/.
 volumes: []
 
+# -- A list of init containers that are run before the main containers start
+# https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+initContainers: []
+
 # -- A stringified list of 'volumes' similar to the `Values.volumes` parameter,
 # but this one gets run through the `tpl` function so that you can use
 # templatized values if you need to. See
