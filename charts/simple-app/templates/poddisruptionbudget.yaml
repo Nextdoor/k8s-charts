@@ -1,4 +1,7 @@
 {{- if .Values.podDisruptionBudget -}}
+{{- if lt (.Values.replicaCount | int) 2 }}
+{{- fail "Deployment replica count can not be less than 2 in order to configure PDB. Please configure Replica count greater than or equal to 2." }}
+{{- end }}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
