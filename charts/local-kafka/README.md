@@ -2,7 +2,7 @@
 
 Local Development spinup of Strimzi-managed Kafka
 
-![Version: 0.3.2](https://img.shields.io/badge/Version-0.3.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.3.3](https://img.shields.io/badge/Version-0.3.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [strimzi_op]: https://github.com/strimzi/strimzi-kafka-operator
 
@@ -34,7 +34,7 @@ project's development namespace.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://strimzi.io/charts | strimzi-kafka-operator | 0.28.0 |
+| https://strimzi.io/charts | strimzi-kafka-operator | 0.29.0 |
 
 ## Values
 
@@ -54,7 +54,7 @@ project's development namespace.
 | strimzi-kafka-operator.livenessProbe.initialDelaySeconds | int | `300` |  |
 | strimzi-kafka-operator.logLevel | string | `"DEBUG"` | Run the Operator in a pretty verbose mode - allowing developers to more easily understand if there are any problems with the operator installation or its behavior. |
 | strimzi-kafka-operator.readinessProbe.initialDelaySeconds | int | `300` |  |
-| strimzi-kafka-operator.resources | object | `{"limits":{"cpu":"200m","memory":"384Mi"},"requests":{"cpu":0,"memory":"0Mi"}}` | Reconfigure the default resource requirements here so that the "requests" are as low as possible for memory (so we're not allocating any more memory than we absolutely must), and explicitly limit the CPU performance of the pod so that it cannot take priority over the other pods that developers are working on. |
+| strimzi-kafka-operator.resources | string | `nil` | Reconfigure the default resource requirements here so that the "requests" are as low as possible for memory (so we're not allocating any more memory than we absolutely must). |
 | strimzi-kafka-operator.watchAnyNamespace | bool | `true` | Because you can only install one Strimzi Operator helm chart in a cluster, we might as well set this to True. This allows the chart to be re-used (with `strimzi-kafka-operator.enabled: false`) by other local development projects. |
 | userName | string | `"user"` | Set the name of the KafkaUser that is created for local development |
 
