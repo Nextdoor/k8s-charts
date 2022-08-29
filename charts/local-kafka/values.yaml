@@ -76,13 +76,5 @@ strimzi-kafka-operator:
 
   # -- Reconfigure the default resource requirements here so that the
   # "requests" are as low as possible for memory (so we're not allocating any
-  # more memory than we absolutely must), and explicitly limit the CPU
-  # performance of the pod so that it cannot take priority over the other pods
-  # that developers are working on.
-  resources:
-    requests:
-      cpu: 0
-      memory: 0Mi
-    limits:
-      cpu: 200m
-      memory: 384Mi
+  # more memory than we absolutely must).
+  resources: null
