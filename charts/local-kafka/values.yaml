@@ -70,11 +70,17 @@ strimzi-kafka-operator:
   # this, you get into a restart-loop where Kubernetes keeps thinking the
   # Operator is not healthy, when it's really just in its startup phase.
   livenessProbe:
-    initialDelaySeconds: 300
+    initialDelaySeconds: 180
   readinessProbe:
-    initialDelaySeconds: 300
+    initialDelaySeconds: 180
 
   # -- Reconfigure the default resource requirements here so that the
   # "requests" are as low as possible for memory (so we're not allocating any
   # more memory than we absolutely must).
-  resources: null
+  resources:
+    limits:
+      # cpu: none
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
