@@ -84,6 +84,13 @@ spec:
       patch:
         operation: MERGE
         value:
+          {{- /*
+          Ensure Envoy uses the Redis cluster aware loadbalancer so that it understand the
+          cluster topology and can route requests to a node responsible for the target
+          key's hash slot.
+          */}}
+          lb_policy: CLUSTER_PROVIDED
+
           cluster_type:
             name: envoy.clusters.redis
             typed_config:
