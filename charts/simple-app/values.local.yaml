@@ -36,3 +36,4 @@ datadog:
 
 network:
   allowedNamespaces: [foo, bar]
+deploymentZones: [a, b, c]

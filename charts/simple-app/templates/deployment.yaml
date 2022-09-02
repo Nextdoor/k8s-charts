@@ -37,8 +37,10 @@ to be zone-specific.
 */}}
 {{- if ne $deploymentZone "default" }}
 {{- $topologyKey         := required ".Values.deploymentZones requires that .Values.topologyKey is also set" $.Values.topologyKey }}
-{{- $fullName            = printf "%s-%s" $fullName $deploymentZone }}
+{{- $fullName            = printf "%s-%s" (include "nd-common.fullname" $) $deploymentZone }}
 {{- $deploymentZoneLabel = printf "%s: %s" $topologyKey $deploymentZone }}
+{{- else }}
+{{- $fullName            = include "nd-common.fullname" . }}
 {{- end }}
 
 apiVersion: apps/v1
