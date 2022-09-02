@@ -533,6 +533,21 @@ topologySkew: 1
 # controlled with `topologySkew`.
 enableTopologySpread: false
 
+# -- (`string[]`) If supplied, an individual `Deployment` (and optional `HPA`)
+# is created for each of the Availability Zone strings passed in. The default
+# usage of this parameter would be to ensure that each AZ in your
+# infrastructure has its own Deployment and HPA for scaling that is independent
+# of the others. This is useful for services that are accessed by zone-aware
+# clients, where the load may be imbalanced from one zone to another.
+deploymentZones: []
+
+# -- (`bool`) During the transition from (or to) individual zone deployment
+# resources, flip this setting to `True` to enable the creation of BOTH the
+# Zone-Aware AND Default Deployment resources. This ensures that during the
+# rollover from one to the other configuration, you do not lose all of your
+# pods.
+deploymentZonesTransition: false
+
 affinity: {}
 
 # Monitoring configuration for metric scraping against the Prometheus-style

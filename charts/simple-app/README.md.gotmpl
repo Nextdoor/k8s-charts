@@ -12,6 +12,28 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
 
+### 0.25.x -> 0.26.x
+
+**NEW: Optional Deployments and HPAs for Each Availability Zone!**
+
+In certain cases it makes sense for an application to scale up independently in
+each availability zone. This requirement often comes up when using "zone aware
+routing" topologies where there is no guarantee that your service "clients" are
+equally distributed across availability zones, and they may overrun the pods in
+one of your zones.
+
+In that case, you can now pass in an explicit list of availablilty zone strings
+(eg `us-west-2a`) to the `.Values.deploymentZones` key. For each AZ supplied, a
+dedicated `Deployment` and `HorizontalPodAutoscaler` will be created. In this
+model, settings like `.Values.replicaCount` are applied to EACH of the zones.
+
+_Warning: If you are transioning to this model (or out of it), you want to set
+`.Values.deploymentZonesTransition: true` temporarily to ensure that both the
+"zone-aware" and "zone-independent" Deployment resources are created. This
+ensures there is no sudden scale-down of pods serving live traffic during the
+transition period. You can come back later and flip this setting back to
+`false` when you are done with the transition._
+
 ### 0.24.x -> 0.25.x
 
 **NEW: Always create a `Service` Resource**
