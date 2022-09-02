@@ -34,6 +34,13 @@ In the example above, you can see that the `agent` has a CPU Limit of `25m`,
 but its running at `22m`... so its pretty close to its actual limits. It's
 resource limits should likely be adjusted.
 
+By default, our charts use a low value (5%) because the consequences of hitting
+the CPU throttling limit are insidious: CPU throttling can cause noticably high
+latency in some applications, while different types of workloads may feel
+absolutely no serious effects but fire useless alerts. Because of these
+differences, the `CPUThrottlingHigh` threshold can be configured by any
+application that used the charts in this repository.
+
 ## KubeQuotaAlmostFull
 
 This alert telling you that the resources requested by all of the `Pods` in
