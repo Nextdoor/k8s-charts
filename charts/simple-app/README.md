@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.25.10](https://img.shields.io/badge/Version-0.25.10-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.26.0](https://img.shields.io/badge/Version-0.26.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,28 @@ in a [Deployment][deployments]. The chart automatically configures various
 defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
+
+### 0.25.x -> 0.26.x
+
+**NEW: Optional Deployments and HPAs for Each Availability Zone!**
+
+In certain cases it makes sense for an application to scale up independently in
+each availability zone. This requirement often comes up when using "zone aware
+routing" topologies where there is no guarantee that your service "clients" are
+equally distributed across availability zones, and they may overrun the pods in
+one of your zones.
+
+In that case, you can now pass in an explicit list of availablilty zone strings
+(eg `us-west-2a`) to the `.Values.deploymentZones` key. For each AZ supplied, a
+dedicated `Deployment` and `HorizontalPodAutoscaler` will be created. In this
+model, settings like `.Values.replicaCount` are applied to EACH of the zones.
+
+_Warning: If you are transioning to this model (or out of it), you want to set
+`.Values.deploymentZonesTransition: true` temporarily to ensure that both the
+"zone-aware" and "zone-independent" Deployment resources are created. This
+ensures there is no sudden scale-down of pods serving live traffic during the
+transition period. You can come back later and flip this setting back to
+`false` when you are done with the transition._
 
 ### 0.24.x -> 0.25.x
 
@@ -261,6 +283,8 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | datadog.scrapeMetrics | bool | `false` | (`bool`) If true, then we will configure the Datadog agent to scrape metrics from the application pod via the values set in the .Values.monitor.* map. |
 | datadog.service | `string` | `nil` | If set, this configures the "service" tag. If this is not set, the tag defaults to the `.Release.Name` for the application. |
 | deploymentStrategy | object | `{}` | https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |
+| deploymentZones | list | `[]` | (`string[]`) If supplied, an individual `Deployment` (and optional `HPA`) is created for each of the Availability Zone strings passed in. The default usage of this parameter would be to ensure that each AZ in your infrastructure has its own Deployment and HPA for scaling that is independent of the others. This is useful for services that are accessed by zone-aware clients, where the load may be imbalanced from one zone to another. |
+| deploymentZonesTransition | bool | `false` | (`bool`) During the transition from (or to) individual zone deployment resources, flip this setting to `True` to enable the creation of BOTH the Zone-Aware AND Default Deployment resources. This ensures that during the rollover from one to the other configuration, you do not lose all of your pods. |
 | enableTopologySpread | bool | `false` | (`bool`) If set to `true`, then a default `TopologySpreadConstraint` will be created that forces your pods to be evenly distributed across nodes based on the `topologyKey` setting. The maximum skew between the spread is controlled with `topologySkew`. |
 | env | list | `[]` | Environment Variables for the primary container. These are all run through the tpl function (the key name and value), so you can dynamically name resources as you need. |
 | envFrom | list | `[]` | Pull all of the environment variables listed in a ConfigMap into the Pod. See https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables for more details. |

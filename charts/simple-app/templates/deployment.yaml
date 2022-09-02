@@ -1,81 +1,136 @@
+{{- /*
+Figure out if we are launching a Deployment for each Zone in the cluster (along
+with its own HPAs), or if we're launching just one standard deployment.
+
+If we launch a deployment per-zone, then we do some name and label patching to
+make sure that each Deployment is scaled up separately from the next one.
+*/}}
+{{- $deploymentZones := default (list "default") .Values.deploymentZones }}
+
+
+{{- /*
+...
+*/}}
+{{- if .Values.deploymentZonesTransition }}
+{{- $deploymentZones = prepend $deploymentZones "default" }}
+{{- end }}
+
+{{- /*
+The default fullName field here... we override it and append to it as we loop
+through $deploymentZones
+*/}}
+{{- $fullName            := include "nd-common.fullname" . }}
+
+{{- /*
+The default deploymentZoneLabel is left empty. We patch it as we loop through
+$deploymentZones
+*/}}
+{{- $deploymentZoneLabel := "" }}
+
+{{- /* Iterate through the deployment zones now... */}}
+{{- range $deploymentZone := index $deploymentZones }}
+
+{{- /*
+If $deploymentZone is NOT "default", then we know we're looping through
+them and creating a Deployment per zone. In that case, we patch a few variables
+to be zone-specific.
+*/}}
+{{- if ne $deploymentZone "default" }}
+{{- $topologyKey         := required ".Values.deploymentZones requires that .Values.topologyKey is also set" $.Values.topologyKey }}
+{{- $fullName            = printf "%s-%s" $fullName $deploymentZone }}
+{{- $deploymentZoneLabel = printf "%s: %s" $topologyKey $deploymentZone }}
+{{- end }}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "nd-common.fullname" . }}
+  name: {{ $fullName }}
   labels:
-    {{- include "nd-common.labels" . | nindent 4 }}
+    {{- include "nd-common.labels" $ | nindent 4 }}
+    {{- with $deploymentZoneLabel }}
+    {{ . }}
+    {{- end }}
 spec:
-  {{- with .Values.minReadySeconds }}
+  {{- with $.Values.minReadySeconds }}
   minReadySeconds: {{ . }}
   {{- end }}
-  {{- with .Values.progressDeadlineSeconds }}
+  {{- with $.Values.progressDeadlineSeconds }}
   progressDeadlineSeconds: {{ . }}
   {{- end }}
-  {{- if and .Values.replicaCount (not .Values.autoscaling.enabled) }}
-  replicas: {{ .Values.replicaCount }}
+  {{- if and $.Values.replicaCount (not $.Values.autoscaling.enabled) }}
+  replicas: {{ $.Values.replicaCount }}
   {{- end }}
-  {{- with .Values.revisionHistoryLimit }}
+  {{- with $.Values.revisionHistoryLimit }}
   revisionHistoryLimit: {{ . }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "nd-common.selectorLabels" . | nindent 6 }}
-  {{- with .Values.deploymentStrategy }}
+      {{- include "nd-common.selectorLabels" $ | nindent 6 }}
+      {{- with $deploymentZoneLabel }}
+      {{ . }}
+      {{- end }}
+  {{- with $.Values.deploymentStrategy }}
   strategy:
     {{- toYaml . | nindent 8 }}
   {{- end }}
   template:
     metadata:
       annotations:
-        {{- include "nd-common.podAnnotations" . | nindent 8 }}
-        {{- with .Values.podAnnotations }}
+        {{- include "nd-common.podAnnotations" $ | nindent 8 }}
+        {{- with $.Values.podAnnotations }}
         {{- range $annotation, $value := index . }}
         {{ $annotation }}: {{ tpl $value $ | quote }}
         {{- end }}
         {{- end }}
       labels:
-        {{- include "nd-common.labels" . | nindent 8 }}
-        {{- include "nd-common.datadogLabels" . | nindent 8 }}
-        {{- include "nd-common.istioLabels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
+        {{- include "nd-common.labels" $ | nindent 8 }}
+        {{- include "nd-common.datadogLabels" $ | nindent 8 }}
+        {{- include "nd-common.istioLabels" $ | nindent 8 }}
+        {{- with $.Values.podLabels }}
         {{- tpl (toYaml .) $ | nindent 8 }}
+        {{- end }}
+        {{- with $deploymentZoneLabel }}
+        {{ . }}
         {{- end }}
     spec:
       nodeSelector:
         {{- include "nd-common.nodeSelector" $ | nindent 8 }}
-      {{- with .Values.affinity }}
+        {{- with $deploymentZoneLabel }}
+        {{ . }}
+        {{- end }}
+      {{- with $.Values.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with $.Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or .Values.topologySpreadConstraints .Values.enableTopologySpread }}
+      {{- if or $.Values.topologySpreadConstraints $.Values.enableTopologySpread }}
       topologySpreadConstraints:
-        {{- include "nd-common.topologySpreadConstraints" . | nindent 8 }}
+        {{- include "nd-common.topologySpreadConstraints" $ | nindent 8 }}
       {{- end }}
-      {{- with .Values.imagePullSecrets }}
+      {{- with $.Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      serviceAccountName: {{ include "nd-common.serviceAccountName" . }}
-      {{- with .Values.terminationGracePeriodSeconds }}
+        {{- toYaml $.Values.podSecurityContext | nindent 8 }}
+      serviceAccountName: {{ include "nd-common.serviceAccountName" $ }}
+      {{- with $.Values.terminationGracePeriodSeconds }}
       terminationGracePeriodSeconds: {{ . }}
       {{- end }}
-      {{- if or .Values.volumes .Values.volumesString }}
+      {{- if or $.Values.volumes $.Values.volumesString }}
       volumes:
-        {{- with .Values.volumes }}{{ toYaml . | nindent 8 }}{{ end }}
-        {{- with .Values.volumesString }}{{ tpl . $ | nindent 8 }}{{ end }}
+        {{- with $.Values.volumes }}{{ toYaml . | nindent 8 }}{{ end }}
+        {{- with $.Values.volumesString }}{{ tpl . $ | nindent 8 }}{{ end }}
       {{- end }}
       containers:
-        {{- if .Values.proxySidecar.enabled }}
-        - name: {{ .Values.proxySidecar.name }}
-          image: {{ include "simple-app.proxyImageFqdn" . }}
-          imagePullPolicy: {{ .Values.proxySidecar.image.pullPolicy }}
-          {{- with .Values.preStopCommand }}
+        {{- if $.Values.proxySidecar.enabled }}
+        - name: {{ $.Values.proxySidecar.name }}
+          image: {{ include "simple-app.proxyImageFqdn" $ }}
+          imagePullPolicy: {{ $.Values.proxySidecar.image.pullPolicy }}
+          {{- with $.Values.preStopCommand }}
           lifecycle:
             preStop:
               exec:
@@ -83,7 +138,7 @@ spec:
                   {{ toYaml . | nindent 18 }}
           {{- end }}
 
-          {{- with .Values.proxySidecar.envFrom }}
+          {{- with $.Values.proxySidecar.envFrom }}
           envFrom:
             {{- range $env := index .}}
             {{- with $env.configMapRef }}
@@ -97,7 +152,7 @@ spec:
             {{- end }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.proxySidecar.env }}
+          {{- with $.Values.proxySidecar.env }}
           env:
             {{- range $env := index . }}
             - name: {{ tpl $env.name $ }}
@@ -108,56 +163,56 @@ spec:
               {{- end }}
             {{- end }}
           {{- end }}
-          {{- with .Values.proxySidecar.volumeMounts }}
+          {{- with $.Values.proxySidecar.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if .Values.ports }}
+          {{- if $.Values.ports }}
           ports:
-            {{- include "nd-common.containerPorts" . | nindent 12 }}
+            {{- include "nd-common.containerPorts" $ | nindent 12 }}
           {{- end }}
-          {{- with .Values.startupProbe }}
+          {{- with $.Values.startupProbe }}
           startupProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.livenessProbe }}
+          {{- with $.Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.readinessProbe }}
+          {{- with $.Values.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           resources:
-            {{- toYaml .Values.proxySidecar.resources | nindent 12 }}
+            {{- toYaml $.Values.proxySidecar.resources | nindent 12 }}
         {{- end }}
-        - name: {{ include "nd-common.containerName" . }}
+        - name: {{ include "nd-common.containerName" $ }}
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: {{ include "nd-common.imageFqdn" . }}
-          {{- with .Values.command }}
+            {{- toYaml $.Values.securityContext | nindent 12 }}
+          image: {{ include "nd-common.imageFqdn" $ }}
+          {{- with $.Values.command }}
           command:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.args }}
+          {{- with $.Values.args }}
           args:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- with .Values.preStopCommand }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          {{- with $.Values.preStopCommand }}
           lifecycle:
             preStop:
               exec:
                 command:
                   {{- toYaml . | nindent 18 }}
           {{- end }}
-          {{- if or .Values.envFrom .Values.secrets }}
+          {{- if or $.Values.envFrom $.Values.secrets }}
           envFrom:
-            {{- if .Values.secrets }}
+            {{- if $.Values.secrets }}
             - secretRef:
-                name:  {{ .Release.Name }}-secrets
+                name:  {{ $.Release.Name }}-secrets
             {{- end }}
-            {{- with .Values.envFrom}}
+            {{- with $.Values.envFrom}}
             {{- range $env := index .}}
             {{- with $env.configMapRef }}
             - configMapRef:
@@ -170,9 +225,9 @@ spec:
             {{- end }}
             {{- end }}
           {{- end }}
-          {{- if or .Values.env .Values.datadog.enabled }}
+          {{- if or $.Values.env $.Values.datadog.enabled }}
           env:
-            {{- with .Values.env }}
+            {{- with $.Values.env }}
             {{- range $env := index . }}
             - name: {{ tpl $env.name $ }}
               {{- if $env.value }}
@@ -182,30 +237,77 @@ spec:
               {{- end }}
             {{- end }}
             {{- end }}
-            {{- include "nd-common.datadogEnv" . | nindent 12 }}
+            {{- include "nd-common.datadogEnv" $ | nindent 12 }}
           {{- end }}
 
-          {{- with .Values.volumeMounts }}
+          {{- with $.Values.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-          {{- if .Values.proxySidecar.enabled }}
+            {{- toYaml $.Values.resources | nindent 12 }}
+          {{- if $.Values.proxySidecar.enabled }}
           {{- else }}
           ports:
-            {{- include "nd-common.containerPorts" . | nindent 12 }}
-            {{- include "nd-common.monitorPodPorts" . | nindent 12 }}
-          {{- with .Values.startupProbe }}
+            {{- include "nd-common.containerPorts" $ | nindent 12 }}
+            {{- include "nd-common.monitorPodPorts" $ | nindent 12 }}
+          {{- with $.Values.startupProbe }}
           startupProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- end }}
-          {{- with .Values.livenessProbe }}
+          {{- with $.Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.readinessProbe }}
+          {{- with $.Values.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+
+---
+
+{{- if $.Values.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "nd-common.labels" $ | nindent 4 }}
+    {{- with $deploymentZoneLabel }}
+    {{ . }}
+    {{- end }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ $fullName }}
+  {{- with $.Values.autoscaling.behavior }}
+  behavior:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  minReplicas: {{ $.Values.autoscaling.minReplicas }}
+  maxReplicas: {{ $.Values.autoscaling.maxReplicas }}
+  metrics:
+    {{- /* https://github.com/kubernetes/kubernetes/issues/74099 */}}
+    {{- with $.Values.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ . }}
+    {{- end }}
+    {{- with $.Values.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ . }}
+    {{- end }}
+{{- end }}
+
+---
+
+{{- end }}
