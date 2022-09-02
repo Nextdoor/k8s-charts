@@ -47,7 +47,9 @@ jobs:
         run: ct --config ct.yaml lint
 
       - name: Create kind cluster
-        uses: helm/kind-action@v1.2.0
+        uses: helm/kind-action@v1.3.0
+        with:
+          node_image: kindest/node:v1.23.6
         if: steps.list-changed.outputs.changed == 'true'
 
       - name: Install Argo Rollouts Controller

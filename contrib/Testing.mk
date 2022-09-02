@@ -1,4 +1,5 @@
-# Version 0.1.5
+# Version 0.1.10 - 08/29/2022
+# Source: https://github.com/Nextdoor/makefiles
 
 ###############################################################################
 # Helpers for installing tooling..
@@ -27,7 +28,20 @@ ifeq ($(HELM_TEST_ALL_CHARTS),true)
 	ALL_FLAG := --all
 endif
 
-GET_HELM_URL   ?= https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+# Specify the namespace chart-testing installs the charts to
+ifneq ($(NAMESPACE), )
+	NAMESPACE_ARG := --namespace $(NAMESPACE)
+endif
+
+# Specify the charts to be tested. Disables changed charts detection and version
+# increment checking. May be specified multiple times
+# or separate values with commas
+ifneq ($(CHARTS), )
+	CHARTS_ARG := --charts $(CHARTS)
+endif
+
+HELM_VERSION   ?= v3.7.0
+GET_HELM_URL   ?= https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 GET_CT_URL     ?= https://github.com/helm/chart-testing/releases/download/v3.4.0/chart-testing_3.4.0_$(OSNAME)_amd64.tar.gz
 GET_KIND_URL   ?= https://kind.sigs.k8s.io/dl/v0.11.1/kind-$(OSNAME)-amd64
 
@@ -75,7 +89,7 @@ tools: $(HELM) $(CT) $(KIND) $(HELM_DOCS) pytools
 $(HELM):
 	@echo "Installing $(HELM) from $(GET_HELM_URL)..."
 	@mkdir -p $(BIN_DIR)
-	@curl -fsSL $(GET_HELM_URL) | USE_SUDO=false HELM_INSTALL_DIR=$(BIN_DIR) bash -
+	@curl -fsSL $(GET_HELM_URL) | USE_SUDO=false HELM_INSTALL_DIR=$(BIN_DIR) bash -s -- --version $(HELM_VERSION)
 
 $(CT):
 	@echo "Installing $(CT) from $(GET_CT_URL)..."
@@ -109,7 +123,7 @@ helm_lint: _helm_clean
 	@cd $(ROOT_DIR) && $(CT) lint --config $(ROOT_DIR)/ct.yaml
 
 .PHONY: helm_docs
-helm_docs:
+helm_docs: $(HELM_DOCS)
 	$(HELM_DOCS)
 	git diff --exit-code
 
@@ -118,7 +132,7 @@ helm_cluster: $(KIND)
 	$(KIND) create cluster \
 		--name "$(KIND_CLUSTER_NAME)" \
 		--config "$(ROOT_DIR)/contrib/kind-config.yaml" \
-		--image "kindest/node:v1.21.2" \
+		--image "kindest/node:v1.23.6" \
 		--wait 60s
 
 .PHONY: helm_test
@@ -128,7 +142,9 @@ helm_test: $(TEST_PREREQS)
 		--volume "$(ROOT_DIR):/workdir" \
 		--volume "$(HOME)/.kube/config:/root/.kube/config" \
 		--workdir /workdir \
-		quay.io/helmpack/chart-testing:v3.4.0 \
+		quay.io/helmpack/chart-testing:v3.5.1 \
 		ct install \
+			$(NAMESPACE_ARG) \
+			$(CHARTS_ARG) \
 			--excluded-charts="$(EXCLUDED_CHARTS_FROM_TESTS)" \
 			$(ALL_FLAG)
