@@ -40,7 +40,7 @@ to be zone-specific.
 {{- $fullName            = printf "%s-%s" (include "nd-common.fullname" $) $deploymentZone }}
 {{- $deploymentZoneLabel = printf "%s: %s" $topologyKey $deploymentZone }}
 {{- else }}
-{{- $fullName            = include "nd-common.fullname" . }}
+{{- $fullName            = include "nd-common.fullname" $ }}
 {{- end }}
 
 apiVersion: apps/v1
