@@ -886,9 +886,12 @@ prometheusRules:
     for: 15m
 
   # -- Container is being throttled by the CGroup - needs more resources.
+  # This value is appropriate for applications that are highly sensitive to
+  # request latency. Insensitive workloads might need to raise this percentage
+  # to avoid alert noise.
   CPUThrottlingHigh:
     severity: warning
-    threshold: 65
+    threshold: 5
     for: 15m
 
   # -- Pod container waiting longer than threshold
