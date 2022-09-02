@@ -21,6 +21,14 @@ through $deploymentZones
 */}}
 {{- $fullName            := include "nd-common.fullname" . }}
 
+
+{{- /*
+By default, we do run the topology spread function - letting it decide
+whether or not to spread by AZ. However, in the per-zone deployments we always
+disable this.
+*/}}
+{{- $disableTopoSpreadFunction   := false }}
+
 {{- /*
 The default deploymentZoneLabel is left empty. We patch it as we loop through
 $deploymentZones
@@ -36,9 +44,10 @@ them and creating a Deployment per zone. In that case, we patch a few variables
 to be zone-specific.
 */}}
 {{- if ne $deploymentZone "default" }}
-{{- $topologyKey         := required ".Values.deploymentZones requires that .Values.topologyKey is also set" $.Values.topologyKey }}
-{{- $fullName            = printf "%s-%s" (include "nd-common.fullname" $) $deploymentZone }}
-{{- $deploymentZoneLabel = printf "%s: %s" $topologyKey $deploymentZone }}
+{{- $topologyKey               := required ".Values.deploymentZones requires that .Values.topologyKey is also set" $.Values.topologyKey }}
+{{- $fullName                  = printf "%s-%s" (include "nd-common.fullname" $) $deploymentZone }}
+{{- $deploymentZoneLabel       = printf "%s: %s" $topologyKey $deploymentZone }}
+{{- $disableTopoSpreadFunction = true }}
 {{- else }}
 {{- $fullName            = include "nd-common.fullname" $ }}
 {{- end }}
@@ -108,9 +117,11 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if not $disableTopoSpreadFunction }}
       {{- if or $.Values.topologySpreadConstraints $.Values.enableTopologySpread }}
       topologySpreadConstraints:
         {{- include "nd-common.topologySpreadConstraints" $ | nindent 8 }}
+      {{- end }}
       {{- end }}
       {{- with $.Values.imagePullSecrets }}
       imagePullSecrets:
