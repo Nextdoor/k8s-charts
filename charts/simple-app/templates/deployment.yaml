@@ -52,6 +52,8 @@ to be zone-specific.
 {{- $fullName            = include "nd-common.fullname" $ }}
 {{- end }}
 
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -345,5 +347,7 @@ spec:
       {{- end }}
   {{ toYaml $.Values.podDisruptionBudget | nindent 2 }}
 {{- end }}
+
+---
 
 {{- end }}
