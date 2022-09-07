@@ -323,4 +323,27 @@ spec:
 
 ---
 
+{{- if $.Values.podDisruptionBudget -}}
+{{- if lt ($.Values.replicaCount | int) 2 }}
+{{- fail "Deployment replica count can not be less than 2 in order to configure PDB. Please configure Replica count greater than or equal to 2." }}
+{{- end }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "nd-common.labels" $ | nindent 4 }}
+    {{- with $deploymentZoneLabel }}
+    {{ . }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "nd-common.selectorLabels" $ | nindent 6 }}
+      {{- with $deploymentZoneLabel }}
+      {{ . }}
+      {{- end }}
+  {{ toYaml $.Values.podDisruptionBudget | nindent 2 }}
+{{- end }}
+
 {{- end }}
