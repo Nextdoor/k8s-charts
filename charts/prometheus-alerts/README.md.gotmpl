@@ -19,6 +19,18 @@ those changes in the `charts/simple-app`, `charts/daemonset-app` and
 
 ## Upgrade Notes
 
+### 1.1.x -> 1.2.x
+
+**CHANGE: Resource Names have changed**
+
+Due to hitting resource-name limits, the `prometheus-alerts.fullname` function
+has been rewritten to follow more standard practices. Previously the names of
+the `ExternalSecret` or `Secret` resources could be so long that they'd be
+truncated and would no longer work properly, causing alerts to be lost.
+
+See the `.Values.fullname` and `.Values.fullnameOverride` flags to help tune
+your resource names.
+
 ### 0.2.x -> 1.0.x
 
 **BREAKING: All PrometheusRules are now scoped to `.Release.Name` resources by default**
