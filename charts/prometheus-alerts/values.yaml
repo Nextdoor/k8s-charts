@@ -6,6 +6,15 @@
 chart_name: prometheus-rules
 chart_source: https://github.com/Nextdoor/k8s-charts
 
+# -- (`string`) Optional prefix to be used for naming all of the resources. If
+# not supplied, then .Release.Name is used. The full name with this value is
+# `.Chart.Name-.Release.Name`.
+fullname:
+
+# -- (`string`) Optional complete override for the entire fullname used by the
+# resources in this chart.
+fullnameOverride:
+
 # PagerDuty AlertManager Configuration
 #
 # If enabled, configures individual AlertmanagerConfig resources in your

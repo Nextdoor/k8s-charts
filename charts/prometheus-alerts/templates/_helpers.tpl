@@ -1,6 +1,10 @@
 {{- define "prometheus-alerts.fullname" -}}
-{{ .Template.Name | replace ".yaml" "" | replace "/" "-" | trunc 63 }}
-{{- end }}
+{{- if .Values.fullnameOverride -}}
+{{ .Values.fullnameOverride }}
+{{- else -}}
+{{- .Chart.Name }}-{{ default .Release.Name .Values.fullname }}
+{{- end -}}
+{{- end -}}
 
 {{- define "prometheus-alerts.namespaceSelector" -}}
 namespace="{{ .Release.Namespace }}"
