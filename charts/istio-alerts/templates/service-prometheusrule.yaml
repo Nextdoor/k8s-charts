@@ -25,7 +25,7 @@ spec:
 
       expr: >-
         sum by (destination_service_name) (
-            increase(istio_requests_total{response_code=~"5.*", destination_service_namespace="{{ $release.Namespace }}"}[60s])
+            increase(istio_requests_total{response_code=~"5.*", destination_service_namespace="{{ $release.Namespace }}"}[5m])
         )
 
           /
@@ -58,7 +58,7 @@ spec:
       expr: |-
         avg by (destination_service_name) (
           irate(
-            istio_request_duration_milliseconds_bucket{reporter=~"destination",destination_service_namespace="{{ $release.Namespace }}"}[1m]
+            istio_request_duration_milliseconds_bucket{reporter=~"destination",destination_service_namespace="{{ $release.Namespace }}"}[5m]
           ) / 1000
         )
           > {{ .threshold }}
