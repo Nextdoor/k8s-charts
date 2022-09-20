@@ -1,3 +1,227 @@
+{{- if .Values.flavors -}}
+{{ $global := . }}
+{{ range $flavor, $cfg := index .Values.flavors }}
+{{ $values := mergeOverwrite (deepCopy $global) $cfg }}
+{{ $_ := set $values "flavor" $flavor }}
+{{- if or (not (hasKey $values.Values "enabled")) $values.Values.enabled -}}
+---
+apiVersion: flinkoperator.k8s.io/v1beta1
+kind: FlinkCluster
+metadata:
+  name: {{ template "flink-job-cluster.fullname" $values }}
+  labels:
+    {{- include "flink-job.labels" $values | nindent 4 }}
+spec:
+  {{- with $values.Values.flinkVersion }}
+  flinkVersion: {{ . }}
+  {{- end }}
+  image:
+    name: {{ template "flink-job-cluster.imageFqdn" $values }}
+    pullPolicy: IfNotPresent
+  batchSchedulerName: {{ $values.Values.batchSchedulerName }}
+  envVars:
+    {{- toYaml $values.Values.envVars | nindent 4 }}
+  serviceAccountName: {{ template "flink-job-cluster.fullname" $values }}
+  recreateOnUpdate: {{ $values.Values.recreateOnUpdate }}
+  jobManager:
+    replicas: {{ $values.Values.jobManager.replicas }}
+    accessScope: {{ $values.Values.jobManager.accessScope }}
+    ports:
+      ui: {{ $values.Values.jobManager.ports.ui }}
+      rpc: {{ $values.Values.jobManager.ports.rpc }}
+      query: {{ $values.Values.jobManager.ports.query }}
+      blob: {{ $values.Values.jobManager.ports.blob }}
+    {{- if $values.Values.jobManager.metrics.enabled }}
+    extraPorts:
+      {{- toYaml $values.Values.jobManager.metrics.extraPorts | nindent 6 }}
+    {{- end }}
+    # TODO (Aaron/Albert) expose ingress?
+    resources:
+      {{- toYaml $values.Values.jobManager.resources | nindent 6 }}
+    # TODO (Aaron/Albert) expose memory configs?
+    {{- if or ($values.Values.jobManager.volumes) ($values.Values.savepoints.enabled) }}
+    volumes:
+      {{- if $values.Values.savepoints.enabled }}
+      - name: savepoint-storage-{{ $flavor }}
+        persistentVolumeClaim:
+          claimName: {{ template "flink-job-cluster.fullname" $values }}-savepoint
+      {{- end }}
+      {{- with $values.Values.jobManager.volumes }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+    {{- end }}
+    {{- if or ($values.Values.jobManager.volumeMounts) ($values.Values.savepoints.enabled) }}
+    volumeMounts:
+      {{- if $values.Values.savepoints.enabled }}
+      - name: savepoint-storage-{{ $flavor }}
+        mountPath: {{ $values.Values.savepoints.savepointDir }}
+      {{- end }}
+      {{- with $values.Values.jobManager.volumeMounts }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+    {{- end }}
+    {{- if $values.Values.jobManager.volumeClaimTemplates }}
+    volumeClaimTemplates:
+      {{ toYaml $values.Values.jobManager.volumeClaimTemplates | nindent 6}}
+    {{- end }}
+    # initContainers, sideCars not exposed
+    {{- with $values.Values.nodeSelector }}
+    nodeSelector:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with $values.Values.tolerations }}
+    tolerations:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    podAnnotations:
+      {{- with $values.Values.podAnnotations }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+    podLabels:
+      {{- with $values.Values.podLabels }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+    securityContext:
+      {{- with $values.Values.jobManager.securityContext }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+    # livenessProbe, readinessProbe not exposed
+    memoryProcessRatio: {{ $values.Values.jobManager.memoryProcessRatio }}
+  taskManager:
+    ports:
+      data: {{ $values.Values.taskManager.ports.data }}
+      rpc: {{ $values.Values.taskManager.ports.rpc }}
+      query: {{ $values.Values.taskManager.ports.query }}
+    replicas: {{ $values.Values.taskManager.replicas }}
+    {{- if or ($values.Values.taskManager.volumes) (.Values.savepoints.enabled) }}
+    volumes:      
+      {{- if $values.Values.savepoints.enabled }}
+      - name: savepoint-storage-{{ $flavor }}
+        persistentVolumeClaim:
+          claimName: {{ template "flink-job-cluster.fullname" $values }}-savepoint
+      {{- end }}
+      {{- if $values.Values.taskManager.volumes }}
+      {{- toYaml $values.Values.taskManager.volumes | nindent 6}}
+      {{- end }}
+    {{- end }}
+    {{- if or ($values.Values.taskManager.volumeMounts) ($values.Values.savepoints.enabled) }}
+    volumeMounts:
+      {{- if $values.Values.savepoints.enabled }}
+      - name: savepoint-storage-{{ $flavor }}
+        mountPath: {{ $values.Values.savepoints.savepointDir }}
+      {{- end }}
+      {{- if $values.Values.taskManager.volumeMounts }}
+      {{- toYaml $values.Values.taskManager.volumeMounts | nindent 6}}
+      {{- end }}
+    {{- end }}
+    {{- if $values.Values.taskManager.volumeClaimTemplates }}
+    volumeClaimTemplates:
+      {{ toYaml $values.Values.taskManager.volumeClaimTemplates | nindent 6}}
+    {{- end }}
+    {{- if $values.Values.taskManager.metrics.enabled }}
+    extraPorts:
+      {{- toYaml $values.Values.taskManager.metrics.extraPorts | nindent 6 }}
+    {{- end }}
+    resources:
+      {{- toYaml $values.Values.taskManager.resources | nindent 6 }}
+    {{- with $values.Values.nodeSelector }}
+    nodeSelector:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with $values.Values.tolerations }}
+    tolerations:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    podAnnotations:
+      {{- with $values.Values.podAnnotations }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+    podLabels:
+      {{- with $values.Values.podLabels }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+    securityContext:
+      {{- toYaml $values.Values.taskManager.securityContext | nindent 6 }}
+    memoryProcessRatio: {{ $values.Values.taskManager.memoryProcessRatio }}
+  job:
+    mode: {{ $values.Values.job.mode }}
+    jarFile: {{ $values.Values.job.jarFile }}
+    className: {{ $values.Values.job.className }}
+    args: {{ $values.Values.job.args }}
+    {{- if $values.Values.job.fromSavepoint }}
+    fromSavepoint: {{ $values.Values.job.fromSavepoint }}
+    {{- end}}
+    autoSavepointSeconds: {{ $values.Values.job.autoSavepointSeconds }}
+    savepointsDir: {{ $values.Values.job.savepointsDir }}
+    allowNonRestoredState: {{ $values.Values.job.allowNonRestoredState }}
+    takeSavepointOnUpdate: {{ $values.Values.job.takeSavepointOnUpdate }}
+    {{- if $values.Values.job.savepointGeneration }}
+    savepointGeneration: {{ $values.Values.job.savepointGenaration }}
+    {{- end }}
+    noLoggingToStdout: false
+    parallelism: {{ $values.Values.job.parallelism }}
+    restartPolicy: {{ $values.Values.job.restartPolicy }}
+    cleanupPolicy:
+      afterJobFails: {{ $values.Values.job.cleanupPolicy.afterJobSucceeds}}
+      afterJobCancelled: {{ $values.Values.job.cleanupPolicy.afterJobSucceeds}}
+      afterJobSucceeds: {{ $values.Values.job.cleanupPolicy.afterJobSucceeds}}
+    {{- if or ($values.Values.job.volumes) ($values.Values.savepoints.enabled) }}
+    volumes:
+      {{- if $values.Values.savepoints.enabled }}
+      - name: savepoint-storage-{{ $flavor }}
+        persistentVolumeClaim:
+          claimName: {{ template "flink-job-cluster.fullname" $values }}-savepoint
+      {{- end }}
+      {{- if $values.Values.job.volumes }}
+      {{- toYaml $values.Values.job.volumes | nindent 6}}
+      {{- end }}
+    {{- end }}
+    {{- if or ($values.Values.job.volumeMounts) ($values.Values.savepoints.enabled) }}
+    volumeMounts:
+      {{- if $values.Values.savepoints.enabled }}
+      - name: savepoint-storage-{{ $flavor }}
+        mountPath: {{ $values.Values.savepoints.savepointDir }}
+      {{- end }}
+      {{- if $values.Values.job.volumeMounts }}
+      {{- toYaml $values.Values.job.volumeMounts | nindent 6}}
+      {{- end }}
+    {{- end }}
+    {{- if $values.Values.job.initContainers.enabled }}
+    initContainers:
+    - name: {{ $values.Chart.Name}}-python-blob-downloader
+      image: "{{ $values.Values.job.initContainers.image }}:{{ $values.Values.job.initContainers.tag }}"
+      command: ["/bin/sh","-c","--"]
+      args: ["/app/exec-python.sh"]
+      env: 
+        - name: STORAGE_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: {{ $values.Values.job.initContainers.Storage.secretName }}
+              key: {{ $values.Values.job.initContainers.Storage.secretNameKey }}
+        - name: CONTAINER_NAME
+          value: {{ $values.Values.job.initContainers.Storage.containerName }}
+        - name: BLOB_NAME
+          value: {{ $values.Values.job.initContainers.Storage.blobName }}
+    {{- end }} 
+    podAnnotations:
+      {{- with $values.Values.podAnnotations }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+    podLabels:
+      {{- with $values.Values.podLabels }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+  logConfig:
+    {{- toYaml $values.Values.logConfig | nindent 4}}
+  flinkProperties:
+    {{- with $values.Values.flinkProperties }}
+    {{- range $property, $value := index . }}
+    {{ $property }}: {{ tpl $value $ | quote }}
+    {{- end }}
+    {{- end }}
+{{- end -}}
+{{- end -}}
+{{- else -}}
 apiVersion: flinkoperator.k8s.io/v1beta1
 kind: FlinkCluster
 metadata:
@@ -212,3 +436,4 @@ spec:
     {{ $property }}: {{ tpl $value $ | quote }}
     {{- end }}
     {{- end }}
+{{- end -}}

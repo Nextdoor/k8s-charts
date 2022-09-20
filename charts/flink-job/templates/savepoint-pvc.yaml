@@ -1,4 +1,27 @@
 {{- if .Values.savepoints.enabled -}}
+{{- if .Values.flavors -}}
+{{ $global := . }}
+{{ range $flavor, $cfg := index .Values.flavors }}
+{{ $values := mergeOverwrite (deepCopy $global) $cfg }}
+{{ $_ := set $values "flavor" $flavor }}
+{{- if or (not (hasKey $values.Values "enabled")) $values.Values.enabled -}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "flink-job-cluster.fullname" $values }}-savepoint
+spec:
+  {{- with $values.Values.pvc.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ $values.Values.pvc.storage }}
+{{- end -}}
+{{- end -}}
+{{- else -}}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -12,4 +35,5 @@ spec:
   resources:
     requests:
       storage: {{ .Values.pvc.storage }}
+{{- end -}}
 {{- end -}}
