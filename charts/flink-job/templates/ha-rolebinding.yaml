@@ -1,3 +1,28 @@
+{{- if .Values.flavors -}}
+{{ $global := . }}
+{{ range $flavor, $cfg := index .Values.flavors }}
+{{ $values := mergeOverwrite (deepCopy $global) $cfg }}
+{{ $_ := set $values "flavor" $flavor }}
+{{- if or (not (hasKey $values.Values "enabled")) $values.Values.enabled -}}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+# This role binding allows the service account to read / write / delete config maps
+# in the current namespace.
+kind: RoleBinding
+metadata:
+  name: {{ $values.Release.Name }}-ha-role-binding-{{ $flavor }}
+  namespace: {{ $values.Release.Namespace }}
+subjects:
+- kind: ServiceAccount
+  name: {{ template "flink-job-cluster.fullname" $values }}
+  namespace: {{ $values.Release.Namespace }}
+roleRef:
+  kind: Role
+  name: {{ $values.Release.Name }}-ha-jobmanager
+  apiGroup: rbac.authorization.k8s.io
+{{- end -}}
+{{- end -}}
+{{- else -}}
 apiVersion: rbac.authorization.k8s.io/v1
 # This role binding allows the service account to read / write / delete config maps
 # in the current namespace.
@@ -13,3 +38,4 @@ roleRef:
   kind: Role
   name: {{ .Release.Name }}-ha-jobmanager
   apiGroup: rbac.authorization.k8s.io
+{{- end -}}

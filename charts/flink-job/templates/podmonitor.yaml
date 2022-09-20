@@ -1,4 +1,45 @@
 {{- if .Values.podMonitor.enabled -}}
+{{- if .Values.flavors -}}
+{{ $global := . }}
+{{ range $flavor, $cfg := index .Values.flavors }}
+{{ $values := mergeOverwrite (deepCopy $global) $cfg }}
+{{ $_ := set $values "flavor" $flavor }}
+{{- if or (not (hasKey $values.Values "enabled")) $values.Values.enabled -}}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ template "flink-job-cluster.fullname" $values }}
+  {{- if $values.Values.podMonitor.podMonitorSelectorLabels }}
+  labels:
+    {{- toYaml $values.Values.podMonitor.podMonitorSelectorLabels | nindent 4 }}
+  {{- end }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ $values.Release.Namespace }}
+  podTargetLabels:
+    {{- toYaml $values.Values.podMonitor.podTargetLabels | nindent 4 }}
+  selector:
+    matchLabels:
+      app: flink
+  podMetricsEndpoints:
+    - port: {{ $values.Values.podMonitor.portName }}
+      interval: {{ $values.Values.podMonitor.scrapeInterval }}
+      {{- with $values.Values.podMonitor.metricRelabelings }}
+      metricRelabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $values.Values.podMonitor.relabelings }}
+      relabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  {{- with $values.Values.podMonitor.sampleLimit }}
+  sampleLimit: {{ . }}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+{{- else -}}
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
@@ -30,4 +71,5 @@ spec:
   {{- with .Values.podMonitor.sampleLimit }}
   sampleLimit: {{ . }}
   {{- end -}}
+{{- end -}}
 {{- end -}}
