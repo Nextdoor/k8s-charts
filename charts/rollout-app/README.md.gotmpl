@@ -15,6 +15,19 @@ Argo [`Rollout`][rollout] custom resource. See the [Argo Rollouts - Kubernetes
 Progressive Delivery Controller][argo_rollouts] for more information about
 how these work, and the various custom resource definitions.
 
+## Upgrade Notes
+
+### 0.0.x -> 0.1.x
+
+**NEW: Optional sidecar and init containers**
+
+We have added the ability to define init and sidecar containers for your pod.
+This can be helpful if your application requires bootstrapping or additional
+applications to function. They can be added via `initContainers` and
+`extraContainers` parameters respectively. It is important to note that these
+containers are defined using native helm definition rather than the template
+scheme this chart provides.
+
 ## Rollout Resources Supported
 
 ### [`Rollout`][rollout]

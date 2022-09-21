@@ -12,6 +12,17 @@ ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
 
+### 0.10.x -> 0.11.x
+
+**NEW: Optional sidecar and init containers**
+
+We have added the ability to define init and sidecar containers for your pod.
+This can be helpful if your application requires bootstrapping or additional
+applications to function. They can be added via `initContainers` and
+`extraContainers` parameters respectively. It is important to note that these
+containers are defined using native helm definition rather than the template
+scheme this chart provides.
+
 ### 0.9.x -> 0.10.x
 
 **BREAKING: Bugfix the VPA so that it doesn't autoscale ALL containers**
