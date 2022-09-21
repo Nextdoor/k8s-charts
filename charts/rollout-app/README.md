@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 0.0.13](https://img.shields.io/badge/Version-0.0.13-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -15,6 +15,19 @@ This chart launches a horizontally scalable application through the use of the
 Argo [`Rollout`][rollout] custom resource. See the [Argo Rollouts - Kubernetes
 Progressive Delivery Controller][argo_rollouts] for more information about
 how these work, and the various custom resource definitions.
+
+## Upgrade Notes
+
+### 0.0.x -> 0.1.x
+
+**NEW: Optional sidecar and init containers**
+
+We have added the ability to define init and sidecar containers for your pod.
+This can be helpful if your application requires bootstrapping or additional
+applications to function. They can be added via `initContainers` and
+`extraContainers` parameters respectively. It is important to note that these
+containers are defined using native helm definition rather than the template
+scheme this chart provides.
 
 ## Rollout Resources Supported
 
@@ -172,6 +185,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | enableTopologySpread | bool | `false` | (`bool`) If set to `true`, then a default `TopologySpreadConstraint` will be created that forces your pods to be evenly distributed across nodes based on the `topologyKey` setting. The maximum skew between the spread is controlled with `topologySkew`. |
 | env | list | `[]` | Environment Variables for the primary container. These are all run through the tpl function (the key name and value), so you can dynamically name resources as you need. |
 | envFrom | list | `[]` | Pull all of the environment variables listed in a ConfigMap into the Pod. See https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables for more details. |
+| extraContainers | list | `[]` |  |
 | fullnameOverride | string | `""` |  |
 | image.forceTag | String | `nil` | Forcefully overrides the `image.tag` setting - this is useful if you have an outside too that automatically updates the `image.tag` value, but you want your application operators to be able to squash that override themselves. |
 | image.pullPolicy | string | `"IfNotPresent"` | (String) Always, Never or IfNotPresent |
@@ -186,6 +200,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | ingress.port | string | `nil` | If set, this will override the `service.portName` parameter, and the `Service` object will point specifically to this port number on the backing Pods. |
 | ingress.portName | string | `"http"` | This is the port "name" that the `Service` will point to on the backing Pods. This value must match one of the values of `.name` in the `Values.ports` configuration. |
 | ingress.sslRedirect | bool | `true` | If `true`, then this will annotate the Ingress with a special AWS ALB Ingress Controller annotation that configures an SSL-redirect at the ALB level. |
+| initContainers | list | `[]` |  |
 | istio-alerts.enabled | bool | `true` | (`bool`) Whether or not to enable the istio-alerts chart. |
 | istio.enabled | bool | `true` | (`bool`) Whether or not the service should be part of an Istio Service Mesh. If this is turned on and `Values.monitor.enabled=true`, then the Istio Sidecar containers will be configured to pull and merge the metrics from the application, rather than creating a new `PodMonitor` object. |
 | istio.excludeInboundPorts | list | `[]` | (`int[]`) If supplied, this is a list of TCP ports that are excluded from being proxied by the Istio-proxy Envoy sidecar process. _The `.Values.monitor.portNumber` is already included by default. |
