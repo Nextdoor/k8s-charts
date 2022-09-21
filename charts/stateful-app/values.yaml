@@ -655,3 +655,18 @@ prometheusRules:
   KubeStatefulSetUpdateNotRolledOut:
     severity: warning
     for: 15m
+
+# Extra Containers
+#
+# Additional sidecar containers to include with the base application
+# container. The container definitions can include template variables.
+extraContainers: []
+
+
+# Init Containers
+#
+# Containers to run before main application container is started.
+# The container definitions can include template variables. See
+# https://kubernetes.io/docs/concepts/workloads/pods/init-containers
+# for more details.
+initContainers: []
