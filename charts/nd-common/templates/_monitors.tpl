@@ -173,35 +173,10 @@ spec:
 
 {{/*
 
-This function creates Prometheus recording rules that are useful to include in
-other queries about the configuration of this chart.
+This is currently a no-op function maintained for backwards compatibility. We
+can use this in the future to create Prometheus recording rules that may one day
+be useful to include in other queries about the configuration of this chart.
 
 */}}
 
-{{- define "nd-common.monitorRules" }}
-{{- if .Values.monitor.enabled }}
-apiVersion: monitoring.coreos.com/v1
-kind: PrometheusRule
-metadata:
-  name: {{ include "nd-common.fullname" . }}-monitor-rules
-  {{- with .Values.monitor.annotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-  labels:
-    {{- include "nd-common.labels" . | nindent 4 }}
-    {{- with .Values.monitor.labels }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
-spec:
-  groups:
-  - name: {{ include "nd-common.fullname" . }}.monitorRules
-    rules:
-      - record: pod_monitor_sample_limit
-        expr: {{ (include "nd-common.monitorSampleLimit" .) | quote }}
-        labels:
-          namespace: {{ .Release.Namespace }}
-          name: {{ include "nd-common.name" . }}
-          instance: {{ .Release.Name }}
-{{- end }}
-{{- end }}
+{{- define "nd-common.monitorRules" }}{{- end }}
