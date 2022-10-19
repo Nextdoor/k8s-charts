@@ -25,6 +25,7 @@ enableTopologySpread: true
 terminationGracePeriodSeconds: 30
 autoscaling:
   enabled: true
+  minReplicas: 2
 
 secrets:
   TEST_SECRET: junksecret
