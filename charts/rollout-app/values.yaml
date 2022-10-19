@@ -680,7 +680,7 @@ affinity: {}
 # Monitoring configuration for metric scraping against the Prometheus-style
 # metrics endpoint.
 monitor:
-  # -- (`bool`) If enabled, PodMonitor resources for Prometheus Operator
+  # -- (`bool`) If enabled, ServiceMonitor resources for Prometheus Operator
   # are created or if `Values.istio.enabled` is `True`, then the appropriate
   # Pod Annotations will be added for the istio-proxy sidecar container to
   # scrape the metrics.
@@ -697,13 +697,13 @@ monitor:
   # -- (`string`) Path to scrape metrics from within your Pod.
   path: /metrics
 
-  # -- (`map`) PodMonitor annotations.
+  # -- (`map`) ServiceMonitor annotations.
   annotations: {}
 
-  # -- Additional PodMonitor labels.
+  # -- Additional ServiceMonitor labels.
   labels: {}
 
-  # -- PodMonitor scrape interval
+  # -- ServiceMonitor scrape interval
   interval: null
 
   # -- (`int`) The maximum number of metrics that can be scraped - if there are
@@ -711,21 +711,27 @@ monitor:
   # used as a circuit breaker to avoid blowing up Prometheus memory footprints.
   sampleLimit: 25000
 
-  # -- PodMonitor scrape timeout in Go duration format (e.g. 15s)
+  # -- ServiceMonitor scrape timeout in Go duration format (e.g. 15s)
   scrapeTimeout: null
 
-  # -- PodMonitor relabel configs to apply to samples before scraping
+  # -- ServiceMonitor relabel configs to apply to samples before scraping
   # https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig
   relabelings: []
 
-  # -- PodMonitor MetricRelabelConfigs to apply to samples before ingestion.
+  # -- ServiceMonitor MetricRelabelConfigs to apply to samples before ingestion.
   # https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
-  metricRelabelings: []
+  metricRelabelings:
+    # By default, drop the go_.* and process_.* metrics. These metrics are
+    # usually not used, and cause a bunch of high cardinality data to be
+    # stored.
+    - sourceLabels: [__name__]
+      regex: (go|process)_.*
+      action: drop
 
-  # -- (`enum: http, https`) PodMonitor will use http by default, but you can pick https as well
+  # -- (`enum: http, https`) ServiceMonitor will use http by default, but you can pick https as well
   scheme: http
 
-  # -- PodMonitor will use these tlsConfig settings to make the health check requests
+  # -- ServiceMonitor will use these tlsConfig settings to make the health check requests
   tlsConfig: null
 
 # Configuration that lets the chart know that it's operating inside of an Istio
@@ -735,7 +741,7 @@ istio:
   # -- (`bool`) Whether or not the service should be part of an Istio Service
   # Mesh. If this is turned on and `Values.monitor.enabled=true`, then the
   # Istio Sidecar containers will be configured to pull and merge the metrics
-  # from the application, rather than creating a new `PodMonitor` object.
+  # from the application, rather than creating a new `ServiceMonitor` object.
   enabled: true
 
   # -- (`list`) If supplied, this is a list of inbound TCP ports that are excluded
