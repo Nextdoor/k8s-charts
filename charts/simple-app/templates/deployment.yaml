@@ -337,8 +337,11 @@ spec:
 ---
 
 {{- if $.Values.podDisruptionBudget -}}
-{{- if lt ($.Values.replicaCount | int) 2 }}
+{{- if and $.Values.replicaCount (lt ($.Values.replicaCount | int) 2) }}
 {{- fail "Deployment replica count can not be less than 2 in order to configure PDB. Please configure Replica count greater than or equal to 2." }}
+{{- end }}
+{{- if and $.Values.autoscaling.enabled (lt ($.Values.autoscaling.minReplicas | int) 2) }}
+{{- fail "Deployment autoscaling minimum can not be less than 2 in order to configure PDB. Please configure a minimum replica count greater than or equal to 2." }}
 {{- end }}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
