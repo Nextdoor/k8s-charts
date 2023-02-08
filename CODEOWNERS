@@ -1,2 +1,5 @@
 # All chart changes need to be reviewed by a group of Helm Chart Maintainers
-* @Nextdoor/helm-maintainers
+*                              @Nextdoor/helm-maintainers
+/charts/flink-job/             @Nextdoor/feed-infra-reviews @eugenend
+/charts/flink-operator/        @Nextdoor/feed-infra-reviews @eugenend
+/charts/flink-operator-crd/    @Nextdoor/feed-infra-reviews @eugenend
