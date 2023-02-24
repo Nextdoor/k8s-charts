@@ -818,3 +818,7 @@ extraContainers: []
 # https://kubernetes.io/docs/concepts/workloads/pods/init-containers
 # for more details.
 initContainers: []
+
+# The set of default oncall security groups which have access to create PodAccessRequests
+# and effectively shell into the application using https://github.com/diranged/oz
+defaultOncallSecGroups: ['secgrp-oncall-engineers']

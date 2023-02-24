@@ -1,0 +1,27 @@
+{{- /*
+This PodAccessTemplate is a reasonable default starting template to enable teams to
+get access to their running applications in a safe way.
+*/}}
+
+{{- $allowedGroups := required "Must have .Values.defaultOncallSecGroups set" .Values.defaultOncallSecGroups }}
+apiVersion: crds.wizardofoz.co/v1alpha1
+kind: PodAccessTemplate
+metadata:
+  name: {{ include "nd-common.fullname" . }}
+spec:
+  controllerTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "nd-common.fullname" . }}
+  accessConfig:
+    allowedGroups:
+      {{- toYaml $allowedGroups | nindent 6 }}
+    defaultDuration: 1h
+    maxDuration: 12h
+  controllerTargetMutationConfig:
+    defaultContainerName: {{ include "nd-common.containerName" . }}
+    command: [/bin/sleep]
+    args: ['86400']
+    env:
+    - name: SERVICE_FLAVOR
+      value: shell
