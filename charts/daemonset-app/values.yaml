@@ -336,11 +336,17 @@ monitor:
   # https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig
   relabelings: []
 
-  # -- PodMonitor MetricRelabelConfigs to apply to samples before ingestion.
+  # -- ServiceMonitor MetricRelabelConfigs to apply to samples before ingestion.
   # https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig
-  metricRelabelings: []
+  metricRelabelings:
+    # By default, drop the go_.* and process_.* metrics. These metrics are
+    # usually not used, and cause a bunch of high cardinality data to be
+    # stored.
+    - sourceLabels: [__name__]
+      regex: (go|process)_.*
+      action: drop
 
-  # -- (`enum: http, https`) PodMonitor will use http by default, but you can pick https as well
+  # -- (`enum: http, https`) ServiceMonitor will use http by default, but you can pick https as well
   scheme: http
 
   # -- ServiceMonitor will use these tlsConfig settings to make the health check requests

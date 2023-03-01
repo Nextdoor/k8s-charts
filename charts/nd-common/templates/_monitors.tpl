@@ -87,11 +87,6 @@ spec:
         - regex: __meta_kubernetes_pod_label_(tags_datadoghq_com_(service|version))
           replacement: $1
           action: labelmap
-
-        # Map the pod name into the pod_name label
-        - sourceLabels: [__meta_kubernetes_pod_name]
-          action: replace
-          targetLabel: pod_name
         {{- end }}
       {{- with .Values.monitor.metricRelabelings }}
       metricRelabelings:

@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 0.27.0](https://img.shields.io/badge/Version-0.27.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.27.3](https://img.shields.io/badge/Version-0.27.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -260,7 +260,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.0.20 |
+| file://../nd-common | nd-common | 0.0.23 |
 | https://k8s-charts.nextdoor.com | istio-alerts | 0.1.4 |
 
 ## Values
@@ -316,26 +316,27 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | ingress.sslRedirect | bool | `true` | If `true`, then this will annotate the Ingress with a special AWS ALB Ingress Controller annotation that configures an SSL-redirect at the ALB level. |
 | initContainers | list | `[]` |  |
 | istio-alerts.enabled | bool | `true` | (`bool`) Whether or not to enable the istio-alerts chart. |
-| istio.enabled | bool | `true` | (`bool`) Whether or not the service should be part of an Istio Service Mesh. If this is turned on and `Values.monitor.enabled=true`, then the Istio Sidecar containers will be configured to pull and merge the metrics from the application, rather than creating a new `PodMonitor` object. |
-| istio.excludeInboundPorts | list | `[]` | (`int[]`) If supplied, this is a list of TCP ports that are excluded from being proxied by the Istio-proxy Envoy sidecar process. _The `.Values.monitor.portNumber` is already included by default. |
+| istio.enabled | bool | `true` | (`bool`) Whether or not the service should be part of an Istio Service Mesh. If this is turned on and `Values.monitor.enabled=true`, then the Istio Sidecar containers will be configured to pull and merge the metrics from the application, rather than creating a new `ServiceMonitor` object. |
+| istio.excludeInboundPorts | list | `[]` | (`list`) If supplied, this is a list of inbound TCP ports that are excluded from being proxied by the Istio-proxy Envoy sidecar process. The `.Values.monitor.portNumber` is already included by default. The port values can either be integers or templatized strings. |
+| istio.excludeOutboundPorts | list | `[]` | (`list`) If supplied, this is a list of outbound TCP ports that are excluded from being proxied by the Istio-proxy Envoy sidecar process. The port values can either be integers or templatized strings. |
 | istio.metricsMerging | bool | `false` | (`bool`) If set to "True", then the Istio Metrics Merging system will be turned on and Envoy will attempt to scrape metrics from the application pod and merge them with its own. This defaults to False beacuse in most environments we want to explicitly split up the metrics and collect Istio metrics separate from Application metrics. |
 | istio.preStopCommand | `list <str>` | `nil` | If supplied, this is the command that will be passed into the `istio-proxy` sidecar container as a pre-stop function. This is used to delay the shutdown of the istio-proxy sidecar in some way or another. Our own default behavior is applied if this value is not set - which is that the sidecar will wait until it does not see the application container listening on any TCP ports, and then it will shut down. eg: preStopCommand: [ /bin/sleep, "30" ] |
 | kmsSecretsRegion | String | `nil` | AWS region where the KMS key is located |
 | livenessProbe | object | `{"httpGet":{"path":"/","port":"http"}}` | A PodSpec container "livenessProbe" configuration object. Note that this livenessProbe will be applied to the proxySidecar container instead if that is enabled. |
 | minReadySeconds | string | `nil` | https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#min-ready-seconds |
-| monitor.annotations | object | `{}` | (`map`) PodMonitor annotations. |
-| monitor.enabled | bool | `true` | (`bool`) If enabled, PodMonitor resources for Prometheus Operator are created or if `Values.istio.enabled` is `True`, then the appropriate Pod Annotations will be added for the istio-proxy sidecar container to scrape the metrics. |
-| monitor.interval | string | `nil` | PodMonitor scrape interval |
-| monitor.labels | object | `{}` | Additional PodMonitor labels. |
-| monitor.metricRelabelings | list | `[]` | PodMonitor MetricRelabelConfigs to apply to samples before ingestion. https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig |
+| monitor.annotations | object | `{}` | (`map`) ServiceMonitor annotations. |
+| monitor.enabled | bool | `true` | (`bool`) If enabled, ServiceMonitor resources for Prometheus Operator are created or if `Values.istio.enabled` is `True`, then the appropriate Pod Annotations will be added for the istio-proxy sidecar container to scrape the metrics. |
+| monitor.interval | string | `nil` | ServiceMonitor scrape interval |
+| monitor.labels | object | `{}` | Additional ServiceMonitor labels. |
+| monitor.metricRelabelings | list | `[{"action":"drop","regex":"(go|process)_.*","sourceLabels":["__name__"]}]` | ServiceMonitor MetricRelabelConfigs to apply to samples before ingestion. https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#relabelconfig |
 | monitor.path | string | `"/metrics"` | (`string`) Path to scrape metrics from within your Pod. |
 | monitor.portName | string | `"metrics"` | (`string`) Name of the port to scrape for metrics - this is the name of the port that will be exposed in your `PodSpec` for scraping purposes. |
 | monitor.portNumber | int | `9090` | (`int`) Number of the port to scrape for metrics - this port will be exposed in your `PodSpec` to ensure it can be scraped. |
-| monitor.relabelings | list | `[]` | PodMonitor relabel configs to apply to samples before scraping https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig |
+| monitor.relabelings | list | `[]` | ServiceMonitor relabel configs to apply to samples before scraping https://github.com/prometheus-operator/prometheus-operator/blob/master/Documentation/api.md#relabelconfig |
 | monitor.sampleLimit | int | `25000` | (`int`) The maximum number of metrics that can be scraped - if there are more than this, then scraping will fail entirely by Prometheus. This is used as a circuit breaker to avoid blowing up Prometheus memory footprints. |
-| monitor.scheme | string | `"http"` | (`enum: http, https`) PodMonitor will use http by default, but you can pick https as well |
-| monitor.scrapeTimeout | string | `nil` | PodMonitor scrape timeout in Go duration format (e.g. 15s) |
-| monitor.tlsConfig | string | `nil` | PodMonitor will use these tlsConfig settings to make the health check requests |
+| monitor.scheme | string | `"http"` | (`enum: http, https`) ServiceMonitor will use http by default, but you can pick https as well |
+| monitor.scrapeTimeout | string | `nil` | ServiceMonitor scrape timeout in Go duration format (e.g. 15s) |
+| monitor.tlsConfig | string | `nil` | ServiceMonitor will use these tlsConfig settings to make the health check requests |
 | nameOverride | string | `""` |  |
 | network.allowedNamespaces | list | `[]` | (`strings[]`) A list of namespaces that are allowed to access the Pods in this application. If not supplied, then no `NetworkPolicy` is created, and your application may be isolated to itself. Note, enabling `VirtualService` or `Ingress` configurations will create their own dedicated `NetworkPolicy` resources, so this is only intended for internal service-to-service communication grants. |
 | nodeSelector | object | `{}` | (`map`) A list of key/value pairs that will be added in to the nodeSelector spec for the pods. |

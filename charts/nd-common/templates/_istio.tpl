@@ -20,14 +20,17 @@ and instead let traffic flow right into it. Also beacuse a user might have set
 this annotation on their own, we need to merge our value with whatever they've
 supplied.
 */ -}}
-{{- $portsToExclude := default (list) .Values.istio.excludeInboundPorts }}
-{{- if and .Values.monitor.portNumber .Values.monitor.enabled }}
-{{- $portsToExclude := append $portsToExclude .Values.monitor.portNumber }}
-traffic.sidecar.istio.io/excludeInboundPorts: {{ join ", " $portsToExclude | quote }}
-{{- else }}
-{{- if gt (len $portsToExclude) 0 }}
-traffic.sidecar.istio.io/excludeInboundPorts: {{ join ", " $portsToExclude | quote }}
+{{- $inboundPorts := (include "nd-common.istioExcludedInboundPorts" . )}}
+{{- if gt (len $inboundPorts) 0 }}
+traffic.sidecar.istio.io/excludeInboundPorts: {{ $inboundPorts | quote }}
 {{- end }}
+
+{{- /*
+Allow excluding custom ports for outbound traffic.
+*/ -}}
+{{- $outboundPorts := (include "nd-common.istioExcludedOutboundPorts" . )}}
+{{- if gt (len $outboundPorts) 0 }}
+traffic.sidecar.istio.io/excludeOutboundPorts: {{ $outboundPorts | quote }}
 {{- end }}
 
 {{- /* 
@@ -77,6 +80,41 @@ proxy.istio.io/overrides: >-
 {{- end }}
 
 {{- end }}
+{{- end }}
+
+{{/*
+
+Build a comma-separated list of inbound ports to exclude from Istio routing.
+
+*/}}
+{{- define "nd-common.istioExcludedInboundPorts" -}}
+{{- $ports := list }}
+{{- with .Values.istio.excludeInboundPorts }}
+{{- range $port := index . }}
+{{- $portStr := $port | toString }}
+{{- $ports = tpl $portStr $ | append $ports }}
+{{- end }}
+{{- end }}
+{{- if and .Values.monitor.portNumber .Values.monitor.enabled }}
+{{- $ports = append $ports .Values.monitor.portNumber }}
+{{- end }}
+{{- join ", " $ports }}
+{{- end }}
+
+{{/*
+
+Build a comma-separated list of outbound ports to exclude from Istio routing.
+
+*/}}
+{{- define "nd-common.istioExcludedOutboundPorts" -}}
+{{- $ports := list }}
+{{- with .Values.istio.excludeOutboundPorts }}
+{{- range $port := index . }}
+{{- $portStr := $port | toString }}
+{{- $ports = tpl $portStr $ | append $ports }}
+{{- end }}
+{{- end }}
+{{- join ", " $ports }}
 {{- end }}
 
 {{/*
