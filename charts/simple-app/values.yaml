@@ -693,7 +693,7 @@ datadog:
 
   scrapeLogs:
     # -- (`bool`) If true, then it will enable application logging to datadog.
-    enabled: false
+    enabled: true
     # -- (`string`) If set, this configures the "source" tag. If this is not
     # set, the tag defaults to the `.Release.Name` for the application.
     source: null
