@@ -142,7 +142,7 @@ helm_test: $(TEST_PREREQS)
 		--volume "$(ROOT_DIR):/workdir" \
 		--volume "$(HOME)/.kube/config:/root/.kube/config" \
 		--workdir /workdir \
-		quay.io/helmpack/chart-testing:v3.5.1 \
+		quay.io/helmpack/chart-testing:v3.4.0 \
 		ct install \
 			$(NAMESPACE_ARG) \
 			$(CHARTS_ARG) \
