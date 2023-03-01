@@ -2,7 +2,7 @@
 
 Flink job cluster on k8s
 
-![Version: 0.1.15](https://img.shields.io/badge/Version-0.1.15-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
+![Version: 0.1.16](https://img.shields.io/badge/Version-0.1.16-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
 
 This chart deploys a flink job cluster and runs a simple word counting flink app as an example.
 This chart includes some production ready set-ups such as

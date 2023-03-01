@@ -65,9 +65,14 @@ spec:
       {{ toYaml $values.Values.jobManager.volumeClaimTemplates | nindent 6}}
     {{- end }}
     # initContainers, sideCars not exposed
-    {{- with $values.Values.nodeSelector }}
+    {{- if or ($values.Values.nodeSelector) ($values.Values.jobManager.nodeSelector) -}}
     nodeSelector:
-      {{- toYaml . | nindent 6 }}
+      {{- with $values.Values.nodeSelector }}
+        {{- toYaml . | nindent 6 }}
+      {{- end }}
+      {{- with $values.Values.jobManager.nodeSelector }}
+        {{- toYaml . | nindent 6 }}
+      {{- end }}
     {{- end }}
     {{- with $values.Values.tolerations }}
     tolerations:
