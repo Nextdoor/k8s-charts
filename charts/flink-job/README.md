@@ -2,7 +2,7 @@
 
 Flink job cluster on k8s
 
-![Version: 0.1.16](https://img.shields.io/badge/Version-0.1.16-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
+![Version: 0.1.17](https://img.shields.io/badge/Version-0.1.17-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
 
 This chart deploys a flink job cluster and runs a simple word counting flink app as an example.
 This chart includes some production ready set-ups such as
@@ -57,12 +57,12 @@ See metrics reporter in the flink properties for more details.
 | nodeSelector | `map` | `nil` | [Node selector] for Job Manager and Task Manager |
 | operatorGroups | list | `["system:masters"]` | (List) A list of groups to grant the operator-role to in the namespace the chart is installed in. |
 | podLabels | object | `{"sidecar.istio.io/inject":"false"}` | Extra Labels to be added to pod |
-| podMonitor | object | `{"enabled":true,"metricRelabelings":[{"action":"labeldrop","regex":"task_id"},{"action":"labeldrop","regex":"task_attempt_id"},{"action":"labeldrop","regex":"tm_id"}],"podMonitorSelectorLabels":{"prometheus":"cluster-metrics"},"podTargetLabels":["cluster","component"],"portName":"prom","relabelings":[],"sampleLimit":2000,"scrapeInterval":"15s","selector":{"matchLabels":{"app":"flink"}}}` | podMonitor for metrics - you need the Prometheus-Operator and its CRDs up and running in order to use PodMonitor. |
+| podMonitor | object | `{"enabled":true,"metricRelabelings":[{"action":"labeldrop","regex":"task_id"},{"action":"labeldrop","regex":"task_attempt_id"},{"action":"labeldrop","regex":"tm_id"}],"podMonitorSelectorLabels":{"prometheus":"cluster-metrics"},"podTargetLabels":["cluster","component"],"portName":"prom","relabelings":[],"sampleLimit":2000,"scrapeInterval":"60s","selector":{"matchLabels":{"app":"flink"}}}` | podMonitor for metrics - you need the Prometheus-Operator and its CRDs up and running in order to use PodMonitor. |
 | podMonitor.metricRelabelings | list | `[{"action":"labeldrop","regex":"task_id"},{"action":"labeldrop","regex":"task_attempt_id"},{"action":"labeldrop","regex":"tm_id"}]` | (`map[]`) A list of Prometheus metricRelablings configs applied to the metrics before they are ingested by Prometheus. Use this to reduce cardinality of metrics based on labels that are not critical to monitor. This default list removes the task_id. task_attempt_id, and tm_id labels from the metrics to drastically reduce the cardinality of the very verbose metrics. |
 | podMonitor.portName | string | `"prom"` | (`string`) The name of the port exposed by the Flink Operator on the pods that has metrics. |
 | podMonitor.relabelings | list | `[]` | (`map[]`) A list of Prometheus relabelings configs applied to the metrics before they are ingested by Prometheus. Use this to reduce cardinality of metrics based on labels that are not critical to monitor. |
 | podMonitor.sampleLimit | int | `2000` | (`int`) Per-scrape limit on number of scraped samples that will be accepted. |
-| podMonitor.scrapeInterval | string | `"15s"` | (`string`) The frequency in which to scrape metrics. |
+| podMonitor.scrapeInterval | string | `"60s"` | (`string`) The frequency in which to scrape metrics. |
 | pvc | object | `{"storage":"1Gi","storageClassName":"efs"}` | Configuration of the PersistentVolume for storing savepoints. |
 | recreateOnUpdate | bool | `true` | (bool) Recreate components when updating flinkcluster |
 | savepoints | object | `{"enabled":true,"savepointDir":"/savepoint"}` | Configuration of the automatic savepoints |
