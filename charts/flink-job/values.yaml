@@ -231,7 +231,7 @@ podMonitor:
   portName: prom
 
   # -- (`string`) The frequency in which to scrape metrics.
-  scrapeInterval: 15s
+  scrapeInterval: 60s
 
   # -- (`map[]`) A list of Prometheus relabelings configs applied to the
   # metrics before they are ingested by Prometheus. Use this to reduce

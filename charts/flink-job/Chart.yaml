@@ -2,7 +2,7 @@ apiVersion: v2
 appVersion: "1.0"
 description: Flink job cluster on k8s
 name: flink-job
-version: 0.1.16
+version: 0.1.17
 maintainers:
   - name: Zedive
     email: albert@nextdoor.com
