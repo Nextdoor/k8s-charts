@@ -26,8 +26,8 @@ spec:
       activeService: {{ include "nd-common.fullname" . }}
       previewService: {{ include "nd-common.fullname" . }}-preview
 
-      {{- if (ne .Values.blueGreen.autoPromotionEnabled nil) }}
-      autoPromotionEnabled: {{ .Values.blueGreen.autoPromotionEnabled }}
+      {{- with .Values.blueGreen.autoPromotionEnabled }}
+      autoPromotionEnabled: {{ . }}
       {{- end }}
 
       {{- with .Values.blueGreen.autoPromotionSeconds }}
@@ -38,8 +38,8 @@ spec:
       previewReplicaCount: {{ int . }}
       {{- end }}
 
-      {{- if (ne .Values.blueGreen.maxUnavailable nil) }}
-      maxUnavailable: {{ .Values.blueGreen.maxUnavailable }}
+      {{- with .Values.blueGreen.maxUnavailable }}
+      maxUnavailable: {{ . }}
       {{- end }}
 
       {{- with .Values.blueGreen.prePromotionAnalysis }}
@@ -94,12 +94,12 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
 
-      {{- if (ne .Values.canary.maxUnavailable nil) }}
-      maxUnavailable: {{ .Values.canary.maxUnavailable }}
+      {{- with .Values.canary.maxUnavailable }}
+      maxUnavailable: {{ . }}
       {{- end }}
 
-      {{- if (ne .Values.canary.maxSurge nil) }}
-      maxSurge: {{ .Values.canary.maxSurge }}
+      {{- with .Values.canary.maxSurge }}
+      maxSurge: {{ . }}
       {{- end }}
 
       {{- with .Values.canary.scaleDownDelaySeconds }}

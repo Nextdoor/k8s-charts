@@ -9,6 +9,9 @@ internal application port-number (eg, 8080)
 {{- range $p := index .Values.ports }}
 - name: {{ required "Must set a port name" $p.name }}
   containerPort: {{ required "Must set a containerPort" $p.containerPort }}
+  {{- with $p.hostPort }}
+  hostPort: {{ . }}
+  {{- end }}
   {{- with $p.protocol }}
   protocol: {{ . }}
   {{- end }}
