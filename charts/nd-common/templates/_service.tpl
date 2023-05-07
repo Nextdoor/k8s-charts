@@ -25,6 +25,9 @@ metadata:
     service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: kubernetes_namespace={{ .Release.Namespace }}
 spec:
   type: {{ .Values.service.type }}
+  {{ if .Values.service.clusterIP }}
+  clusterIP: {{ .Values.service.clusterIP }}
+  {{ end }}
   ports:
     {{- include "nd-common.servicePorts" $ | nindent 4 }}
 
