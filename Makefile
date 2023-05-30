@@ -1,5 +1,9 @@
+include contrib/Docker.mk
+include contrib/Helm.mk
+include contrib/ChartTesting.mk
+
 .PHONY: crds
-crds: 
+crds:
 	kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml \
 		-f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml \
 		-f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml \
