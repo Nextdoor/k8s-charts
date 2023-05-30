@@ -2,7 +2,7 @@
 
 Flink job cluster on k8s
 
-![Version: 0.1.18](https://img.shields.io/badge/Version-0.1.18-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
+![Version: 0.1.19](https://img.shields.io/badge/Version-0.1.19-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
 
 This chart deploys a flink job cluster and runs a simple word counting flink app as an example.
 This chart includes some production ready set-ups such as
@@ -45,6 +45,7 @@ See metrics reporter in the flink properties for more details.
 | job.savepointsDir | String | `"/savepoint"` | Directory to store automatically taken savepoints |
 | job.takeSavepointOnUpdate | bool | `true` | Should take savepoint before upgrading the job |
 | jobManager.accessScope | String | `"Cluster"` | Access scope of the JobManager service. enum("Cluster", "VPC", "External", "NodePort", "Headless") |
+| jobManager.affinity | `map` | `{}` | Affinity for the JobManager. |
 | jobManager.memoryProcessRatio | 'int' | `80` | Percentage of memory process, as a safety margin to avoid OOM kill |
 | jobManager.metrics | object | `{"enabled":true,"extraPorts":[{"containerPort":9249,"name":"prom"}]}` | Prometheus metrics ports for jobManager |
 | jobManager.ports.blob | `int` | `6124` | Blob port that JobManager listening on |
@@ -70,6 +71,7 @@ See metrics reporter in the flink properties for more details.
 | savepoints.savepointDir | String | `"/savepoint"` | The mount path of the savepoint volume |
 | serviceAccount.create | Boolean | `true` | Specifies whether a service account should be created |
 | serviceAccount.name | String | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
+| taskManager.affinity | `map` | `{}` | Affinity for the TaskManager. |
 | taskManager.memoryProcessRatio | 'int' | `80` | Percentage of memory process, as a safety margin to avoid OOM kill |
 | taskManager.metrics | object | `{"enabled":true,"extraPorts":[{"containerPort":9249,"name":"prom","protocol":"TCP"}]}` | Prometheus metrics ports for taskManager |
 | taskManager.ports.data | `int` | `6121` | Data port that TaskManager listening on |

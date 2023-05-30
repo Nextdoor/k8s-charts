@@ -96,6 +96,10 @@ jobManager:
     extraPorts:
       - name: prom
         containerPort: 9249
+
+  # -- (`map`) Affinity for the JobManager.
+  affinity: {}
+
   # -- Compute resources required by JobManager container
   resources:
     requests:
@@ -146,6 +150,10 @@ taskManager:
   volumeMounts: []
   # -- ('int') Percentage of memory process, as a safety margin to avoid OOM kill
   memoryProcessRatio: 80
+
+  # -- (`map`) Affinity for the TaskManager.
+  affinity: {}
+
 
 job:
   # -- (String) JobMode of the job submitter, either Detached or Blocking

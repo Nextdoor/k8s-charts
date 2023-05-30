@@ -64,6 +64,11 @@ spec:
     volumeClaimTemplates:
       {{ toYaml $values.Values.jobManager.volumeClaimTemplates | nindent 6}}
     {{- end }}
+
+    {{- with $values.Values.jobManager.affinity }}
+    affinity:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     # initContainers, sideCars not exposed
     {{- if or ($values.Values.nodeSelector) ($values.Values.jobManager.nodeSelector) }}
     nodeSelector:
@@ -99,7 +104,7 @@ spec:
       query: {{ $values.Values.taskManager.ports.query }}
     replicas: {{ $values.Values.taskManager.replicas }}
     {{- if or ($values.Values.taskManager.volumes) (.Values.savepoints.enabled) }}
-    volumes:      
+    volumes:
       {{- if $values.Values.savepoints.enabled }}
       - name: savepoint-storage-{{ $flavor }}
         persistentVolumeClaim:
@@ -129,6 +134,11 @@ spec:
     {{- end }}
     resources:
       {{- toYaml $values.Values.taskManager.resources | nindent 6 }}
+
+    {{- with $values.Values.taskManager.affinity }}
+    affinity:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     {{- with $values.Values.nodeSelector }}
     nodeSelector:
       {{- toYaml . | nindent 6 }}
@@ -197,7 +207,7 @@ spec:
       image: "{{ $values.Values.job.initContainers.image }}:{{ $values.Values.job.initContainers.tag }}"
       command: ["/bin/sh","-c","--"]
       args: ["/app/exec-python.sh"]
-      env: 
+      env:
         - name: STORAGE_CONNECTION_STRING
           valueFrom:
             secretKeyRef:
@@ -207,7 +217,7 @@ spec:
           value: {{ $values.Values.job.initContainers.Storage.containerName }}
         - name: BLOB_NAME
           value: {{ $values.Values.job.initContainers.Storage.blobName }}
-    {{- end }} 
+    {{- end }}
     podAnnotations:
       {{- with $values.Values.podAnnotations }}
       {{- toYaml . | nindent 6 }}
@@ -414,7 +424,7 @@ spec:
       image: "{{ .Values.job.initContainers.image }}:{{ .Values.job.initContainers.tag }}"
       command: ["/bin/sh","-c","--"]
       args: ["/app/exec-python.sh"]
-      env: 
+      env:
         - name: STORAGE_CONNECTION_STRING
           valueFrom:
             secretKeyRef:
@@ -424,7 +434,7 @@ spec:
           value: {{ .Values.job.initContainers.Storage.containerName }}
         - name: BLOB_NAME
           value: {{ .Values.job.initContainers.Storage.blobName }}
-    {{- end }} 
+    {{- end }}
     podAnnotations:
       {{- with .Values.podAnnotations }}
       {{- toYaml . | nindent 6 }}
