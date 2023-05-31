@@ -1,4 +1,4 @@
-# Version 0.1.0
+# Version 0.1.3
 
 # Pick the chart-name based the name of the directory we are in. This can be
 # overriden - but it picks the "short name" of the directory.
@@ -11,6 +11,17 @@ VALUES ?= values.local.yaml
 # Target Namespace - this setting is _usually_ overriden.. but for testing of
 # simple charts, the default NS should be fine on a local test cluster.
 NAMESPACE ?= default
+
+# If the NAMESPACE parameter is set to an empty string, then we do not set that
+# flag OR add the --create-namespace flag. This ensures that a chart can be
+# tested against whatever namespace a user is currently logged into. This is
+# valuable for certain kinds of "testing" or "benchmarking" charts where you
+# might want to selectively just run the chart against an existing application.
+ifeq ($(NAMESPACE),default)
+else
+	export HELM_NAMESPACE=$(NAMESPACE)
+	CREATE_NS := --create-namespace
+endif
 
 ###############################################################################
 # Construct the final VALUE_ARGS setting that is used to pass into Helm.
@@ -30,7 +41,7 @@ VALUE_ARGS := --values values.yaml --values $(VALUES)
 ###############################################################################
 .PHONY: clean
 clean: $(CLEAN_DEPS_TARGET)
-	rm -rf charts
+	[ -f Chart.yaml ] && find charts -name '*.tgz' -delete
 
 ###############################################################################
 # Optional local dependencies that can be installed.
@@ -72,7 +83,7 @@ deps:
 ###############################################################################
 .PHONY: template
 template: $(VALUES) deps
-	helm template --debug $(VALUE_ARGS) --namespace $(NAMESPACE) $(CHART_NAME) .
+	helm template --debug $(VALUE_ARGS) $(CHART_NAME) .
 
 ###############################################################################
 # If the LOCAL_DEPS_TARGET variable is set, then before we do the install we
@@ -83,7 +94,7 @@ template: $(VALUES) deps
 ###############################################################################
 .PHONY: install
 install: $(LOCAL_DEPS_TARGET) $(VALUES) deps
-	helm install --no-hooks $(VALUE_ARGS) --create-namespace --namespace $(NAMESPACE) $(CHART_NAME) .
+	helm install $(VALUE_ARGS) $(CREATE_NS) $(CHART_NAME) .
 
 ###############################################################################
 # Once an initial helm chart has been installed, the user should call the
@@ -91,25 +102,28 @@ install: $(LOCAL_DEPS_TARGET) $(VALUES) deps
 ###############################################################################
 .PHONY: upgrade
 upgrade: $(VALUES)
-	helm upgrade --install $(VALUE_ARGS) --namespace $(NAMESPACE) $(CHART_NAME) .
+	helm upgrade --install $(VALUE_ARGS) $(CHART_NAME) .
 
 ###############################################################################
 # See the status of the current Helm deployment for an app
 ###############################################################################
 .PHONY: status
 status:
-	helm status --namespace $(NAMESPACE) $(CHART_NAME)
+	helm status $(CHART_NAME)
 
 ###############################################################################
 # List the helm charts launched in our namespace
 ###############################################################################
 .PHONY: list
 list:
-	helm list --namespace $(NAMESPACE)
+	helm list
 
 ###############################################################################
-# Deleteing the charts should fully clean up your envirionment
+# Deleting the charts should fully clean up your environment
+# Delete any installed hooks (e.g. localstack hooks)
 ###############################################################################
-.PHONY: delete
-delete:
-	helm delete --namespace $(NAMESPACE) $(CHART_NAME)
+.PHONY: uninstall
+uninstall:
+	helm delete $(CHART_NAME)
+	kubectl -n $(NAMESPACE) delete svc,cm,sa,pod,deployment,ingress,job -l 'app.kubernetes.io/managed-by=Helm,app.kubernetes.io/instance=$(CHART_NAME)'
+
