@@ -1,0 +1,61 @@
+global:
+  # -- (String) Application group name
+  appGroup: unset
+  # -- (List) Additional value files (besides values.yaml and values.<appGroup>.yaml) to include when deploying the Argo apps, optional
+  # additionalValueFiles:
+  #   - values.staging.yaml
+
+app:
+  # -- (String) Target revision which the Argo Apps in the workflow will deploy from, usually a Git tag
+  targetRevision: placeholder-target-revision
+  # -- (String) Name of the workflow
+  workflowName: workflow-name
+
+workflow:
+  # -- (Integer) The number of retries when a step fails.
+  retryLimit: 1
+  serviceAccount:
+    # -- (String) Service Account name used by workflow
+    name: workflow-service-account
+  # Argo Workflow exit handler: https://argoproj.github.io/argo-workflows/walk-through/exit-handlers/
+  # onExit:
+  # Workflow steps to run when the workflow starts
+  # onStart:
+
+# -- (`Map`) Map of environment variables to plaintext secrets or KMS encrypted secrets.
+secrets: {}
+
+# -- (String) AWS region where the KMS key is located
+kmsSecretsRegion:
+
+# -- (String) Secrets Engine determines the type of Secret Resource that will be created (`KMSSecret`, `Secret`). kms || plaintext are possible values.
+secretsEngine: plaintext
+
+argocd:
+  # -- (String) ArgoCD namespace where all applications will be created
+  namespace: argocd
+
+  # -- (String) ArgoCD project name
+  project: test
+
+  # Argo CD applications controlled by workflow
+  # Example:
+  #   app-name:
+  #     # -- (String) app repository url
+  #     repoURL: https://github.com/org/repo
+  #     # -- (String) Helm charts location
+  #     chartPath: charts/app
+  #     # -- (String) The timeout for the Argo deployment.
+  #     timeout: 600s
+  #     # -- (List) A list of apps (also deployed in this workflow) this app depends on, optional.
+  #     depends:
+  #       - another-app
+  #     # -- (String boolean) whether the app should be skipped in the workflow dag, optional.
+  #     disabled: "false"
+  #     # -- (Dictionary) customized sync spec (e.g. syncPolicy, ignoreDifferences), optional
+  #     specOverride:
+  #       # -- (Dictionary) customized sync spec for the "create" action, optional
+  #       create: {}
+  #       # -- (Dictionary) customized sync spec for the "update" action, optional
+  #       update: {}
+  applications: {}

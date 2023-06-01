@@ -1,0 +1,178 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: {{ .Values.app.workflowName | lower }}
+  labels:
+    {{- with $.Values.workflow.labels }}
+    {{- tpl (toYaml .) $ | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- with $.Values.workflow.annotations }}
+    {{- tpl (toYaml .) $ | nindent 4 }}
+    {{- end }}
+spec:
+  entrypoint: deployment-pipeline
+  {{- if .Values.workflow.onExit }}
+  onExit: exit-handler
+  {{- end }}
+  retryStrategy:
+   retryPolicy: OnError
+   limit: {{ .Values.workflow.retryLimit }}
+  # ServiceAccount to run the workflow
+  serviceAccountName: {{ .Values.workflow.serviceAccount.name }}
+  # Sets pod annotations and labels for pods created by all workflow steps
+  podMetadata:
+    {{- with $.Values.workflow.podMetadata }}
+    {{- tpl (toYaml .) $ | nindent 4 }}
+    {{- end }}
+  templates:
+  {{- range $name, $config := .Values.argocd.applications }}
+  {{- if or (not $config.disabled) (eq $config.disabled "false") }}
+  - name: check-existing-app-{{ $name }}
+    resource:
+      action: get
+      manifest: |
+        apiVersion: argoproj.io/v1alpha1
+        kind: Application
+        metadata:
+          {{- with $config.metadata }}
+          {{- tpl (toYaml .) $ | nindent 10 }}
+          {{- end }}
+  - name: create-app-{{ $name }}
+    resource:
+      action: create
+      manifest: |
+        apiVersion: argoproj.io/v1alpha1
+        kind: Application
+        metadata:
+          {{- with $config.metadata }}
+          {{- tpl (toYaml .) $ | nindent 10 }}
+          {{- end }}
+          labels:
+            {{- with $config.labels }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+            {{- end }}
+          finalizers:
+            - resources-finalizer.argocd.argoproj.io
+        spec:
+          destination:
+            namespace: {{ $.Release.Namespace }}
+            server: https://kubernetes.default.svc
+          project: {{ $.Values.argocd.project }}
+          source:
+            helm:
+              valueFiles:
+                - values.yaml
+                - values.{{ $.Values.global.appGroup }}.yaml
+                {{- if $.Values.global.additionalValueFiles }}
+                {{- range $.Values.global.additionalValueFiles }}
+                - {{ . }}
+                {{- end }}
+                {{- end }}
+              {{- if $config.helmParameters }}
+              parameters:
+              {{- with $config.helmParameters }}
+              {{- tpl (toYaml .) $ | nindent 16 }}
+              {{- end }}
+              {{- end }}
+            path: {{ $config.chartPath }}
+            repoURL: {{ $config.repoURL }}
+            targetRevision: {{ $.Values.app.targetRevision }}
+          {{- if and ($config.specOverride) ($config.specOverride.create) }}
+          {{- with $config.specOverride.create }}
+          {{- tpl (toYaml .) $ | nindent 10 }}
+          {{- end }}
+          {{- end }}
+  - name: update-app-{{ $name }}
+    resource:
+      action: patch
+      mergeStrategy: merge
+      manifest: |
+        apiVersion: argoproj.io/v1alpha1
+        kind: Application
+        metadata:
+          {{- with $config.metadata }}
+          {{- tpl (toYaml .) $ | nindent 10 }}
+          {{- end }}
+          labels:
+            {{- with $config.labels }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+            {{- end }}
+        spec:
+          source:
+            targetRevision: {{ $.Values.app.targetRevision }}
+          {{- if and ($config.specOverride) ($config.specOverride.update) }}
+          {{- with $config.specOverride.update }}
+          {{- tpl (toYaml .) $ | nindent 10 }}
+          {{- end }}
+          {{- end }}
+  - name: verify-app-{{ $name }}
+    timeout: {{ $config.timeout }}
+    inputs:
+      parameters:
+        - name: successCondition
+    resource:
+      action: get
+      successCondition: "{{`{{inputs.parameters.successCondition}}`}}"
+      manifest: |
+        apiVersion: argoproj.io/v1alpha1
+        kind: Application
+        metadata:
+          {{- with $config.metadata }}
+          {{- tpl (toYaml .) $ | nindent 10 }}
+          {{- end }}
+  {{- end }}
+  {{- end }}
+
+  - name: deployment-pipeline
+    dag:
+      tasks:
+      {{- if .Values.workflow.onStart }}
+      {{- with $.Values.workflow.onStart }}
+      {{- tpl (toYaml .) $ | nindent 6 }}
+      {{- end }}
+      {{- end }}
+      {{- range $name, $config := .Values.argocd.applications }}
+      {{- if or (not $config.disabled) (eq $config.disabled "false") }}
+      - name: check-existing-app-{{ $name }}
+        {{- if $config.depends }}
+        {{- $depends := list -}}
+        {{- range $config.depends -}}
+          {{- if eq (dig . "disabled" "false" $.Values.argocd.applications) "false" }}
+          {{- $depends = printf "verify-app-synced-%s.Succeeded" . | append $depends -}}
+          {{- $depends = printf "verify-app-healthy-%s.Succeeded" . | append $depends -}}
+          {{- end }}
+        {{- end }}
+        {{- if $depends }}
+        depends: {{ join " && " $depends }}
+        {{- end }}
+        {{- end }}
+        template: check-existing-app-{{ $name }}
+      - name: create-app-{{ $name }}
+        template: create-app-{{ $name }}
+        depends: check-existing-app-{{ $name }}.Failed
+      - name: update-app-{{ $name }}
+        template: update-app-{{ $name }}
+        depends: check-existing-app-{{ $name }}.Succeeded
+      - name: verify-app-synced-{{ $name }}
+        depends: create-app-{{ $name }}.Succeeded || update-app-{{ $name }}.Succeeded
+        template: verify-app-{{ $name }}
+        arguments:
+          parameters:
+            - name: successCondition
+              value: status.sync.status == Synced, status.sync.comparedTo.source.targetRevision == {{ $.Values.app.targetRevision }}
+      - name: verify-app-healthy-{{ $name }}
+        depends: verify-app-synced-{{ $name }}.Succeeded
+        template: verify-app-{{ $name }}
+        arguments:
+          parameters:
+            - name: successCondition
+              value: status.health.status == Healthy, status.sync.comparedTo.source.targetRevision == {{ $.Values.app.targetRevision }}
+      {{- end }}
+      {{- end }}
+
+  {{- if .Values.workflow.onExit }}
+  {{- with $.Values.workflow.onExit }}
+  {{- tpl (toYaml .) $ | nindent 2 }}
+  {{- end }}
+  {{- end }}

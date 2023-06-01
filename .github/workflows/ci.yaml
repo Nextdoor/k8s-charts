@@ -48,6 +48,9 @@ jobs:
           if [[ "$changed" == *"rollout-app"* ]]; then
             echo "::set-output name=rollout::true"
           fi
+          if [[ "$changed" == *"simple-workflow"* ]]; then
+            echo "::set-output name=simple-workflow::true"
+          fi
 
       - name: Run chart-testing (lint)
         run: ct --config ct.yaml lint
@@ -62,6 +65,11 @@ jobs:
         if: steps.list-changed.outputs.rollout == 'true'
         run: |
           make -C charts/rollout-app install_rollouts
+
+      - name: Install Argo Rollouts Controller
+        if: steps.list-changed.outputs.simple-workflow == 'true'
+        run: |
+          make -C charts/simple-workflow install_argo_workflow
 
       - name: Install CRDs
         if: steps.list-changed.outputs.changed == 'true'
