@@ -24,14 +24,14 @@ spec:
           in namespace {{`{{$labels.namespace}}`}}.
 
       expr: >-
-        sum by (destination_service_name) (
-            increase(istio_requests_total{response_code=~"5.*", destination_service_namespace="{{ $release.Namespace }}"}[5m])
+        sum (
+            increase(istio_requests_total{response_code=~"5.*", destination_service_name="{{ $release.Name }}"}[5m])
         )
 
           /
 
-        sum by (destination_service_name) (
-            increase(istio_requests_total{destination_service_namespace="{{ $release.Namespace }}"}[60s])
+        sum (
+            increase(istio_requests_total{destination_service_name="{{ $release.Name }}"}[5m])
         )
           > {{ .threshold }}
       for: {{ .for }}
