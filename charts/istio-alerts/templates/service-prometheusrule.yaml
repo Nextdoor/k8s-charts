@@ -31,7 +31,7 @@ spec:
           /
 
         sum by (destination_service_name) (
-            increase(istio_requests_total{destination_service_namespace="{{ $release.Namespace }}"}[60s])
+            increase(istio_requests_total{destination_service_namespace="{{ $release.Namespace }}"}[5m])
         )
           > {{ .threshold }}
       for: {{ .for }}
