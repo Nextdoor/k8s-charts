@@ -3,6 +3,7 @@ flinkVersion: 1.13.1
 pvc:
   storageClassName: ''
   storage: 10Mi
+  accessModes: [ReadWriteOnce]
 
 alerts:
   enabled: false

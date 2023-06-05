@@ -9,6 +9,9 @@ image:
   # -- (String) The Flink image tag
   tag: 1.13.1
 
+  # -- (String) Always, Never or IfNotPresent
+  pullPolicy: IfNotPresent
+
 # -- (String) specifies the batch scheduler name for JobManager, TaskManager. If empty, no batch scheduling is enabled
 batchSchedulerName:
 
@@ -275,6 +278,9 @@ serviceAccount:
 pvc:
   storageClassName: efs
   storage: 1Gi
+
+  # -- (`strings[]`) List of Access Modes.
+  accessModes: [ReadWriteMany]
 
 # -- Configuration of the automatic savepoints
 savepoints:

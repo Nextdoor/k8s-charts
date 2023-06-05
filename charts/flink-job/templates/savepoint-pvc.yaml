@@ -11,11 +11,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: {{ template "flink-job-cluster.fullname" $values }}-savepoint
 spec:
-  {{- with $values.Values.pvc.storageClassName }}
-  storageClassName: {{ . }}
-  {{- end }}
+  storageClassName: {{ $values.Values.pvc.storageClassName }}
   accessModes:
-    - ReadWriteMany
+    {{- toYaml $values.Values.pvc.accessModes | nindent 4 }}
   resources:
     requests:
       storage: {{ $values.Values.pvc.storage }}
@@ -27,11 +25,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: {{ template "flink-job-cluster.fullname" . }}-savepoint
 spec:
-  {{- with .Values.pvc.storageClassName }}
-  storageClassName: {{ . }}
-  {{- end }}
+  storageClassName: {{ .Values.pvc.storageClassName }}
   accessModes:
-    - ReadWriteMany
+    {{- toYaml .Values.pvc.accessModes | nindent 4 }}
   resources:
     requests:
       storage: {{ .Values.pvc.storage }}

@@ -2,7 +2,7 @@
 
 Flink job cluster on k8s
 
-![Version: 0.1.19](https://img.shields.io/badge/Version-0.1.19-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
+![Version: 0.1.20](https://img.shields.io/badge/Version-0.1.20-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
 
 This chart deploys a flink job cluster and runs a simple word counting flink app as an example.
 This chart includes some production ready set-ups such as
@@ -28,6 +28,7 @@ See metrics reporter in the flink properties for more details.
 | flinkProperties | `Map` | `{"execution.checkpointing.interval":"10min","execution.checkpointing.mode":"EXACTLY_ONCE","high-availability":"org.apache.flink.kubernetes.highavailability.KubernetesHaServicesFactory","high-availability.storageDir":"file:/savepoint/","kubernetes.cluster-id":"{{ .Values.fullnameOverride }}","kubernetes.namespace":"{{ .Release.Namespace }}","metrics.reporter.prom.class":"org.apache.flink.metrics.prometheus.PrometheusReporter","metrics.reporters":"prom","restart-strategy":"exponential-delay","restart-strategy.exponential-delay.backoff-multiplier":"2.0","state.checkpoints.dir":"file:/savepoint/","taskmanager.numberOfTaskSlots":"1"}` | Flink properties which are appened to flink-conf.yaml |
 | flinkVersion | String | `nil` | The Flink version to operate |
 | fullnameOverride | String | `"word-counting-cluster"` | The name of the flink cluster |
+| image.pullPolicy | String | `"IfNotPresent"` | Always, Never or IfNotPresent |
 | image.repository | String | `"flink"` | The Flink image name and repository |
 | image.tag | String | `"1.13.1"` | The Flink image tag |
 | job.allowNonRestoredState | String | `false` | Should allow to skip state that cannot be mapped to the new program when drop an operator |
@@ -64,7 +65,8 @@ See metrics reporter in the flink properties for more details.
 | podMonitor.relabelings | `map[]` | `[]` | A list of Prometheus relabelings configs applied to the metrics before they are ingested by Prometheus. Use this to reduce cardinality of metrics based on labels that are not critical to monitor. |
 | podMonitor.sampleLimit | `int` | `2000` | Per-scrape limit on number of scraped samples that will be accepted. |
 | podMonitor.scrapeInterval | `string` | `"60s"` | The frequency in which to scrape metrics. |
-| pvc | object | `{"storage":"1Gi","storageClassName":"efs"}` | Configuration of the PersistentVolume for storing savepoints. |
+| pvc | object | `{"accessModes":["ReadWriteMany"],"storage":"1Gi","storageClassName":"efs"}` | Configuration of the PersistentVolume for storing savepoints. |
+| pvc.accessModes | `strings[]` | `["ReadWriteMany"]` | List of Access Modes. |
 | recreateOnUpdate | bool | `true` | Recreate components when updating flinkcluster |
 | savepoints | object | `{"enabled":true,"savepointDir":"/savepoint"}` | Configuration of the automatic savepoints |
 | savepoints.enabled | Boolean | `true` | Automatically creates a volume and mount the volume on task manager and job manager pods |
