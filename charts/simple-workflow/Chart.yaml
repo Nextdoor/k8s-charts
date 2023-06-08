@@ -1,0 +1,9 @@
+apiVersion: v2
+name: simple-workflow
+description: Default Argo Workflow Helm Chart
+type: application
+version: 0.0.1
+appVersion: latest
+maintainers:
+  - name: masterginger
+    email: bian@nextdoor.com
