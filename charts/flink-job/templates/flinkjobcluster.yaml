@@ -249,7 +249,7 @@ spec:
   {{- end }}
   image:
     name: {{ template "flink-job-cluster.imageFqdn" . }}
-    pullPolicy: IfNotPresent
+    pullPolicy: {{.Values.image.pullPolicy}}
   batchSchedulerName: {{ .Values.batchSchedulerName }}
   envVars:
     {{- toYaml .Values.envVars | nindent 4 }}
