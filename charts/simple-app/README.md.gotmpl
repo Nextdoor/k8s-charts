@@ -12,6 +12,15 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
 
+### 0.27.x -> 1.0.x
+
+**BREAKING: You need to explicitly set the `livenessProbe` and `readinessProbe`**
+
+In order to make the chart more flexible, we have removed the default values
+for the `livenessProbe` and `readinessProbe` parameters. You must now
+explicitly set them in your `values.yaml` file. If you do not, the chart will
+fail to install.
+
 ### 0.26.x -> 0.27.x
 
 **NEW: Optional sidecar and init containers**

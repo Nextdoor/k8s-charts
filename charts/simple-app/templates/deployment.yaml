@@ -203,11 +203,11 @@ spec:
           {{- end }}
           {{- with $.Values.livenessProbe }}
           livenessProbe:
-            {{- toYaml . | nindent 12 }}
+            {{- toYaml tpl (required "livenessProbe is required" .) $ | nindent 12 }}
           {{- end }}
           {{- with $.Values.readinessProbe }}
           readinessProbe:
-            {{- toYaml . | nindent 12 }}
+            {{- toYaml tpl (required "readinessProbe is required" .) $ | nindent 12 }}
           {{- end }}
           resources:
             {{- toYaml $.Values.proxySidecar.resources | nindent 12 }}

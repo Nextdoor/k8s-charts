@@ -108,19 +108,13 @@ startupProbe:
 
 # -- A PodSpec container "livenessProbe" configuration object. Note that this
 # livenessProbe will be applied to the proxySidecar container instead if that
-# is enabled.
+# is enabled. This is **required**.
 livenessProbe:
-  httpGet:
-    path: /
-    port: http
 
 # -- A PodSpec container "readinessProbe" configuration object. Note that this
 # readinessProbe will be applied to the proxySidecar container instead if that
-# is enabled.
+# is enabled. This is **required**.
 readinessProbe:
-  httpGet:
-    path: /
-    port: http
 
 # -- (`ContainerPort[]`) A list of Port objects that are exposed by the
 # service. These ports are applied to the main container, or the proxySidecar
