@@ -63,12 +63,12 @@ spec:
             helm:
               valueFiles:
                 - values.yaml
-                - values.{{ $.Values.global.appGroup }}.yaml
                 {{- if $.Values.global.additionalValueFiles }}
                 {{- range $.Values.global.additionalValueFiles }}
                 - {{ . }}
                 {{- end }}
                 {{- end }}
+                - values.{{ $.Values.global.appGroup }}.yaml
               {{- if $config.helmParameters }}
               parameters:
               {{- with $config.helmParameters }}
