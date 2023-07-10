@@ -8,6 +8,8 @@ global:
 app:
   # -- (String) Target revision which the Argo Apps in the workflow will deploy from, usually a Git tag
   targetRevision: placeholder-target-revision
+  # -- (String) The Git revision (Git sha) which the Argo Apps in the workflow will deploy from, optional. When specified, the verification steps will check revision instead of targetRevision.
+  # revision: placeholder-revision
   # -- (String) Name of the workflow
   workflowName: workflow-name
 
@@ -52,6 +54,8 @@ argocd:
   #       - another-app
   #     # -- (String boolean) whether the app should be skipped in the workflow dag, optional.
   #     disabled: "false"
+  #     # -- (String boolean) whether the workflow should just verify the app states, optional.
+  #     verifyOnly: "false"
   #     # -- (Dictionary) customized sync spec (e.g. syncPolicy, ignoreDifferences), optional
   #     specOverride:
   #       # -- (Dictionary) customized sync spec for the "create" action, optional
