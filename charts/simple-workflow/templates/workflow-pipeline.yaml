@@ -28,6 +28,7 @@ spec:
   templates:
   {{- range $name, $config := .Values.argocd.applications }}
   {{- if or (not $config.disabled) (eq $config.disabled "false") }}
+  {{- if or (not $config.verifyOnly) (eq $config.verifyOnly "false") }}
   - name: check-existing-app-{{ $name }}
     resource:
       action: get
@@ -106,6 +107,7 @@ spec:
           {{- tpl (toYaml .) $ | nindent 10 }}
           {{- end }}
           {{- end }}
+  {{- end }}
   - name: verify-app-{{ $name }}
     timeout: {{ $config.timeout }}
     inputs:
@@ -134,6 +136,7 @@ spec:
       {{- end }}
       {{- range $name, $config := .Values.argocd.applications }}
       {{- if or (not $config.disabled) (eq $config.disabled "false") }}
+      {{- if or (not $config.verifyOnly) (eq $config.verifyOnly "false") }}
       - name: check-existing-app-{{ $name }}
         {{- if $config.depends }}
         {{- $depends := list -}}
@@ -154,20 +157,31 @@ spec:
       - name: update-app-{{ $name }}
         template: update-app-{{ $name }}
         depends: check-existing-app-{{ $name }}.Succeeded
+      {{- end }}
       - name: verify-app-synced-{{ $name }}
+        {{- if or (not $config.verifyOnly) (eq $config.verifyOnly "false") }}
         depends: create-app-{{ $name }}.Succeeded || update-app-{{ $name }}.Succeeded
+        {{- end }}
         template: verify-app-{{ $name }}
         arguments:
           parameters:
             - name: successCondition
+              {{- if $.Values.app.revision }}
+              value: status.sync.status == Synced, status.sync.revision == {{ $.Values.app.revision }}
+              {{- else }}
               value: status.sync.status == Synced, status.sync.comparedTo.source.targetRevision == {{ $.Values.app.targetRevision }}
+              {{- end }}
       - name: verify-app-healthy-{{ $name }}
         depends: verify-app-synced-{{ $name }}.Succeeded
         template: verify-app-{{ $name }}
         arguments:
           parameters:
             - name: successCondition
+              {{- if $.Values.app.revision }}
+              value: status.health.status == Healthy, status.sync.revision == {{ $.Values.app.revision }}
+              {{- else }}
               value: status.health.status == Healthy, status.sync.comparedTo.source.targetRevision == {{ $.Values.app.targetRevision }}
+              {{- end }}
       {{- end }}
       {{- end }}
 
