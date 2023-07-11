@@ -17,6 +17,34 @@ how these work, and the various custom resource definitions.
 
 ## Upgrade Notes
 
+### 0.1.x -> 0.2.x
+
+**BREAKING: `.Values.virtualService.gateways` syntax changed
+
+Istio `Gateways` can live in any namespace - and it is [recommended by
+Istio](https://istio.io/latest/docs/setup/additional-setup/gateway/#deploying-a-gateway)
+to run the Gateways in a separate namespace from the Istio Control Plane. The
+`.Values.virtualService.gateways` format now must include the namespace of the
+[`Gateway`](https://istio.io/latest/docs/reference/config/networking/gateway/)
+object. Eg:
+
+_Before_
+```yaml
+# values.yaml
+virtualService:
+  namespace: istio-system
+  gateways:
+  - internal
+```
+
+_After_
+```yaml
+# values.yaml
+virtualService:
+  gateways:
+  - istio-system/internal
+```
+
 ### 0.0.x -> 0.1.x
 
 **NEW: Optional sidecar and init containers**
