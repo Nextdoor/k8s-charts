@@ -20,7 +20,7 @@ how these work, and the various custom resource definitions.
 
 ### 0.1.x -> 0.2.x
 
-**BREAKING: `.Values.virtualService.gateways` syntax changed
+**BREAKING: `.Values.virtualService.gateways` syntax changed**
 
 Istio `Gateways` can live in any namespace - and it is [recommended by
 Istio](https://istio.io/latest/docs/setup/additional-setup/gateway/#deploying-a-gateway)

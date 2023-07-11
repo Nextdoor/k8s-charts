@@ -2,7 +2,7 @@
 
 Default StatefulSet Helm Chart
 
-![Version: 0.10.5](https://img.shields.io/badge/Version-0.10.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.11.0](https://img.shields.io/badge/Version-0.11.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,34 @@ in Kubernetes][statefulsets]. The chart provides all of the common pieces like
 ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
+
+### 0.10.x -> 0.11.x
+
+**BREAKING: `.Values.virtualService.gateways` syntax changed**
+
+Istio `Gateways` can live in any namespace - and it is [recommended by
+Istio](https://istio.io/latest/docs/setup/additional-setup/gateway/#deploying-a-gateway)
+to run the Gateways in a separate namespace from the Istio Control Plane. The
+`.Values.virtualService.gateways` format now must include the namespace of the
+[`Gateway`](https://istio.io/latest/docs/reference/config/networking/gateway/)
+object. Eg:
+
+_Before_
+```yaml
+# values.yaml
+virtualService:
+  namespace: istio-system
+  gateways:
+  - internal
+```
+
+_After_
+```yaml
+# values.yaml
+virtualService:
+  gateways:
+  - istio-system/internal
+```
 
 ### 0.9.x -> 0.10.x
 

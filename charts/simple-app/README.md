@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,34 @@ in a [Deployment][deployments]. The chart automatically configures various
 defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
+
+### 1.0.x -> 1.1.x
+
+**BREAKING: `.Values.virtualService.gateways` syntax changed**
+
+Istio `Gateways` can live in any namespace - and it is [recommended by
+Istio](https://istio.io/latest/docs/setup/additional-setup/gateway/#deploying-a-gateway)
+to run the Gateways in a separate namespace from the Istio Control Plane. The
+`.Values.virtualService.gateways` format now must include the namespace of the
+[`Gateway`](https://istio.io/latest/docs/reference/config/networking/gateway/)
+object. Eg:
+
+_Before_
+```yaml
+# values.yaml
+virtualService:
+  namespace: istio-system
+  gateways:
+  - internal
+```
+
+_After_
+```yaml
+# values.yaml
+virtualService:
+  gateways:
+  - istio-system/internal
+```
 
 ### 0.27.x -> 1.0.x
 
