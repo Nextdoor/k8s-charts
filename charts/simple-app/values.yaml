@@ -318,10 +318,10 @@ virtualService:
   # means that you are creating a VirtualService routing definition only inside
   # of the Kubernetes cluster, which is totally reasonable if you want to do
   # that.
+  #
+  # Must be in the form of $namespace/$gateway. Eg,
+  # "istio-system/default-gateway".
   gateways: []
-
-  # -- The namespace where the Istio services are operating. Do not change this.
-  namespace: istio-system
 
   # -- The default path prefix that the `VirtualService` will match requests
   # against to pass to the default `Service` object in this deployment.

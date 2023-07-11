@@ -15,7 +15,10 @@ spec:
   {{- with .Values.virtualService.gateways }}
   gateways:
     {{- range $gw := . }}
-    - {{ $istioNs }}/{{ $gw }}
+    {{- if not (contains "/" $gw) }}
+      {{ fail ".Values.virtualService.gateways entries must be in the form of: namespace/gateway-name" }}
+    {{- end }}
+    - {{ $gw }}
     {{- end }}
   {{- end }}
   hosts:
