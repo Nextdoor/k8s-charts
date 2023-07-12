@@ -16,6 +16,10 @@ inside of your cluster already, and have a need to use [Envoy's
 RedisProxy][envoy] configuration to handle traffic routing to the ElastiCache
 services.
 
+** Warning: BREAKING CHANGE: Chart version 0.3.2 switches the catchAllHosts matcher
+from `*/*` (match all hosts in cluster) to `./*` (match all hosts in namespace).**
+
+
 **Pre-Req: `PILOT_ENABLE_REDIS_FILTER=true` must be set in your Istio Pilot Config**
 
 If you are using the [Istio

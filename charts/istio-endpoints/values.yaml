@@ -49,9 +49,9 @@ sidecar:
 
   # -- (`Strings[]`) Default `hosts` that the final "catch all"
   # [IstioEgressListener](https://istio.io/latest/docs/reference/config/networking/sidecar/#IstioEgressListener)
-  # will monitor for. The default value catches all resources across the
-  # cluster.
-  catchAllHosts: ['*/*']
+  # will monitor for. The default value catches all resources in the local
+  # namespace.
+  catchAllHosts: ['./*']
 
   # -- (`Map`) Custom annotations to apply to the `Sidecar` resource, such as whether
   # Argo should created it as a pre-sync hook or in a specific wave.
