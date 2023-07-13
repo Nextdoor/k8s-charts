@@ -11,10 +11,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
+
       - name: Set up helm-docs
         uses: envoy/install-helm-docs@v1.0.0
         with:
           version: 1.11.0
+
       - name: Run helm-docs
         run: helm-docs && git diff --exit-code
 
@@ -56,9 +58,7 @@ jobs:
         run: ct --config ct.yaml lint
 
       - name: Create kind cluster
-        uses: helm/kind-action@v1.3.0
-        with:
-          node_image: kindest/node:v1.23.6
+        uses: helm/kind-action@v1.8.0
         if: steps.list-changed.outputs.changed == 'true'
 
       - name: Install Argo Rollouts Controller

@@ -2,7 +2,7 @@
 
 Per-Namespace Istio Configuration Chart
 
-![Version: 0.3.1](https://img.shields.io/badge/Version-0.3.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [elasticache]: https://aws.amazon.com/elasticache/
 [serviceentry]: https://istio.io/latest/docs/reference/config/networking/service-entry/
@@ -46,6 +46,23 @@ mode enabled in your environment. If you are running with the `istio-cni`
 plugin, then you must also be running Istio 1.11+.
 ```
 
+## Upgrade Notes
+
+### 0.3.x -> 0.4.x
+
+The previous default `Sidecar` configuration watched _all namespaces and
+services_. This configuration is dangerous in large clusters where services may
+have thousands of pods behind them, causing the Envoy configuration to be
+massively large. This is particularly bad if you have no need to talk to those
+services.
+
+The _new default_ is to monitor only your _local namespace_, the `istio-system`
+and `istio-gateways` namespaces.
+
+If your service has any dependencies on other mesh-connected services within
+the cluster, you must specify those namespaces and services in the
+`.Values.sidecar.catchAllHosts` array.
+
 ## Usage
 
 ### Add to your `Chart.yaml` dependencies:
@@ -60,7 +77,7 @@ plugin, then you must also be running Istio 1.11+.
 + dependencies:
 +   - name: istio-endpoints
 +     repository: https://k8s-charts.nextdoor.com
-+     version: 0.3.1
++     version: 0.4.0
   maintainers:
     - name: diranged
       email: matt@nextdoor.com
@@ -100,7 +117,7 @@ istio-endpoints:
 | nameOverride | `String` | `""` | Overrides the main "release name" of the resources. |
 | sidecar.annotations | `Map` | `{}` | Custom annotations to apply to the `Sidecar` resource, such as whether Argo should created it as a pre-sync hook or in a specific wave. |
 | sidecar.catchAllCaptureMode | `String` | `"IPTABLES"` | Default `captureMode` that the final "catch all" [IstioEgressListener](https://istio.io/latest/docs/reference/config/networking/sidecar/#IstioEgressListener) will run in. Default values are here for your reference. |
-| sidecar.catchAllHosts | `Strings[]` | `["*/*"]` | Default `hosts` that the final "catch all" [IstioEgressListener](https://istio.io/latest/docs/reference/config/networking/sidecar/#IstioEgressListener) will monitor for. The default value catches all resources across the cluster. |
+| sidecar.catchAllHosts | `Strings[]` | `["./*","istio-system/*","istio-gateways/*"]` | Default `hosts` that the final "catch all" [IstioEgressListener](https://istio.io/latest/docs/reference/config/networking/sidecar/#IstioEgressListener) will monitor for. The default value catches all resources across the cluster. |
 | sidecar.enabled | `Bool` | `true` | Controls whether or not a `Sidecar` resource is created within the Namespace to help reconfigure the local listeners and routing configuration for your Pods. This defaults to `true` because it is required in order to properly set up Listeners that work for ElastiCache. You can disable this if you are going to manage your own `Sidecar` resource. |
 
 ----------------------------------------------

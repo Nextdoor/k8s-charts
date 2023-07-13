@@ -80,7 +80,7 @@ spec:
         cluster:
           {{- /* Find the Cluster config specifically created by the ServiceEntry above */}}
           service: {{ $internalHostname }}
-          port: 6379
+          portNumber: 6379
       patch:
         operation: MERGE
         value:
