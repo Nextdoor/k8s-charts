@@ -688,7 +688,7 @@ monitor:
 
   # -- (`string`) Name of the port to scrape for metrics - this is the name of
   # the port that will be exposed in your `PodSpec` for scraping purposes.
-  portName: metrics
+  portName: http-metrics
 
   # -- (`int`) Number of the port to scrape for metrics - this port will be
   # exposed in your `PodSpec` to ensure it can be scraped.
