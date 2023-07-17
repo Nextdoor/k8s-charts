@@ -21,6 +21,10 @@ through $deploymentZones
 */}}
 {{- $fullName            := include "nd-common.fullname" . }}
 
+{{- /*
+Verify that some required inputs are supplied
+*/}}
+{{- $readinessProbe := required "readinessProbe is required" .Values.readinessProbe }}
 
 {{- /*
 By default, we do run the topology spread function - letting it decide
@@ -203,15 +207,14 @@ spec:
           {{- end }}
           {{- with $.Values.livenessProbe }}
           livenessProbe:
-            {{- toYaml tpl (required "livenessProbe is required" .) $ | nindent 12 }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
-          {{- with $.Values.readinessProbe }}
           readinessProbe:
-            {{- toYaml tpl (required "readinessProbe is required" .) $ | nindent 12 }}
-          {{- end }}
+            {{- tpl (toYaml $.Values.readinessProbe) $ | nindent 12 }}
           resources:
             {{- toYaml $.Values.proxySidecar.resources | nindent 12 }}
         {{- end }}
+
         - name: {{ include "nd-common.containerName" $ }}
           securityContext:
             {{- toYaml $.Values.securityContext | nindent 12 }}
@@ -284,12 +287,10 @@ spec:
           {{- end }}
           {{- with $.Values.livenessProbe }}
           livenessProbe:
-            {{- toYaml . | nindent 12 }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
-          {{- with $.Values.readinessProbe }}
           readinessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            {{- tpl (toYaml $.Values.readinessProbe) $ | nindent 12 }}
 
 ---
 

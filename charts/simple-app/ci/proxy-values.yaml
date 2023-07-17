@@ -8,10 +8,25 @@ ingress:
   # ALB-ingress controllers.
   sslRedirect: false
 
+livenessProbe:
+  httpGet:
+    path: /
+    port: 80
+
 readinessProbe:
   httpGet:
     path: /
-    port: http
+    port: 80
+
+command:
+  - /bin/sleep
+  - infinity
+
+proxySidecar:
+  enabled: true
+  image:
+    repository: nginx
+    tag: stable
 
 replicaCount: 2
 minReadySeconds: 2
