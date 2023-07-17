@@ -8,12 +8,25 @@ ingress:
   # ALB-ingress controllers.
   sslRedirect: false
 
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+targetArchitecture: ~
+
 ports:
   - name: http
     containerPort: 80
     protocol: TCP
     # Optional flag to override the client-facing port for service requests.
     port:
+
   - name: https
     containerPort: 8443
     protocol: TCP

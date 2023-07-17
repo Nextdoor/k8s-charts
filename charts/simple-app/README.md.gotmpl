@@ -12,6 +12,13 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
 
+### 1.1.1 -> 1.1.2
+
+The `livenessProbe` and `readinessProbe` changes made in
+https://github.com/Nextdoor/k8s-charts/pull/212 were invalid. In the `1.1.2`
+release I fix these checks. Going forward `livenessProbe` is optional, but
+`readinessProbe` is a required field.
+
 ### 1.0.x -> 1.1.x
 
 **BREAKING: `.Values.virtualService.gateways` syntax changed**

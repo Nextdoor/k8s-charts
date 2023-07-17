@@ -4,6 +4,11 @@ datadog:
   scrapeLogs:
     enabled: true
 
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
 # For local development, we turn on the Ingress controller and set up a simple
 # local ingress.
 ingress:
