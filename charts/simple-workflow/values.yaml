@@ -23,6 +23,10 @@ workflow:
   # onExit:
   # Workflow steps to run when the workflow starts
   # onStart:
+  # ttlStrategy:
+  #   secondsAfterCompletion: 10 # Time to live after workflow is completed, replaces ttlSecondsAfterFinished
+  #   secondsAfterSuccess: 5     # Time to live after workflow is successful
+  #   secondsAfterFailure: 5     # Time to live after workflow fails
 
 # -- (`Map`) Map of environment variables to plaintext secrets or KMS encrypted secrets.
 secrets: {}
