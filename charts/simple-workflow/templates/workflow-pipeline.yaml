@@ -11,6 +11,12 @@ metadata:
     {{- tpl (toYaml .) $ | nindent 4 }}
     {{- end }}
 spec:
+  {{- if .Values.workflow.ttlStrategy }}
+  ttlStrategy:
+    {{- with $.Values.workflow.ttlStrategy }}
+    {{- tpl (toYaml .) $ | nindent 4 }}
+    {{- end }}
+  {{- end }}
   entrypoint: deployment-pipeline
   {{- if .Values.workflow.onExit }}
   onExit: exit-handler
