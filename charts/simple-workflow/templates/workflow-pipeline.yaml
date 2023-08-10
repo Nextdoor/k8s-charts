@@ -148,8 +148,7 @@ spec:
         {{- $depends := list -}}
         {{- range $config.depends -}}
           {{- if eq (dig . "disabled" "false" $.Values.argocd.applications) "false" }}
-          {{- $depends = printf "verify-app-synced-%s.Succeeded" . | append $depends -}}
-          {{- $depends = printf "verify-app-healthy-%s.Succeeded" . | append $depends -}}
+          {{- $depends = printf "verify-app-synced-and-healthy-%s.Succeeded" . | append $depends -}}
           {{- end }}
         {{- end }}
         {{- if $depends }}
@@ -164,7 +163,7 @@ spec:
         template: update-app-{{ $name }}
         depends: check-existing-app-{{ $name }}.Succeeded
       {{- end }}
-      - name: verify-app-synced-and-healthy{{ $name }}
+      - name: verify-app-synced-and-healthy-{{ $name }}
         {{- if or (not $config.verifyOnly) (eq $config.verifyOnly "false") }}
         depends: create-app-{{ $name }}.Succeeded || update-app-{{ $name }}.Succeeded
         {{- end }}
