@@ -195,7 +195,7 @@ spec:
               {{- end }}
        {{- range $jobName, $jobConfig := $config.jobs }}
         - name: verify-job-synced-and-healthy-{{ $name }}
-          depends: verify-app-synced-and-healthy-{{ $name }}.Succeeded
+          depends: verify-job-healthy-{{ $name }}.Succeeded
           template: verify-job-{{ $jobName }}
           arguments:
             parameters:
