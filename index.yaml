@@ -4436,6 +4436,19 @@ entries:
   simple-workflow:
   - apiVersion: v2
     appVersion: latest
+    created: "2023-08-17T23:31:33.02309217Z"
+    description: Default Argo Workflow Helm Chart
+    digest: 133491f8d884ac3ff0fd8e83b79b42c240acc787040431f22156020977b405c0
+    maintainers:
+    - email: bian@nextdoor.com
+      name: masterginger
+    name: simple-workflow
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/simple-workflow-0.0.6/simple-workflow-0.0.6.tgz
+    version: 0.0.6
+  - apiVersion: v2
+    appVersion: latest
     created: "2023-08-14T17:04:13.026744566Z"
     description: Default Argo Workflow Helm Chart
     digest: 2f5392cec4f3855070088b6e56b8b204ac170957333b5ce7d015650a014437b9
@@ -5518,4 +5531,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2023-08-14T17:04:13.035672108Z"
+generated: "2023-08-17T23:31:33.025701406Z"
