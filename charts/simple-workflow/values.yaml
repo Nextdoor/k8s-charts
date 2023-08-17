@@ -66,4 +66,15 @@ argocd:
   #       create: {}
   #       # -- (Dictionary) customized sync spec for the "update" action, optional
   #       update: {}
+  #     # -- (Dictionary) metadata of the argocd application
+  #     metadata: {}
+  #     # -- (Dictionary) Batch jobs to be verified if successful, optional.
+  #     jobs:
+  #       # -- (String) name of the job
+  #       name:
+  #       # -- (String) The timeout for verifying the batch job
+  #       timeout: 600s
+  #       # -- (Dictionary) metadata of the batch job
+  #       metadata: {}
+
   applications: {}
