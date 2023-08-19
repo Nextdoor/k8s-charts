@@ -2,7 +2,7 @@ apiVersion: v2
 name: simple-workflow
 description: Default Argo Workflow Helm Chart
 type: application
-version: 0.0.6
+version: 0.0.7
 appVersion: latest
 maintainers:
   - name: masterginger

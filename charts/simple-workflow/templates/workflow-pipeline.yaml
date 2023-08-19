@@ -145,7 +145,7 @@ spec:
           {{- with $jobConfig.metadata }}
           {{- tpl (toYaml .) $ | nindent 10 }}
           {{- end }}
-  {{- end}}
+  {{- end }}
   {{- end }}
   {{- end }}
 
@@ -194,14 +194,14 @@ spec:
               value: status.sync.status == Synced, status.health.status == Healthy, status.sync.comparedTo.source.targetRevision == {{ $.Values.app.targetRevision }}
               {{- end }}
        {{- range $jobName, $jobConfig := $config.jobs }}
-        - name: verify-job-synced-and-healthy-{{ $name }}
-          depends: verify-app-synced-and-healthy-{{ $name }}.Succeeded
-          template: verify-job-{{ $jobName }}
-          arguments:
-            parameters:
-              - name: successCondition
-                value: status.health.status == Healthy
-        {{- end }}
+       - name: verify-job-synced-and-healthy-{{ $jobName }}
+         depends: verify-app-synced-and-healthy-{{ $name }}.Succeeded
+         template: verify-job-{{ $jobName }}
+         arguments:
+           parameters:
+             - name: successCondition
+               value: status.health.status == Healthy
+       {{- end }}
 
       {{- end }}
       {{- end }}
