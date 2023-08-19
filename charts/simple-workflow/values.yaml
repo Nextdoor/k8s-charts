@@ -72,9 +72,9 @@ argocd:
   #     jobs:
   #       # -- (String) name of the job
   #       name:
-  #       # -- (String) The timeout for verifying the batch job
-  #       timeout: 600s
-  #       # -- (Dictionary) metadata of the batch job
-  #       metadata: {}
+  #         # -- (String) The timeout for verifying the batch job
+  #         timeout: 600s
+  #         # -- (Dictionary) metadata of the batch job
+  #         metadata: {}
 
   applications: {}
