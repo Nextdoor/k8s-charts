@@ -200,7 +200,7 @@ spec:
         arguments:
           parameters:
             - name: successCondition
-              value: status.health.status == Healthy
+              value: status.conditions[0].type == Complete
       {{- end }}
       {{- end }}
       {{- end }}
