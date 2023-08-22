@@ -200,7 +200,7 @@ spec:
         arguments:
           parameters:
             - name: successCondition
-              value: status.conditions[0].type == Complete
+              value: status.conditions.0.type == Complete
       {{- end }}
       {{- end }}
       {{- end }}
