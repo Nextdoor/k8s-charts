@@ -21,7 +21,7 @@ A Helm chart for the Apache Flink Kubernetes Operator
 | defaultConfiguration.create | bool | `true` |  |
 | fullnameOverride | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.repository | string | `"flink-kubernetes-operator"` |  |
+| image.repository | string | `"apache/flink-kubernetes-operator"` |  |
 | image.tag | string | `"latest"` |  |
 | imagePullSecrets | list | `[]` |  |
 | jobServiceAccount.annotations."helm.sh/resource-policy" | string | `"keep"` |  |
@@ -71,7 +71,7 @@ A Helm chart for the Apache Flink Kubernetes Operator
 | rbac.operatorRoleBinding.name | string | `"flink-operator-role-binding"` |  |
 | replicas | int | `1` |  |
 | strategy.type | string | `"Recreate"` |  |
-| webhook.create | bool | `true` |  |
+| webhook.create | bool | `false` |  |
 | webhook.keystore.useDefaultPassword | bool | `true` |  |
 | webhookSecurityContext | object | `{}` |  |
 
