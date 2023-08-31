@@ -1,6 +1,6 @@
 # istio-alerts
 
-![Version: 0.1.5](https://img.shields.io/badge/Version-0.1.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
 
 A Helm chart that provisions a series of alerts for istio VirtualServices
 
@@ -8,7 +8,7 @@ A Helm chart that provisions a series of alerts for istio VirtualServices
 
 | Name | Email | Url |
 | ---- | ------ | --- |
-| sabw8217 | <aaron@nextdoor.com> |  |
+| diranged | <matt@nextdoor.com> |  |
 
 ## Values
 
@@ -24,11 +24,13 @@ A Helm chart that provisions a series of alerts for istio VirtualServices
 | chart_source | string | `"https://github.com/Nextdoor/k8s-charts"` |  |
 | defaults.additionalRuleLabels | object | `{}` | Additional custom labels attached to every PrometheusRule |
 | defaults.runbookUrl | string | `"https://github.com/Nextdoor/k8s-charts/blob/main/charts/istio-alerts/runbook.md"` | The prefix URL to the runbook_urls that will be applied to each PrometheusRule |
+| serviceRules.destinationServiceName | string | `".*"` | Narrow down the alerts to a particular Destination Service if there are multiple services that require different thresholds within the same namespace. |
 | serviceRules.enabled | bool | `true` | Whether to enable the service rules template |
 | serviceRules.highRequestLatency.enabled | bool | `true` | Whether to enable the monitor on latency returned by the VirtualService. |
 | serviceRules.highRequestLatency.for | string | `"15m"` | How long to evaluate the latency of services. |
+| serviceRules.highRequestLatency.percentile | float | `0.95` | Which percentile to monitor - should be between 0 and 1. Default is 95th percentile. |
 | serviceRules.highRequestLatency.severity | string | `"warning"` | Severity of the latency monitor |
-| serviceRules.highRequestLatency.threshold | float | `0.5` | The threshold for considering the latency monitor to be alarming. |
+| serviceRules.highRequestLatency.threshold | float | `0.5` | The threshold for considering the latency monitor to be alarming. This is in seconds. |
 | serviceRules.http5XXMonitor | object | `{"enabled":true,"for":"5m","severity":"critical","threshold":0.0005}` | Configuration related to the 5xx monitor for the VirtualService. |
 | serviceRules.http5XXMonitor.enabled | bool | `true` | Whether to enable the monitor on 5xxs returned by the VirtualService. |
 | serviceRules.http5XXMonitor.for | string | `"5m"` | How long to evaluate the rate of 5xxs over. |

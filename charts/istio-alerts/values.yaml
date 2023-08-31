@@ -79,23 +79,41 @@ serviceRules:
   # -- Whether to enable the service rules template
   enabled: true
 
+  # -- Narrow down the alerts to a particular Destination Service if there
+  # are multiple services that require different thresholds within the same
+  # namespace.
+  destinationServiceName: .*
+
   # -- Configuration related to the 5xx monitor for the VirtualService.
   http5XXMonitor:
     # -- Whether to enable the monitor on 5xxs returned by the VirtualService.
     enabled: true
+
     # -- How long to evaluate the rate of 5xxs over.
     for: 5m
-    # -- The threshold for considering the 5xx monitor to be alarming. Default is 0.05% error rate, i.e 99.95% reliability.
+
+    # -- The threshold for considering the 5xx monitor to be alarming. Default
+    # is 0.05% error rate, i.e 99.95% reliability.
     threshold: 0.0005
+
     # -- Severity of the 5xx monitor
     severity: critical
 
   highRequestLatency:
-    # -- Whether to enable the monitor on latency returned by the VirtualService.
+    # -- Whether to enable the monitor on latency returned by the
+    # VirtualService.
     enabled: true
+
+    # -- Which percentile to monitor - should be between 0 and 1. Default is
+    # 95th percentile.
+    percentile: 0.95
+
     # -- Severity of the latency monitor
     severity: warning
-    # -- The threshold for considering the latency monitor to be alarming.
+
+    # -- The threshold for considering the latency monitor to be alarming. This
+    # is in seconds.
     threshold: 0.5
+
     # -- How long to evaluate the latency of services.
     for: 15m

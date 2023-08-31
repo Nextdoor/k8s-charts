@@ -23,15 +23,20 @@ spec:
           High rate of 5xx responses from the {{`{{$labels.destination_service_name}}`}} VirtualService
           in namespace {{`{{$labels.namespace}}`}}.
 
-      expr: >-
-        sum by (destination_service_name) (
-            increase(istio_requests_total{response_code=~"5.*", destination_service_namespace="{{ $release.Namespace }}"}[5m])
+      expr: >
+        sum by (destination_service_name, reporter, source_workload) (
+          istio_requests:increase5m{
+            response_code=~"5.*",
+            destination_service_namespace="{{ $release.Namespace }}",
+            destination_service_name=~"{{ $.Values.serviceRules.destinationServiceName }}"
+          }
         )
-
           /
-
-        sum by (destination_service_name) (
-            increase(istio_requests_total{destination_service_namespace="{{ $release.Namespace }}"}[5m])
+        sum by (destination_service_name, reporter, source_workload) (
+          istio_requests:increase5m{
+            destination_service_namespace="{{ $release.Namespace }}",
+            destination_service_name=~"{{ $.Values.serviceRules.destinationServiceName }}"
+          }
         )
           > {{ .threshold }}
       for: {{ .for }}
@@ -56,12 +61,22 @@ spec:
           Average request latency of {{`{{ $value | humanizePercentage }}`}} is above threshold ({{ .threshold }}s)
           in namespace {{`{{ $labels.namespace }}`}} for pod {{`{{ $labels.pod }}`}} (container: {{`{{ $labels.container }}`}}).
       expr: |-
-        avg by (destination_service_name) (
-          irate(
-            istio_request_duration_milliseconds_bucket{reporter=~"destination",destination_service_namespace="{{ $release.Namespace }}"}[5m]
-          ) / 1000
+        histogram_quantile(
+          {{ .percentile }},
+          sum(irate(
+            istio_request_duration_milliseconds_bucket{
+              destination_service_namespace="{{ $release.Namespace }}",
+              destination_service_name=~"{{ $.Values.serviceRules.destinationServiceName }}"
+            }[5m]
+          )) by (
+            destination_service_name,
+            reporter,
+            source_canonical_service,
+            le
+          )
         )
-          > {{ .threshold }}
+        / 1000
+        > {{ .threshold }}
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
