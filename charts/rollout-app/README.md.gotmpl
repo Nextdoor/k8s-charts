@@ -17,6 +17,14 @@ how these work, and the various custom resource definitions.
 
 ## Upgrade Notes
 
+### 0.2.x -> 0.3.x
+
+**BREAKING: Istio Alerts have changed**
+
+Review https://github.com/Nextdoor/k8s-charts/pull/231 carefully - the `5xx`
+and `HighLatency` alarms have changed in makeup and you may need to adjust the
+thresholds for your application now.
+
 ### 0.1.x -> 0.2.x
 
 **BREAKING: `.Values.virtualService.gateways` syntax changed**
