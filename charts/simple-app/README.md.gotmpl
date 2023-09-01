@@ -12,6 +12,14 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
 
+### 1.1.2 -> 1.2.x
+
+**BREAKING: Istio Alerts have changed**
+
+Review https://github.com/Nextdoor/k8s-charts/pull/231 carefully - the `5xx`
+and `HighLatency` alarms have changed in makeup and you may need to adjust the
+thresholds for your application now.
+
 ### 1.1.1 -> 1.1.2
 
 The `livenessProbe` and `readinessProbe` changes made in

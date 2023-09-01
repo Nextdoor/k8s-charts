@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -17,6 +17,14 @@ Progressive Delivery Controller][argo_rollouts] for more information about
 how these work, and the various custom resource definitions.
 
 ## Upgrade Notes
+
+### 0.2.x -> 0.3.x
+
+**BREAKING: Istio Alerts have changed**
+
+Review https://github.com/Nextdoor/k8s-charts/pull/231 carefully - the `5xx`
+and `HighLatency` alarms have changed in makeup and you may need to adjust the
+thresholds for your application now.
 
 ### 0.1.x -> 0.2.x
 
@@ -160,7 +168,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | Repository | Name | Version |
 |------------|------|---------|
 | file://../nd-common | nd-common | 0.0.24 |
-| https://k8s-charts.nextdoor.com | istio-alerts | 0.1.5 |
+| https://k8s-charts.nextdoor.com | istio-alerts | 0.2.0 |
 
 ## Values
 

@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 1.1.2](https://img.shields.io/badge/Version-1.1.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.2.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,14 @@ in a [Deployment][deployments]. The chart automatically configures various
 defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
+
+### 1.1.2 -> 1.2.x
+
+**BREAKING: Istio Alerts have changed**
+
+Review https://github.com/Nextdoor/k8s-charts/pull/231 carefully - the `5xx`
+and `HighLatency` alarms have changed in makeup and you may need to adjust the
+thresholds for your application now.
 
 ### 1.1.1 -> 1.1.2
 
@@ -305,7 +313,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | Repository | Name | Version |
 |------------|------|---------|
 | file://../nd-common | nd-common | 0.0.24 |
-| https://k8s-charts.nextdoor.com | istio-alerts | 0.1.5 |
+| https://k8s-charts.nextdoor.com | istio-alerts | 0.2.0 |
 
 ## Values
 
