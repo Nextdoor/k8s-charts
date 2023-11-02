@@ -11,11 +11,15 @@ https://github.com/istio/istio/issues/39792#issuecomment-1189669761 for
 details.
 */}}
 
+{{- define "nd-common.serviceName" }}
+{{- default (include "nd-common.fullname" $) .Values.service.name }}
+{{- end }}
+
 {{- define "nd-common.service" }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ default (include "nd-common.fullname" $) .Values.service.name }}
+  name: {{ include "nd-common.serviceName" $ }}
   labels:
     {{- include "nd-common.labels" $ | nindent 4 }}
   annotations:
