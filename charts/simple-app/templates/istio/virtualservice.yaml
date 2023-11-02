@@ -55,7 +55,7 @@ spec:
       {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRouteDestination */}}
       route:
         - destination:
-            host: {{ include "nd-common.fullname" . }}
+            host: {{ include "nd-common.serviceName" $ }}
             port:
               number: {{ .Values.virtualService.port }}
   {{- with .Values.virtualService.tls }}
