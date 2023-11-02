@@ -27,7 +27,6 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     {{- include "nd-common.servicePorts" $ | nindent 4 }}
-
     {{- /*
     Always create a "monitor" port reference, even if the developer is not
     setting up monitoring. This is because a Service resource must have a ports
@@ -35,9 +34,11 @@ spec:
     monitoring, then no ServiceMonitor will be created anyways, and this will
     just be a blank pointer to an unused port.
     */}}
+    {{- if or (eq (len .Values.ports) 0) (.Values.monitor.enabled) }}
     - port: {{ .Values.monitor.portNumber }}
       targetPort: {{ .Values.monitor.portNumber }}
       name: {{ .Values.monitor.portName }}
+    {{- end }}
   selector:
     {{- include "nd-common.selectorLabels" $ | nindent 4 }}
 {{- end }}
@@ -55,3 +56,4 @@ Again, we do not use all of the values, we only use the values that make sense.
   name: {{ $port.name }}
 {{- end }}
 {{ end }}
+
