@@ -1,7 +1,5 @@
 {{/*
-The Service resource is  created any time the "ports" key has ports. It is
-also created any time the Values.monitor.enabled is set true - because we use
-a ServiceMonitor in this chart to monitor pods.
+The Service resource is  created any time the "ports" key has ports.
 
 NOTE: We _always_ create a `Service` object pointing to our `Deployment`. This 
 is because the Istio Service Mesh relies on both "client" and "service"
@@ -16,6 +14,7 @@ details.
 {{- end }}
 
 {{- define "nd-common.service" }}
+{{- if and .Values.ports (gt (len .Values.ports) 0) }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -31,19 +30,39 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     {{- include "nd-common.servicePorts" $ | nindent 4 }}
+  selector:
+    {{- include "nd-common.selectorLabels" $ | nindent 4 }}
+{{- end }}
 
-    {{- /*
-    Always create a "monitor" port reference, even if the developer is not
-    setting up monitoring. This is because a Service resource must have a ports
-    key with at least one port defined in it. If they are not setting up
-    monitoring, then no ServiceMonitor will be created anyways, and this will
-    just be a blank pointer to an unused port.
-    */}}
+---
+{{/*
+The Service resource is created any time the Values.monitor.enabled is set true - because we use
+a ServiceMonitor in this chart to monitor pods. We are separating out the Service resource from
+above service resource because we don't want to expose the metrics port over the service mesh.
+We are achiving this by setting the annotation networking.istio.io/exportTo: nullnullnull.
+This is recommended by istio community. This pattern simplifies our template actually,
+and at the same time will reduce the number of service ports that our istiod processes are
+monitoring.
+*/}}
+{{- if .Values.monitor.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "nd-common.serviceName" $ }}-metrics
+  labels:
+    {{- include "nd-common.labels" $ | nindent 4 }}
+  annotations:
+    networking.istio.io/exportTo: nullnullnull
+spec:
+  type: {{ .Values.service.type }}
+  ports:
     - port: {{ .Values.monitor.portNumber }}
       targetPort: {{ .Values.monitor.portNumber }}
       name: {{ .Values.monitor.portName }}
   selector:
     {{- include "nd-common.selectorLabels" $ | nindent 4 }}
+{{- end }}
+
 {{- end }}
 
 {{/*
