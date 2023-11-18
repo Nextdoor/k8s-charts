@@ -63,7 +63,7 @@ spec:
       {{- with .Values.blueGreen.antiAffinity }}
       antiAffinity:
         {{- toYaml . | nindent 8 }}
-      {{- end }} 
+      {{- end }}
 
     {{- else if (eq .Values.strategy "canary") }}
     canary:
@@ -118,7 +118,7 @@ spec:
       {{- with .Values.canary.antiAffinity }}
       antiAffinity:
         {{- toYaml . | nindent 8 }}
-      {{- end }} 
+      {{- end }}
 
       {{- with .Values.canary.steps }}
       steps:
@@ -272,7 +272,7 @@ spec:
           envFrom:
             {{- if .Values.secrets }}
             - secretRef:
-                name:  {{ .Release.Name }}-secrets
+                name: {{ include "nd-common.fullname" . }}-secrets
             {{- end }}
             {{- with .Values.envFrom}}
             {{- range $env := index .}}
