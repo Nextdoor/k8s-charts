@@ -506,6 +506,9 @@ prometheusRules:
 
 tests:
   connection:
+    # -- Controls whether or not this Helm test component is enabled.
+    enabled: true
+
     # -- The command used to trigger the test.
     command: [curl, --verbose, --retry-connrefused, --retry, '5', --retry-delay, '10']
     # -- A list of arguments passed into the command. These are run through the tpl function.
@@ -527,6 +530,9 @@ tests:
   # Identical to above, but used to test the `Service` endpoint rather than
   # pointing to the HOST_IP.
   svcConnection:
+    # -- Controls whether or not this Helm test component is enabled.
+    enabled: true
+
     # -- The command used to trigger the test.
     command: [curl, --verbose, --retry-connrefused, --retry, '5', --retry-delay, '10']
     # -- A list of arguments passed into the command. These are run through the tpl function.

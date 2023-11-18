@@ -1,4 +1,4 @@
-{{- if and .Values.ports .Values.service.enabled }}
+{{- if and .Values.ports .Values.service.enabled .Values.tests.svcConnection.enabled }}
 apiVersion: v1
 kind: Pod
 metadata:

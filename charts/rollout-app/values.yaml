@@ -830,6 +830,9 @@ datadog:
 
 tests:
   connection:
+    # -- Controls whether or not this Helm test component is enabled.
+    enabled: true
+
     # -- The command used to trigger the test.
     command: ['curl', '--retry-connrefused', '--retry', '5']
     # -- A list of arguments passed into the command. These are run through the tpl function.
