@@ -239,7 +239,7 @@ spec:
           envFrom:
             {{- if $.Values.secrets }}
             - secretRef:
-                name:  {{ $.Release.Name }}-secrets
+                name: {{ include "nd-common.fullname" $ }}-secrets
             {{- end }}
             {{- with $.Values.envFrom}}
             {{- range $env := index .}}
