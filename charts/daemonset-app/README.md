@@ -13,6 +13,12 @@ ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
 
+### 0.13.0 -> 0.14.x
+
+**BREAKING: Bugfix removing the default readiness and liveness probes **
+
+Removing the default readiness and liveness probes due to conflicts with custom defined ones.
+
 ### 0.10.x -> 0.11.x
 
 **NEW: Optional sidecar and init containers**
