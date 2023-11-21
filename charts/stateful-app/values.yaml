@@ -36,7 +36,7 @@ updateStrategy: null
 # https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#persistentvolumeclaim-v1-core
 volumeClaimTemplates: null
 
-# -- Set up a PodDisruptionBudget for the Deployment. See
+# -- Set up a PodDisruptionBudget for the Deployment. Use maxUnavailable = -1 to disable. See 
 # https://kubernetes.io/docs/tasks/run-application/configure-pdb/ for more
 # details.
 podDisruptionBudget:

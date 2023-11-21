@@ -9,7 +9,7 @@ replicaCount: 2
 # just really noisy. Set our default to 3. https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy
 revisionHistoryLimit: 3
 
-# -- Set up a PodDisruptionBudget for the Deployment. See
+# -- Set up a PodDisruptionBudget for the Deployment. Use maxUnavailable = -1 to disable. See 
 # https://kubernetes.io/docs/tasks/run-application/configure-pdb/ for more
 # details.
 podDisruptionBudget:
