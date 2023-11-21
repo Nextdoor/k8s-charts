@@ -98,17 +98,17 @@ volumes: []
 # -- A PodSpec container "startupProbe" configuration object. Note that this
 # startupProbe will be applied to the proxySidecar container instead if that
 # is enabled.
-startupProbe: {}
+startupProbe: null
 
 # -- A PodSpec container "livenessProbe" configuration object. Note that this
 # livenessProbe will be applied to the proxySidecar container instead if that
 # is enabled.
-livenessProbe: {}
+livenessProbe: null
 
 # -- A PodSpec container "readinessProbe" configuration object. Note that this
 # readinessProbe will be applied to the proxySidecar container instead if that
 # is enabled.
-readinessProbe: {}
+readinessProbe: null
 
 # -- A list of Port objects that are exposed by the service. These ports are
 # applied to the main container, or the proxySidecar container (if enabled).
