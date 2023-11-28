@@ -23,6 +23,7 @@ rules:
       - workflows
     verbs:
       - update
+      - delete
   - apiGroups:
       - argoproj.io
     resources:
