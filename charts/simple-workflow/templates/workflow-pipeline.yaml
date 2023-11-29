@@ -11,7 +11,13 @@ metadata:
     {{- tpl (toYaml .) $ | nindent 4 }}
     {{- end }}
 spec:
-  {{- if .Values.workflow.ttlStrategy }}
+  {{- if and .Values.workflowJanitor .Values.workflowJanitor.enabled }}
+  # Set a 30-day ttl because workflow janitor is enabled
+  ttlStrategy:
+    secondsAfterCompletion: 2592000
+    secondsAfterFailure: 2592000
+    secondsAfterSuccess: 2592000
+  {{- else if .Values.workflow.ttlStrategy }}
   ttlStrategy:
     {{- with $.Values.workflow.ttlStrategy }}
     {{- tpl (toYaml .) $ | nindent 4 }}
