@@ -1,0 +1,39 @@
+{{- if and .Values.workflowJanitor .Values.workflowJanitor.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-keep-recent-n-workflows
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        mesh.nextdoor.com/dropMetrics: 'true'
+      annotations:
+        sidecar.istio.io/inject: 'false'
+    spec:
+      serviceAccountName: {{ .Values.workflow.serviceAccount.name }}
+      restartPolicy: Never
+      activeDeadlineSeconds: 120
+      containers:
+        - name: workflow-janitor
+          image: bitnami/kubectl:1.28.4
+          command: ["/bin/bash"]
+          args:
+            - -c
+            - >-
+              kubectl get workflow --sort-by=.metadata.creationTimestamp &&
+              echo "Total workflows: $(kubectl get workflow --sort-by=.metadata.creationTimestamp -o go-template --template {{ "'{{" }}range .items}}{{ "{{" }}.metadata.name}}{{ "{{" }}"\n"}}{{ "{{" }}end}}' | wc -l)" &&
+              echo "Keeping {{ .Values.workflowJanitor.keepRecent | default 30 }}" &&
+              while [[ $(kubectl get workflow --sort-by=.metadata.creationTimestamp -o go-template --template {{ "'{{" }}range .items}}{{ "{{" }}.metadata.name}}{{ "{{" }}"\n"}}{{ "{{" }}end}}' | wc -l) -gt {{ .Values.workflowJanitor.keepRecent | default 30 }} ]];
+              do
+              sleep 3;
+              kubectl delete workflow $(kubectl get workflow --sort-by=.metadata.creationTimestamp -o go-template --template {{ "'{{" }}range .items}}{{ "{{" }}.metadata.name}}{{ "{{" }}"\n"}}{{ "{{" }}end}}' | head -n 1);
+              kubectl get workflow --sort-by=.metadata.creationTimestamp;
+              done
+{{- end }}
