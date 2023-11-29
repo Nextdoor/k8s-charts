@@ -276,6 +276,13 @@ spec:
         {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
+
+  {{- end }}
+
+  {{- with .Values.prometheusRules.additionalCustomRules }}
+  - name: {{ $.Release.Namespace }}.{{ $.Release.Name }}.{{ $.Chart.Name }}.CustomRules
+    rules:
+      {{- toYaml . | nindent 4 }}
   {{- end }}
 
 {{- end }}

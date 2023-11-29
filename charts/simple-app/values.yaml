@@ -736,12 +736,28 @@ istio-alerts:
 #
 # These rules are designed to provide very basic but critical monitoring for
 # the health of your containers and pods. More specific alerts can be created
-# by you - but these apply to the pods and resources managed by this chart.
+# by you e.g., by using 'additionalCustomRules' - but the out-of-the-box rules
+# apply to the pods and resources managed by this chart.
 prometheusRules:
   # -- (`bool`) Whether or not to enable the prometheus-alerts chart.
   enabled: true
 
-  # -- (`map`) Additional custom labels attached to every PrometheusRule
+  # --(`list`) Additional custom rules to add to the PrometheusRule (you can look at
+  # rendered out-of-the-box rules to get an idea of helpful selectors to use)
+  #
+  # Example:
+  #    - alert: FoobarNotUp
+  #      annotations:
+  #        summary: Job foobar is not up
+  #        runbook_url: https://example.com
+  #        description:
+  #      expr: up{job="foobar"} == 0
+  #      for: 10m
+  #      labels:
+  #        severity: warning
+  additionalCustomRules: []
+
+  # -- (`map`) Additional custom labels attached to every built-in PrometheusRule alert group
   additionalRuleLabels: {}
 
   # -- Monitors Pods for Containers that are terminated either for unexpected
