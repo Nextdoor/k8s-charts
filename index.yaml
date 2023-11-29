@@ -4929,6 +4929,27 @@ entries:
   stateful-app:
   - apiVersion: v2
     appVersion: latest
+    created: "2023-11-29T03:51:29.688515416Z"
+    dependencies:
+    - condition: istio-alerts.enabled
+      name: istio-alerts
+      repository: https://k8s-charts.nextdoor.com
+      version: 0.2.0
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.1.0
+    description: Default StatefulSet Helm Chart
+    digest: d5efc59c6f7b7c6e9169d84b9ea00d78ebf6ada0d6aaf46b3970b94ad46868cd
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: stateful-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.15.0/stateful-app-0.15.0.tgz
+    version: 0.15.0
+  - apiVersion: v2
+    appVersion: latest
     created: "2023-11-18T22:00:00.38580081Z"
     dependencies:
     - condition: istio-alerts.enabled
@@ -6050,4 +6071,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2023-11-28T18:06:48.494182144Z"
+generated: "2023-11-29T03:51:29.68963909Z"
