@@ -2,7 +2,7 @@ apiVersion: v2
 name: simple-app
 description: Default Microservice Helm Chart
 type: application
-version: 1.4.1
+version: 1.4.2
 appVersion: latest
 maintainers:
   - name: diranged

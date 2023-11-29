@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 1.4.1](https://img.shields.io/badge/Version-1.4.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.4.2](https://img.shields.io/badge/Version-1.4.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -408,7 +408,8 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | prometheusRules.PodContainerTerminated | object | `{"for":"1m","over":"10m","reasons":["ContainerCannotRun","DeadlineExceeded"],"severity":"warning","threshold":0}` | Monitors Pods for Containers that are terminated either for unexpected reasons like ContainerCannotRun. If that number breaches the $threshold (1) for $for (1m), then it will alert. |
 | prometheusRules.PodCrashLoopBackOff | object | `{"for":"10m","severity":"warning"}` | Pod is in a CrashLoopBackOff state and is not becoming healthy. |
 | prometheusRules.PodNotReady | object | `{"for":"15m","severity":"warning"}` | Pod has been in a non-ready state for more than a specific threshold |
-| prometheusRules.additionalRuleLabels | `map` | `{}` | Additional custom labels attached to every PrometheusRule |
+| prometheusRules.additionalCustomRules | `list` | `[]` | Additional custom rules to add to the PrometheusRule (you can look at rendered out-of-the-box rules to get an idea of helpful selectors to use)  Example:    - alert: FoobarNotUp      annotations:        summary: Job foobar is not up        runbook_url: https://example.com        description:      expr: up{job="foobar"} == 0      for: 10m      labels:        severity: warning |
+| prometheusRules.additionalRuleLabels | `map` | `{}` | Additional custom labels attached to every built-in PrometheusRule alert group |
 | prometheusRules.enabled | `bool` | `true` | Whether or not to enable the prometheus-alerts chart. |
 | proxySidecar.enabled | Boolean | `false` | Enables injecting a pre-defined reverse proxy sidecar container into the Pod containers list. |
 | proxySidecar.env | list | `[]` | Environment Variables for the primary container. These are all run through the tpl function (the key name and value), so you can dynamically name resources as you need. |
