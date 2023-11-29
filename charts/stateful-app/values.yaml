@@ -36,6 +36,10 @@ updateStrategy: null
 # https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#persistentvolumeclaim-v1-core
 volumeClaimTemplates: null
 
+# -- (`map`):
+# https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention
+volumeClaimRetentionPolicy: null
+
 # -- Set up a PodDisruptionBudget for the Deployment. See
 # https://kubernetes.io/docs/tasks/run-application/configure-pdb/ for more
 # details.
@@ -136,18 +140,12 @@ startupProbe:
 # -- A PodSpec container "livenessProbe" configuration object. Note that this
 # livenessProbe will be applied to the proxySidecar container instead if that
 # is enabled.
-livenessProbe:
-  httpGet:
-    path: /
-    port: http
+livenessProbe: null
 
 # -- A PodSpec container "readinessProbe" configuration object. Note that this
 # readinessProbe will be applied to the proxySidecar container instead if that
-# is enabled.
-readinessProbe:
-  httpGet:
-    path: /
-    port: http
+# is enabled. *This is required*
+readinessProbe: null
 
 # -- A list of Port objects that are exposed by the service. These ports are
 # applied to the main container, or the proxySidecar container (if enabled).

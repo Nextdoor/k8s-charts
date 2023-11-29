@@ -12,6 +12,12 @@ ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
 
+### 0.14.x -> 0.15.x
+
+The `livenessProbe` and `readinessProbe` changes made in
+https://github.com/Nextdoor/k8s-charts/pull/212 were invalid. Going forward
+`livenessProbe` is optional, but `readinessProbe` is a required field.
+
 ### 0.11.x -> 0.12.x
 
 **BREAKING: Istio Alerts have changed**
@@ -119,7 +125,7 @@ _not_ running within the mesh, then you must set the value to `false`.
 
 **BREAKING: ServiceMonitor has been replaced with PodMonitor**
 
-We have replaced the behavior of creating a `ServiceMonitor` resource with a 
+We have replaced the behavior of creating a `ServiceMonitor` resource with a
 `PodMonitor` resource. This is done because not all applications will use a
 `Service` (in fact, the creation of the `Service` resource is optional), and
 that can cause the monitoring to fail. `PodMonitor` resources will configure
@@ -128,7 +134,7 @@ Service.
 
 **BREAKING: All .Values.serviceMonitor parameters moved to .Values.monitor**
 
-We have condensed the Values a bit, so the entire `.Values.serviceMonitor` key 
+We have condensed the Values a bit, so the entire `.Values.serviceMonitor` key
 has been removed, and all of the parameters have been moved into
 `.Values.monitor`. Make sure to update your values appropriately!
 

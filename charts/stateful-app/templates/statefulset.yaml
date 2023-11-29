@@ -1,3 +1,8 @@
+{{- /*
+Verify that some required inputs are supplied
+*/}}
+{{- $readinessProbe := required "readinessProbe is required" .Values.readinessProbe }}
+
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -24,6 +29,10 @@ spec:
   {{- end }}
   {{- with .Values.volumeClaimTemplates }}
   volumeClaimTemplates:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.volumeClaimRetentionPolicy }}
+  persistentVolumeClaimRetentionPolicy:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   template:
@@ -138,10 +147,8 @@ spec:
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.readinessProbe }}
           readinessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            {{- tpl (toYaml $.Values.readinessProbe) $ | nindent 12 }}
           resources:
             {{- toYaml .Values.proxySidecar.resources | nindent 12 }}
         {{- end }}
@@ -223,7 +230,5 @@ spec:
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.readinessProbe }}
           readinessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            {{- tpl (toYaml $.Values.readinessProbe) $ | nindent 12 }}
