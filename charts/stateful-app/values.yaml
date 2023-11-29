@@ -36,6 +36,10 @@ updateStrategy: null
 # https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#persistentvolumeclaim-v1-core
 volumeClaimTemplates: null
 
+# -- (`map`):
+# https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention
+volumeClaimRetentionPolicy: null
+
 # -- Set up a PodDisruptionBudget for the Deployment. See
 # https://kubernetes.io/docs/tasks/run-application/configure-pdb/ for more
 # details.

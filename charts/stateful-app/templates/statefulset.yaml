@@ -31,6 +31,10 @@ spec:
   volumeClaimTemplates:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  {{- with .Values.volumeClaimRetentionPolicy }}
+  persistentVolumeClaimRetentionPolicy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   template:
     metadata:
       annotations:

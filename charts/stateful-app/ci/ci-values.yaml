@@ -8,6 +8,11 @@ ingress:
   # ALB-ingress controllers.
   sslRedirect: false
 
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
 replicaCount: 2
 minReadySeconds: 2
 progressDeadlineSeconds: 90

@@ -8,6 +8,11 @@ ingress:
   # ALB-ingress controllers.
   sslRedirect: false
 
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
 topologyKey: kubernetes.io/hostname
 enableTopologySpread: true
 terminationGracePeriodSeconds: 30
