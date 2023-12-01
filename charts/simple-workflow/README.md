@@ -2,7 +2,7 @@
 
 Default Argo Workflow Helm Chart
 
-![Version: 0.0.12](https://img.shields.io/badge/Version-0.0.12-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.0.13](https://img.shields.io/badge/Version-0.0.13-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 ## Values
 
@@ -17,6 +17,8 @@ Default Argo Workflow Helm Chart
 | kmsSecretsRegion | String | `nil` | AWS region where the KMS key is located |
 | secrets | `Map` | `{}` | Map of environment variables to plaintext secrets or KMS encrypted secrets. |
 | secretsEngine | String | `"plaintext"` | Secrets Engine determines the type of Secret Resource that will be created (`KMSSecret`, `Secret`). kms || plaintext are possible values. |
+| workflow.enabledMetrics | `bool` | `false` | If true, argo workflow will emit metrics |
+| workflow.metrics | `map` | `{}` | custom prometheus metrics emited by Argo Workflow |
 | workflow.retryLimit | Integer | `1` | The number of retries when a step fails. |
 | workflow.serviceAccount.name | String | `"workflow-service-account"` | Service Account name used by workflow |
 

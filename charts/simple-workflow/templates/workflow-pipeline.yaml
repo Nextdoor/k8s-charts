@@ -24,6 +24,12 @@ spec:
     {{- end }}
   {{- end }}
   entrypoint: deployment-pipeline
+  {{- if .Values.workflow.enabledMetrics }}
+  {{- with $.Values.workflow.metrics }}
+  metrics:
+    {{- tpl (toYaml .) $ | nindent 4 }}
+  {{- end }}
+  {{- end }}
   {{- if .Values.workflow.onExit }}
   onExit: exit-handler
   {{- end }}
