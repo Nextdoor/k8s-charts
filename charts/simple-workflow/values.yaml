@@ -28,6 +28,12 @@ workflow:
   #   secondsAfterSuccess: 5     # Time to live after workflow is successful
   #   secondsAfterFailure: 5     # Time to live after workflow fails
 
+  # -- (`bool`) If true, argo workflow will emit metrics
+  enabledMetrics: false
+
+  # -- (`map`) custom prometheus metrics emited by Argo Workflow
+  metrics: {}
+
 # -- (`Map`) Map of environment variables to plaintext secrets or KMS encrypted secrets.
 secrets: {}
 
