@@ -58,6 +58,7 @@ https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/?tab=
 helm.sh/chart: {{ include "nd-common.chart" . }}
 app.kubernetes.io/version: {{ $tag }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{ include "nd-common.datadogLabels" . }}
 {{ include "nd-common.selectorLabels" . }}
 {{- end }}
 

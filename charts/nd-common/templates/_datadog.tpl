@@ -54,14 +54,16 @@ https://docs.datadoghq.com/getting_started/tagging/unified_service_tagging/?tab=
 
 */}}
 {{- define "nd-common.datadogLabels" -}}
+{{- if .Values.datadog }}
 {{- $_tag := include "nd-common.imageTag" . -}}
 {{- $tag  := $_tag | replace "@" "_" | replace ":" "_" | trunc 63 | quote -}}
 {{- if .Values.datadog.enabled -}}
 {{- with .Values.datadog.env -}}
 tags.datadoghq.com/env: {{ . | quote }}
-{{- end }}
+{{ end -}}
 tags.datadoghq.com/service: {{ default .Release.Name .Values.datadog.service | quote }}
 tags.datadoghq.com/version: {{ $tag }}
+{{- end }}
 {{- end }}
 {{- end }}
 
