@@ -2,12 +2,12 @@ apiVersion: v2
 name: prometheus-alerts
 description: Helm Chart that provisions a series of common Prometheus Alerts
 type: application
-version: 1.3.0
+version: 1.3.1
 appVersion: 0.0.1
 maintainers:
   - name: diranged
     email: matt@nextdoor.com
 dependencies:
   - name: nd-common
-    version: 0.1.0
+    version: 0.2.0
     repository: file://../nd-common
