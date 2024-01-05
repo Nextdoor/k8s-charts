@@ -119,6 +119,23 @@ spec:
             {{- end }}
         spec:
           source:
+            helm:
+              valueFiles:
+                - values.yaml
+                {{- if $.Values.global.additionalValueFiles }}
+                {{- range $.Values.global.additionalValueFiles }}
+                - {{ . }}
+                {{- end }}
+                {{- end }}
+                - values.{{ $.Values.global.appGroup }}.yaml
+              {{- if $config.helmParameters }}
+              parameters:
+              {{- with $config.helmParameters }}
+              {{- tpl (toYaml .) $ | nindent 16 }}
+              {{- end }}
+              {{- end }}
+            path: {{ $config.chartPath }}
+            repoURL: {{ $config.repoURL }}
             targetRevision: {{ $.Values.app.targetRevision }}
           {{- if and ($config.specOverride) ($config.specOverride.update) }}
           {{- with $config.specOverride.update }}
