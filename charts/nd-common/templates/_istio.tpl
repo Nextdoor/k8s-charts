@@ -138,25 +138,6 @@ Build a comma-separated list of outbound ports to exclude from Istio routing.
 
 {{/*
 
-Prepare the set of resource annotations for the istio-sidecar.
-Fallbacking to the current implemented default resources:
-    Limits:
-      cpu:                2
-      memory:             1Gi
-    Requests:
-      cpu:                100m
-      memory:             128Mi
-
-*/}}
-{{- if or (or .Values.istio.proxyCPU .Values.istio.proxyMemory) (or .Values.istio.proxyCPULimit .Values.istio.proxyMemoryLimit) }}
-sidecar.istio.io/proxyCPU: {{ .Values.istio.proxyCPU | default "100m" | quote }}
-sidecar.istio.io/proxyCPULimit: {{ .Values.istio.proxyCPULimit | default "2" | quote }}
-sidecar.istio.io/proxyMemory: {{ .Values.istio.proxyMemory | default "128Mi" | quote }}
-sidecar.istio.io/proxyMemoryLimit: {{ .Values.istio.proxyMemoryLimit | default "1Gi" | quote }}
-{{- end }}
-
-{{/*
-
 The "istioLabels" function creates a few common labels that the Istio team (and
 Kiali teams) have decided make sense for tracking applications inside of a
 mesh.
