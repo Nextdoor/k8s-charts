@@ -79,7 +79,7 @@ proxy.istio.io/overrides: >-
   } 
 {{- end }}
 
-{{/*
+{{- /*
 
 Prepare the set of resource annotations for the istio-sidecar.
 Motivation: Due to an incident, we found out that once one of the values is set through annotation. It overides the other values which is what led to the incident.
@@ -100,7 +100,7 @@ Usage: To setup the values follow the regular k8s resources structure under the 
        memory: 10Mi
      limits:
        memory: 60Mi
-*/}}
+*/ -}}
 {{- with .Values.istio.resources }}
 sidecar.istio.io/proxyCPU: {{ .requests.cpu | default "100m" | quote }}
 sidecar.istio.io/proxyCPULimit: {{ .limits.cpu | default "2" | quote }}
