@@ -9,5 +9,5 @@ maintainers:
     email: matt@nextdoor.com
 dependencies:
   - name: nd-common
-    version: 0.2.1
+    version: 0.3.0
     repository: file://../nd-common

@@ -82,20 +82,30 @@ proxy.istio.io/overrides: >-
 {{/*
 
 Prepare the set of resource annotations for the istio-sidecar.
-Fallbacking to the current implemented default resources:
-    Limits:
-      cpu:                2
-      memory:             1Gi
-    Requests:
-      cpu:                100m
-      memory:             128Mi
-
+Motivation: Due to an incident, we found out that once one of the values is set through annotation. It overides the other values which is what led to the incident.
+            This behaviour is not documents nor it makes sense in any ways.
+Description: Once a value is set to any of the istio.(proxyCPU, proxyCPULimit, proxyMemory, proxyMemoryLimit), all the 4 annotations will get created.
+             Fallbacking to the current implemented default resources for any annotation that is not specifically set:
+                Limits:
+                  cpu:                2
+                  memory:             1Gi
+                Requests:
+                  cpu:                100m
+                  memory:             128Mi
+Usage: To setup the values follow the regular k8s resources structure under the istio key, like the bellow example:
+  istio:
+   resources:
+     requests:
+       cpu: 10m
+       memory: 10Mi
+     limits:
+       memory: 60Mi
 */}}
-{{- if or (or .Values.istio.proxyCPU .Values.istio.proxyMemory) (or .Values.istio.proxyCPULimit .Values.istio.proxyMemoryLimit) }}
-sidecar.istio.io/proxyCPU: {{ .Values.istio.proxyCPU | default "100m" | quote }}
-sidecar.istio.io/proxyCPULimit: {{ .Values.istio.proxyCPULimit | default "2" | quote }}
-sidecar.istio.io/proxyMemory: {{ .Values.istio.proxyMemory | default "128Mi" | quote }}
-sidecar.istio.io/proxyMemoryLimit: {{ .Values.istio.proxyMemoryLimit | default "1Gi" | quote }}
+{{- with .Values.istio.resources }}
+sidecar.istio.io/proxyCPU: {{ .requests.cpu | default "100m" | quote }}
+sidecar.istio.io/proxyCPULimit: {{ .limits.cpu | default "2" | quote }}
+sidecar.istio.io/proxyMemory: {{ .requests.memory | default "128Mi" | quote }}
+sidecar.istio.io/proxyMemoryLimit: {{ .limits.memory | default "1Gi" | quote }}
 {{- end }}
 
 {{- end }}
