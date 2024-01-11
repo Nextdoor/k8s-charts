@@ -259,7 +259,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.3.0 |
+| file://../nd-common | nd-common | 0.3.1 |
 | https://k8s-charts.nextdoor.com | istio-alerts | 0.2.0 |
 
 ## Values
