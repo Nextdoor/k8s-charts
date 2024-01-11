@@ -102,20 +102,10 @@ Usage: To setup the values follow the regular k8s resources structure under the 
        memory: 60Mi
 */ -}}
 {{- with .Values.istio.resources }}
-{{- if .requests }}
-sidecar.istio.io/proxyCPU: {{ .requests.cpu | default "100m" | quote }}
-sidecar.istio.io/proxyMemory: {{ .requests.memory | default "128Mi" | quote }}
-{{- else }}
-sidecar.istio.io/proxyCPU: "100m"
-sidecar.istio.io/proxyMemory: "128Mi"
-{{- end }}
-{{- if .limits }}
-sidecar.istio.io/proxyCPULimit: {{ .limits.cpu | default "2" | quote }}
-sidecar.istio.io/proxyMemoryLimit: {{ .limits.memory | default "1Gi" | quote }}
-{{- else }}
-sidecar.istio.io/proxyCPULimit: "2"
-sidecar.istio.io/proxyMemoryLimit: "1Gi"
-{{- end }}
+sidecar.istio.io/proxyCPU: {{ ternary (.requests.cpu | default "100m" | quote) "100m" .requests }}
+sidecar.istio.io/proxyMemory: {{ ternary (.requests.memory | default "128Mi" | quote) "128Mi" .requests }}
+sidecar.istio.io/proxyCPULimit: {{ ternary (.limits.cpu | default "2" | quote) "2" .limits }}
+sidecar.istio.io/proxyMemoryLimit: {{ ternary (.limits.memory | default "1Gi" | quote) "1Gi" .limits }}
 {{- end }}
 
 {{- end }}
