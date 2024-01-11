@@ -4,5 +4,5 @@ istio:
       cpu: 100m
       memory: 128Mi
     limits:
-      cpu: 2
+      cpu: "2"
       memory: 1Gi

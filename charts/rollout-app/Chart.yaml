@@ -2,7 +2,7 @@ apiVersion: v2
 name: rollout-app
 description: Argo Rollout-based Application Helm Chart
 type: application
-version: 0.7.1
+version: 0.7.2
 appVersion: latest
 maintainers:
   - name: diranged
