@@ -3,7 +3,7 @@
 
 Helm Chart that provisions a series of common Prometheus Alerts
 
-![Version: 1.4.0](https://img.shields.io/badge/Version-1.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
+![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -54,7 +54,7 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.2.0 |
+| file://../nd-common | nd-common | 0.3.1 |
 
 ## Values
 
@@ -96,6 +96,7 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 | containerRules.PodContainerTerminated | object | `{"for":"1m","over":"10m","reasons":["ContainerCannotRun","DeadlineExceeded"],"severity":"warning","threshold":0}` | Monitors Pods for Containers that are terminated either for unexpected reasons like ContainerCannotRun. If that number breaches the $threshold (1) for $for (1m), then it will alert. |
 | containerRules.PodCrashLoopBackOff | object | `{"for":"10m","severity":"warning"}` | Pod is in a CrashLoopBackOff state and is not becoming healthy. |
 | containerRules.PodNotReady | object | `{"for":"15m","severity":"warning"}` | Pod has been in a non-ready state for more than a specific threshold |
+| containerRules.PodReadyReplicaCountDrop | object | `{"compareToOffset":"1m","enabled":false,"for":"0m","severity":"warning","threshold":0.35}` | Number of ready pods in ReplicaSet has fallen |
 | containerRules.enabled | bool | `true` | Whether or not to enable the container rules template |
 | defaults.additionalRuleLabels | `map` | `{}` | Additional custom labels attached to every PrometheusRule |
 | defaults.daemonsetNameSelector | `string` | `"{{ .Release.Name }}-.*"` | Pattern used to scope down the DaemonSet alerts to pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all the DaemonSets in the namespace. This string is run through the `tpl` function. |

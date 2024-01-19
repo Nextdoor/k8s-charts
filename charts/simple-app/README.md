@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 1.6.2](https://img.shields.io/badge/Version-1.6.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.6.3](https://img.shields.io/badge/Version-1.6.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -407,6 +407,7 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | prometheusRules.PodContainerTerminated | object | `{"for":"1m","over":"10m","reasons":["ContainerCannotRun","DeadlineExceeded"],"severity":"warning","threshold":0}` | Monitors Pods for Containers that are terminated either for unexpected reasons like ContainerCannotRun. If that number breaches the $threshold (1) for $for (1m), then it will alert. |
 | prometheusRules.PodCrashLoopBackOff | object | `{"for":"10m","severity":"warning"}` | Pod is in a CrashLoopBackOff state and is not becoming healthy. |
 | prometheusRules.PodNotReady | object | `{"for":"15m","severity":"warning"}` | Pod has been in a non-ready state for more than a specific threshold |
+| prometheusRules.PodReadyReplicaCountDrop | object | `{"compareToOffset":"1m","enabled":false,"for":"0m","severity":"warning","threshold":0.35}` | Number of ready pods in ReplicaSet has fallen |
 | prometheusRules.additionalRuleLabels | `map` | `{}` | Additional custom labels attached to every PrometheusRule |
 | prometheusRules.enabled | `bool` | `true` | Whether or not to enable the prometheus-alerts chart. |
 | proxySidecar.enabled | Boolean | `false` | Enables injecting a pre-defined reverse proxy sidecar container into the Pod containers list. |
