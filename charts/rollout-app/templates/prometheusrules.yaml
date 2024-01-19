@@ -111,23 +111,11 @@ spec:
           has dropped significantly, this indicates that readiness checks are failing for a large
           portion of the replicas. Please debug immediately and/or manuallly scale out.
       expr: |-
-        sum by (namespace, pod) (
-          max by(namespace, pod) (
-            kube_pod_status_phase{
-              job="kube-state-metrics",
-              namespace=~"{{ $targetNamespace }}",
-              phase=~"Pending|Unknown",
-              pod=~"{{ $podName }}"
-            }
-          ) * on(namespace, pod) group_left(owner_kind) topk by(namespace, pod) (
-            1, max by(namespace, pod, owner_kind) (kube_pod_owner{owner_kind!="Job"})
-          )
-        ) > 0
         (
           (
             sum by (namespace, rs_type) (
               label_replace(
-                kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}} offset {{ .compareToOffset }},
+                kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}"} offset {{ .compareToOffset }},
                 "rs_type",
                 "$1",
                 "replicaset",
@@ -139,7 +127,7 @@ spec:
 
             sum by (namespace, rs_type) (
               label_replace(
-                kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}},
+                kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}"},
                 "rs_type",
                 "$1",
                 "replicaset",
@@ -152,7 +140,7 @@ spec:
 
           sum by (namespace, rs_type) (
             label_replace(
-              kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}} offset {{ .compareToOffset }},
+              kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}"} offset {{ .compareToOffset }},
               "rs_type",
               "$1",
               "replicaset",
@@ -168,7 +156,7 @@ spec:
 
         sum by (namespace, rs_type) (
           label_replace(
-            kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}} offset {{ .compareToOffset }},
+            kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}"} offset {{ .compareToOffset }},
             "rs_type",
             "$1",
             "replicaset",

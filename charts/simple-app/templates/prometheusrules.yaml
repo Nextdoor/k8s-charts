@@ -115,7 +115,7 @@ spec:
           (
             sum by (namespace, rs_type) (
               label_replace(
-                kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}} offset {{ .compareToOffset }},
+                kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}"} offset {{ .compareToOffset }},
                 "rs_type",
                 "$1",
                 "replicaset",
@@ -127,7 +127,7 @@ spec:
 
             sum by (namespace, rs_type) (
               label_replace(
-                kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}},
+                kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}"},
                 "rs_type",
                 "$1",
                 "replicaset",
@@ -140,7 +140,7 @@ spec:
 
           sum by (namespace, rs_type) (
             label_replace(
-              kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}} offset {{ .compareToOffset }},
+              kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}"} offset {{ .compareToOffset }},
               "rs_type",
               "$1",
               "replicaset",
@@ -156,7 +156,7 @@ spec:
 
         sum by (namespace, rs_type) (
           label_replace(
-            kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}} offset {{ .compareToOffset }},
+            kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}"} offset {{ .compareToOffset }},
             "rs_type",
             "$1",
             "replicaset",
