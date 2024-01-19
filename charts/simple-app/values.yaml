@@ -767,6 +767,14 @@ prometheusRules:
     severity: warning
     for: 15m
 
+  # -- Number of ready pods in ReplicaSet has fallen
+  PodReadyReplicaCountDrop:
+    enabled: false
+    severity: warning
+    threshold: 0.35
+    comparteToOffset: 1m
+    for: 0m
+
   # -- Container is being throttled by the CGroup - needs more resources.
   # This value is appropriate for applications that are highly sensitive to
   # request latency. Insensitive workloads might need to raise this percentage

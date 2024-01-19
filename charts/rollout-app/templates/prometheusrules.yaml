@@ -100,6 +100,90 @@ spec:
         {{- end }}
     {{- end }}
 
+    {{- with .Values.prometheusRules.PodReadyReplicaCountDrop }}
+    {{- if .enabled }}
+    - alert: PodReadyReplicaCountDrop
+      annotations:
+        summary: Number of ready pods in ReplicaSet has fallen
+        runbook_url: {{ $runbookUrl }}#alert-name-kubepodnotready
+        description: >-
+          The number of ready pods for {{`{{ $labels.namespace }}`}}/{{`{{ $labels.rs_type }}`}}
+          has dropped significantly, this indicates that readiness checks are failing for a large
+          portion of the replicas. Please debug immediately and/or manuallly scale out.
+      expr: |-
+        sum by (namespace, pod) (
+          max by(namespace, pod) (
+            kube_pod_status_phase{
+              job="kube-state-metrics",
+              namespace=~"{{ $targetNamespace }}",
+              phase=~"Pending|Unknown",
+              pod=~"{{ $podName }}"
+            }
+          ) * on(namespace, pod) group_left(owner_kind) topk by(namespace, pod) (
+            1, max by(namespace, pod, owner_kind) (kube_pod_owner{owner_kind!="Job"})
+          )
+        ) > 0
+        (
+          (
+            sum by (namespace, rs_type) (
+              label_replace(
+                kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}} offset {{ .compareToOffset }},
+                "rs_type",
+                "$1",
+                "replicaset",
+                "(.*)-.*"
+              )
+            )
+
+            -
+
+            sum by (namespace, rs_type) (
+              label_replace(
+                kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}},
+                "rs_type",
+                "$1",
+                "replicaset",
+                "(.*)-.*"
+              )
+            )
+          )
+
+          /
+
+          sum by (namespace, rs_type) (
+            label_replace(
+              kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}} offset {{ .compareToOffset }},
+              "rs_type",
+              "$1",
+              "replicaset",
+              "(.*)-.*"
+            )
+          )
+
+          > {{ .threshold }}
+
+        )
+
+        and
+
+        sum by (namespace, rs_type) (
+          label_replace(
+            kube_replicaset_status_ready_replicas{namespace=~"{{ $targetNamespace }}} offset {{ .compareToOffset }},
+            "rs_type",
+            "$1",
+            "replicaset",
+            "(.*)-.*"
+          )
+        ) > 0
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        {{- with $values.prometheusRules.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
+        {{- end }}
+    {{- end }}
+    {{- end }}
+
   - name: {{ .Release.Namespace }}.{{ .Release.Name }}.{{ .Chart.Name }}.ContainerRules
     rules:
 
