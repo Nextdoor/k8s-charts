@@ -98,7 +98,7 @@ app:
   volumes:
     - name: myvol
       configMap:
-        name: "{{ .Release.Name }}-configmap"
+        name: "{{ "{{ .Release.Name }}" }}-configmap"
 ```
 
 **New Feature: `Service` resource for DaemonSet**
