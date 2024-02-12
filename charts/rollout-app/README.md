@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 0.7.2](https://img.shields.io/badge/Version-0.7.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.7.3](https://img.shields.io/badge/Version-0.7.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -146,7 +146,7 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 `Values.monitor.enabled=true`.
 
 ## Secrets
-A `Secret` or `KMSSecret` resource would be created and mounted into the container
+A `Secret`, `KMSSecret`, or `SealedSecret` resource would be created and mounted into the container
 based upon the `Values.secrets` and `Values.secretsEngine` being populated.
 The `Secret` resource is generally used for local dev and/or CI test.
 Secret` resources can be created by setting the following:
@@ -161,6 +161,12 @@ secrets:
   FOO_BAR: AQIA...
 secretsEngine: kms
 kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
+```
+Or, alternatively, `SealedSecret` can be generated using the following example:
+```
+secrets:
+  FOO_BAR: AQIA...
+secretsEngine: sealed
 ```
 
 ## Requirements
@@ -292,8 +298,8 @@ kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
 | resources | object | `{}` |  |
 | revisionHistoryLimit | `int` | `3` | The default revisionHistoryLimit in Kubernetes is 10 - which is just really noisy. Set our default to 3. https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy |
 | runbookUrl | string | `"https://github.com/Nextdoor/k8s-charts/blob/main/charts/simple-app/README.md"` | The URL of the runbook for this service. |
-| secrets | `Map` | `{}` | Map of environment variables to plaintext secrets or KMS encrypted secrets. |
-| secretsEngine | String | `"plaintext"` | Secrets Engine determines the type of Secret Resource that will be created (`KMSSecret`, `Secret`). kms || plaintext are possible values. |
+| secrets | `Map` | `{}` | Map of environment variables to plaintext secrets, KMS, or Bitnami Sealed Secrets encrypted secrets. |
+| secretsEngine | String | `"plaintext"` | Secrets Engine determines the type of Secret Resource that will be created (`KMSSecret`, `SealedSecret`, `Secret`). kms || sealed || plaintext are possible values. |
 | securityContext | object | `{}` |  |
 | service.name | `string` | `nil` | Optional override for the Service name. Can be used to create a simpler more friendly service name that is not specific to the application name. |
 | service.type | string | `"ClusterIP"` |  |

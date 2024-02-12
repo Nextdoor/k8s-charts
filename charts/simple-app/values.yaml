@@ -178,13 +178,13 @@ envFrom: []
   # - configMapRef:
   #     name: my-config-vars
 
-# -- (`Map`) Map of environment variables to plaintext secrets or KMS encrypted secrets.
+# -- (`Map`) Map of environment variables to plaintext secrets, KMS, or Bitnami Sealed Secrets encrypted secrets.
 secrets: {}
 
 # -- (String) AWS region where the KMS key is located
 kmsSecretsRegion:
 
-# -- (String) Secrets Engine determines the type of Secret Resource that will be created (`KMSSecret`, `Secret`). kms || plaintext are possible values.
+# -- (String) Secrets Engine determines the type of Secret Resource that will be created (`KMSSecret`, `SealedSecret`, `Secret`). kms || sealed || plaintext are possible values.
 secretsEngine: plaintext
 
 # -- List of VolumeMounts that are applied to the application container -
