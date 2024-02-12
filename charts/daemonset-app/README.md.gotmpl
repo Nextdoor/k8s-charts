@@ -229,7 +229,7 @@ This feature is turned on by default if you set `Values.istio.enabled=true` and
 `Values.monitor.enabled=true`.
 
 ## Secrets
-A `Secret` or `KMSSecret` resource would be created and mounted into the container
+A `Secret`, `KMSSecret`, or `SealedSecret` resource would be created and mounted into the container
 based upon the `Values.secrets` and `Values.secretsEngine` being populated.
 The `Secret` resource is generally used for local dev and/or CI test.
 Secret` resources can be created by setting the following:
@@ -244,6 +244,12 @@ secrets:
   FOO_BAR: AQIA...
 secretsEngine: kms
 kmsSecretsRegion: us-west-2 (AWS region where the KMS key is located)
+```
+Or, alternatively, `SealedSecret` can be generated using the following example:
+```
+secrets:
+  FOO_BAR: AQIA...
+secretsEngine: sealed
 ```
 
 {{ template "chart.requirementsSection" . }}
