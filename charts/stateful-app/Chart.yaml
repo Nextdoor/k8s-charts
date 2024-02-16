@@ -2,7 +2,7 @@ apiVersion: v2
 name: stateful-app
 description: Default StatefulSet Helm Chart
 type: application
-version: 0.16.3
+version: 0.16.4
 appVersion: latest
 maintainers:
   - name: diranged
