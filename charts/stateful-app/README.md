@@ -2,7 +2,7 @@
 
 Default StatefulSet Helm Chart
 
-![Version: 0.16.4](https://img.shields.io/badge/Version-0.16.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.16.5](https://img.shields.io/badge/Version-0.16.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -381,7 +381,7 @@ secretsEngine: sealed
 | topologyKey | `string` | `"topology.kubernetes.io/zone"` | The topologyKey to use when asking Kubernetes to schedule the pods in a particular distribution. The default is to spread across zones evenly. Other options could be `kubernetes.io/hostname` to spread across EC2 instances, or `node.kubernetes.io/instance-type` to spread across instance types for example. |
 | topologySkew | `int` | `1` | The maxSkew setting applied to the default TopologySpreadConstraint if `enableTopologySpread` is set to `true`. |
 | topologySpreadConstraints | `string` | `[]` | An array of custom TopologySpreadConstraint settings applied to the PodSpec within the Deployment. Each of these TopologySpreadObjects should conform to the [`pod.spec.topologySpreadConstraints`](https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#api) API - but the `labelSelector` field should be left out, it will be inserted automatically for you. |
-| updateStrategy | `StatefulSetUpdateStrategy` | `nil` | updateStrategy indicates the StatefulSetUpdateStrategy that will be employed to update Pods in the StatefulSet when a revision is made to Template.  https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#statefulsetupdatestrategy-v1-apps |
+| updateStrategy | `StatefulSetUpdateStrategy` | `{"rollingUpdate":{"partition":0},"type":"RollingUpdate"}` | updateStrategy indicates the StatefulSetUpdateStrategy that will be employed to update Pods in the StatefulSet when a revision is made to Template.  https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#statefulsetupdatestrategy-v1-apps |
 | virtualService.annotations | object | `{}` | Any annotations you wish to add to the `VirtualService` resource. See https://istio.io/latest/docs/reference/config/annotations/ for more details. |
 | virtualService.corsPolicy | `map` | `{}` | If set, this will populate the corsPolicy setting for the VirtualService. See https://istio.io/latest/docs/reference/config/networking/virtual-service/#CorsPolicy for more details. |
 | virtualService.enabled | Boolean | `false` | Maps the Service to an Istio IngressGateway, exposing the service outside of the Kubernetes cluster. |

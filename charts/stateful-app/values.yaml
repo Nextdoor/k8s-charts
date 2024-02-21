@@ -24,7 +24,10 @@ revisionHistoryLimit: 3
 # StatefulSet when a revision is made to Template.
 #
 # https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#statefulsetupdatestrategy-v1-apps
-updateStrategy: null
+updateStrategy:
+  rollingUpdate:
+    partition: 0
+  type: RollingUpdate
 
 # -- (`PersistentVolumeClaim[]`) volumeClaimTemplates is a list of claims that
 # pods are allowed to reference. The StatefulSet controller is responsible for
