@@ -6,7 +6,6 @@ metadata:
   name: {{ .Release.Name }}
 spec:
   podTargetLabels:
-    - cluster
     - component
   selector:
     matchLabels:
@@ -14,4 +13,8 @@ spec:
   # Specify the port name of the exposed metric port
   podMetricsEndpoints:
     - port: prom
+      relabelings:
+        - action: replace
+          sourceLabels: [ __meta_kubernetes_pod_label_cluster ]
+          targetLabel: flink_cluster
 {{ end -}}
