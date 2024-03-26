@@ -200,16 +200,22 @@ spec:
           ports:
             {{- include "nd-common.containerPorts" $ | nindent 12 }}
           {{- end }}
-          {{- with $.Values.startupProbe }}
+          {{- $pxyStrtpPrb := $.Values.proxySidecar.startupProbe | default $.Values.startupProbe }}
+          {{- with $pxyStrtpPrb }}
           startupProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with $.Values.livenessProbe }}
+          {{- $pxyLivePrb := $.Values.proxySidecar.livenessProbe | default $.Values.livenessProbe }}
+          {{- with $pxyLivePrb }}
           livenessProbe:
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
           readinessProbe:
+            {{- if $.Values.proxySidecar.readinessProbe }}
+            {{- tpl (toYaml $.Values.proxySidecar.readinessProbe) $ | nindent 12 }}
+            {{- else }}
             {{- tpl (toYaml $.Values.readinessProbe) $ | nindent 12 }}
+            {{- end }}
           resources:
             {{- toYaml $.Values.proxySidecar.resources | nindent 12 }}
         {{- end }}
