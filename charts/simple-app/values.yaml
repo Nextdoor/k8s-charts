@@ -101,6 +101,18 @@ proxySidecar:
   # -- A PodSpec "Resources" object for the proxy container
   resources: {}
 
+  # -- A PodSpec container "startupProbe" configuration object. Takes
+  # precedence (overrides) whatever is set at the root-level probe
+  startupProbe: null
+
+  # -- A PodSpec container "livenessProbe" configuration object. Takes
+  # precedence (overrides) whatever is set at the root-level probe
+  livenessProbe: null
+
+  # -- A PodSpec container "readinessProbe" configuration object. Takes
+  # precedence (overrides) whatever is set at the root-level probe
+  readinessProbe: null
+
 # -- A PodSpec container "startupProbe" configuration object. Note that this
 # startupProbe will be applied to the proxySidecar container instead if that
 # is enabled.

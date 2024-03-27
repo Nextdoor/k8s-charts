@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 1.6.4](https://img.shields.io/badge/Version-1.6.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.6.5](https://img.shields.io/badge/Version-1.6.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -421,8 +421,11 @@ secretsEngine: sealed
 | proxySidecar.image.pullPolicy | String | `"IfNotPresent"` | Always, Never or IfNotPresent |
 | proxySidecar.image.repository | String | `"nginx"` | The Docker image name and repository for the sidecar |
 | proxySidecar.image.tag | String | `"latest"` | The Docker tag for the sidecar |
+| proxySidecar.livenessProbe | string | `nil` | A PodSpec container "livenessProbe" configuration object. Takes precedence (overrides) whatever is set at the root-level probe |
 | proxySidecar.name | String | `"proxy"` | The name of the proxy sidecar container |
+| proxySidecar.readinessProbe | string | `nil` | A PodSpec container "readinessProbe" configuration object. Takes precedence (overrides) whatever is set at the root-level probe |
 | proxySidecar.resources | object | `{}` | A PodSpec "Resources" object for the proxy container |
+| proxySidecar.startupProbe | string | `nil` | A PodSpec container "startupProbe" configuration object. Takes precedence (overrides) whatever is set at the root-level probe |
 | proxySidecar.volumeMounts | list | `[]` | List of VolumeMounts that are applied to the proxySidecar container - these must refer to volumes set in the `Values.volumes` parameter. |
 | readinessProbe | string | `nil` | A PodSpec container "readinessProbe" configuration object. Note that this readinessProbe will be applied to the proxySidecar container instead if that is enabled. This is **required**. |
 | replicaCount | `int` | `2` | The number of Pods to start up by default. If the `autoscaling.enabled` parameter is set, then this serves as the "start scale" for an application. Setting this to `null` prevents the setting from being applied at all in the PodSpec, leaving it to Kubernetes to use the default value (1). https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#replicas |
