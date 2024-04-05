@@ -52,7 +52,7 @@ spec:
       retries:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRoute */ }}
+      {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRoute */}}
       {{- with .Values.virtualService.timeout }}
       timeout: {{ . }}
       {{- end }}
