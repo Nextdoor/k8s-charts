@@ -19,6 +19,15 @@ those changes in the `charts/simple-app`, `charts/daemonset-app` and
 
 ## Upgrade Notes
 
+### 1.4.x -> 1.5.x
+
+**NOTE: New metrics added**
+
+We have added a new metric which attempts to detect if you have misconfigured
+your selectors. After upgrading, you may get alerted. You should respond to the
+alert appropriately by reading the alert information and making changes to your
+selectors.
+
 ### 1.1.x -> 1.2.x
 
 **CHANGE: Resource Names have changed**
