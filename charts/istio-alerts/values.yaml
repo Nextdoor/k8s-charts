@@ -118,6 +118,13 @@ serviceRules:
     # -- How long to evaluate the latency of services.
     for: 15m
 
+  # -- Does a basic lookup using the defined selectors to see if we can see any
+  # info for a given selector. This is the "watcher for the watcher". If we get
+  # alerted by this, we likely have a bad selector and our alerts are not going
+  # to ever fire.
   destinationServiceSelectorValidity:
+    # -- Severity of the monitor
     sevarity: warning
+
+    # -- How long to evaluate.
     for: 1h
