@@ -117,3 +117,7 @@ serviceRules:
 
     # -- How long to evaluate the latency of services.
     for: 15m
+  
+  destinationServiceSelectorValidity:
+    sevarity: warning
+    for: 1h

@@ -3,7 +3,7 @@
 
 Helm Chart that provisions a series of common Prometheus Alerts
 
-![Version: 1.4.0](https://img.shields.io/badge/Version-1.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
+![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -54,7 +54,7 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.2.0 |
+| file://../nd-common | nd-common | 0.3.1 |
 
 ## Values
 
@@ -68,6 +68,7 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 | alertManager.repeatInterval | string | `"1h"` | How long to wait before sending a notification again if it has already been sent successfully for an alert. (Usually ~3h or more). |
 | chart_name | string | `"prometheus-rules"` |  |
 | chart_source | string | `"https://github.com/Nextdoor/k8s-charts"` |  |
+| containerRules.AlertRulesSelectorsValidity | object | `{"for":"1h","severity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
 | containerRules.CPUThrottlingHigh | object | `{"for":"15m","severity":"warning","threshold":5}` | Container is being throttled by the CGroup - needs more resources. This value is appropriate for applications that are highly sensitive to request latency. Insensitive workloads might need to raise this percentage to avoid alert noise. |
 | containerRules.ContainerWaiting.for | string | `"1h"` |  |
 | containerRules.ContainerWaiting.severity | string | `"warning"` |  |

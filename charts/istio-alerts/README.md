@@ -1,6 +1,6 @@
 # istio-alerts
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
 
 A Helm chart that provisions a series of alerts for istio VirtualServices
 
@@ -25,6 +25,8 @@ A Helm chart that provisions a series of alerts for istio VirtualServices
 | defaults.additionalRuleLabels | object | `{}` | Additional custom labels attached to every PrometheusRule |
 | defaults.runbookUrl | string | `"https://github.com/Nextdoor/k8s-charts/blob/main/charts/istio-alerts/runbook.md"` | The prefix URL to the runbook_urls that will be applied to each PrometheusRule |
 | serviceRules.destinationServiceName | string | `".*"` | Narrow down the alerts to a particular Destination Service if there are multiple services that require different thresholds within the same namespace. |
+| serviceRules.destinationServiceSelectorValidity.for | string | `"1h"` |  |
+| serviceRules.destinationServiceSelectorValidity.sevarity | string | `"warning"` |  |
 | serviceRules.enabled | bool | `true` | Whether to enable the service rules template |
 | serviceRules.highRequestLatency.enabled | bool | `true` | Whether to enable the monitor on latency returned by the VirtualService. |
 | serviceRules.highRequestLatency.for | string | `"15m"` | How long to evaluate the latency of services. |
