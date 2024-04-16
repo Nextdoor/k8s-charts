@@ -124,7 +124,7 @@ serviceRules:
   # to ever fire.
   destinationServiceSelectorValidity:
     # -- Severity of the monitor
-    sevarity: warning
+    severity: warning
 
     # -- How long to evaluate.
     for: 1h
