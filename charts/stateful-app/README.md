@@ -266,7 +266,7 @@ secretsEngine: sealed
 | Repository | Name | Version |
 |------------|------|---------|
 | file://../nd-common | nd-common | 0.3.1 |
-| https://k8s-charts.nextdoor.com | istio-alerts | 0.2.0 |
+| https://k8s-charts.nextdoor.com | istio-alerts | 0.3.0 |
 
 ## Values
 

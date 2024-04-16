@@ -25,9 +25,9 @@ A Helm chart that provisions a series of alerts for istio VirtualServices
 | defaults.additionalRuleLabels | object | `{}` | Additional custom labels attached to every PrometheusRule |
 | defaults.runbookUrl | string | `"https://github.com/Nextdoor/k8s-charts/blob/main/charts/istio-alerts/runbook.md"` | The prefix URL to the runbook_urls that will be applied to each PrometheusRule |
 | serviceRules.destinationServiceName | string | `".*"` | Narrow down the alerts to a particular Destination Service if there are multiple services that require different thresholds within the same namespace. |
-| serviceRules.destinationServiceSelectorValidity | object | `{"for":"1h","sevarity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
+| serviceRules.destinationServiceSelectorValidity | object | `{"for":"1h","severity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
 | serviceRules.destinationServiceSelectorValidity.for | string | `"1h"` | How long to evaluate. |
-| serviceRules.destinationServiceSelectorValidity.sevarity | string | `"warning"` | Severity of the monitor |
+| serviceRules.destinationServiceSelectorValidity.severity | string | `"warning"` | Severity of the monitor |
 | serviceRules.enabled | bool | `true` | Whether to enable the service rules template |
 | serviceRules.highRequestLatency.enabled | bool | `true` | Whether to enable the monitor on latency returned by the VirtualService. |
 | serviceRules.highRequestLatency.for | string | `"15m"` | How long to evaluate the latency of services. |
