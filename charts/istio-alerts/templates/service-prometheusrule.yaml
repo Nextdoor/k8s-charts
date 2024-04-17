@@ -1,3 +1,5 @@
+{{ $destinationServiceSelectorForIstioMetrics     := include "istio-alerts.destinationServiceSelectorForIstioMetrics" . }}
+{{ $destinationServiceSelectorForKubeStateMetrics := include "istio-alerts.destinationServiceSelectorForKubeStateMetrics" . }}
 {{- $values     := .Values }}
 {{- $release    := .Release }}
 {{- if .Values.serviceRules.enabled }}
@@ -26,15 +28,13 @@ spec:
         sum by (destination_service_name, reporter, source_workload) (
           istio_requests:increase5m{
             response_code=~"5.*",
-            destination_service_namespace="{{ $release.Namespace }}",
-            destination_service_name=~"{{ $.Values.serviceRules.destinationServiceName }}"
+            {{- $destinationServiceSelectorForIstioMetrics -}}
           }
         )
           /
         sum by (destination_service_name, reporter, source_workload) (
           istio_requests:increase5m{
-            destination_service_namespace="{{ $release.Namespace }}",
-            destination_service_name=~"{{ $.Values.serviceRules.destinationServiceName }}"
+            {{- $destinationServiceSelectorForIstioMetrics -}}
           }
         )
           > {{ .threshold }}
@@ -62,8 +62,7 @@ spec:
           {{ .percentile }},
           sum(irate(
             istio_request_duration_milliseconds_bucket{
-              destination_service_namespace="{{ $release.Namespace }}",
-              destination_service_name=~"{{ $.Values.serviceRules.destinationServiceName }}"
+              {{- $destinationServiceSelectorForIstioMetrics -}}
             }[5m]
           )) by (
             destination_service_name,
@@ -100,8 +99,7 @@ spec:
         (
           count(
             kube_service_info{
-              namespace="{{ $.Release.Namespace }}",
-              name=~"{{ $.Values.serviceRules.destinationServiceName }}"
+              {{- $destinationServiceSelectorForKubeStateMetrics -}}
             }
           ) or on() vector(0)
         ) == 0
