@@ -22,7 +22,6 @@ spec:
         description: >-
           High rate of 5xx responses from the {{`{{$labels.destination_service_name}}`}} VirtualService
           in namespace {{`{{$labels.namespace}}`}}.
-
       expr: >
         sum by (destination_service_name, reporter, source_workload) (
           istio_requests:increase5m{
@@ -48,15 +47,13 @@ spec:
         {{- end }}
     {{- end }}
     {{- end }}
-
-     # Adding latency alarm to trigger when request latency is above > threshold
     {{- with .Values.serviceRules.highRequestLatency }}
     {{- if .enabled }}
     - alert: HighRequestLatency
       annotations:
         summary: >-
           {{`{{$labels.destination_service_name}}`}} avg request latencies are above {{ .threshold }}s!
-        runbook_url: {{ $values.defaults.runbookUrl}} #HighRequestLatency
+        runbook_url: {{ $values.defaults.runbookUrl}}#HighRequestLatency
         description: >-
           Average request latency of {{`{{ $value | humanizePercentage }}`}} is above threshold ({{ .threshold }}s)
           in namespace {{`{{ $labels.namespace }}`}} for pod {{`{{ $labels.pod }}`}} (container: {{`{{ $labels.container }}`}}).
@@ -85,5 +82,36 @@ spec:
         {{ toYaml . | nindent 8}}
         {{- end }}
     {{- end }}
-  {{- end }}
+    {{- end }}
+    {{- with .Values.serviceRules.destinationServiceSelectorValidity }}
+    {{- if .enabled }}
+    - alert: DestinationServiceSelectorValidity
+      annotations:
+        summary: >-
+          DestinationServiceSelector for istio-alerts is invalid
+        runbook_url: {{ $values.defaults.runbookUrl}}#Alert-Rules-Selectors-Validity
+        description: >-
+          The DestinationServiceSelector used for service level alerts did not return any data.
+          Please check the DestinationServiceSelector applied in your istio-alerts chart
+          is correct to ensure you are properly selecting your service so that you
+          will be alerted for service issues. The current selector is
+          `{destination_service_namespace="{{ $release.Namespace }}", destination_service_name="{{ $.Values.serviceRules.destinationServiceName }}"}`.
+      expr: >-
+        (
+          count(
+            kube_service_info{
+              namespace={{ $.Release.Namespace }},
+              name={{ $.Values.serviceRules.destinationServiceName }}
+            }
+          ) or on() vector(0)
+        ) == 0
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        namespace: {{ $release.Namespace }}
+        {{- with $values.defaults.additionalRuleLabels}}
+        {{ toYaml . | nindent 8}}
+        {{- end }}
+    {{- end }}
+    {{- end }}
 {{- end }}
