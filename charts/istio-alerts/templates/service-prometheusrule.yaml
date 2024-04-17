@@ -100,8 +100,8 @@ spec:
         (
           count(
             kube_service_info{
-              namespace={{ $.Release.Namespace }},
-              name={{ $.Values.serviceRules.destinationServiceName }}
+              namespace="{{ $.Release.Namespace }}",
+              name=~"{{ $.Values.serviceRules.destinationServiceName }}"
             }
           ) or on() vector(0)
         ) == 0
