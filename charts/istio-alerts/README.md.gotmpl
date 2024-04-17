@@ -1,0 +1,24 @@
+{{ template "chart.header" . }}
+
+{{ template "chart.versionBadge" .  }}{{ template "chart.typeBadge" .  }}{{ template "chart.appVersionBadge" .  }}
+
+{{ template "chart.description" . }}
+
+{{ template "chart.maintainersSection" . }}
+
+## Upgrade Notes
+
+### 0.2.x -> 0.3.x
+
+**BREAKING: The DestinationServiceSelectorValidity alert rule requires kube-state-metrics.**
+
+An alert was introduced in 0.3.x that requires kube-state-metrics to be installed in the cluster. If
+you do not have kube-state-metrics installed, you will need to disable the alert by setting
+`serviceRules.destinationServiceSelectorValidity.enabled` to `false`. This alert is used to detect
+if the destinationServiceSelector is actually selecting series for a service that exists.
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}
