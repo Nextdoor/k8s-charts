@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 1.6.6](https://img.shields.io/badge/Version-1.6.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.7.0](https://img.shields.io/badge/Version-1.7.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,13 @@ in a [Deployment][deployments]. The chart automatically configures various
 defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
+
+### 1.2.x -> 1.7.x
+
+**BREAKING: Istio Alerts have changed**
+
+The Istio Alerts chart was updated to 4.0.0 which updates the alert on the 5XX
+rate to only aggregate per service, rather than including the client source workload.
 
 ### 1.1.2 -> 1.2.x
 
@@ -319,7 +326,7 @@ secretsEngine: sealed
 | Repository | Name | Version |
 |------------|------|---------|
 | file://../nd-common | nd-common | 0.3.1 |
-| https://k8s-charts.nextdoor.com | istio-alerts | 0.2.0 |
+| https://k8s-charts.nextdoor.com | istio-alerts | 0.4.0 |
 
 ## Values
 
