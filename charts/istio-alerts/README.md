@@ -15,9 +15,12 @@ A Helm chart that provisions a series of alerts for istio VirtualServices
 
 ### 0.2.x -> 0.3.x
 
-**BREAKING: TBD**
+**BREAKING: The DestinationServiceSelectorValidity alert rule requires kube-state-metrics.**
 
-TBD
+An alert was introduced in 0.3.x that requires kube-state-metrics to be installed in the cluster. If
+you do not have kube-state-metrics installed, you will need to disable the alert by setting
+`serviceRules.destinationServiceSelectorValidity.enabled` to `false`. This alert is used to detect
+if the destinationServiceSelector is actually selecting series for a service that exists.
 
 ## Values
 
