@@ -13,6 +13,13 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
 
+### 1.2.x -> 1.7.x
+
+**BREAKING: Istio Alerts have changed**
+
+The Istio Alerts chart was updated to 4.0.0 which updates the alert on the 5XX
+rate to only aggregate per service, rather than including the client source workload.
+
 ### 1.1.2 -> 1.2.x
 
 **BREAKING: Istio Alerts have changed**
@@ -319,7 +326,7 @@ secretsEngine: sealed
 | Repository | Name | Version |
 |------------|------|---------|
 | file://../nd-common | nd-common | 0.3.1 |
-| https://k8s-charts.nextdoor.com | istio-alerts | 0.3.1 |
+| https://k8s-charts.nextdoor.com | istio-alerts | 0.4.0 |
 
 ## Values
 
