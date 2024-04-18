@@ -2,7 +2,7 @@
 
 Default StatefulSet Helm Chart
 
-![Version: 0.17.0](https://img.shields.io/badge/Version-0.17.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,18 @@ in Kubernetes][statefulsets]. The chart provides all of the common pieces like
 ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
+
+### 0.7.0 -> 1.0.0
+
+**BREAKING: Istio Alerts have changed**
+
+The Istio Alerts chart was updated to 4.0.0 which updates the alert on the 5XX
+rate to only aggregate per service, rather than including the client source workload.
+
+Additionally, it added an alert which will attempt to detect if your selector
+criteria is valid or not. This requires kube-state-metrics to be installed and
+can be disabled via your values file if you do not wish to install
+kube-state-metrics.
 
 ### 0.14.x -> 0.15.x
 
@@ -266,7 +278,7 @@ secretsEngine: sealed
 | Repository | Name | Version |
 |------------|------|---------|
 | file://../nd-common | nd-common | 0.3.1 |
-| https://k8s-charts.nextdoor.com | istio-alerts | 0.3.1 |
+| https://k8s-charts.nextdoor.com | istio-alerts | 0.4.0 |
 
 ## Values
 
