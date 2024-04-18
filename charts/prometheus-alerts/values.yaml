@@ -129,102 +129,126 @@ containerRules:
   # -- Whether or not to enable the container rules template
   enabled: true
 
-  # -- Monitors Pods for Containers that are terminated either for unexpected
-  # reasons like ContainerCannotRun. If that number breaches the $threshold (1)
-  # for $for (1m), then it will alert.
-  PodContainerTerminated:
-    severity: warning
-    threshold: 0
-    over: 10m
-    for: 1m
-    reasons:
-      # - Error  < when a container is evicted gracefully, the "error" state is used.
-      - ContainerCannotRun
-      - DeadlineExceeded
+  pods:
+    # -- Enables the Pod resource rules
+    enabled: true
 
-  # -- Sums up all of the OOMKilled events per pod over the $over time (60m). If
-  # that number breaches the $threshold (0) for $for (1m), then it will alert.
-  PodContainerOOMKilled:
-    severity: warning
-    threshold: 0
-    over: 60m
-    for: 1m
+    # -- Monitors Pods for Containers that are terminated either for unexpected
+    # reasons like ContainerCannotRun. If that number breaches the $threshold (1)
+    # for $for (1m), then it will alert.
+    PodContainerTerminated:
+      severity: warning
+      threshold: 0
+      over: 10m
+      for: 1m
+      reasons:
+        # - Error  < when a container is evicted gracefully, the "error" state is used.
+        - ContainerCannotRun
+        - DeadlineExceeded
 
-  # -- Pod is in a CrashLoopBackOff state and is not becoming healthy.
-  PodCrashLoopBackOff:
-    severity: warning
-    for: 10m
+    # -- Sums up all of the OOMKilled events per pod over the $over time (60m). If
+    # that number breaches the $threshold (0) for $for (1m), then it will alert.
+    PodContainerOOMKilled:
+      severity: warning
+      threshold: 0
+      over: 60m
+      for: 1m
 
-  # -- Pod has been in a non-ready state for more than a specific threshold
-  PodNotReady:
-    severity: warning
-    for: 15m
+    # -- Pod is in a CrashLoopBackOff state and is not becoming healthy.
+    PodCrashLoopBackOff:
+      severity: warning
+      for: 10m
 
-  # Pod container waiting longer than threshold
-  ContainerWaiting:
-    severity: warning
-    for: 1h
+    # -- Pod has been in a non-ready state for more than a specific threshold
+    PodNotReady:
+      severity: warning
+      for: 15m
 
-  # -- Deployment generation mismatch due to possible roll-back
-  KubeDeploymentGenerationMismatch:
-    severity: warning
-    for: 15m
+    # Pod container waiting longer than threshold
+    ContainerWaiting:
+      severity: warning
+      for: 1h
 
-  # Deployment has not matched the expected number of replicas
-  KubeStatefulSetReplicasMismatch:
-    severity: warning
-    for: 15m
+    # -- Container is being throttled by the CGroup - needs more resources.
+    # This value is appropriate for applications that are highly sensitive to
+    # request latency. Insensitive workloads might need to raise this percentage
+    # to avoid alert noise.
+    CPUThrottlingHigh:
+      severity: warning
+      threshold: 5
+      for: 15m
 
-  # StatefulSet generation mismatch due to possible roll-back
-  KubeStatefulSetGenerationMismatch:
-    severity: warning
-    for: 15m
+  deployments:
+    # -- Enables the Deployment resource rules
+    enabled: true
 
-  # StatefulSet update has not been rolled out
-  KubeStatefulSetUpdateNotRolledOut:
-    severity: warning
-    for: 15m
+    # -- Deployment generation mismatch due to possible roll-back
+    KubeDeploymentGenerationMismatch:
+      severity: warning
+      for: 15m
 
-  # DaemonSet rollout is stuck
-  KubeDaemonSetRolloutStuck:
-    severity: warning
-    for: 15m
+  statefulsets:
+    # -- Enables the StatefulSet resource rules
+    enabled: true
 
-  # DaemonSet pods are not scheduled
-  KubeDaemonSetNotScheduled:
-    severity: warning
-    for: 10m
+    # Deployment has not matched the expected number of replicas
+    KubeStatefulSetReplicasMismatch:
+      severity: warning
+      for: 15m
 
-  # DaemonSet pods are misscheduled
-  KubeDaemonSetMisScheduled:
-    severity: warning
-    for: 15m
+    # StatefulSet generation mismatch due to possible roll-back
+    KubeStatefulSetGenerationMismatch:
+      severity: warning
+      for: 15m
 
-  # Job did not complete in time
-  KubeJobCompletion:
-    severity: warning
-    for: 12h
+    # StatefulSet update has not been rolled out
+    KubeStatefulSetUpdateNotRolledOut:
+      severity: warning
+      for: 15m
 
-  # Job failed to complete
-  KubeJobFailed:
-    severity: warning
-    for: 15m
+  daemonsets:
+    # -- Enables the DaemonSet resource rules
+    enabled: true
 
-  # HPA has not matched descired number of replicas
-  KubeHpaReplicasMismatch:
-    severity: warning
-    for: 15m
+    # DaemonSet rollout is stuck
+    KubeDaemonSetRolloutStuck:
+      severity: warning
+      for: 15m
 
-  # HPA is running at max replicas
-  KubeHpaMaxedOut:
-    severity: warning
-    for: 15m
+    # DaemonSet pods are not scheduled
+    KubeDaemonSetNotScheduled:
+      severity: warning
+      for: 10m
 
-  # -- Container is being throttled by the CGroup - needs more resources.
-  # This value is appropriate for applications that are highly sensitive to
-  # request latency. Insensitive workloads might need to raise this percentage
-  # to avoid alert noise.
-  CPUThrottlingHigh:
-    severity: warning
-    threshold: 5
-    for: 15m
+    # DaemonSet pods are misscheduled
+    KubeDaemonSetMisScheduled:
+      severity: warning
+      for: 15m
+
+  jobs:
+    # -- Enables the Job resource rules
+    enabled: true
+
+    # Job did not complete in time
+    KubeJobCompletion:
+      severity: warning
+      for: 12h
+
+    # Job failed to complete
+    KubeJobFailed:
+      severity: warning
+      for: 15m
+
+  hpas:
+    # -- Enables the HorizontalPodAutoscaler resource rules
+    enabled: true
+
+    # HPA has not matched descired number of replicas
+    KubeHpaReplicasMismatch:
+      severity: warning
+      for: 15m
+
+    # HPA is running at max replicas
+    KubeHpaMaxedOut:
+      severity: warning
+      for: 15m
