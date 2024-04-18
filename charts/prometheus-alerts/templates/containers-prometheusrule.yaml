@@ -467,30 +467,22 @@ spec:
           minutes.
       expr: |-
         (
-         kube_horizontalpodautoscaler_status_desired_replicas{ {{- $hpaSelector -}} }
-          !=
-         kube_horizontalpodautoscaler_status_current_replicas{ {{- $hpaSelector -}} }
+          kube_horizontalpodautoscaler_status_desired_replicas{ {{- $hpaSelector -}} }
+            !=
+          kube_horizontalpodautoscaler_status_current_replicas{ {{- $hpaSelector -}} }
+        ) and (
+          kube_horizontalpodautoscaler_status_current_replicas{ {{- $hpaSelector -}} }
+            >
+          kube_horizontalpodautoscaler_spec_min_replicas{ {{- $hpaSelector -}} }
+        ) and (
+          kube_horizontalpodautoscaler_status_current_replicas{ {{- $hpaSelector -}} }
+            <
+          kube_horizontalpodautoscaler_spec_max_replicas{ {{- $hpaSelector -}} }
+        ) and (
+          changes(kube_horizontalpodautoscaler_status_current_replicas[15m])
+            ==
+          0
         )
-          and
-
-        (
-         kube_horizontalpodautoscaler_status_current_replicas{ {{- $hpaSelector -}} }
-          >
-         kube_horizontalpodautoscaler_spec_min_replicas{ {{- $hpaSelector -}} }
-        )
-
-          and
-
-        (
-         kube_horizontalpodautoscaler_status_current_replicas{ {{- $hpaSelector -}} }
-          <
-         kube_horizontalpodautoscaler_spec_max_replicas{ {{- $hpaSelector -}} }
-        )
-
-          and
-
-        changes(kube_horizontalpodautoscaler_status_current_replicas[15m]) == 0
-
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
