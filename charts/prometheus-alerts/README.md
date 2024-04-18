@@ -27,6 +27,11 @@ An alert was introduced in that requires kube-state-metrics to be installed in t
 you do not have kube-state-metrics installed, you will need to disable the alert in your values
 file.
 
+We have added a new metric which attempts to detect if you have misconfigured
+your selectors. After upgrading, you may get alerted. You should respond to the
+alert appropriately by reading the alert information and making changes to your
+selectors.
+
 ### 1.1.x -> 1.2.x
 
 **CHANGE: Resource Names have changed**
