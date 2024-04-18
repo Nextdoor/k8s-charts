@@ -8,6 +8,15 @@
 
 ## Upgrade Notes
 
+### 0.3.x -> 0.4.x
+
+**BREAKING: http5XXMonitor no longer alerts per source client workload.**
+
+In version 0.2.x, there was a change to the default `http5XXMonitor` which
+introduced calculation of the error rate per source workload. This 0.4.x
+release reverts this behavior by default while allowing you to opt in to custom
+selectors via the `monitorGroupingLabels` option.
+
 ### 0.2.x -> 0.3.x
 
 **BREAKING: The DestinationServiceSelectorValidity alert rule requires kube-state-metrics.**
@@ -16,6 +25,12 @@ An alert was introduced in 0.3.x that requires kube-state-metrics to be installe
 you do not have kube-state-metrics installed, you will need to disable the alert by setting
 `serviceRules.destinationServiceSelectorValidity.enabled` to `false`. This alert is used to detect
 if the destinationServiceSelector is actually selecting series for a service that exists.
+
+### 0.2.x
+
+**BREAKING: http5XXMonitor now calculcates the 5XX error rate for each client**
+source workload using the `source_workload` label, and will alert if any
+`source_workload`'s error rate exceeds the specified `threshold`.
 
 {{ template "chart.requirementsSection" . }}
 

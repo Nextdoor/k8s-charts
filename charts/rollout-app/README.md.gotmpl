@@ -17,6 +17,18 @@ how these work, and the various custom resource definitions.
 
 ## Upgrade Notes
 
+### 0.7.x -> 1.0.x
+
+**BREAKING: Istio Alerts have changed**
+
+The Istio Alerts chart was updated to 4.0.0 which updates the alert on the 5XX
+rate to only aggregate per service, rather than including the client source workload.
+
+Additionally, it added an alert which will attempt to detect if your selector
+criteria is valid or not. This requires kube-state-metrics to be installed and
+can be disabled via your values file if you do not wish to install
+kube-state-metrics.
+
 ### 0.2.x -> 0.3.x
 
 **BREAKING: Istio Alerts have changed**
