@@ -17,7 +17,7 @@ spec:
     rules:
     {{- with .Values.serviceRules.http5XXMonitor }}
     {{- if .enabled }}
-    {{ $http5XXMonitorGroupingLabelString := join ", " .monitorGroupingLabels }}
+    {{- $http5XXMonitorGroupingLabelString := join ", " .monitorGroupingLabels }}
     - alert: 5xx-Rate-Too-High
       annotations:
         summary: >-
