@@ -18,7 +18,7 @@ how these work, and the various custom resource definitions.
 
 ## Upgrade Notes
 
-### 0.7.0 -> 1.0.0
+### 0.7.x -> 1.0.x
 
 **BREAKING: Istio Alerts have changed**
 
