@@ -103,7 +103,6 @@ serviceRules:
     monitorGroupingLabels:
       - destination_service_name
       - reporter
-      - source_workload
 
   # -- Configuration related to the latency monitor for the VirtualService.
   highRequestLatency:
