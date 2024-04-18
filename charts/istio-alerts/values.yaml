@@ -99,6 +99,12 @@ serviceRules:
     # -- Severity of the 5xx monitor
     severity: critical
 
+    # -- The set of labels to use when evaluating the ratio of the 5XX.
+    monitorGroupingLabels:
+      - destination_service_name
+      - reporter
+      - source_workload
+
   # -- Configuration related to the latency monitor for the VirtualService.
   highRequestLatency:
     # -- Whether to enable the monitor on latency returned by the

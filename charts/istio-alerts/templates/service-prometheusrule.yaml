@@ -2,6 +2,7 @@
 {{ $destinationServiceSelectorForKubeStateMetrics := include "istio-alerts.destinationServiceSelectorForKubeStateMetrics" . }}
 {{- $values     := .Values }}
 {{- $release    := .Release }}
+
 {{- if .Values.serviceRules.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
@@ -16,6 +17,7 @@ spec:
     rules:
     {{- with .Values.serviceRules.http5XXMonitor }}
     {{- if .enabled }}
+    {{- $http5XXMonitorGroupingLabelString := join ", " .monitorGroupingLabels }}
     - alert: 5xx-Rate-Too-High
       annotations:
         summary: >-
@@ -25,14 +27,14 @@ spec:
           High rate of 5xx responses from the {{`{{$labels.destination_service_name}}`}} VirtualService
           in namespace {{`{{$labels.namespace}}`}}.
       expr: >
-        sum by (destination_service_name, reporter, source_workload) (
+        sum by ({{- $http5XXMonitorGroupingLabelString -}}) (
           istio_requests:increase5m{
             response_code=~"5.*",
             {{- $destinationServiceSelectorForIstioMetrics -}}
           }
         )
           /
-        sum by (destination_service_name, reporter, source_workload) (
+        sum by ({{- $http5XXMonitorGroupingLabelString -}}) (
           istio_requests:increase5m{
             {{- $destinationServiceSelectorForIstioMetrics -}}
           }
