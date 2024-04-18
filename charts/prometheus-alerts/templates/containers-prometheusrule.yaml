@@ -20,12 +20,12 @@ metadata:
     {{- include "nd-common.labels" . | nindent 4 }}
 spec:
   groups:
-  {{- with .Values.containerRules.pods -}}
+  {{- with .Values.containerRules.pods }}
   {{- if .enabled }}
 
   - name: {{ $release.Name }}.{{ $release.Namespace }}.containerRules
     rules:
-    {{- with .PodContainerTerminated -}}
+    {{- with .PodContainerTerminated }}
     - alert: PodContainerTerminated
       annotations:
         summary: {{`Pod {{$labels.pod}} in namespace {{$labels.namespace}} in error status`}}
@@ -52,7 +52,7 @@ spec:
         {{- end }}
     {{ end -}}
 
-    {{- with .PodContainerOOMKilled -}}
+    {{- with .PodContainerOOMKilled }}
     - alert: PodContainerOOMKilled
       annotations:
         summary: {{`Pod {{$labels.pod}} in namespace {{$labels.namespace}} in error status`}}
@@ -79,7 +79,7 @@ spec:
         {{- end }}
     {{ end -}}
 
-    {{- with .ContainerWaiting -}}
+    {{- with .ContainerWaiting }}
     - alert: ContainerWaiting
       annotations:
         summary: Pod container waiting longer than {{ .for }}
@@ -139,10 +139,10 @@ spec:
   #
   - name: {{ .Release.Name }}.{{ .Release.Namespace }}.kubernetesAppsRules
     rules:
-    {{- with .Values.containerRules.pods -}}
+    {{- with .Values.containerRules.pods }}
     {{- if .enabled }}
 
-    {{- with .PodCrashLoopBackOff -}}
+    {{- with .PodCrashLoopBackOff }}
     - alert: PodCrashLoopBackOff
       annotations:
         summary: {{`Container inside pod {{ $labels.pod }} is crash looping`}}
@@ -168,7 +168,7 @@ spec:
         {{- end }}
     {{- end }}
 
-    {{- with .PodNotReady -}}
+    {{- with .PodNotReady }}
     - alert: PodNotReady
       annotations:
         summary: Pod has been in a non-ready state for more than {{ .for }}
@@ -205,10 +205,10 @@ spec:
     {{- end }}
     {{- end }}
 
-    {{- with .Values.containerRules.deployments -}}
+    {{- with .Values.containerRules.deployments }}
     {{- if .enabled }}
 
-    {{- with .KubeDeploymentGenerationMismatch -}}
+    {{- with .KubeDeploymentGenerationMismatch }}
     - alert: KubeDeploymentGenerationMismatch
       annotations:
         summary: Deployment generation mismatch due to possible roll-back
@@ -233,10 +233,10 @@ spec:
     {{- end }}
     {{- end }}
 
-    {{- with .Values.containerRules.statefulsets -}}
+    {{- with .Values.containerRules.statefulsets }}
     {{- if .enabled }}
 
-    {{- with .KubeStatefulSetReplicasMismatch -}}
+    {{- with .KubeStatefulSetReplicasMismatch }}
     - alert: KubeStatefulSetReplicasMismatch
       annotations:
         summary: StatefulSet has not matched the expected number of replicas.
@@ -263,7 +263,7 @@ spec:
         {{- end }}
     {{- end }}
 
-    {{- with .KubeStatefulSetGenerationMismatch -}}
+    {{- with .KubeStatefulSetGenerationMismatch }}
     - alert: KubeStatefulSetGenerationMismatch
       annotations:
         summary: StatefulSet generation mismatch due to possible roll-back
@@ -285,7 +285,7 @@ spec:
         {{- end }}
     {{- end }}
 
-    {{- with .KubeStatefulSetUpdateNotRolledOut -}}
+    {{- with .KubeStatefulSetUpdateNotRolledOut }}
     - alert: KubeStatefulSetUpdateNotRolledOut
       annotations:
         summary: StatefulSet update has not been rolled out.
@@ -322,10 +322,10 @@ spec:
     {{- end }}
     {{- end }}
 
-    {{- with .Values.containerRules.daemonsets -}}
+    {{- with .Values.containerRules.daemonsets }}
     {{- if .enabled }}
 
-    {{- with .KubeDaemonSetRolloutStuck -}}
+    {{- with .KubeDaemonSetRolloutStuck }}
     - alert: KubeDaemonSetRolloutStuck
       annotations:
         summary: DaemonSet rollout is stuck.
@@ -366,7 +366,7 @@ spec:
         {{- end }}
     {{- end }}
 
-    {{- with .KubeDaemonSetNotScheduled -}}
+    {{- with .KubeDaemonSetNotScheduled }}
     - alert: KubeDaemonSetNotScheduled
       annotations:
         summary: DaemonSet pods are not scheduled.
@@ -387,7 +387,7 @@ spec:
         {{- end }}
     {{- end }}
 
-    {{- with .KubeDaemonSetMisScheduled -}}
+    {{- with .KubeDaemonSetMisScheduled }}
     - alert: KubeDaemonSetMisScheduled
       annotations:
         summary: DaemonSet pods are misscheduled.
@@ -408,10 +408,10 @@ spec:
     {{- end }}
     {{- end }}
 
-    {{- with .Values.containerRules.jobs -}}
+    {{- with .Values.containerRules.jobs }}
     {{- if .enabled }}
 
-    {{- with .KubeJobCompletion -}}
+    {{- with .KubeJobCompletion }}
     - alert: KubeJobCompletion
       annotations:
         summary: Job did not complete in time
@@ -432,7 +432,7 @@ spec:
         {{- end }}
     {{- end }}
 
-    {{- with .KubeJobFailed -}}
+    {{- with .KubeJobFailed }}
     - alert: KubeJobFailed
       annotations:
         summary: Job failed to complete.
@@ -453,10 +453,10 @@ spec:
     {{- end }}
     {{- end }}
 
-    {{- with .Values.containerRules.hpas -}}
+    {{- with .Values.containerRules.hpas }}
     {{- if .enabled }}
     
-    {{- with .KubeHpaReplicasMismatch -}}
+    {{- with .KubeHpaReplicasMismatch }}
     - alert: KubeHpaReplicasMismatch
       annotations:
         summary: HPA has not matched descired number of replicas.
@@ -499,7 +499,7 @@ spec:
         {{- end }}
     {{- end }}
 
-    {{- with .KubeHpaMaxedOut -}}
+    {{- with .KubeHpaMaxedOut }}
     - alert: KubeHpaMaxedOut
       annotations:
         summary: HPA is running at max replicas
