@@ -101,3 +101,15 @@ help you determine the root cause of the issue. Follow the instructions in the
 into the relevant cluster and namespace, and use the `kubectl describe pod <podname>`
 to see the status of the pod and any events related to it. The pod logs may also 
 provide hints as to what may be going wrong.
+
+## Alert-Rules-Selectors-Validity
+
+This alert fires when there may be an error in setting the proper selectors used
+by the other alerts in this chart. It attempts to read a basic metric using the
+selector you provided. For instance, if you have a pod selector that looks for
+`pod=~"foo-bar-.*"` but your pods are actually named `baz-.*`, this alert will
+notify you of the misconfiguration. Read the alert description to see exactly
+which selector is having an issue. Also note that you need to collect the
+metrics that this alert uses. For instance, to test pod selectors, we use the
+`kube_pod_info` metric. If you do not collect this metric, this alert will
+continiously fire.
