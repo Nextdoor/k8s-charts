@@ -2,7 +2,7 @@ apiVersion: v2
 name: stateful-app
 description: Default StatefulSet Helm Chart
 type: application
-version: 1.0.0
+version: 1.0.1
 appVersion: latest
 maintainers:
   - name: diranged
@@ -14,4 +14,4 @@ dependencies:
     condition: istio-alerts.enabled
   - name: nd-common
     version: 0.3.1
-    repository: file://../nd-common
+    repository: https://k8s-charts.nextdoor.com
