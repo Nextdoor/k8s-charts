@@ -236,3 +236,19 @@ containerRules:
   AlertRulesSelectorsValidity:
     severity: warning
     for: 1h
+    # -- These flags let you disable this alarm for particular resources if you
+    # do not depoy that type. For example, if you do not deploy StatefulSets,
+    # only a Deployment, you can disable the StatefulSet check.
+    resources:
+      pods:
+        enabled: true
+      deployments:
+        enabled: true
+      statefulsets:
+        enabled: true
+      daemonsets:
+        enabled: true
+      jobs:
+        enabled: true
+      hpas:
+        enabled: true

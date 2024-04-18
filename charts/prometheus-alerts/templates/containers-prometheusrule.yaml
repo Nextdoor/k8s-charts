@@ -483,6 +483,7 @@ spec:
   - name: {{ .Release.Name }}.{{ .Release.Namespace }}.alertRulesSelectorsValidity
     rules:
     {{ with .Values.containerRules.AlertRulesSelectorsValidity -}}
+    {{- if .resources.daemonsets.enabled }}
     - alert: DaemonsetSelectorValidity
       annotations:
         summary: DaemonsetSelector for prometheus-alerts is invalid
@@ -507,6 +508,8 @@ spec:
         {{- if $values.defaults.additionalRuleLabels }}
         {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
+    {{- if .resources.deployments.enabled }}
     - alert: DeploymentSelectorValidity
       annotations:
         summary: DeploymentSelector for prometheus-alerts is invalid
@@ -531,6 +534,8 @@ spec:
         {{- if $values.defaults.additionalRuleLabels }}
         {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
+    {{- if .resources.pods.enabled }}
     - alert: PodSelectorValidity
       annotations:
         summary: PodSelector for prometheus-alerts is invalid
@@ -556,6 +561,8 @@ spec:
         {{- if $values.defaults.additionalRuleLabels }}
         {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
+    {{- if .resources.jobs.enabled }}
     - alert: JobSelectorValidity
       annotations:
         summary: JobSelector for prometheus-alerts is invalid
@@ -580,6 +587,8 @@ spec:
         {{- if $values.defaults.additionalRuleLabels }}
         {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
+    {{- if .resources.hpas.enabled }}
     - alert: HpaSelectorValidity
       annotations:
         summary: HpaSelector for prometheus-alerts is invalid
@@ -604,6 +613,8 @@ spec:
         {{- if $values.defaults.additionalRuleLabels }}
         {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
+    {{- if .resources.statefulsets.enabled }}
     - alert: StatefulsetSelectorValidity
       annotations:
         summary: StatefulsetSelector for prometheus-alerts is invalid
@@ -628,6 +639,7 @@ spec:
         {{- if $values.defaults.additionalRuleLabels }}
         {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
+    {{- end }}
     {{- end }}
 
 {{- end }}
