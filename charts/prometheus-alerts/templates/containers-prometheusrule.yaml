@@ -1,5 +1,3 @@
-{{ $values              := .Values }}
-{{ $release             := .Release }}
 {{ $daemonsetSelector   := include "prometheus-alerts.daemonsetSelector" . }}
 {{ $deploymentSelector  := include "prometheus-alerts.deploymentSelector" . }}
 {{ $namespaceSelector   := include "prometheus-alerts.namespaceSelector" . }}
@@ -23,13 +21,13 @@ spec:
   {{- with .Values.containerRules.pods }}
   {{- if .enabled }}
 
-  - name: {{ $release.Name }}.{{ $release.Namespace }}.containerRules
+  - name: {{ $.Release.Name }}.{{ $.Release.Namespace }}.containerRules
     rules:
     {{- with .PodContainerTerminated }}
     - alert: PodContainerTerminated
       annotations:
         summary: {{`Pod {{$labels.pod}} in namespace {{$labels.namespace}} in error status`}}
-        runbook_url: {{ $values.defaults.runbookUrl }}#kube-pod-container-terminated
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#kube-pod-container-terminated
         description: >-
           Pod {{`{{$labels.pod}}`}} in namespace {{`{{$labels.namespace}}`}}
           has a container that has been terminated ({{`{{ $value }}`}} times) due to
@@ -47,8 +45,8 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $values.defaults.additionalRuleLabels }}
-        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
     {{ end -}}
 
@@ -56,7 +54,7 @@ spec:
     - alert: PodContainerOOMKilled
       annotations:
         summary: {{`Pod {{$labels.pod}} in namespace {{$labels.namespace}} in error status`}}
-        runbook_url: {{ $values.defaults.runbookUrl }}#kube-pod-container-terminated
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#kube-pod-container-terminated
         description: >-
           Pod {{`{{$labels.pod}}`}} in namespace {{`{{$labels.namespace}}`}}
           has a container that has been terminated ({{`{{ $value }}`}} times) due to
@@ -74,8 +72,8 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $values.defaults.additionalRuleLabels }}
-        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
     {{ end -}}
 
@@ -83,7 +81,7 @@ spec:
     - alert: ContainerWaiting
       annotations:
         summary: Pod container waiting longer than {{ .for }}
-        runbook_url: {{ $values.defaults.runbookUrl }}#alert-name-kubecontainerwaiting
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubecontainerwaiting
         description: >-
           Pod {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.pod {{`}}`}}
           container {{`{{`}} $labels.container{{`}}`}} has been in waiting
@@ -95,8 +93,8 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $values.defaults.additionalRuleLabels }}
-        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -104,7 +102,7 @@ spec:
     - alert: CPUThrottlingHigh
       annotations:
         summary: Processes experience elevated CPU throttling.
-        runbook_url: {{ $values.defaults.runbookUrl }}#CPUThrottlingHigh
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#CPUThrottlingHigh
         description: >-
           {{`{{ $value | humanizePercentage }} throttling of CPU in
           namespace {{ $labels.namespace }} for container {{ $labels.container
@@ -121,8 +119,8 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $values.defaults.additionalRuleLabels }}
-        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -146,7 +144,7 @@ spec:
     - alert: PodCrashLoopBackOff
       annotations:
         summary: {{`Container inside pod {{ $labels.pod }} is crash looping`}}
-        runbook_url: {{ $values.defaults.runbookUrl }}#alert-name-kubepodcrashlooping
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubepodcrashlooping
         description: >-
           {{`Container {{ $labels.container }} within pod {{ $labels.pod }} is in
           a {{ $labels.reason }} state. Investigate because it indicates that
@@ -163,8 +161,8 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $values.defaults.additionalRuleLabels }}
-        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -172,7 +170,7 @@ spec:
     - alert: PodNotReady
       annotations:
         summary: Pod has been in a non-ready state for more than {{ .for }}
-        runbook_url: {{ $values.defaults.runbookUrl }}#alert-name-kubepodnotready
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubepodnotready
         description: >-
           Pod {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.pod {{`}}`}}
           has been in a non-ready state for longer than {{ .for }}.
@@ -197,8 +195,8 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $values.defaults.additionalRuleLabels }}
-        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -212,7 +210,7 @@ spec:
     - alert: KubeDeploymentGenerationMismatch
       annotations:
         summary: Deployment generation mismatch due to possible roll-back
-        runbook_url: {{ $values.defaults.runbookUrl }}#alert-name-kubedeploymentgenerationmismatch
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubedeploymentgenerationmismatch
         description: >-
           Deployment generation for {{`{{`}} $labels.namespace
           {{`}}`}}/{{`{{`}} $labels.deployment {{`}}`}} does not match, this
@@ -225,8 +223,8 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $values.defaults.additionalRuleLabels }}
-        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -240,7 +238,7 @@ spec:
     - alert: KubeStatefulSetReplicasMismatch
       annotations:
         summary: StatefulSet has not matched the expected number of replicas.
-        runbook_url: {{ $values.defaults.runbookUrl }}#alert-name-kubestatefulsetreplicasmismatch
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubestatefulsetreplicasmismatch
         description: >-
           StatefulSet {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}}
           $labels.statefulset {{`}}`}} has not matched the expected number of
@@ -258,8 +256,8 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $values.defaults.additionalRuleLabels }}
-        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -267,7 +265,7 @@ spec:
     - alert: KubeStatefulSetGenerationMismatch
       annotations:
         summary: StatefulSet generation mismatch due to possible roll-back
-        runbook_url: {{ $values.defaults.runbookUrl }}#alert-name-kubestatefulsetgenerationmismatch
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubestatefulsetgenerationmismatch
         description: >-
           StatefulSet generation for {{`{{`}} $labels.namespace
           {{`}}`}}/{{`{{`}} $labels.statefulset {{`}}`}} does not match, this
@@ -280,8 +278,8 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $values.defaults.additionalRuleLabels }}
-        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -289,7 +287,7 @@ spec:
     - alert: KubeStatefulSetUpdateNotRolledOut
       annotations:
         summary: StatefulSet update has not been rolled out.
-        runbook_url: {{ $values.defaults.runbookUrl }}#alert-name-kubestatefulsetupdatenotrolledout
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubestatefulsetupdatenotrolledout
         description: >-
           StatefulSet {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}}
           $labels.statefulset {{`}}`}} update has not been rolled out.
@@ -314,8 +312,8 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $values.defaults.additionalRuleLabels }}
-        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -329,7 +327,7 @@ spec:
     - alert: KubeDaemonSetRolloutStuck
       annotations:
         summary: DaemonSet rollout is stuck.
-        runbook_url: {{ $values.defaults.runbookUrl }}#alert-name-kubedaemonsetrolloutstuck
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubedaemonsetrolloutstuck
         description: >-
           DaemonSet {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}}
           $labels.daemonset {{`}}`}} has not finished or progressed for at
@@ -361,8 +359,8 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $values.defaults.additionalRuleLabels }}
-        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -370,7 +368,7 @@ spec:
     - alert: KubeDaemonSetNotScheduled
       annotations:
         summary: DaemonSet pods are not scheduled.
-        runbook_url: {{ $values.defaults.runbookUrl }}#alert-name-kubedaemonsetnotscheduled
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubedaemonsetnotscheduled
         description: >-
           '{{`{{`}} $value {{`}}`}} Pods of DaemonSet {{`{{`}}
           $labels.namespace {{`}}`}}/{{`{{`}} $labels.daemonset {{`}}`}} are
@@ -382,8 +380,8 @@ spec:
       for: 10m
       labels:
         severity: {{ .severity }}
-        {{- if $values.defaults.additionalRuleLabels }}
-        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -391,7 +389,7 @@ spec:
     - alert: KubeDaemonSetMisScheduled
       annotations:
         summary: DaemonSet pods are misscheduled.
-        runbook_url: {{ $values.defaults.runbookUrl }}#alert-name-kubedaemonsetmisscheduled
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubedaemonsetmisscheduled
         description: >-
           '{{`{{`}} $value {{`}}`}} Pods of DaemonSet {{`{{`}}
           $labels.namespace {{`}}`}}/{{`{{`}} $labels.daemonset {{`}}`}} are
@@ -400,8 +398,8 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $values.defaults.additionalRuleLabels }}
-        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -415,7 +413,7 @@ spec:
     - alert: KubeJobCompletion
       annotations:
         summary: Job did not complete in time
-        runbook_url: {{ $values.defaults.runbookUrl }}#alert-name-kubejobcompletion
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubejobcompletion
         description: >-
           Job {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.job_name
           {{`}}`}} is taking more than 12 hours to complete.
@@ -427,8 +425,8 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $values.defaults.additionalRuleLabels }}
-        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -436,7 +434,7 @@ spec:
     - alert: KubeJobFailed
       annotations:
         summary: Job failed to complete.
-        runbook_url: {{ $values.defaults.runbookUrl }}#alert-name-kubejobfailed
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubejobfailed
         description: >-
           Job {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.job_name
           {{`}}`}} failed to complete. Removing failed job after investigation
@@ -445,8 +443,8 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $values.defaults.additionalRuleLabels }}
-        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -460,7 +458,7 @@ spec:
     - alert: KubeHpaReplicasMismatch
       annotations:
         summary: HPA has not matched descired number of replicas.
-        runbook_url: {{ $values.defaults.runbookUrl }}#alert-name-kubehpareplicasmismatch
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubehpareplicasmismatch
         description: >-
           HPA {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.hpa {{`}}`}}
           has not matched the desired number of replicas for longer than 15
@@ -486,8 +484,8 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $values.defaults.additionalRuleLabels }}
-        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -495,7 +493,7 @@ spec:
     - alert: KubeHpaMaxedOut
       annotations:
         summary: HPA is running at max replicas
-        runbook_url: {{ $values.defaults.runbookUrl }}#alert-name-kubehpamaxedout
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubehpamaxedout
         description: >-
           HPA {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.hpa {{`}}`}}
           has been running at max replicas for longer than 15 minutes.
@@ -506,8 +504,8 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $values.defaults.additionalRuleLabels }}
-        {{ toYaml $values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
     {{- end }}
 
