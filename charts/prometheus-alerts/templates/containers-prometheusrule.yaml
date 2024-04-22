@@ -454,7 +454,7 @@ spec:
 
     {{- with .Values.containerRules.hpas }}
     {{- if .enabled }}
-    
+
     {{- with .KubeHpaReplicasMismatch }}
     - alert: KubeHpaReplicasMismatch
       annotations:
