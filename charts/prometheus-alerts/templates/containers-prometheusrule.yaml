@@ -1,10 +1,11 @@
-{{ $daemonsetSelector   := include "prometheus-alerts.daemonsetSelector" . }}
-{{ $deploymentSelector  := include "prometheus-alerts.deploymentSelector" . }}
-{{ $namespaceSelector   := include "prometheus-alerts.namespaceSelector" . }}
-{{ $podSelector         := include "prometheus-alerts.podSelector" . }}
-{{ $jobSelector         := include "prometheus-alerts.jobSelector" . }}
-{{ $hpaSelector         := include "prometheus-alerts.hpaSelector" . }}
-{{ $statefulsetSelector := include "prometheus-alerts.statefulsetSelector" . }}
+{{- include "prometheus-alerts.check_migration_alerts_grouped_by_resource" . }}
+{{- $daemonsetSelector   := include "prometheus-alerts.daemonsetSelector" . }}
+{{- $deploymentSelector  := include "prometheus-alerts.deploymentSelector" . }}
+{{- $namespaceSelector   := include "prometheus-alerts.namespaceSelector" . }}
+{{- $podSelector         := include "prometheus-alerts.podSelector" . }}
+{{- $jobSelector         := include "prometheus-alerts.jobSelector" . }}
+{{- $hpaSelector         := include "prometheus-alerts.hpaSelector" . }}
+{{- $statefulsetSelector := include "prometheus-alerts.statefulsetSelector" . }}
 
 {{- if .Values.containerRules.enabled }}
 apiVersion: monitoring.coreos.com/v1
