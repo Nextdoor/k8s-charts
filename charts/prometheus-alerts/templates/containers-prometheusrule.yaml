@@ -21,7 +21,6 @@ spec:
   groups:
   {{- with .Values.containerRules.pods }}
   {{- if .enabled }}
-
   - name: {{ $.Release.Name }}.{{ $.Release.Namespace }}.containerRules
     rules:
     {{- with .PodContainerTerminated }}
@@ -49,7 +48,7 @@ spec:
         {{- if $.Values.defaults.additionalRuleLabels }}
         {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
-    {{ end -}}
+    {{- end }}
 
     {{- with .PodContainerOOMKilled }}
     - alert: PodContainerOOMKilled
@@ -76,7 +75,7 @@ spec:
         {{- if $.Values.defaults.additionalRuleLabels }}
         {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
-    {{ end -}}
+    {{- end }}
 
     {{- with .ContainerWaiting }}
     - alert: ContainerWaiting
@@ -128,14 +127,14 @@ spec:
   {{- end }}
   {{- end }}
 
-  #
-  # Original Source:
-  #    https://raw.githubusercontent.com/prometheus-community/helm-charts/kube-prometheus-stack-13.3.0/charts/kube-prometheus-stack/templates/prometheus/rules-1.14/kubernetes-apps.yaml
-  #
-  # This file has been modified so that the individual alarms are configurable.
-  # The default values for thresholds, periods and severities made these alarms
-  # too limited for us.
-  #
+  {{- /*
+    Original Source:
+      https://raw.githubusercontent.com/prometheus-community/helm-charts/kube-prometheus-stack-13.3.0/charts/kube-prometheus-stack/templates/prometheus/rules-1.14/kubernetes-apps.yaml
+    
+    This file has been modified so that the individual alarms are configurable.
+    The default values for thresholds, periods and severities made these alarms
+    too limited for us.
+  */}}
   - name: {{ .Release.Name }}.{{ .Release.Namespace }}.kubernetesAppsRules
     rules:
     {{- with .Values.containerRules.pods }}
