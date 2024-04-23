@@ -1,5 +1,4 @@
 {{- if .Values.sidecar.enabled }}
-{{- $global := . }}
 apiVersion: networking.istio.io/v1beta1
 kind: Sidecar
 metadata:
@@ -29,7 +28,7 @@ spec:
     can be customized though.
     */}}
     - # Default CatchAll
-      captureMode: {{ $global.Values.sidecar.catchAllCaptureMode }}
+      captureMode: {{ $.Values.sidecar.catchAllCaptureMode }}
       hosts:
-        {{- toYaml $global.Values.sidecar.catchAllHosts | nindent 8 }}
+        {{- toYaml $.Values.sidecar.catchAllHosts | nindent 8 }}
 {{- end }}

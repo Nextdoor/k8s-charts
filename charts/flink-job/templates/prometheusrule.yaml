@@ -1,6 +1,5 @@
 {{- if .Values.alerts.enabled -}}
 
-{{ $values    := .Values }}
 {{ $cluster   := .Values.fullnameOverride }}
 {{ $namespace := .Release.Namespace }}
 
@@ -15,7 +14,7 @@ spec:
     - alert: NoFlinkJobRunning
       annotations:
         summary: No Flink job running in this job cluster.
-        runbook_url: "{{ $values.defaults.runbookUrl }}#noflinkjobrunning"
+        runbook_url: "{{ $.Values.defaults.runbookUrl }}#noflinkjobrunning"
         description: >-
           No job is running in {{ template "flink-job-cluster.fullname" . }}.
       expr: >-
@@ -26,7 +25,7 @@ spec:
     - alert: FlinkJobOutage
       annotations:
         summary: Flink job is down
-        runbook_url: "{{ $values.defaults.runbookUrl }}#flinkjoboutage"
+        runbook_url: "{{ $.Values.defaults.runbookUrl }}#flinkjoboutage"
         description: >-
           The job running in {{ template "flink-job-cluster.fullname" . }} is down for more than 10s.
       expr: >-
@@ -40,7 +39,7 @@ spec:
     - alert: FlinkJobTooManyRestarts
       annotations:
         summary: Flink job has too many restarts
-        runbook_url: "{{ $values.defaults.runbookUrl }}#flinkjobtoomanyrestarts"
+        runbook_url: "{{ $.Values.defaults.runbookUrl }}#flinkjobtoomanyrestarts"
         description: >-
           The job running in {{ template "flink-job-cluster.fullname" . }} is having too many restarts.
       expr: >-
@@ -54,7 +53,7 @@ spec:
     - alert: FlinkCheckpointFailing
       annotations:
         summary: Flink fails to capture the checkpoint.
-        runbook_url: "{{ $values.defaults.runbookUrl }}#flinkcheckpointfailing"
+        runbook_url: "{{ $.Values.defaults.runbookUrl }}#flinkcheckpointfailing"
         description: >-
           The job manager in {{ template "flink-job-cluster.fullname" . }} fails to capture checkpoint.
       expr: >-
