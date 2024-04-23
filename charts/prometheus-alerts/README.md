@@ -1,4 +1,3 @@
-
 # prometheus-alerts
 
 Helm Chart that provisions a series of common Prometheus Alerts
@@ -19,6 +18,19 @@ those changes in the `charts/simple-app`, `charts/daemonset-app` and
 `charts/stateful-app` charts.
 
 ## Upgrade Notes
+
+### 1.5.x -> 1.6.x
+
+**BREAKING: The AlertSelectorValidity alert rules requires kube-state-metrics.**
+
+An alert was introduced in that requires kube-state-metrics to be installed in the cluster. If
+you do not have kube-state-metrics installed, you will need to disable the alert in your values
+file.
+
+We have added a new metric which attempts to detect if you have misconfigured
+your selectors. After upgrading, you may get alerted. You should respond to the
+alert appropriately by reading the alert information and making changes to your
+selectors.
 
 ### 1.4.x -> 1.5.x
 
@@ -103,6 +115,8 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 | containerRules.jobs.KubeJobFailed.for | string | `"15m"` |  |
 | containerRules.jobs.KubeJobFailed.severity | string | `"warning"` |  |
 | containerRules.jobs.enabled | bool | `true` | Enables the Job resource rules |
+| containerRules.meta | object | `{"AlertRulesSelectorsValidity":{"for":"1h","severity":"warning"}}` | This is not a real resource type, but used to hold additional alarms for multiple resource types. |
+| containerRules.meta.AlertRulesSelectorsValidity | object | `{"for":"1h","severity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
 | containerRules.pods.CPUThrottlingHigh | object | `{"for":"15m","severity":"warning","threshold":5}` | Container is being throttled by the CGroup - needs more resources. This value is appropriate for applications that are highly sensitive to request latency. Insensitive workloads might need to raise this percentage to avoid alert noise. |
 | containerRules.pods.ContainerWaiting.for | string | `"1h"` |  |
 | containerRules.pods.ContainerWaiting.severity | string | `"warning"` |  |
