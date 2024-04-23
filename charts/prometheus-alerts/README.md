@@ -3,7 +3,7 @@
 
 Helm Chart that provisions a series of common Prometheus Alerts
 
-![Version: 1.4.1](https://img.shields.io/badge/Version-1.4.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
+![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -19,6 +19,21 @@ those changes in the `charts/simple-app`, `charts/daemonset-app` and
 `charts/stateful-app` charts.
 
 ## Upgrade Notes
+
+### 1.4.x -> 1.5.x
+
+**BREAKING: Values files schema has been updated to group alerts by resource type**
+
+Motivation: We have regrouped alerts to be able to turn them on and off by
+resource type.
+
+As an example:
+
+> Value `.Values.containerRules.ContainerWaiting` has been migrated to
+> `.Values.containerRules.pods.ContainerWaiting`. Please update your values
+> files.
+
+The helm chart will produce errors if you do not migrate your values files.
 
 ### 1.1.x -> 1.2.x
 
@@ -68,35 +83,41 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 | alertManager.repeatInterval | string | `"1h"` | How long to wait before sending a notification again if it has already been sent successfully for an alert. (Usually ~3h or more). |
 | chart_name | string | `"prometheus-rules"` |  |
 | chart_source | string | `"https://github.com/Nextdoor/k8s-charts"` |  |
-| containerRules.CPUThrottlingHigh | object | `{"for":"15m","severity":"warning","threshold":5}` | Container is being throttled by the CGroup - needs more resources. This value is appropriate for applications that are highly sensitive to request latency. Insensitive workloads might need to raise this percentage to avoid alert noise. |
-| containerRules.ContainerWaiting.for | string | `"1h"` |  |
-| containerRules.ContainerWaiting.severity | string | `"warning"` |  |
-| containerRules.KubeDaemonSetMisScheduled.for | string | `"15m"` |  |
-| containerRules.KubeDaemonSetMisScheduled.severity | string | `"warning"` |  |
-| containerRules.KubeDaemonSetNotScheduled.for | string | `"10m"` |  |
-| containerRules.KubeDaemonSetNotScheduled.severity | string | `"warning"` |  |
-| containerRules.KubeDaemonSetRolloutStuck.for | string | `"15m"` |  |
-| containerRules.KubeDaemonSetRolloutStuck.severity | string | `"warning"` |  |
-| containerRules.KubeDeploymentGenerationMismatch | object | `{"for":"15m","severity":"warning"}` | Deployment generation mismatch due to possible roll-back |
-| containerRules.KubeHpaMaxedOut.for | string | `"15m"` |  |
-| containerRules.KubeHpaMaxedOut.severity | string | `"warning"` |  |
-| containerRules.KubeHpaReplicasMismatch.for | string | `"15m"` |  |
-| containerRules.KubeHpaReplicasMismatch.severity | string | `"warning"` |  |
-| containerRules.KubeJobCompletion.for | string | `"12h"` |  |
-| containerRules.KubeJobCompletion.severity | string | `"warning"` |  |
-| containerRules.KubeJobFailed.for | string | `"15m"` |  |
-| containerRules.KubeJobFailed.severity | string | `"warning"` |  |
-| containerRules.KubeStatefulSetGenerationMismatch.for | string | `"15m"` |  |
-| containerRules.KubeStatefulSetGenerationMismatch.severity | string | `"warning"` |  |
-| containerRules.KubeStatefulSetReplicasMismatch.for | string | `"15m"` |  |
-| containerRules.KubeStatefulSetReplicasMismatch.severity | string | `"warning"` |  |
-| containerRules.KubeStatefulSetUpdateNotRolledOut.for | string | `"15m"` |  |
-| containerRules.KubeStatefulSetUpdateNotRolledOut.severity | string | `"warning"` |  |
-| containerRules.PodContainerOOMKilled | object | `{"for":"1m","over":"60m","severity":"warning","threshold":0}` | Sums up all of the OOMKilled events per pod over the $over time (60m). If that number breaches the $threshold (0) for $for (1m), then it will alert. |
-| containerRules.PodContainerTerminated | object | `{"for":"1m","over":"10m","reasons":["ContainerCannotRun","DeadlineExceeded"],"severity":"warning","threshold":0}` | Monitors Pods for Containers that are terminated either for unexpected reasons like ContainerCannotRun. If that number breaches the $threshold (1) for $for (1m), then it will alert. |
-| containerRules.PodCrashLoopBackOff | object | `{"for":"10m","severity":"warning"}` | Pod is in a CrashLoopBackOff state and is not becoming healthy. |
-| containerRules.PodNotReady | object | `{"for":"15m","severity":"warning"}` | Pod has been in a non-ready state for more than a specific threshold |
+| containerRules.daemonsets.KubeDaemonSetMisScheduled.for | string | `"15m"` |  |
+| containerRules.daemonsets.KubeDaemonSetMisScheduled.severity | string | `"warning"` |  |
+| containerRules.daemonsets.KubeDaemonSetNotScheduled.for | string | `"10m"` |  |
+| containerRules.daemonsets.KubeDaemonSetNotScheduled.severity | string | `"warning"` |  |
+| containerRules.daemonsets.KubeDaemonSetRolloutStuck.for | string | `"15m"` |  |
+| containerRules.daemonsets.KubeDaemonSetRolloutStuck.severity | string | `"warning"` |  |
+| containerRules.daemonsets.enabled | bool | `true` | Enables the DaemonSet resource rules |
+| containerRules.deployments.KubeDeploymentGenerationMismatch | object | `{"for":"15m","severity":"warning"}` | Deployment generation mismatch due to possible roll-back |
+| containerRules.deployments.enabled | bool | `true` | Enables the Deployment resource rules |
 | containerRules.enabled | bool | `true` | Whether or not to enable the container rules template |
+| containerRules.hpas.KubeHpaMaxedOut.for | string | `"15m"` |  |
+| containerRules.hpas.KubeHpaMaxedOut.severity | string | `"warning"` |  |
+| containerRules.hpas.KubeHpaReplicasMismatch.for | string | `"15m"` |  |
+| containerRules.hpas.KubeHpaReplicasMismatch.severity | string | `"warning"` |  |
+| containerRules.hpas.enabled | bool | `true` | Enables the HorizontalPodAutoscaler resource rules |
+| containerRules.jobs.KubeJobCompletion.for | string | `"12h"` |  |
+| containerRules.jobs.KubeJobCompletion.severity | string | `"warning"` |  |
+| containerRules.jobs.KubeJobFailed.for | string | `"15m"` |  |
+| containerRules.jobs.KubeJobFailed.severity | string | `"warning"` |  |
+| containerRules.jobs.enabled | bool | `true` | Enables the Job resource rules |
+| containerRules.pods.CPUThrottlingHigh | object | `{"for":"15m","severity":"warning","threshold":5}` | Container is being throttled by the CGroup - needs more resources. This value is appropriate for applications that are highly sensitive to request latency. Insensitive workloads might need to raise this percentage to avoid alert noise. |
+| containerRules.pods.ContainerWaiting.for | string | `"1h"` |  |
+| containerRules.pods.ContainerWaiting.severity | string | `"warning"` |  |
+| containerRules.pods.PodContainerOOMKilled | object | `{"for":"1m","over":"60m","severity":"warning","threshold":0}` | Sums up all of the OOMKilled events per pod over the $over time (60m). If that number breaches the $threshold (0) for $for (1m), then it will alert. |
+| containerRules.pods.PodContainerTerminated | object | `{"for":"1m","over":"10m","reasons":["ContainerCannotRun","DeadlineExceeded"],"severity":"warning","threshold":0}` | Monitors Pods for Containers that are terminated either for unexpected reasons like ContainerCannotRun. If that number breaches the $threshold (1) for $for (1m), then it will alert. |
+| containerRules.pods.PodCrashLoopBackOff | object | `{"for":"10m","severity":"warning"}` | Pod is in a CrashLoopBackOff state and is not becoming healthy. |
+| containerRules.pods.PodNotReady | object | `{"for":"15m","severity":"warning"}` | Pod has been in a non-ready state for more than a specific threshold |
+| containerRules.pods.enabled | bool | `true` | Enables the Pod resource rules |
+| containerRules.statefulsets.KubeStatefulSetGenerationMismatch.for | string | `"15m"` |  |
+| containerRules.statefulsets.KubeStatefulSetGenerationMismatch.severity | string | `"warning"` |  |
+| containerRules.statefulsets.KubeStatefulSetReplicasMismatch.for | string | `"15m"` |  |
+| containerRules.statefulsets.KubeStatefulSetReplicasMismatch.severity | string | `"warning"` |  |
+| containerRules.statefulsets.KubeStatefulSetUpdateNotRolledOut.for | string | `"15m"` |  |
+| containerRules.statefulsets.KubeStatefulSetUpdateNotRolledOut.severity | string | `"warning"` |  |
+| containerRules.statefulsets.enabled | bool | `true` | Enables the StatefulSet resource rules |
 | defaults.additionalRuleLabels | `map` | `{}` | Additional custom labels attached to every PrometheusRule |
 | defaults.daemonsetNameSelector | `string` | `"{{ .Release.Name }}-.*"` | Pattern used to scope down the DaemonSet alerts to pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all the DaemonSets in the namespace. This string is run through the `tpl` function. |
 | defaults.deploymentNameSelector | `string` | `"{{ .Release.Name }}-.*"` | Pattern used to scope down the Deployment alerts to pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all the Deployments in the namespace. This string is run through the `tpl` function. |

@@ -19,6 +19,21 @@ those changes in the `charts/simple-app`, `charts/daemonset-app` and
 
 ## Upgrade Notes
 
+### 1.4.x -> 1.5.x
+
+**BREAKING: Values files schema has been updated to group alerts by resource type**
+
+Motivation: We have regrouped alerts to be able to turn them on and off by
+resource type.
+
+As an example:
+
+> Value `.Values.containerRules.ContainerWaiting` has been migrated to
+> `.Values.containerRules.pods.ContainerWaiting`. Please update your values
+> files.
+
+The helm chart will produce errors if you do not migrate your values files.
+
 ### 1.1.x -> 1.2.x
 
 **CHANGE: Resource Names have changed**
