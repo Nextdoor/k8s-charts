@@ -21,11 +21,7 @@ those changes in the `charts/simple-app`, `charts/daemonset-app` and
 
 ### 1.5.x -> 1.6.x
 
-**BREAKING: The AlertSelectorValidity alert rules requires kube-state-metrics.**
-
-An alert was introduced in that requires kube-state-metrics to be installed in the cluster. If
-you do not have kube-state-metrics installed, you will need to disable the alert in your values
-file.
+**CHANGE: The AlertSelectorValidity alert rules added.**
 
 We have added a new metric which attempts to detect if you have misconfigured
 your selectors. After upgrading, you may get alerted. You should respond to the

@@ -129,20 +129,17 @@ containerRules:
   # -- Whether or not to enable the container rules template
   enabled: true
 
-  # -- This is not a real resource type, but used to hold additional alarms for
-  # multiple resource types.
-  meta:
+  pods:
+    # -- Enables the Pod resource rules
+    enabled: true
+
     # -- Does a basic lookup using the defined selectors to see if we can see any
     # info for a given selector. This is the "watcher for the watcher". If we get
     # alerted by this, we likely have a bad selector and our alerts are not going
     # to ever fire.
-    AlertRulesSelectorsValidity:
+    PodSelectorValidity:
       severity: warning
       for: 1h
-
-  pods:
-    # -- Enables the Pod resource rules
-    enabled: true
 
     # -- Monitors Pods for Containers that are terminated either for unexpected
     # reasons like ContainerCannotRun. If that number breaches the $threshold (1)
@@ -193,6 +190,14 @@ containerRules:
     # -- Enables the Deployment resource rules
     enabled: true
 
+    # -- Does a basic lookup using the defined selectors to see if we can see any
+    # info for a given selector. This is the "watcher for the watcher". If we get
+    # alerted by this, we likely have a bad selector and our alerts are not going
+    # to ever fire.
+    DeploymentSelectorValidity:
+      severity: warning
+      for: 1h
+
     # -- Deployment generation mismatch due to possible roll-back
     KubeDeploymentGenerationMismatch:
       severity: warning
@@ -201,6 +206,14 @@ containerRules:
   statefulsets:
     # -- Enables the StatefulSet resource rules
     enabled: true
+
+    # -- Does a basic lookup using the defined selectors to see if we can see any
+    # info for a given selector. This is the "watcher for the watcher". If we get
+    # alerted by this, we likely have a bad selector and our alerts are not going
+    # to ever fire.
+    StatefulsetSelectorValidity:
+      severity: warning
+      for: 1h
 
     # Deployment has not matched the expected number of replicas
     KubeStatefulSetReplicasMismatch:
@@ -221,6 +234,14 @@ containerRules:
     # -- Enables the DaemonSet resource rules
     enabled: true
 
+    # -- Does a basic lookup using the defined selectors to see if we can see any
+    # info for a given selector. This is the "watcher for the watcher". If we get
+    # alerted by this, we likely have a bad selector and our alerts are not going
+    # to ever fire.
+    DaemonsetSelectorValidity:
+      severity: warning
+      for: 1h
+
     # DaemonSet rollout is stuck
     KubeDaemonSetRolloutStuck:
       severity: warning
@@ -240,6 +261,14 @@ containerRules:
     # -- Enables the Job resource rules
     enabled: true
 
+    # -- Does a basic lookup using the defined selectors to see if we can see any
+    # info for a given selector. This is the "watcher for the watcher". If we get
+    # alerted by this, we likely have a bad selector and our alerts are not going
+    # to ever fire.
+    JobSelectorValidity:
+      severity: warning
+      for: 1h
+
     # Job did not complete in time
     KubeJobCompletion:
       severity: warning
@@ -253,6 +282,14 @@ containerRules:
   hpas:
     # -- Enables the HorizontalPodAutoscaler resource rules
     enabled: true
+
+    # -- Does a basic lookup using the defined selectors to see if we can see any
+    # info for a given selector. This is the "watcher for the watcher". If we get
+    # alerted by this, we likely have a bad selector and our alerts are not going
+    # to ever fire.
+    HpaSelectorValidity:
+      severity: warning
+      for: 1h
 
     # HPA has not matched descired number of replicas
     KubeHpaReplicasMismatch:
