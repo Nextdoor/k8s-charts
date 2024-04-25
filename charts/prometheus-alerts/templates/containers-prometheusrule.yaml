@@ -210,7 +210,7 @@ spec:
           Please check the PodSelector applied in your prometheus-alerts chart
           is correct to ensure you are properly selecting your pods so that you
           will be alerted for pod issues. The current selector is
-          `{podSelector="{{ $podSelector }}", namespaceSelector="{{ $namespaceSelector }}"}`.
+          `{{ $podSelector }}, {{ $namespaceSelector }}`.
       expr: |-
         (
           count(
@@ -266,7 +266,7 @@ spec:
           Please check the DeploymentSelector applied in your prometheus-alerts chart
           is correct to ensure you are properly selecting your deployments so that you
           will be alerted for deployment issues. The current selector is
-          `{deploymentSelector="{{ $deploymentSelector }}"}`.
+          `{{ $deploymentSelector }}`.
       expr: |-
         (
           count(
@@ -382,7 +382,7 @@ spec:
           Please check the StatefulsetSelector applied in your prometheus-alerts chart
           is correct to ensure you are properly selecting your statefulsets so that you
           will be alerted for statefulset issues. The current selector is
-          `{statefulsetSelector="{{ $statefulsetSelector }}"}`.
+          `{{ $statefulsetSelector }}`.
       expr: |-
         (
           count(
@@ -495,7 +495,7 @@ spec:
           Please check the DaemonsetSelector applied in your prometheus-alerts chart
           is correct to ensure you are properly selecting your daemonsets so that you
           will be alerted for daemonset issues. The current selector is
-          `{daemonsetSelector="{{ $daemonsetSelector }}"}`.
+          `{{ $daemonsetSelector }}`.
       expr: |-
         (
           count(
@@ -567,7 +567,7 @@ spec:
           Please check the JobSelector applied in your prometheus-alerts chart
           is correct to ensure you are properly selecting your jobs so that you
           will be alerted for job issues. The current selector is
-          `{jobSelector="{{ $jobSelector }}"}`.
+          `{{ $jobSelector }}`.
       expr: |-
         (
           count(
@@ -655,7 +655,7 @@ spec:
           Please check the HpaSelector applied in your prometheus-alerts chart
           is correct to ensure you are properly selecting your hpas so that you
           will be alerted for hpa issues. The current selector is
-          `{hpaSelector="{{ $hpaSelector }}"}`.
+          `{{ $hpaSelector }}`.
       expr: |-
         (
           count(
