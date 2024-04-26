@@ -1,5 +1,5 @@
-
 {{ template "chart.header" . }}
+
 {{ template "chart.description" . }}
 
 {{ template "chart.versionBadge" .  }}{{ template "chart.typeBadge" .  }}{{ template "chart.appVersionBadge" .  }}
@@ -18,6 +18,15 @@ those changes in the `charts/simple-app`, `charts/daemonset-app` and
 `charts/stateful-app` charts.
 
 ## Upgrade Notes
+
+### 1.5.x -> 1.6.x
+
+**CHANGE: The AlertSelectorValidity alert rules added.**
+
+We have added a new metric which attempts to detect if you have misconfigured
+your selectors. After upgrading, you may get alerted. You should respond to the
+alert appropriately by reading the alert information and making changes to your
+selectors.
 
 ### 1.4.x -> 1.5.x
 

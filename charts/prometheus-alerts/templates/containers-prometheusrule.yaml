@@ -200,6 +200,35 @@ spec:
         {{- end }}
     {{- end }}
 
+    {{ with .PodSelectorValidity -}}
+    - alert: PodSelectorValidity
+      annotations:
+        summary: PodSelector for prometheus-alerts is invalid
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#Alert-Rules-Selectors-Validity
+        description: >-
+          The PodSelector used for pod level alerts did not return any data.
+          Please check the PodSelector applied in your prometheus-alerts chart
+          is correct to ensure you are properly selecting your pods so that you
+          will be alerted for pod issues. The current selector is
+          `{{ $podSelector }}, {{ $namespaceSelector }}`.
+      expr: |-
+        (
+          count(
+            kube_pod_info{
+              {{ $podSelector }},
+              {{ $namespaceSelector }}
+            }
+          ) or on() vector(0)
+        ) == 0
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        namespace: {{ $.Release.Namespace }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- end }}
+    {{- end }}
+
     {{- end }}
     {{- end }}
 
@@ -223,6 +252,34 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- end }}
+    {{- end }}
+
+    {{ with .DeploymentSelectorValidity -}}
+    - alert: DeploymentSelectorValidity
+      annotations:
+        summary: DeploymentSelector for prometheus-alerts is invalid
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#Alert-Rules-Selectors-Validity
+        description: >-
+          The DeploymentSelector used for deployment level alerts did not return any data.
+          Please check the DeploymentSelector applied in your prometheus-alerts chart
+          is correct to ensure you are properly selecting your deployments so that you
+          will be alerted for deployment issues. The current selector is
+          `{{ $deploymentSelector }}`.
+      expr: |-
+        (
+          count(
+            kube_deployment_labels{
+              {{ $deploymentSelector }}
+            }
+          ) or on() vector(0)
+        ) == 0
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        namespace: {{ $.Release.Namespace }}
         {{- if $.Values.defaults.additionalRuleLabels }}
         {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
@@ -317,6 +374,34 @@ spec:
         {{- end }}
     {{- end }}
 
+    {{ with .StatefulsetSelectorValidity -}}
+    - alert: StatefulsetSelectorValidity
+      annotations:
+        summary: StatefulsetSelector for prometheus-alerts is invalid
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#Alert-Rules-Selectors-Validity
+        description: >-
+          The StatefulsetSelector used for statefulset level alerts did not return any data.
+          Please check the StatefulsetSelector applied in your prometheus-alerts chart
+          is correct to ensure you are properly selecting your statefulsets so that you
+          will be alerted for statefulset issues. The current selector is
+          `{{ $statefulsetSelector }}`.
+      expr: |-
+        (
+          count(
+            kube_statefulset_created{
+              {{ $statefulsetSelector }}
+            }
+          ) or on() vector(0)
+        ) == 0
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        namespace: {{ $.Release.Namespace }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- end }}
+    {{- end }}
+
     {{- end }}
     {{- end }}
 
@@ -403,6 +488,34 @@ spec:
         {{- end }}
     {{- end }}
 
+    {{ with .DaemonsetSelectorValidity -}}
+    - alert: DaemonsetSelectorValidity
+      annotations:
+        summary: DaemonsetSelector for prometheus-alerts is invalid
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#Alert-Rules-Selectors-Validity
+        description: >-
+          The DaemonsetSelector used for daemonset level alerts did not return any data.
+          Please check the DaemonsetSelector applied in your prometheus-alerts chart
+          is correct to ensure you are properly selecting your daemonsets so that you
+          will be alerted for daemonset issues. The current selector is
+          `{{ $daemonsetSelector }}`.
+      expr: |-
+        (
+          count(
+            kube_daemonset_labels{
+              {{ $daemonsetSelector }}
+            }
+          ) or on() vector(0)
+        ) == 0
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        namespace: {{ $.Release.Namespace }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- end }}
+    {{- end }}
+
     {{- end }}
     {{- end }}
 
@@ -443,6 +556,34 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- end }}
+    {{- end }}
+
+    {{ with .JobSelectorValidity -}}
+    - alert: JobSelectorValidity
+      annotations:
+        summary: JobSelector for prometheus-alerts is invalid
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#Alert-Rules-Selectors-Validity
+        description: >-
+          The JobSelector used for job level alerts did not return any data.
+          Please check the JobSelector applied in your prometheus-alerts chart
+          is correct to ensure you are properly selecting your jobs so that you
+          will be alerted for job issues. The current selector is
+          `{{ $jobSelector }}`.
+      expr: |-
+        (
+          count(
+            kube_job_info{
+              {{ $jobSelector }}
+            }
+          ) or on() vector(0)
+        ) == 0
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        namespace: {{ $.Release.Namespace }}
         {{- if $.Values.defaults.additionalRuleLabels }}
         {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
@@ -504,6 +645,34 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
+        {{- if $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- end }}
+    {{- end }}
+
+    {{ with .HpaSelectorValidity -}}
+    - alert: HpaSelectorValidity
+      annotations:
+        summary: HpaSelector for prometheus-alerts is invalid
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#Alert-Rules-Selectors-Validity
+        description: >-
+          The HpaSelector used for hpa level alerts did not return any data.
+          Please check the HpaSelector applied in your prometheus-alerts chart
+          is correct to ensure you are properly selecting your hpas so that you
+          will be alerted for hpa issues. The current selector is
+          `{{ $hpaSelector }}`.
+      expr: |-
+        (
+          count(
+            kube_horizontalpodautoscaler_info{
+              {{ $hpaSelector }}
+            }
+          ) or on() vector(0)
+        ) == 0
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        namespace: {{ $.Release.Namespace }}
         {{- if $.Values.defaults.additionalRuleLabels }}
         {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
         {{- end }}
