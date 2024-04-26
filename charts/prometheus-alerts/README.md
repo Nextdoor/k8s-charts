@@ -2,7 +2,7 @@
 
 Helm Chart that provisions a series of common Prometheus Alerts
 
-![Version: 1.6.0](https://img.shields.io/badge/Version-1.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
+![Version: 1.7.0](https://img.shields.io/badge/Version-1.7.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -18,6 +18,16 @@ those changes in the `charts/simple-app`, `charts/daemonset-app` and
 `charts/stateful-app` charts.
 
 ## Upgrade Notes
+
+### 1.6.x -> 1.7.x
+
+**CHANGE: Default selectors changed to be more generic.**
+
+We have changed the default selectors to be more generic. This means that if you
+deploy multiple applications to the same namespace, and one of those
+applications uses this chart, then by default all applications will be monitored
+by these alerts. You can change this behavior by modifying the
+.Values.defaults.*NameSelector regex values.
 
 ### 1.5.x -> 1.6.x
 
@@ -133,13 +143,13 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 | containerRules.statefulsets.StatefulsetSelectorValidity | object | `{"for":"1h","severity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
 | containerRules.statefulsets.enabled | bool | `true` | Enables the StatefulSet resource rules |
 | defaults.additionalRuleLabels | `map` | `{}` | Additional custom labels attached to every PrometheusRule |
-| defaults.daemonsetNameSelector | `string` | `"{{ .Release.Name }}-.*"` | Pattern used to scope down the DaemonSet alerts to pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all the DaemonSets in the namespace. This string is run through the `tpl` function. |
-| defaults.deploymentNameSelector | `string` | `"{{ .Release.Name }}-.*"` | Pattern used to scope down the Deployment alerts to pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all the Deployments in the namespace. This string is run through the `tpl` function. |
-| defaults.hpaNameSelector | `string` | `"{{ .Release.Name }}-.*"` | Pattern used to scope down the HorizontalPodAutoscaler alerts to pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all the HorizontalPodAutoscalers in the namespace. This string is run through the `tpl` function. |
-| defaults.jobNameSelector | `string` | `"{{ .Release.Name }}-.*"` | Pattern used to scope down the alerts to only Jobs that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all Jobs in the namespace. This string is run through the `tpl` function. |
-| defaults.podNameSelector | `string` | `"{{ .Release.Name }}-.*"` | Pattern used to scope down the alerts to only Pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all Pods in the namespace. This string is run through the `tpl` function. |
+| defaults.daemonsetNameSelector | `string` | `".*"` | Pattern used to scope down the DaemonSet alerts to pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all the DaemonSets in the namespace. This string is run through the `tpl` function. |
+| defaults.deploymentNameSelector | `string` | `".*"` | Pattern used to scope down the Deployment alerts to pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all the Deployments in the namespace. This string is run through the `tpl` function. |
+| defaults.hpaNameSelector | `string` | `".*"` | Pattern used to scope down the HorizontalPodAutoscaler alerts to pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all the HorizontalPodAutoscalers in the namespace. This string is run through the `tpl` function. |
+| defaults.jobNameSelector | `string` | `".*"` | Pattern used to scope down the alerts to only Jobs that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all Jobs in the namespace. This string is run through the `tpl` function. |
+| defaults.podNameSelector | `string` | `".*"` | Pattern used to scope down the alerts to only Pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all Pods in the namespace. This string is run through the `tpl` function. |
 | defaults.runbookUrl | `string` | `"https://github.com/Nextdoor/k8s-charts/blob/main/charts/prometheus-alerts/runbook.md"` | The prefix URL to the runbook_urls that will be applied to each PrometheusRule |
-| defaults.statefulsetNameSelector | `string` | `"{{ .Release.Name }}-.*"` | Pattern used to scope down the StatefulSet alerts to pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all the StatefulSets in the namespace. This string is run through the `tpl` function. |
+| defaults.statefulsetNameSelector | `string` | `".*"` | Pattern used to scope down the StatefulSet alerts to pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all the StatefulSets in the namespace. This string is run through the `tpl` function. |
 | fullname | `string` | `nil` | Optional prefix to be used for naming all of the resources. If not supplied, then .Release.Name is used. The full name with this value is `.Chart.Name-.Release.Name`. |
 | fullnameOverride | `string` | `nil` | Optional complete override for the entire fullname used by the resources in this chart. |
 
