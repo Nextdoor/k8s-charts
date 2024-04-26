@@ -19,6 +19,16 @@ those changes in the `charts/simple-app`, `charts/daemonset-app` and
 
 ## Upgrade Notes
 
+### 1.6.x -> 1.7.x
+
+**CHANGE: Default selectors changed to be more generic.**
+
+We have changed the default selectors to be more generic. This means that if you
+deploy multiple applications to the same namespace, and one of those
+applications uses this chart, then by default all applications will be monitored
+by these alerts. You can change this behavior by modifying the
+.Values.defaults.*NameSelector regex values.
+
 ### 1.5.x -> 1.6.x
 
 **CHANGE: The AlertSelectorValidity alert rules added.**
