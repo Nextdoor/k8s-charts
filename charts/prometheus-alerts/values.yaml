@@ -86,38 +86,38 @@ defaults:
   # part of this general application. Set to `None` if you want to disable this
   # selector and apply the rules to all Pods in the namespace. This string is
   # run through the `tpl` function.
-  podNameSelector: '{{ .Release.Name }}-.*'
+  podNameSelector: '.*'
 
   # -- (`string`) Pattern used to scope down the alerts to only Jobs that are
   # part of this general application. Set to `None` if you want to disable this
   # selector and apply the rules to all Jobs in the namespace. This string is
   # run through the `tpl` function.
-  jobNameSelector: '{{ .Release.Name }}-.*'
+  jobNameSelector: '.*'
 
   # -- (`string`) Pattern used to scope down the Deployment alerts to pods that
   # are part of this general application. Set to `None` if you want to disable
   # this selector and apply the rules to all the Deployments in the namespace.
   # This string is run through the `tpl` function.
-  deploymentNameSelector: '{{ .Release.Name }}-.*'
+  deploymentNameSelector: '.*'
 
   # -- (`string`) Pattern used to scope down the StatefulSet alerts to pods that
   # are part of this general application. Set to `None` if you want to disable
   # this selector and apply the rules to all the StatefulSets in the namespace.
   # This string is run through the `tpl` function.
-  statefulsetNameSelector: '{{ .Release.Name }}-.*'
+  statefulsetNameSelector: '.*'
 
   # -- (`string`) Pattern used to scope down the DaemonSet alerts to pods that
   # are part of this general application. Set to `None` if you want to disable
   # this selector and apply the rules to all the DaemonSets in the namespace.
   # This string is run through the `tpl` function.
-  daemonsetNameSelector: '{{ .Release.Name }}-.*'
+  daemonsetNameSelector: '.*'
 
   # -- (`string`) Pattern used to scope down the HorizontalPodAutoscaler alerts
   # to pods that are part of this general application. Set to `None` if you
   # want to disable this selector and apply the rules to all the
   # HorizontalPodAutoscalers in the namespace. This string is run through the
   # `tpl` function.
-  hpaNameSelector: '{{ .Release.Name }}-.*'
+  hpaNameSelector: '.*'
 
 # Container Alerting Rules
 #
