@@ -113,3 +113,18 @@ which selector is having an issue. Also note that you need to collect the
 metrics that this alert uses. For instance, to test pod selectors, we use the
 `kube_pod_info` metric. If you do not collect this metric, this alert will
 continiously fire.
+
+## Alert Name: `KubeJobFailed`
+
+This alert fires when a job running in kubernetes cluster fails. Steps to mitigate:
+1. Check just to confirm if the jobs are indeed still failing (notice `0/1` complete):
+```bash
+$k get jobs
+NAME                                                  COMPLETIONS   DURATION   AGE
+ads2-app-timescale-full-weekly-28571172               0/1           3d2h       3d2h
+ads2-app-timescale-incremental-daily-28575492         0/1           139m       139m
+```
+2. Jobs in kubernetes cluster launch pods to run. Check your favorite logging tool 
+(e.g., DataDog) to look for pods that begin with name of your failing jobs
+(e.g. "ads2-app-timescale-incremental" for this case) in the time period for any failure clues.
+3. Check the configuration of your job in the charts files of your repo.
