@@ -36,9 +36,9 @@ job="kube-state-metrics", job_name!="", {{ include "prometheus-alerts.namespaceS
 
 {{- define "prometheus-alerts.deploymentSelector" -}}
 {{- if .Values.defaults.deploymentNameSelector -}}
-job="kube-state-metrics", kube_deployment=~"{{ tpl .Values.defaults.deploymentNameSelector $ }}", {{ include "prometheus-alerts.namespaceSelector" $ }}
+job="kube-state-metrics", deployment=~"{{ tpl .Values.defaults.deploymentNameSelector $ }}", {{ include "prometheus-alerts.namespaceSelector" $ }}
 {{- else -}}
-job="kube-state-metrics", kube_deployment!="", {{ include "prometheus-alerts.namespaceSelector" $ }}
+job="kube-state-metrics", deployment!="", {{ include "prometheus-alerts.namespaceSelector" $ }}
 {{- end -}}
 {{- end -}}
 
