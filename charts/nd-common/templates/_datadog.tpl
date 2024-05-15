@@ -76,7 +76,7 @@ Datadog Client libraries want.
 {{- define "nd-common.datadogEnv" -}}
 {{- if .Values.datadog.enabled -}}
 # https://docs.datadoghq.com/developers/dogstatsd/?tab=kubernetes#origin-detection-over-udp
-{{- if not(.Values.datadog.disableEntityId) }}
+{{- if not .Values.datadog.disableEntityId }}
 - name: DD_ENTITY_ID
   valueFrom:
     fieldRef:
