@@ -3,3 +3,36 @@ alertManager:
   enabled: true
   pagerduty:
     routing_key: abcdefg
+containerRules:
+  pods:
+    PodSelectorValidity: &testLabels
+      labels:
+        foo: bar
+        baz: bat
+    PodContainerTerminated: *testLabels
+    PodContainerOOMKilled: *testLabels
+    PodCrashLoopBackOff: *testLabels
+    PodNotReady: *testLabels
+    ContainerWaiting: *testLabels
+    CPUThrottlingHigh: *testLabels
+  deployments:
+    DeploymentSelectorValidity: *testLabels
+    KubeDeploymentGenerationMismatch: *testLabels
+  statefulsets:
+    StatefulsetSelectorValidity: *testLabels
+    KubeStatefulSetReplicasMismatch: *testLabels
+    KubeStatefulSetGenerationMismatch: *testLabels
+    KubeStatefulSetUpdateNotRolledOut: *testLabels
+  daemonsets:
+    DaemonsetSelectorValidity: *testLabels
+    KubeDaemonSetRolloutStuck: *testLabels
+    KubeDaemonSetNotScheduled: *testLabels
+    KubeDaemonSetMisScheduled: *testLabels
+  jobs:
+    JobSelectorValidity: *testLabels
+    KubeJobCompletion: *testLabels
+    KubeJobFailed: *testLabels
+  hpas:
+    HpaSelectorValidity: *testLabels
+    KubeHpaReplicasMismatch: *testLabels
+    KubeHpaMaxedOut: *testLabels

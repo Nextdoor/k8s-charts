@@ -45,8 +45,11 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -72,8 +75,11 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -93,8 +99,11 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -119,8 +128,11 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -161,8 +173,11 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -195,8 +210,11 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -224,8 +242,11 @@ spec:
       labels:
         severity: {{ .severity }}
         namespace: {{ $.Release.Namespace }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -252,8 +273,11 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -280,8 +304,11 @@ spec:
       labels:
         severity: {{ .severity }}
         namespace: {{ $.Release.Namespace }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -313,8 +340,11 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -335,8 +365,11 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -369,8 +402,11 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -397,8 +433,11 @@ spec:
       labels:
         severity: {{ .severity }}
         namespace: {{ $.Release.Namespace }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -444,8 +483,11 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -465,8 +507,11 @@ spec:
       for: 10m
       labels:
         severity: {{ .severity }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -483,8 +528,11 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -511,8 +559,11 @@ spec:
       labels:
         severity: {{ .severity }}
         namespace: {{ $.Release.Namespace }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -538,8 +589,11 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -556,8 +610,11 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -584,8 +641,11 @@ spec:
       labels:
         severity: {{ .severity }}
         namespace: {{ $.Release.Namespace }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -625,8 +685,11 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -645,8 +708,11 @@ spec:
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
@@ -673,8 +739,11 @@ spec:
       labels:
         severity: {{ .severity }}
         namespace: {{ $.Release.Namespace }}
-        {{- if $.Values.defaults.additionalRuleLabels }}
-        {{ toYaml $.Values.defaults.additionalRuleLabels | nindent 8 }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
     {{- end }}
 
