@@ -2091,6 +2091,23 @@ entries:
   prometheus-alerts:
   - apiVersion: v2
     appVersion: 0.0.1
+    created: "2024-05-20T21:40:44.254166Z"
+    dependencies:
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.3.1
+    description: Helm Chart that provisions a series of common Prometheus Alerts
+    digest: 8294ee7dccd14b1c5101e2e6b7313e36dd176cbadab4c70c4eea70b46edf76f7
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: prometheus-alerts
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/prometheus-alerts-1.7.3/prometheus-alerts-1.7.3.tgz
+    version: 1.7.3
+  - apiVersion: v2
+    appVersion: 0.0.1
     created: "2024-05-02T00:08:35.95844058Z"
     dependencies:
     - name: nd-common
@@ -7059,4 +7076,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2024-05-02T00:08:35.960040851Z"
+generated: "2024-05-20T21:40:44.255019406Z"
