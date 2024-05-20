@@ -140,6 +140,7 @@ containerRules:
     PodSelectorValidity:
       severity: warning
       for: 1h
+      labels: {}
 
     # -- Monitors Pods for Containers that are terminated either for unexpected
     # reasons like ContainerCannotRun. If that number breaches the $threshold (1)
@@ -153,6 +154,7 @@ containerRules:
         # - Error  < when a container is evicted gracefully, the "error" state is used.
         - ContainerCannotRun
         - DeadlineExceeded
+      labels: {}
 
     # -- Sums up all of the OOMKilled events per pod over the $over time (60m). If
     # that number breaches the $threshold (0) for $for (1m), then it will alert.
@@ -161,21 +163,25 @@ containerRules:
       threshold: 0
       over: 60m
       for: 1m
+      labels: {}
 
     # -- Pod is in a CrashLoopBackOff state and is not becoming healthy.
     PodCrashLoopBackOff:
       severity: warning
       for: 10m
+      labels: {}
 
     # -- Pod has been in a non-ready state for more than a specific threshold
     PodNotReady:
       severity: warning
       for: 15m
+      labels: {}
 
     # Pod container waiting longer than threshold
     ContainerWaiting:
       severity: warning
       for: 1h
+      labels: {}
 
     # -- Container is being throttled by the CGroup - needs more resources.
     # This value is appropriate for applications that are highly sensitive to
@@ -185,6 +191,7 @@ containerRules:
       severity: warning
       threshold: 5
       for: 15m
+      labels: {}
 
   deployments:
     # -- Enables the Deployment resource rules
@@ -197,11 +204,13 @@ containerRules:
     DeploymentSelectorValidity:
       severity: warning
       for: 1h
+      labels: {}
 
     # -- Deployment generation mismatch due to possible roll-back
     KubeDeploymentGenerationMismatch:
       severity: warning
       for: 15m
+      labels: {}
 
   statefulsets:
     # -- Enables the StatefulSet resource rules
@@ -214,21 +223,25 @@ containerRules:
     StatefulsetSelectorValidity:
       severity: warning
       for: 1h
+      labels: {}
 
     # Deployment has not matched the expected number of replicas
     KubeStatefulSetReplicasMismatch:
       severity: warning
       for: 15m
+      labels: {}
 
     # StatefulSet generation mismatch due to possible roll-back
     KubeStatefulSetGenerationMismatch:
       severity: warning
       for: 15m
+      labels: {}
 
     # StatefulSet update has not been rolled out
     KubeStatefulSetUpdateNotRolledOut:
       severity: warning
       for: 15m
+      labels: {}
 
   daemonsets:
     # -- Enables the DaemonSet resource rules
@@ -241,21 +254,25 @@ containerRules:
     DaemonsetSelectorValidity:
       severity: warning
       for: 1h
+      labels: {}
 
     # DaemonSet rollout is stuck
     KubeDaemonSetRolloutStuck:
       severity: warning
       for: 15m
+      labels: {}
 
     # DaemonSet pods are not scheduled
     KubeDaemonSetNotScheduled:
       severity: warning
       for: 10m
+      labels: {}
 
     # DaemonSet pods are misscheduled
     KubeDaemonSetMisScheduled:
       severity: warning
       for: 15m
+      labels: {}
 
   jobs:
     # -- Enables the Job resource rules
@@ -268,16 +285,19 @@ containerRules:
     JobSelectorValidity:
       severity: warning
       for: 1h
+      labels: {}
 
     # Job did not complete in time
     KubeJobCompletion:
       severity: warning
       for: 12h
+      labels: {}
 
     # Job failed to complete
     KubeJobFailed:
       severity: warning
       for: 15m
+      labels: {}
 
   hpas:
     # -- Enables the HorizontalPodAutoscaler resource rules
@@ -290,13 +310,16 @@ containerRules:
     HpaSelectorValidity:
       severity: warning
       for: 1h
+      labels: {}
 
     # HPA has not matched descired number of replicas
     KubeHpaReplicasMismatch:
       severity: warning
       for: 15m
+      labels: {}
 
     # HPA is running at max replicas
     KubeHpaMaxedOut:
       severity: warning
       for: 15m
+      labels: {}
