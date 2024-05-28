@@ -2,7 +2,7 @@
 
 Helm Chart that provisions a series of common Prometheus Alerts
 
-![Version: 1.7.3](https://img.shields.io/badge/Version-1.7.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
+![Version: 1.7.4](https://img.shields.io/badge/Version-1.7.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -101,7 +101,7 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 | alertManager.repeatInterval | string | `"1h"` | How long to wait before sending a notification again if it has already been sent successfully for an alert. (Usually ~3h or more). |
 | chart_name | string | `"prometheus-rules"` |  |
 | chart_source | string | `"https://github.com/Nextdoor/k8s-charts"` |  |
-| containerRules.daemonsets.DaemonsetSelectorValidity | object | `{"for":"1h","labels":{},"severity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
+| containerRules.daemonsets.DaemonsetSelectorValidity | object | `{"enabled":true,"for":"1h","labels":{},"severity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
 | containerRules.daemonsets.KubeDaemonSetMisScheduled.for | string | `"15m"` |  |
 | containerRules.daemonsets.KubeDaemonSetMisScheduled.labels | object | `{}` |  |
 | containerRules.daemonsets.KubeDaemonSetMisScheduled.severity | string | `"warning"` |  |
@@ -112,11 +112,11 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 | containerRules.daemonsets.KubeDaemonSetRolloutStuck.labels | object | `{}` |  |
 | containerRules.daemonsets.KubeDaemonSetRolloutStuck.severity | string | `"warning"` |  |
 | containerRules.daemonsets.enabled | bool | `true` | Enables the DaemonSet resource rules |
-| containerRules.deployments.DeploymentSelectorValidity | object | `{"for":"1h","labels":{},"severity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
+| containerRules.deployments.DeploymentSelectorValidity | object | `{"enabled":true,"for":"1h","labels":{},"severity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
 | containerRules.deployments.KubeDeploymentGenerationMismatch | object | `{"for":"15m","labels":{},"severity":"warning"}` | Deployment generation mismatch due to possible roll-back |
 | containerRules.deployments.enabled | bool | `true` | Enables the Deployment resource rules |
 | containerRules.enabled | bool | `true` | Whether or not to enable the container rules template |
-| containerRules.hpas.HpaSelectorValidity | object | `{"for":"1h","labels":{},"severity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
+| containerRules.hpas.HpaSelectorValidity | object | `{"enabled":true,"for":"1h","labels":{},"severity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
 | containerRules.hpas.KubeHpaMaxedOut.for | string | `"15m"` |  |
 | containerRules.hpas.KubeHpaMaxedOut.labels | object | `{}` |  |
 | containerRules.hpas.KubeHpaMaxedOut.severity | string | `"warning"` |  |
@@ -124,7 +124,7 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 | containerRules.hpas.KubeHpaReplicasMismatch.labels | object | `{}` |  |
 | containerRules.hpas.KubeHpaReplicasMismatch.severity | string | `"warning"` |  |
 | containerRules.hpas.enabled | bool | `true` | Enables the HorizontalPodAutoscaler resource rules |
-| containerRules.jobs.JobSelectorValidity | object | `{"for":"1h","labels":{},"severity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
+| containerRules.jobs.JobSelectorValidity | object | `{"enabled":true,"for":"1h","labels":{},"severity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
 | containerRules.jobs.KubeJobCompletion.for | string | `"12h"` |  |
 | containerRules.jobs.KubeJobCompletion.labels | object | `{}` |  |
 | containerRules.jobs.KubeJobCompletion.severity | string | `"warning"` |  |
@@ -140,7 +140,7 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 | containerRules.pods.PodContainerTerminated | object | `{"for":"1m","labels":{},"over":"10m","reasons":["ContainerCannotRun","DeadlineExceeded"],"severity":"warning","threshold":0}` | Monitors Pods for Containers that are terminated either for unexpected reasons like ContainerCannotRun. If that number breaches the $threshold (1) for $for (1m), then it will alert. |
 | containerRules.pods.PodCrashLoopBackOff | object | `{"for":"10m","labels":{},"severity":"warning"}` | Pod is in a CrashLoopBackOff state and is not becoming healthy. |
 | containerRules.pods.PodNotReady | object | `{"for":"15m","labels":{},"severity":"warning"}` | Pod has been in a non-ready state for more than a specific threshold |
-| containerRules.pods.PodSelectorValidity | object | `{"for":"1h","labels":{},"severity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
+| containerRules.pods.PodSelectorValidity | object | `{"enabled":true,"for":"1h","labels":{},"severity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
 | containerRules.pods.enabled | bool | `true` | Enables the Pod resource rules |
 | containerRules.statefulsets.KubeStatefulSetGenerationMismatch.for | string | `"15m"` |  |
 | containerRules.statefulsets.KubeStatefulSetGenerationMismatch.labels | object | `{}` |  |
@@ -151,7 +151,7 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 | containerRules.statefulsets.KubeStatefulSetUpdateNotRolledOut.for | string | `"15m"` |  |
 | containerRules.statefulsets.KubeStatefulSetUpdateNotRolledOut.labels | object | `{}` |  |
 | containerRules.statefulsets.KubeStatefulSetUpdateNotRolledOut.severity | string | `"warning"` |  |
-| containerRules.statefulsets.StatefulsetSelectorValidity | object | `{"for":"1h","labels":{},"severity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
+| containerRules.statefulsets.StatefulsetSelectorValidity | object | `{"enabled":true,"for":"1h","labels":{},"severity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
 | containerRules.statefulsets.enabled | bool | `true` | Enables the StatefulSet resource rules |
 | defaults.additionalRuleLabels | `map` | `{}` | Additional custom labels attached to every PrometheusRule |
 | defaults.daemonsetNameSelector | `string` | `".*"` | Pattern used to scope down the DaemonSet alerts to pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all the DaemonSets in the namespace. This string is run through the `tpl` function. |
