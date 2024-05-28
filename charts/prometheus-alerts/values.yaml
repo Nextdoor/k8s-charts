@@ -138,6 +138,7 @@ containerRules:
     # alerted by this, we likely have a bad selector and our alerts are not going
     # to ever fire.
     PodSelectorValidity:
+      enabled: true
       severity: warning
       for: 1h
       labels: {}
@@ -202,6 +203,7 @@ containerRules:
     # alerted by this, we likely have a bad selector and our alerts are not going
     # to ever fire.
     DeploymentSelectorValidity:
+      enabled: true
       severity: warning
       for: 1h
       labels: {}
@@ -221,6 +223,7 @@ containerRules:
     # alerted by this, we likely have a bad selector and our alerts are not going
     # to ever fire.
     StatefulsetSelectorValidity:
+      enabled: true
       severity: warning
       for: 1h
       labels: {}
@@ -252,6 +255,7 @@ containerRules:
     # alerted by this, we likely have a bad selector and our alerts are not going
     # to ever fire.
     DaemonsetSelectorValidity:
+      enabled: true
       severity: warning
       for: 1h
       labels: {}
@@ -283,6 +287,7 @@ containerRules:
     # alerted by this, we likely have a bad selector and our alerts are not going
     # to ever fire.
     JobSelectorValidity:
+      enabled: true
       severity: warning
       for: 1h
       labels: {}
@@ -308,6 +313,7 @@ containerRules:
     # alerted by this, we likely have a bad selector and our alerts are not going
     # to ever fire.
     HpaSelectorValidity:
+      enabled: true
       severity: warning
       for: 1h
       labels: {}
