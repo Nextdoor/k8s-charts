@@ -4,65 +4,6 @@
 chart_name: istio-alerts
 chart_source: https://github.com/Nextdoor/k8s-charts
 
-# PagerDuty AlertManager Configuration
-#
-# If enabled, configures individual AlertmanagerConfig resources in your
-# namespace to route any PrometheusRules that are firing to your particular
-# PagerDuty Routing Key.
-alertManager:
-  # -- Not enabled by default - flip this to true to enable this resource.
-  enabled: false
-
-  # -- Which AlertManager should this config be picked up by?
-  alertmanagerConfig: default
-
-  # -- The labels by which incoming alerts are grouped together. For example,
-  # multiple alerts coming in for cluster=A and alertname=LatencyHigh would
-  # be batched into a single group.
-  #
-  # To aggregate by all possible labels use the special value '...' as the
-  # sole label name, for example:
-  #
-  # group_by: ['...']
-  # This effectively disables aggregation entirely, passing through all
-  # alerts as-is. This is unlikely to be what you want, unless you have
-  # a very low alert volume or your upstream notification system performs
-  # its own grouping.
-  #
-  groupBy: [alertname, namespace]
-
-  # -- How long to initially wait to send a notification for a group of alerts.
-  # Allows to wait for an inhibiting alert to arrive or collect more initial
-  # alerts for the same group. (Usually ~0s to few minutes.)
-  groupWait: 30s
-
-  # -- How long to wait before sending a notification about new alerts that
-  # are added to a group of alerts for which an initial notification has
-  # already been sent. (Usually ~5m or more.)
-  groupInterval: 5m
-
-  # -- How long to wait before sending a notification again if it has already
-  # been sent successfully for an alert. (Usually ~3h or more).
-  repeatInterval: 1h
-
-  # If the pagerduty.routing_key or pagerduty.routing_key_parameter are set,
-  # then the AlertmanagerConfig will be created in the namespace. Otherwise it
-  # will not be.
-  #
-  # pagerduty:
-  #
-  #   # If supplied - this is the path to an AWS SSM Parameter. This requires
-  #   # that the ExternalSecret controller is in place and has access to read
-  #   # these values:
-  #   #
-  #   # https://external-secrets.io/provider-aws-secrets-manager/
-  #   routing_key_parameter:
-  #   # If you use $routing_key_parameter, you must also pass in this:
-  #   routing_key_store_ref:
-  #
-  #   # This is the raw routing_key string - just directly copied in.
-  #   routing_key:
-
 # Defaults applied to all Prometheus Rules
 defaults:
   # -- The prefix URL to the runbook_urls that will be applied to each PrometheusRule
