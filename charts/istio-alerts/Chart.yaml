@@ -2,7 +2,7 @@ apiVersion: v2
 name: istio-alerts
 description: A Helm chart that provisions a series of alerts for istio VirtualServices
 type: application
-version: 0.4.1
+version: 0.5.0
 maintainers:
   - name: diranged
     email: matt@nextdoor.com
