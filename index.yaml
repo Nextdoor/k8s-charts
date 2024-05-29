@@ -1334,6 +1334,20 @@ entries:
     version: 0.3.0
   istio-alerts:
   - apiVersion: v2
+    created: "2024-05-29T19:29:54.383376105Z"
+    description: A Helm chart that provisions a series of alerts for istio VirtualServices
+    digest: fcb8ec6aee925c63b79f6ce369a4a51129dac7a98af412bec9ef6ea71e128018
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    - email: akennedy@nextdoor.com
+      name: laikan57
+    name: istio-alerts
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/istio-alerts-0.5.0/istio-alerts-0.5.0.tgz
+    version: 0.5.0
+  - apiVersion: v2
     created: "2024-04-23T21:41:28.524631601Z"
     description: A Helm chart that provisions a series of alerts for istio VirtualServices
     digest: a831c3586aa566eb087a841ec5f41c1c7aba2d7ce0d18b296a8917c6d46825d5
@@ -2089,6 +2103,23 @@ entries:
     - https://github.com/Nextdoor/k8s-charts/releases/download/nd-common-0.0.1/nd-common-0.0.1.tgz
     version: 0.0.1
   prometheus-alerts:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2024-05-29T19:29:54.499126581Z"
+    dependencies:
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.3.1
+    description: Helm Chart that provisions a series of common Prometheus Alerts
+    digest: 266cbdaa7ee6115215d9a3a24bf315f3e7727204c89dcca8c290c6d00729ea29
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: prometheus-alerts
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/prometheus-alerts-1.8.0/prometheus-alerts-1.8.0.tgz
+    version: 1.8.0
   - apiVersion: v2
     appVersion: 0.0.1
     created: "2024-05-28T01:27:57.603674169Z"
@@ -7093,4 +7124,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2024-05-28T01:27:57.605299261Z"
+generated: "2024-05-29T19:29:54.500940752Z"
