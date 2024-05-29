@@ -93,12 +93,6 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| alertManager.alertmanagerConfig | string | `"default"` | Which AlertManager should this config be picked up by? |
-| alertManager.enabled | bool | `false` | Not enabled by default - flip this to true to enable this resource. |
-| alertManager.groupBy | list | `["alertname","namespace"]` | The labels by which incoming alerts are grouped together. For example, multiple alerts coming in for cluster=A and alertname=LatencyHigh would be batched into a single group.  To aggregate by all possible labels use the special value '...' as the sole label name, for example:  group_by: ['...'] This effectively disables aggregation entirely, passing through all alerts as-is. This is unlikely to be what you want, unless you have a very low alert volume or your upstream notification system performs its own grouping.  |
-| alertManager.groupInterval | string | `"5m"` | How long to wait before sending a notification about new alerts that are added to a group of alerts for which an initial notification has already been sent. (Usually ~5m or more.) |
-| alertManager.groupWait | string | `"30s"` | How long to initially wait to send a notification for a group of alerts. Allows to wait for an inhibiting alert to arrive or collect more initial alerts for the same group. (Usually ~0s to few minutes.) |
-| alertManager.repeatInterval | string | `"1h"` | How long to wait before sending a notification again if it has already been sent successfully for an alert. (Usually ~3h or more). |
 | chart_name | string | `"prometheus-rules"` |  |
 | chart_source | string | `"https://github.com/Nextdoor/k8s-charts"` |  |
 | containerRules.daemonsets.DaemonsetSelectorValidity | object | `{"enabled":true,"for":"1h","labels":{},"severity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
