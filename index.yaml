@@ -3335,6 +3335,27 @@ entries:
   simple-app:
   - apiVersion: v2
     appVersion: latest
+    created: "2024-06-06T14:05:44.626761595Z"
+    dependencies:
+    - condition: istio-alerts.enabled
+      name: istio-alerts
+      repository: https://k8s-charts.nextdoor.com
+      version: 0.5.1
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.3.1
+    description: Default Microservice Helm Chart
+    digest: dc0238ee46c0d5b1e5a3a4e87465c935ca6d5eca11876bff484012f8e0c84d83
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: simple-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/simple-app-1.8.0/simple-app-1.8.0.tgz
+    version: 1.8.0
+  - apiVersion: v2
+    appVersion: latest
     created: "2024-04-23T21:41:29.014713273Z"
     dependencies:
     - condition: istio-alerts.enabled
@@ -7138,4 +7159,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2024-06-06T14:03:50.629608843Z"
+generated: "2024-06-06T14:05:44.627395738Z"
