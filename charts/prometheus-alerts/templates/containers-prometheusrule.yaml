@@ -671,26 +671,28 @@ spec:
         summary: HPA has not matched descired number of replicas.
         runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubehpareplicasmismatch
         description: >-
-          HPA {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.hpa {{`}}`}}
+          HPA {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.horizontalpodautoscaler {{`}}`}}
           has not matched the desired number of replicas for longer than 15
           minutes.
       expr: |-
-        (
-          kube_horizontalpodautoscaler_status_desired_replicas{ {{- $hpaSelector -}} }
-            !=
-          kube_horizontalpodautoscaler_status_current_replicas{ {{- $hpaSelector -}} }
-        ) and (
-          kube_horizontalpodautoscaler_status_current_replicas{ {{- $hpaSelector -}} }
-            >
-          kube_horizontalpodautoscaler_spec_min_replicas{ {{- $hpaSelector -}} }
-        ) and (
-          kube_horizontalpodautoscaler_status_current_replicas{ {{- $hpaSelector -}} }
-            <
-          kube_horizontalpodautoscaler_spec_max_replicas{ {{- $hpaSelector -}} }
-        ) and (
-          changes(kube_horizontalpodautoscaler_status_current_replicas[15m])
-            ==
-          0
+        sum by (horizontalpodautoscaler, namespace) (
+          (
+            kube_horizontalpodautoscaler_status_desired_replicas{ {{- $hpaSelector -}} }
+              !=
+            kube_horizontalpodautoscaler_status_current_replicas{ {{- $hpaSelector -}} }
+          ) and (
+            kube_horizontalpodautoscaler_status_current_replicas{ {{- $hpaSelector -}} }
+              >
+            kube_horizontalpodautoscaler_spec_min_replicas{ {{- $hpaSelector -}} }
+          ) and (
+            kube_horizontalpodautoscaler_status_current_replicas{ {{- $hpaSelector -}} }
+              <
+            kube_horizontalpodautoscaler_spec_max_replicas{ {{- $hpaSelector -}} }
+          ) and (
+            changes(kube_horizontalpodautoscaler_status_current_replicas[15m])
+              ==
+            0
+          )
         )
       for: {{ .for }}
       labels:
@@ -709,12 +711,14 @@ spec:
         summary: HPA is running at max replicas
         runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubehpamaxedout
         description: >-
-          HPA {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.hpa {{`}}`}}
+          HPA {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.horizontalpodautoscaler {{`}}`}}
           has been running at max replicas for longer than 15 minutes.
       expr: |-
-        kube_horizontalpodautoscaler_status_current_replicas{ {{- $hpaSelector -}} }
-          ==
-        kube_horizontalpodautoscaler_spec_max_replicas{ {{- $hpaSelector -}} }
+        sum by (horizontalpodautoscaler, namespace) (
+          kube_horizontalpodautoscaler_status_current_replicas{ {{- $hpaSelector -}} }
+            ==
+          kube_horizontalpodautoscaler_spec_max_replicas{ {{- $hpaSelector -}} }
+        )
       for: {{ .for }}
       labels:
         severity: {{ .severity }}
