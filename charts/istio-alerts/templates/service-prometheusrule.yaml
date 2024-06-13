@@ -26,16 +26,16 @@ spec:
           in namespace {{`{{$labels.namespace}}`}}.
       expr: >
         sum by ({{- $http5XXMonitorGroupingLabelString -}}) (
-          istio_requests_increase5m{
+          rate(istio_requests_total{
             response_code=~"5.*",
             {{- $destinationServiceSelectorForIstioMetrics -}}
-          }
+          }[5m])
         )
           /
         sum by ({{- $http5XXMonitorGroupingLabelString -}}) (
-          istio_requests_increase5m{
+          rate(istio_requests_total{
             {{- $destinationServiceSelectorForIstioMetrics -}}
-          }
+          }[5m])
         )
           > {{ .threshold }}
       for: {{ .for }}
