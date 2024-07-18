@@ -12,6 +12,11 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
 
+### 1.8.x -> 1.9.x
+
+`readinessProbe` is now only required when `virtualService.enabled` is `true`. This
+provides the flexibility to use this chart for non request serving services.
+
 ### 1.6.x -> 1.7.x
 
 **BREAKING: Istio Alerts have changed**
