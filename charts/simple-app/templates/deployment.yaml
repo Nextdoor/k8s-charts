@@ -24,7 +24,10 @@ through $deploymentZones
 {{- /*
 Verify that some required inputs are supplied
 */}}
+
+{{- if .Values.virtualService.enabled }}
 {{- $readinessProbe := required "readinessProbe is required" .Values.readinessProbe }}
+{{- end }}
 
 {{- /*
 By default, we do run the topology spread function - letting it decide
@@ -294,8 +297,10 @@ spec:
           livenessProbe:
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
+          {{- with $.Values.readinessProbe }}
           readinessProbe:
-            {{- tpl (toYaml $.Values.readinessProbe) $ | nindent 12 }}
+            {{- tpl (toYaml . ) $ | nindent 12 }}
+          {{- end }}
 
 ---
 
