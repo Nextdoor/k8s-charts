@@ -21,4 +21,5 @@ data:
     ssl.truststore.password=$(cat /ssl/cluster/ca.password)
     EOF
 
+    kafka-topics.sh --command-config=/tmp/client.properties --bootstrap-server={{ .Values.clusterName }}-kafka-bootstrap:9092 --list
     kafka-topics.sh --command-config=/tmp/client.properties --bootstrap-server={{ .Values.clusterName }}-kafka-bootstrap:9092 --list | grep __strimzi_store_topic
