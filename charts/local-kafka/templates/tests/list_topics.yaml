@@ -12,7 +12,7 @@ spec:
   containers:
     - name: list-topics-test
       image: bitnami/kafka:3.6
-      command: [sh, /scripts/run_test.sh]
+      command: [sh, -x, /scripts/run_test.sh]
       volumeMounts:
         - mountPath: /scripts
           name: scripts
