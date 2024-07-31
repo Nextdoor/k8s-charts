@@ -11,7 +11,7 @@ spec:
   restartPolicy: Never
   containers:
     - name: list-topics-test
-      image: bitnami/kafka:2.8.0
+      image: bitnami/kafka:3.6
       command: [sh, /scripts/run_test.sh]
       volumeMounts:
         - mountPath: /scripts
