@@ -22,6 +22,11 @@ spec:
         runAsNonRoot: false
       serviceAccountName: {{ .Release.Name }}-controller-manager
       terminationGracePeriodSeconds: 10
+      nodeSelector:
+        kubernetes.io/arch: amd64
+        {{- with .Values.nodeSelector }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       containers:
       - name: manager
         image: {{ include "flink-operator.imageFqdn" . }}
