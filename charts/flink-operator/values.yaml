@@ -17,6 +17,9 @@ image:
 # within the controller pod.
 resources:
 
+# -- (`map`) Optional nodeSelector for the manager pod
+nodeSelector: {}
+
 rbacProxy:
   image:
     # -- (`string`) The Docker Image to pull for the sidecar that provides

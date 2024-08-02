@@ -1,6 +1,6 @@
 # flink-operator
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![AppVersion: v0.3.0](https://img.shields.io/badge/AppVersion-v0.3.0-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![AppVersion: v0.3.0](https://img.shields.io/badge/AppVersion-v0.3.0-informational?style=flat-square)
 
 Intalls the Spotify-version of the Flink-on-K8S-Operator
 
@@ -33,6 +33,7 @@ Intalls the Spotify-version of the Flink-on-K8S-Operator
 | leaderElection.name | string | `"flink-operator-lock"` | (`string` The name of the Lease to hold if Leader Election is enabled. |
 | mutatingWebhook.enabled | `bool` | `true` | Whether or not to create the MutatingWebhookConfiguration. Optionally disable-able if you are installing in a non-privileged environment where you cannot create Cluster-scoped resources. |
 | namespaceScoped | `bool` | `false` | If enabled, then the Flink Operator will be scoped to watch only this local namespace. If this is set to `false` then all of the `Roles1 and `RoleBindings` will be namespace scoped. If this is set to True, then they will be converted to `ClusterRoles` and ClusterRoleBindings`. |
+| nodeSelector | `map` | `{}` | Optional nodeSelector for the manager pod |
 | podMonitor.enabled | `bool` | `true` | whether or not to enable pod monitor |
 | rbacProxy.image.repository | `string` | `"gcr.io/kubebuilder/kube-rbac-proxy"` | The Docker Image to pull for the sidecar that provides secure authentication into the Flink Operator pod for the Kubernetes API. |
 | rbacProxy.image.tag | `string` | `"v0.8.0"` | The Docker Tag to use |
