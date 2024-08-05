@@ -27,6 +27,11 @@ sum by (destination_service_name, reporter) (
 )
 ```
 
+Action Items:
+
+1. If trends are expected, tweak your thresholds (away from the [default 0.05% for 5 minutes](https://github.com/Nextdoor/k8s-charts/blob/f2d3973a1a9292e7c59e3feb4eb49df93dea926d/charts/istio-alerts/values.yaml#L28-L41)).
+2. If the response codes are unexpected, debug your app to see why the increase in error responses.
+
 ## HighRequestLatency
 
 TBD
