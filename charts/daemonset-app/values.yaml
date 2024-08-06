@@ -504,7 +504,7 @@ tests:
     enabled: true
 
     # -- The command used to trigger the test.
-    command: [curl, --verbose, --retry-connrefused, --retry, '5', --retry-delay, '10']
+    command: [curl, '-4', --verbose, --retry-connrefused, --retry, '5', --retry-delay, '10']
     # -- A list of arguments passed into the command. These are run through the tpl function.
     args:
       - "$(HOST_IP)"
@@ -528,7 +528,7 @@ tests:
     enabled: true
 
     # -- The command used to trigger the test.
-    command: [curl, --verbose, --retry-connrefused, --retry, '5', --retry-delay, '10']
+    command: [curl, '-4', --verbose, --retry-connrefused, --retry, '5', --retry-delay, '10']
     # -- A list of arguments passed into the command. These are run through the tpl function.
     args:
       - '{{ include "nd-common.fullname" . }}'
