@@ -12,6 +12,13 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
 
+### 1.9.x -> 1.10.x
+
+**NEW: Templated Termination Grace Period**
+
+`terminationGracePeriodSeconds` now supports template variables. This allows
+one to compute the termination grace period based on additional criteria.
+
 ### 1.8.x -> 1.9.x
 
 `readinessProbe` is now only required when `virtualService.enabled` is `true`. This

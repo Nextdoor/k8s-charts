@@ -12,6 +12,13 @@ ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
 
+### 1.15.x -> 1.16.x
+
+**NEW: Templated Termination Grace Period**
+
+`terminationGracePeriodSeconds` now supports template variables. This allows
+one to compute the termination grace period based on additional criteria.
+
 ### 0.13.0 -> 0.14.x
 
 **BREAKING: Bugfix removing the default readiness and liveness probes **
