@@ -75,7 +75,7 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       serviceAccountName: {{ include "nd-common.serviceAccountName" . }}
       {{- with .Values.terminationGracePeriodSeconds }}
-      terminationGracePeriodSeconds: {{ . }}
+      terminationGracePeriodSeconds: {{ tpl (toString . ) $ }}
       {{- end }}
       {{- if or .Values.volumes .Values.volumesString }}
       volumes:

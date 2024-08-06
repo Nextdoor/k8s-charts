@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 1.9.0](https://img.shields.io/badge/Version-1.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.10.0](https://img.shields.io/badge/Version-1.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,13 @@ in a [Deployment][deployments]. The chart automatically configures various
 defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
+
+### 1.9.x -> 1.10.x
+
+**NEW: Templated Termination Grace Period**
+
+`terminationGracePeriodSeconds` now supports template variables. This allows
+one to compute the termination grace period based on additional criteria.
 
 ### 1.8.x -> 1.9.x
 

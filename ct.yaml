@@ -2,8 +2,7 @@
 remote: origin
 chart-dirs:
   - charts
-# https://github.com/helm/chart-testing-action/issues/135
-# helm-extra-args: --timeout 600s
+helm-extra-args: --timeout 300s
 target-branch: main
 validate-maintainers: false
 chart-repos:

@@ -2,7 +2,7 @@
 
 Default DaemonSet Helm Chart
 
-![Version: 0.15.5](https://img.shields.io/badge/Version-0.15.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.16.0](https://img.shields.io/badge/Version-0.16.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,13 @@ in Kubernetes][statefulsets]. The chart provides all of the common pieces like
 ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
+
+### 1.15.x -> 1.16.x
+
+**NEW: Templated Termination Grace Period**
+
+`terminationGracePeriodSeconds` now supports template variables. This allows
+one to compute the termination grace period based on additional criteria.
 
 ### 0.13.0 -> 0.14.x
 
@@ -351,12 +358,12 @@ secretsEngine: sealed
 | targetOperatingSystem | `string` | `"linux"` | If set, this value will be used in the .spec.nodeSelector to ensure that these pods specifically launch on the desired target Operating System. Must be set. |
 | terminationGracePeriodSeconds | string | `nil` | https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#hook-handler-execution |
 | tests.connection.args | list | `["$(HOST_IP)"]` | A list of arguments passed into the command. These are run through the tpl function. |
-| tests.connection.command | list | `["curl","--verbose","--retry-connrefused","--retry","5","--retry-delay","10"]` | The command used to trigger the test. |
+| tests.connection.command | list | `["curl","-4","--verbose","--retry-connrefused","--retry","5","--retry-delay","10"]` | The command used to trigger the test. |
 | tests.connection.enabled | bool | `true` | Controls whether or not this Helm test component is enabled. |
 | tests.connection.image.repository | string | `nil` | Sets the image-name that will be used in the "connection" integration test. If this is left empty, then the .image.repository value will be used instead (and the .image.tag will also be used). |
 | tests.connection.image.tag | string | `nil` | Sets the tag that will be used in the "connection" integration test. If this is left empty, the default is "latest" |
 | tests.svcConnection.args | list | `["{{ include \"nd-common.fullname\" . }}"]` | A list of arguments passed into the command. These are run through the tpl function. |
-| tests.svcConnection.command | list | `["curl","--verbose","--retry-connrefused","--retry","5","--retry-delay","10"]` | The command used to trigger the test. |
+| tests.svcConnection.command | list | `["curl","-4","--verbose","--retry-connrefused","--retry","5","--retry-delay","10"]` | The command used to trigger the test. |
 | tests.svcConnection.enabled | bool | `true` | Controls whether or not this Helm test component is enabled. |
 | tests.svcConnection.image.repository | string | `nil` | Sets the image-name that will be used in the "connection" integration test. If this is left empty, then the .image.repository value will be used instead (and the .image.tag will also be used). |
 | tests.svcConnection.image.tag | string | `nil` | Sets the tag that will be used in the "connection" integration test. If this is left empty, the default is "latest" |
