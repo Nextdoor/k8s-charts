@@ -1358,6 +1358,20 @@ entries:
   flink-operator-crd:
   - apiVersion: v2
     appVersion: "1.0"
+    created: "2024-08-09T19:36:33.872502168Z"
+    description: Intalls the CRD the open-sourced flink-on-k8s-operator from Spotify
+    digest: d98d6e1fbb275a39bc92d238c5b69d5ab3ceb04408f1c748a5cfcceaee866c69
+    maintainers:
+    - email: pjhuang@nextdoor.com
+      name: pjthepooh
+    name: flink-operator-crd
+    sources:
+    - https://github.com/spotify/flink-on-k8s-operator/releases
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/flink-operator-crd-0.3.9/flink-operator-crd-0.3.9.tgz
+    version: 0.3.9
+  - apiVersion: v2
+    appVersion: "1.0"
     created: "2021-11-09T23:22:42.371933351Z"
     description: Intalls the CRD the open-sourced flink-on-k8s-operator from Spotify
     digest: 33fac782a29731b94865b99d97a03162c60295d260203b59d3717a5b3a3b1972
@@ -7484,4 +7498,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2024-08-09T19:24:33.653114705Z"
+generated: "2024-08-09T19:36:33.873153186Z"
