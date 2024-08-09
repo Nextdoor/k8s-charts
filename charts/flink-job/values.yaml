@@ -188,6 +188,8 @@ job:
     afterJobFails: KeepCluster
     afterJobCancelled: KeepCluster
     afterJobSucceeds: KeepCluster
+  # -- The node selector for the job
+  nodeSelector:
   # -- Init containers of the Job pod. It can be used to download a remote job jar to your job pod.
   # It is only needed if you have no other way to download your job files into the Flink job cluster.
   initContainers:
