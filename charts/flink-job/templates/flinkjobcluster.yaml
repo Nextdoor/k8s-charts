@@ -179,6 +179,10 @@ spec:
     {{- end }}
     noLoggingToStdout: false
     parallelism: {{ $values.Values.job.parallelism }}
+    {{- with $values.Values.job.resources }}
+    resources:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     restartPolicy: {{ $values.Values.job.restartPolicy }}
     cleanupPolicy:
       afterJobFails: {{ $values.Values.job.cleanupPolicy.afterJobSucceeds}}
@@ -400,6 +404,10 @@ spec:
     {{- end }}
     noLoggingToStdout: false
     parallelism: {{ .Values.job.parallelism }}
+    {{- with .Values.job.resources }}
+    resources:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     restartPolicy: {{ .Values.job.restartPolicy }}
     cleanupPolicy:
       afterJobFails: {{ .Values.job.cleanupPolicy.afterJobSucceeds}}
