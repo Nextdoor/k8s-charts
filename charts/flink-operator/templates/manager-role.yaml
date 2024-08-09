@@ -193,3 +193,4 @@ rules:
   - get
   - create
   - update
+  - delete
