@@ -1,6 +1,6 @@
 # flink-operator-crd
 
-![Version: 0.3.1](https://img.shields.io/badge/Version-0.3.1-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
+![Version: 0.3.9](https://img.shields.io/badge/Version-0.3.9-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
 
 Intalls the CRD the open-sourced flink-on-k8s-operator from Spotify
 
