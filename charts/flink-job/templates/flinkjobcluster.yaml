@@ -173,7 +173,7 @@ spec:
     {{- if $values.Values.job.savepointGeneration }}
     savepointGeneration: {{ $values.Values.job.savepointGenaration }}
     {{- end }}
-    {{- with .Values.job.nodeSelector }}
+    {{- with $values.Values.job.nodeSelector }}
     nodeSelector:
       {{- toYaml . | nindent 6 }}
     {{- end }}
