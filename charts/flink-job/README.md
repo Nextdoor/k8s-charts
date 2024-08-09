@@ -2,7 +2,7 @@
 
 Flink job cluster on k8s
 
-![Version: 0.1.21](https://img.shields.io/badge/Version-0.1.21-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
+![Version: 0.1.22](https://img.shields.io/badge/Version-0.1.22-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
 
 This chart deploys a flink job cluster and runs a simple word counting flink app as an example.
 This chart includes some production ready set-ups such as
@@ -40,6 +40,7 @@ See metrics reporter in the flink properties for more details.
 | job.initContainers | object | `{"enabled":false}` | Init containers of the Job pod. It can be used to download a remote job jar to your job pod. It is only needed if you have no other way to download your job files into the Flink job cluster. |
 | job.jarFile | String | `"./examples/streaming/WordCount.jar"` | JAR file of the job |
 | job.mode | String | `"Detached"` | JobMode of the job submitter, either Detached or Blocking |
+| job.nodeSelector | string | `nil` | The node selector for the job |
 | job.parallelism | `int` | `1` | Parallelism of the job |
 | job.restartPolicy | String | `"FromSavepointOnFailure"` | Restart policy when the job fails, enum("Never", "FromSavepointOnFailure") |
 | job.savepointGeneration | `int` | `nil` | Update this field to jobStatus.savepointGeneration + 1 for a running job cluster to trigger a new savepoint to savepointsDir on demand. |

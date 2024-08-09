@@ -390,6 +390,10 @@ spec:
     {{- if .Values.job.savepointGeneration }}
     savepointGeneration: {{ .Values.job.savepointGenaration }}
     {{- end }}
+    {{- with .Values.job.nodeSelector }}
+    nodeSelector:
+      {{- toYaml . | nindent 6 }} 
+    {{- end }}
     noLoggingToStdout: false
     parallelism: {{ .Values.job.parallelism }}
     restartPolicy: {{ .Values.job.restartPolicy }}
