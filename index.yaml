@@ -1287,6 +1287,29 @@ entries:
     version: 0.0.1
   flink-operator:
   - apiVersion: v2
+    appVersion: v0.3.9
+    created: "2024-08-09T19:46:55.343966894Z"
+    dependencies:
+    - condition: flink-operator-crd.enabled
+      name: flink-operator-crd
+      repository: https://k8s-charts.nextdoor.com
+      version: 0.3.0
+    - condition: cert-manager.enabled
+      name: cert-manager
+      repository: https://charts.jetstack.io
+      version: v1.6.1
+    description: Intalls the Spotify-version of the Flink-on-K8S-Operator
+    digest: f52d64708b17c3bf219f26ddf46e2038d3a97c88da66a9220d0da8a0ccf6dde6
+    maintainers:
+    - email: pjhuang@nextdoor.com
+      name: pjthepooh
+    name: flink-operator
+    sources:
+    - https://github.com/spotify/flink-on-k8s-operator/releases
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/flink-operator-0.2.1/flink-operator-0.2.1.tgz
+    version: 0.2.1
+  - apiVersion: v2
     appVersion: v0.3.0
     created: "2024-08-02T02:05:17.772344731Z"
     dependencies:
@@ -7498,4 +7521,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2024-08-09T19:36:33.873153186Z"
+generated: "2024-08-09T19:46:55.344543799Z"
