@@ -161,6 +161,7 @@ mesh.
 
 {{- /* https://istio.io/latest/docs/ops/configuration/mesh/injection-concepts/ */ -}}
 sidecar.istio.io/inject: {{ eq true .Values.istio.enabled | quote }}
+istio.io/rev: {{ .Values.istio.rev | default "stable" | quote }}
 
 {{- /*
 Explicitly disable or enable Metrics Merging - we want to keep our Envoy
