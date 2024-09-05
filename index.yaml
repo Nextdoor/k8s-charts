@@ -1987,6 +1987,16 @@ entries:
   nd-common:
   - apiVersion: v2
     appVersion: latest
+    created: "2024-09-05T19:21:06.365868439Z"
+    description: A helper chart used by most of our other charts
+    digest: e13b1cd20e13f75cc0f5d63b7accc11684781a5e5957bbc9ce04178e71ed0ca4
+    name: nd-common
+    type: library
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/nd-common-0.3.2/nd-common-0.3.2.tgz
+    version: 0.3.2
+  - apiVersion: v2
+    appVersion: latest
     created: "2024-01-11T20:06:45.725732706Z"
     description: A helper chart used by most of our other charts
     digest: 5b39e3d06ff0d912a02bbdcb83824491c71fccff8c6fbf79a0a5bc0970c52ffd
@@ -7545,4 +7555,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2024-08-09T20:39:57.883140543Z"
+generated: "2024-09-05T19:21:06.366640177Z"
