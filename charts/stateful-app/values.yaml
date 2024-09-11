@@ -525,7 +525,7 @@ network:
   # service-to-service communication grants.
   allowedNamespaces: []
 
-# Set a different priority class to the pods, by default the default priority class is given to pods.
+# -- (`string`) Set a different priority class to the pods, by default the default priority class is given to pods.
 # Priority class could be used to prioritize pods over others and allow them to evict other pods with lower priorities.
 priorityClassName: null
 
