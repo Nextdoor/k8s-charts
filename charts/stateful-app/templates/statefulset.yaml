@@ -54,7 +54,7 @@ spec:
         {{- end }}
     spec:
       {{- with .Values.priorityClassName }}
-      priorityClassName: {{ .Values.priorityClassName }}
+      priorityClassName: {{ . }}
       {{- end }}
       nodeSelector:
         {{- include "nd-common.nodeSelector" $ | nindent 8 }}
