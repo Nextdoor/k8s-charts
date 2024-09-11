@@ -652,6 +652,10 @@ istio:
   # metrics separate from Application metrics.
   metricsMerging: false
 
+# Set a different priority class to the pods, by default the default priority class is given to pods.
+# Priority class could be used to prioritize pods over others and allow them to evict other pods with lower priorities.
+priorityClassName: null
+
 # Network access controls for the Pods in this application
 network:
   # -- (`strings[]`) A list of namespaces that are allowed to access the Pods
