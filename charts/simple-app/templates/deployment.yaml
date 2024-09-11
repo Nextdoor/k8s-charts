@@ -112,7 +112,7 @@ spec:
         {{ . }}
         {{- end }}
     spec:
-      {{- with .Values.priorityClassName }}
+      {{- with $.Values.priorityClassName }}
       priorityClassName: {{ . }}
       {{- end }}
       nodeSelector:
