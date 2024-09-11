@@ -734,6 +734,10 @@ monitor:
   # -- ServiceMonitor will use these tlsConfig settings to make the health check requests
   tlsConfig: null
 
+# -- (`string`) Set a different priority class to the pods, by default the default priority class is given to pods.
+# Priority class could be used to prioritize pods over others and allow them to evict other pods with lower priorities.
+priorityClassName: null
+
 # Configuration that lets the chart know that it's operating inside of an Istio
 # service mesh or not. If it is, certain defaults are applied to various Pod
 # and other resource configurations.
