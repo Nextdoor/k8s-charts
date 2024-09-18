@@ -21,6 +21,9 @@ kafka:
   # -- (`str`) Optional value for the inter.broker.protocol.version property (eg. `2.8`)
   interBrokerProtocolVersion:
 
+  # -- (`str`) Optional value for the kafka cluster pod priority class name
+  priorityClassName:
+
 # -- Additional configurable listeners for connecting to brokers.
 listeners:
   - name: external
