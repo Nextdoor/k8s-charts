@@ -11,6 +11,11 @@ spec:
     {{- with .Values.kafka.brokerVersion }}
     version: {{ . }}
     {{- end }}
+    {{- with .Values.kafka.priorityClassName }}
+    template:
+      pod:
+        priorityClassName: {{ . }}
+    {{- end }}
     replicas: 1
     livenessProbe:
       initialDelaySeconds: 60
