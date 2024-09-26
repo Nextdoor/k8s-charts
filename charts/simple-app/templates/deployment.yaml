@@ -321,12 +321,17 @@ metadata:
     {{- end }}
 spec:
   scaleTargetRef:
-    apiVersion: apps/v1{{ if $deactivateHpaForMaintenance }}-disabled{{ end }}
+    apiVersion: apps/v1
     kind: Deployment
     name: {{ $fullName }}
   {{- with $.Values.autoscaling.behavior }}
   behavior:
+    {{- if $deactivateHpaForMaintenance }}
+    scaleDown:
+      selectPolicy: Disabled
+    {{- else }}
     {{- toYaml . | nindent 4 }}
+    {{- end }}
   {{- end }}
   minReplicas: {{ $.Values.autoscaling.minReplicas }}
   maxReplicas: {{ $.Values.autoscaling.maxReplicas }}

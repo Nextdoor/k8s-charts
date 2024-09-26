@@ -8,12 +8,17 @@ metadata:
     {{- include "nd-common.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
-    apiVersion: argoproj.io/v1alpha1{{ if $deactivateHpaForMaintenance }}-disabled{{ end }}
+    apiVersion: argoproj.io/v1alpha1
     kind: Rollout
     name: {{ include "nd-common.fullname" . }}
   {{- with .Values.autoscaling.behavior }}
   behavior:
+    {{- if $deactivateHpaForMaintenance }}
+    scaleDown:
+      selectPolicy: Disabled
+    {{- else }}
     {{- toYaml . | nindent 4 }}
+    {{- end }}
   {{- end }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
