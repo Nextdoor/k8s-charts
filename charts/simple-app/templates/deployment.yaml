@@ -7,6 +7,7 @@ make sure that each Deployment is scaled up separately from the next one.
 */}}
 {{- $deploymentZones := default (list "default") .Values.deploymentZones }}
 
+{{- $deactivateHpaForMaintenance := false }}
 
 {{- /*
 ...
@@ -27,6 +28,7 @@ Verify that some required inputs are supplied
 
 {{- if .Values.virtualService.enabled }}
 {{- $readinessProbe := required "readinessProbe is required" .Values.readinessProbe }}
+{{- $deactivateHpaForMaintenance = (and .Values.virtualService.maintenanceMode.enabled .Values.autoscaling.enabled) }}
 {{- end }}
 
 {{- /*
@@ -79,6 +81,9 @@ spec:
   {{- end }}
   {{- if and $.Values.replicaCount (not $.Values.autoscaling.enabled) }}
   replicas: {{ $.Values.replicaCount }}
+  {{- else if $deactivateHpaForMaintenance }}
+  {{- /* https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#implicit-maintenance-mode-deactivation */}}
+  replicas: 0
   {{- end }}
   {{- with $.Values.revisionHistoryLimit }}
   revisionHistoryLimit: {{ . }}
