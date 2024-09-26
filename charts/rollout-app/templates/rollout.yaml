@@ -13,9 +13,6 @@ spec:
   {{- end }}
   {{- if and .Values.replicaCount (not .Values.autoscaling.enabled) }}
   replicas: {{ .Values.replicaCount }}
-  {{- else if (and .Values.autoscaling.enabled .Values.virtualService.enabled .Values.virtualService.maintenanceMode.enabled) }}
-  {{- /* https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#implicit-maintenance-mode-deactivation */}}
-  replicas: 0
   {{- end }}
   {{- with .Values.revisionHistoryLimit }}
   revisionHistoryLimit: {{ . }}

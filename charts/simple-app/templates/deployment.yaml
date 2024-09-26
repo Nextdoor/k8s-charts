@@ -81,9 +81,6 @@ spec:
   {{- end }}
   {{- if and $.Values.replicaCount (not $.Values.autoscaling.enabled) }}
   replicas: {{ $.Values.replicaCount }}
-  {{- else if $deactivateHpaForMaintenance }}
-  {{- /* https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#implicit-maintenance-mode-deactivation */}}
-  replicas: 0
   {{- end }}
   {{- with $.Values.revisionHistoryLimit }}
   revisionHistoryLimit: {{ . }}
@@ -324,7 +321,7 @@ metadata:
     {{- end }}
 spec:
   scaleTargetRef:
-    apiVersion: apps/v1
+    apiVersion: apps/v1{{ if $deactivateHpaForMaintenance }}-disabled{{ end }}
     kind: Deployment
     name: {{ $fullName }}
   {{- with $.Values.autoscaling.behavior }}
