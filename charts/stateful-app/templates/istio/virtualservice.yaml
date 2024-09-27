@@ -58,6 +58,22 @@ spec:
             host: {{ include "nd-common.serviceName" $ }}
             port:
               number: {{ .Values.virtualService.port }}
+      {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPFaultInjection */}}
+      {{- if and .Values.virtualService.maintenanceMode.enabled .Values.virtualService.fault }}
+      {{ fail "Both virtualService.maintenanceMode.enabled and virtualService.fault are set. Either set enabled to false or fault to {}" }}
+      {{- end }}
+      {{- if .Values.virtualService.maintenanceMode.enabled }}
+      fault:
+        abort:
+          httpStatus: {{ .Values.virtualService.maintenanceMode.httpStatus }}
+          percentage:
+            value: 100
+      {{- else }}
+      {{- with .Values.virtualService.fault }}
+      fault:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
   {{- with .Values.virtualService.tls }}
   tls:
     {{- tpl . $global | nindent 4 }}

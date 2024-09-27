@@ -7,6 +7,7 @@ make sure that each Deployment is scaled up separately from the next one.
 */}}
 {{- $deploymentZones := default (list "default") .Values.deploymentZones }}
 
+{{- $deactivateHpaForMaintenance := false }}
 
 {{- /*
 ...
@@ -27,6 +28,7 @@ Verify that some required inputs are supplied
 
 {{- if .Values.virtualService.enabled }}
 {{- $readinessProbe := required "readinessProbe is required" .Values.readinessProbe }}
+{{- $deactivateHpaForMaintenance = (and .Values.virtualService.maintenanceMode.enabled .Values.autoscaling.enabled) }}
 {{- end }}
 
 {{- /*
@@ -324,7 +326,12 @@ spec:
     name: {{ $fullName }}
   {{- with $.Values.autoscaling.behavior }}
   behavior:
+    {{- if $deactivateHpaForMaintenance }}
+    scaleDown:
+      selectPolicy: Disabled
+    {{- else }}
     {{- toYaml . | nindent 4 }}
+    {{- end }}
   {{- end }}
   minReplicas: {{ $.Values.autoscaling.minReplicas }}
   maxReplicas: {{ $.Values.autoscaling.maxReplicas }}

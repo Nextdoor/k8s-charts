@@ -1,4 +1,5 @@
 {{- if .Values.autoscaling.enabled }}
+{{ $deactivateHpaForMaintenance := (and .Values.autoscaling.enabled .Values.virtualService.enabled .Values.virtualService.maintenanceMode.enabled) }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -12,7 +13,12 @@ spec:
     name: {{ include "nd-common.fullname" . }}
   {{- with .Values.autoscaling.behavior }}
   behavior:
+    {{- if $deactivateHpaForMaintenance }}
+    scaleDown:
+      selectPolicy: Disabled
+    {{- else }}
     {{- toYaml . | nindent 4 }}
+    {{- end }}
   {{- end }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}

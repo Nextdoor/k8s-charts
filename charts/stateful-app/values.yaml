@@ -342,6 +342,22 @@ virtualService:
   # "istio-system/default-gateway".
   gateways: []
 
+  # Maintenance mode creates a specific fault injection within your VirtualService
+  #
+  # If enabled, the generic `faults` option below MUST be empty "{}" (as this creates a very
+  # specified fault injection).
+  #
+  # Otherwise, we fail to render the chart.
+  maintenanceMode:
+
+    # -- (`bool`) Set to true if you want to create a specialized HTTP fault injection
+    # that aborts the proxying of requests to your service. You can also set the HTTP response that
+    # is returned when this mode is set.
+    enabled: false
+
+    # -- (`int`) The HTTP response code that is returned when maintenanceMode is enabled.
+    httpStatus: 503
+
   # -- The default path prefix that the `VirtualService` will match requests
   # against to pass to the default `Service` object in this deployment.
   path: '/'
@@ -363,6 +379,16 @@ virtualService:
   # configuration here to control how services retry their failed requests to
   # the backend service. The default behavior is to retry 2 times if a 503 is returned.
   retries: {}
+
+  # -- (`map`) Pass in an optional
+  # [`HTTPFaultInjection`](https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPFaultInjection)
+  # configuration here to specify faults such as delaying or aborting the proxying of requests to the service.
+  #
+  # If a configuration here is set, maintenanceMode.enabled MUST be set to 'false' (as that creates a very
+  # specific fault injection).
+  #
+  # Otherwise, we fail to render the chart.
+  fault: {}
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
