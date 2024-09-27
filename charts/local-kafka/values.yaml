@@ -34,7 +34,7 @@ kafka:
       memory:
 
 zookeeper:
-  # -- Optional resource requirements for the Kafka cluster
+  # -- Optional resource requirements for the Zookeeper cluster
   resources:
     limits:
       cpu:
