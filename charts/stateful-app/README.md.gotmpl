@@ -12,6 +12,19 @@ ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
 
+### 1.2.x -> 1.3.x
+
+**NEW: Maintenance Mode and Custom HTTP Fault Injections**
+
+`virtualService.fault` allows you to set custom [HTTP fault injections](https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPFaultInjection)
+at the client side (like delays or abort) before proxying to the service.
+
+`virtualService.maintenanceMode.enabled` will set a very specific fault that
+aborts the request with a 5xx (or whatever is set at `httpStatus`).
+
+If maintenanceMode is enabled, fault must be `{}`. If there's a fault configuration,
+then maintenanceMode must be disabled. Otherwise the chart won't render.
+
 ### 1.1.x -> 1.2.x
 
 **NEW: Templated Termination Grace Period**
