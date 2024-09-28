@@ -26,22 +26,10 @@ kafka:
 
   # -- Optional resource requirements for the Kafka cluster
   resources:
-    limits:
-      cpu:
-      memory:
-    requests:
-      cpu:
-      memory:
 
 zookeeper:
   # -- Optional resource requirements for the Zookeeper cluster
   resources:
-    limits:
-      cpu:
-      memory:
-    requests:
-      cpu:
-      memory:
 
 # -- Additional configurable listeners for connecting to brokers.
 listeners:
