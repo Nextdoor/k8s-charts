@@ -24,6 +24,13 @@ kafka:
   # -- (`str`) Optional value for the kafka cluster pod priority class name
   priorityClassName:
 
+  # -- Optional resource requirements for the Kafka cluster
+  resources:
+
+zookeeper:
+  # -- Optional resource requirements for the Zookeeper cluster
+  resources:
+
 # -- Additional configurable listeners for connecting to brokers.
 listeners:
   - name: external

@@ -61,12 +61,20 @@ spec:
         type: persistent-claim
         size: 500Mi
         deleteClaim: false
+    {{ with .Values.kafka.resources }}
+    resources:
+      {{ toYaml . | nindent 6 }}
+    {{ end }}
   zookeeper:
     replicas: 1
     storage:
       type: persistent-claim
       size: 500Mi
       deleteClaim: false
+    {{ with .Values.zookeeper.resources }}
+    resources:
+      {{ toYaml . | nindent 6 }}
+    {{ end }}
   entityOperator:
     topicOperator: {}
     userOperator: {}
