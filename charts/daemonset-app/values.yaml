@@ -459,6 +459,12 @@ prometheusRules:
       - ContainerCannotRun
       - DeadlineExceeded
 
+  PodContainerOOMKilled:
+    severity: warning
+    threshold: 0
+    over: 10m
+    for: 1m
+
   # -- Pod is in a CrashLoopBackOff state and is not becoming healthy.
   PodCrashLoopBackOff:
     severity: warning
