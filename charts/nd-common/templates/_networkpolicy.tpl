@@ -8,6 +8,28 @@ Kubernetes network, as our default is to block all traffic.
 */}}
 
 {{- define "nd-common.networkPolicy" }}
+{{- if .Values.network.multiCluster.allowFromRemote }}
+{{- /*
+
+NetworkPolicies can't enforce Ingress from **outside** the Kubernetes
+cluster - i.e., it only knows about cluster-local namespaces. So, we
+allow all and instead restrict with Istio's AuthorizationPolicy
+
+- */}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-for-multi-cluster-all-ingress
+  labels:
+    {{- include "nd-common.labels" . | nindent 4 }}
+spec:
+  policyTypes: [Ingress]
+  podSelector:
+    matchLabels:
+      {{- include "nd-common.selectorLabels" . | nindent 6 }}
+  ingress:
+    - {}
+{{- else }}
 {{- if .Values.ports }}
 {{- if gt (len .Values.ports) 0 }}
 {{- if gt (len .Values.network.allowedNamespaces) 0 }}
@@ -38,6 +60,7 @@ spec:
               kubernetes.io/metadata.name: {{ . }}
         {{- end }}
         {{- end }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
