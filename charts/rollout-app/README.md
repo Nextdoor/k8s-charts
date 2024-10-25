@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 1.3.0](https://img.shields.io/badge/Version-1.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.3.1](https://img.shields.io/badge/Version-1.3.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -17,6 +17,20 @@ Progressive Delivery Controller][argo_rollouts] for more information about
 how these work, and the various custom resource definitions.
 
 ## Upgrade Notes
+
+### 1.2.x -> 1.3.x
+
+**NEW: Maintenance Mode and Custom HTTP Fault Injections**
+
+`virtualService.fault` allows you to set custom [HTTP fault injections](https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPFaultInjection)
+at the client side (like delays or abort) before proxying to the service.
+
+`virtualService.maintenanceMode.enabled` will set a very specific fault that
+aborts the request with a 5xx (or whatever is set at `httpStatus`) and disable
+scale-down behavior of the HPA.
+
+If maintenanceMode is enabled, fault must be `{}`. If there's a fault configuration,
+then maintenanceMode must be disabled. Otherwise the chart won't render.
 
 ### 1.1.x -> 1.2.x
 
