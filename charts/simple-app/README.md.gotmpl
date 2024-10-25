@@ -14,6 +14,16 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ### 1.10.x -> 1.11.x
 
+**NEW: Allow access from cross-cluster, in-mesh services**
+
+`network.multiCluster.allowFromRemote` will tweak your NetworkPolicies to allow
+access from other services running in a different cluster in a multi-cluter,
+multi-primary Istio environment.
+
+Also, beginning with this version, if your app is on the mesh, we'll create
+analogous [AuthorizationPolicies](https://istio.io/latest/docs/reference/config/security/authorization-policy/) to the already existing NetworkPolicies,
+as they work in lieu of NetPols for a multi-clustered, multi-primary setup.
+
 **NEW: Maintenance Mode and Custom HTTP Fault Injections**
 
 `virtualService.fault` allows you to set custom [HTTP fault injections](https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPFaultInjection)

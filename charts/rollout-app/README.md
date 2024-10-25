@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 1.3.1](https://img.shields.io/badge/Version-1.3.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.3.2](https://img.shields.io/badge/Version-1.3.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -19,6 +19,16 @@ how these work, and the various custom resource definitions.
 ## Upgrade Notes
 
 ### 1.2.x -> 1.3.x
+
+**NEW: Allow access from cross-cluster, in-mesh services**
+
+`network.multiCluster.allowFromRemote` will tweak your NetworkPolicies to allow
+access from other services running in a different cluster in a multi-cluter,
+multi-primary Istio environment.
+
+Also, beginning with this version, if your app is on the mesh, we'll create
+analogous [AuthorizationPolicies](https://istio.io/latest/docs/reference/config/security/authorization-policy/) to the already existing NetworkPolicies,
+as they work in lieu of NetPols for a multi-clustered, multi-primary setup.
 
 **NEW: Maintenance Mode and Custom HTTP Fault Injections**
 
@@ -206,7 +216,7 @@ secretsEngine: sealed
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.3.2 |
+| file://../nd-common | nd-common | 0.3.3 |
 | https://k8s-charts.nextdoor.com | istio-alerts | 0.5.2 |
 
 ## Values
@@ -299,7 +309,8 @@ secretsEngine: sealed
 | monitor.scrapeTimeout | string | `nil` | ServiceMonitor scrape timeout in Go duration format (e.g. 15s) |
 | monitor.tlsConfig | string | `nil` | ServiceMonitor will use these tlsConfig settings to make the health check requests |
 | nameOverride | string | `""` |  |
-| network.allowedNamespaces | `strings[]` | `[]` | A list of namespaces that are allowed to access the Pods in this application. If not supplied, then no `NetworkPolicy` is created, and your application may be isolated to itself. Note, enabling `VirtualService` or `Ingress` configurations will create their own dedicated `NetworkPolicy` resources, so this is only intended for internal service-to-service communication grants. |
+| network.allowedNamespaces | `strings[]` | `[]` | A list of namespaces that are allowed to access the Pods in this application. If not supplied, then no `NetworkPolicy` or `AuthorizationPolicy` is created, and your application may be isolated to itself. Note, enabling `VirtualService` or `Ingress` configurations will create their own dedicated `NetworkPolicy` resources, so this is only intended for internal service-to-service communication grants. |
+| network.multiCluster.allowFromRemote | `bool` | `false` | If set to "True", then the NetworkPolicies will be opened up and traffic auth will be managed by Istio's `AuthorizationPolicy` instead.  This assumes your app is part of the Istio service mesh |
 | nodeSelector | `map` | `{}` | A list of key/value pairs that will be added in to the nodeSelector spec for the pods. |
 | podAnnotations | `Map` | `{}` | List of Annotations to be added to the PodSpec |
 | podDisruptionBudget | object | `{"maxUnavailable":1}` | Set up a PodDisruptionBudget for the Deployment. See https://kubernetes.io/docs/tasks/run-application/configure-pdb/ for more details. |

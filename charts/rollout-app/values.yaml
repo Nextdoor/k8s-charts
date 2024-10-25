@@ -805,13 +805,20 @@ istio:
 
 # Network access controls for the Pods in this application
 network:
-  # -- (`strings[]`) A list of namespaces that are allowed to access the Pods
-  # in this application. If not supplied, then no `NetworkPolicy` is created,
-  # and your application may be isolated to itself. Note, enabling
-    # `VirtualService` or `Ingress` configurations will create their own
+  # -- (`strings[]`) A list of namespaces that are allowed to access the Pods in
+  # this application. If not supplied, then no `NetworkPolicy` or `AuthorizationPolicy`
+  # is created, and your application may be isolated to itself. Note, enabling
+  # `VirtualService` or `Ingress` configurations will create their own
   # dedicated `NetworkPolicy` resources, so this is only intended for internal
   # service-to-service communication grants.
   allowedNamespaces: []
+
+  multiCluster:
+    # -- (`bool`) If set to "True", then the NetworkPolicies will be opened up
+    # and traffic auth will be managed by Istio's `AuthorizationPolicy` instead.
+    #
+    # This assumes your app is part of the Istio service mesh
+    allowFromRemote: false
 
 # Configures labels and other parameters assuming that the Datadog Agent is
 # installed on the underlying hosts and is part of the Kubernetes cluster.
