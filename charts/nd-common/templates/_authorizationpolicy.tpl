@@ -32,9 +32,7 @@ spec:
   - from:
     - source:
         namespaces: [{{ .Release.Namespace }}]
-{{- if .Values.ports }}
-{{- if gt (len .Values.ports) 0 }}
-{{- if gt (len .Values.network.allowedNamespaces) 0 }}
+  {{- if and .Values.ports (gt (len .Values.ports) 0) (gt (len .Values.network.allowedNamespaces) 0) }}
   - from:
     - source:
         namespaces:
@@ -45,8 +43,6 @@ spec:
         {{- range $port := .Values.ports }}
         - {{ $port.containerPort | quote }}
         {{- end }}
-{{- end }}
-{{- end }}
-{{- end }}
+  {{- end }}
 {{- end }}
 {{- end }}

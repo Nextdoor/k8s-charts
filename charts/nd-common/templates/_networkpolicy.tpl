@@ -8,9 +8,7 @@ Kubernetes network, as our default is to block all traffic.
 */}}
 
 {{- define "nd-common.networkPolicy" }}
-{{- if .Values.ports }}
-{{- if gt (len .Values.ports) 0 }}
-{{- if gt (len .Values.network.allowedNamespaces) 0 }}
+{{- if and .Values.ports (gt (len .Values.ports) 0) (gt (len .Values.network.allowedNamespaces) 0) }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -47,7 +45,5 @@ spec:
         {{- end }}
         {{- end }}
     {{- end }}
-{{- end }}
-{{- end }}
 {{- end }}
 {{- end }}
