@@ -813,12 +813,11 @@ network:
   # service-to-service communication grants.
   allowedNamespaces: []
 
-  multiCluster:
-    # -- (`bool`) If set to "True", then the NetworkPolicies will be opened up
-    # and traffic auth will be managed by Istio's `AuthorizationPolicy` instead.
-    #
-    # This assumes your app is part of the Istio service mesh
-    allowFromRemote: false
+  # -- (`bool`) If set to "True", then the NetworkPolicies will be opened up
+  # and traffic auth will be managed by Istio's `AuthorizationPolicy` instead.
+  #
+  # This assumes your app is part of the Istio service mesh
+  allowAll: false
 
 # Configures labels and other parameters assuming that the Datadog Agent is
 # installed on the underlying hosts and is part of the Kubernetes cluster.

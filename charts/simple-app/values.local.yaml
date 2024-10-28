@@ -50,5 +50,4 @@ datadog:
 
 network:
   allowedNamespaces: [foo, bar]
-  multiCluster:
-    allowFromRemote: false
+  allowAll: false

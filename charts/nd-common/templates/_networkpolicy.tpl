@@ -23,7 +23,7 @@ spec:
     matchLabels:
       {{- include "nd-common.selectorLabels" . | nindent 6 }}
   ingress:
-    {{- if .Values.network.multiCluster.allowFromRemote }}
+    {{- if .Values.network.allowAll }}
     {{- /*
       NetworkPolicies can't enforce Ingress from **outside** the Kubernetes
       cluster - i.e., it only knows about cluster-local namespaces. So, we
