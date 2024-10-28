@@ -8,9 +8,7 @@ Kubernetes network, as our default is to block all traffic.
 */}}
 
 {{- define "nd-common.networkPolicy" }}
-{{- if .Values.ports }}
-{{- if gt (len .Values.ports) 0 }}
-{{- if gt (len .Values.network.allowedNamespaces) 0 }}
+{{- if and .Values.ports (gt (len .Values.ports) 0) (gt (len .Values.network.allowedNamespaces) 0) }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -23,6 +21,14 @@ spec:
     matchLabels:
       {{- include "nd-common.selectorLabels" . | nindent 6 }}
   ingress:
+    {{- if .Values.network.allowAll }}
+    {{- /*
+      NetworkPolicies can't enforce Ingress from **outside** the Kubernetes
+      cluster - i.e., it only knows about cluster-local namespaces. So, we
+      allow all and instead restrict with Istio's AuthorizationPolicy
+    */}}
+    - {}
+    {{- else }}
     - ports:
       {{- range $port := .Values.ports }}
       - port: {{ $port.containerPort }}
@@ -38,7 +44,6 @@ spec:
               kubernetes.io/metadata.name: {{ . }}
         {{- end }}
         {{- end }}
-{{- end }}
-{{- end }}
+    {{- end }}
 {{- end }}
 {{- end }}

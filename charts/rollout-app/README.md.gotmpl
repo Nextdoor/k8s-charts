@@ -17,6 +17,18 @@ how these work, and the various custom resource definitions.
 
 ## Upgrade Notes
 
+### 1.3.x -> 1.4.x
+
+**NEW: Allow access from cross-cluster, in-mesh services**
+
+Beginning with this version, if your app is on the mesh, we'll create
+analogous [AuthorizationPolicies](https://istio.io/latest/docs/reference/config/security/authorization-policy/) to the already existing NetworkPolicies,
+as they act as drop-in replacements for a multi-clustered, multi-primary setup.
+
+`network.allowAll`, if set, will update your NetworkPolicies to allow
+access from anywhere, including  other services running in a different
+cluster in a multi-cluter, multi-primary Istio environment.
+
 ### 1.2.x -> 1.3.x
 
 **NEW: Maintenance Mode and Custom HTTP Fault Injections**

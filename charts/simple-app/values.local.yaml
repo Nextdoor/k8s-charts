@@ -50,3 +50,4 @@ datadog:
 
 network:
   allowedNamespaces: [foo, bar]
+  allowAll: false
