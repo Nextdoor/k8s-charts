@@ -38,11 +38,6 @@ spec:
   - from:
     - source:
         namespaces:
-        {{- /*
-        {{- range .Values.network.allowedNamespaces }}
-        - {{ . | quote }}
-        {{- end }}
-        */}}
         {{- toYaml .Values.network.allowedNamespaces | nindent 8 }}
     to:
     - operation:
