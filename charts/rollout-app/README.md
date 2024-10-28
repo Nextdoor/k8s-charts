@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 1.3.2](https://img.shields.io/badge/Version-1.3.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.4.0](https://img.shields.io/badge/Version-1.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -18,7 +18,7 @@ how these work, and the various custom resource definitions.
 
 ## Upgrade Notes
 
-### 1.2.x -> 1.3.x
+### 1.3.x -> 1.4.x
 
 **NEW: Allow access from cross-cluster, in-mesh services**
 
@@ -29,6 +29,8 @@ as they act as drop-in replacements for a multi-clustered, multi-primary setup.
 `network.allowAll`, if set, will update your NetworkPolicies to allow
 access from anywhere, including  other services running in a different
 cluster in a multi-cluter, multi-primary Istio environment.
+
+### 1.2.x -> 1.3.x
 
 **NEW: Maintenance Mode and Custom HTTP Fault Injections**
 
