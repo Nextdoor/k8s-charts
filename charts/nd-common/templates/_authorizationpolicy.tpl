@@ -1,15 +1,8 @@
 {{- /*
 
-This function creates the following two AuthorizationPolicy objects:
-
-  1. To allow same-namespace access (this can probably be migrated to a
-     Kyverno ClusterPolicy that applies this on all namespaces, but for
-     now adding here for smooth transition for "allow" AuthorizationPolicies
-     to be created too)
-
-  2. To allowNamespaces to have ingress access to the service (a drop-in
-     replacement of the NetworkPolicy we make defunct when a service is to
-     be accessed from a multi-cluster setup
+This function creates the an AuthorizationPolicy objects that (a) allows same-
+namespace access, and, also (b) if allowNamespaces is passed in, to allow ingress
+from them to the service.
 
 These objects are generally pretty simple, but we re-use them in a few places
 and it's nice to have one common way to make them.
@@ -25,19 +18,11 @@ policy with the ALLOW action.
 - */}}
 {{- define "nd-common.authorizationPolicy" }}
 {{- if .Values.istio.enabled }}
-{{- /*
-
-Create a default AuthorizationPolicy that allows local namespace ingress
-
-See note above: after a while, wWe can probably have this as part of a
-Kyverno ClusterPolicy that's added to all namespaces.
-
-- */}}
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: allow-local-namespace-ingress
+  name: {{ include "nd-common.fullname" . }}-ingress
 spec:
   selector:
     matchLabels:
@@ -47,27 +32,18 @@ spec:
   - from:
     - source:
         namespaces: [{{ .Release.Namespace }}]
-
 {{- if .Values.ports }}
 {{- if gt (len .Values.ports) 0 }}
 {{- if gt (len .Values.network.allowedNamespaces) 0 }}
----
-apiVersion: security.istio.io/v1beta1
-kind: AuthorizationPolicy
-metadata:
-  name: allow-{{ include "nd-common.fullname" . }}-ingress
-spec:
-  selector:
-    matchLabels:
-      {{- include "nd-common.selectorLabels" . | nindent 6 }}
-  action: ALLOW
-  rules:
   - from:
     - source:
         namespaces:
+        {{- /*
         {{- range .Values.network.allowedNamespaces }}
         - {{ . | quote }}
         {{- end }}
+        */}}
+        {{- toYaml .Values.network.allowedNamespaces | nindent 8 }}
     to:
     - operation:
         ports:
