@@ -17,7 +17,7 @@ policy with the ALLOW action.
 
 - */}}
 {{- define "nd-common.authorizationPolicy" }}
-{{- if .Values.istio.enabled }}
+{{- if and .Values.istio.enabled (.Capabilities.APIVersions.Has "security.istio.io/v1beta1") }}
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
