@@ -16,6 +16,22 @@ Via https://istio.io/latest/docs/concepts/security/#allow-nothing-deny-all-and-a
 policy with the ALLOW action.
 
 - */}}
+
+{{- define "nd-common.allAllowedNamespaces" -}}
+  {{- $res := .Values.network.allowedNamespaces -}}
+  {{- /*
+    Start off with allowedNamespaces, then append istio
+    ingress gateway namespaces
+  */}}
+  {{- if .Values.virtualService.enabled -}}
+    {{- range .Values.virtualService.gateways -}}
+      {{- $gwParts := splitList "/" .  -}}
+      {{- $res = append $res (first $gwParts) -}}
+    {{- end -}}
+  {{- end -}}
+{{- $res | uniq | toYaml -}}
+{{- end -}}
+
 {{- define "nd-common.authorizationPolicy" }}
 {{- if and .Values.istio.enabled (.Capabilities.APIVersions.Has "security.istio.io/v1beta1") }}
 ---
@@ -32,11 +48,14 @@ spec:
   - from:
     - source:
         namespaces: [{{ .Release.Namespace }}]
-  {{- if and .Values.ports (gt (len .Values.ports) 0) (gt (len .Values.network.allowedNamespaces) 0) }}
+  {{- if and
+    .Values.ports
+    (gt (len .Values.ports) 0)
+    (gt (len (fromYaml (include "nd-common.allAllowedNamespaces" .))) 0) }}
   - from:
     - source:
         namespaces:
-        {{- toYaml .Values.network.allowedNamespaces | nindent 8 }}
+        {{- include "nd-common.allAllowedNamespaces" . | nindent 8 }}
     to:
     - operation:
         ports:

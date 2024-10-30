@@ -51,3 +51,8 @@ datadog:
 network:
   allowedNamespaces: [foo, bar]
   allowAll: false
+
+virtualService:
+  enabled: false
+  gateways:
+    - istio-gateways/foo-gateway
