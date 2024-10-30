@@ -32,7 +32,8 @@ spec:
   - from:
     - source:
         namespaces: [{{ .Release.Namespace }}]
-  {{- if and .Values.ports (gt (len .Values.ports) 0) (gt (len .Values.network.allowedNamespaces) 0) }}
+  {{- if and .Values.ports (gt (len .Values.ports) 0) }}
+  {{- if gt (len .Values.network.allowedNamespaces) 0 }}
   - from:
     - source:
         namespaces:
@@ -43,6 +44,22 @@ spec:
         {{- range $port := .Values.ports }}
         - {{ $port.containerPort | quote }}
         {{- end }}
+  {{- end }}
+  {{- if and .Values.virtualService.enabled (gt (len .Values.virtualService.gateways) 0) }}
+  - from:
+    - source:
+        namespaces:
+        {{- range .Values.virtualService.gateways }}
+        {{- $gwNamespace := first (splitList "/" .)  }}
+        - {{ $gwNamespace | quote }}
+        {{- end }}
+    to:
+    - operation:
+        ports:
+        {{- range $port := .Values.ports }}
+        - {{ $port.containerPort | quote }}
+        {{- end }}
+  {{- end }}
   {{- end }}
 {{- end }}
 {{- end }}
