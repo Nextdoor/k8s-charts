@@ -16,7 +16,6 @@ Via https://istio.io/latest/docs/concepts/security/#allow-nothing-deny-all-and-a
 policy with the ALLOW action.
 
 - */}}
-
 {{- define "nd-common.authorizationPolicy" }}
 {{- if and .Values.istio.enabled (.Capabilities.APIVersions.Has "security.istio.io/v1beta1") }}
 ---
@@ -45,6 +44,7 @@ spec:
         {{- range $port := .Values.ports }}
         - {{ $port.containerPort | quote }}
         {{- end }}
+  {{- end }}
   {{- if and .Values.virtualService.enabled (gt (len .Values.virtualService.gateways) 0) }}
   - from:
     - source:
@@ -59,7 +59,6 @@ spec:
         {{- range $port := .Values.ports }}
         - {{ $port.containerPort | quote }}
         {{- end }}
-  {{- end }}
   {{- end }}
   {{- end }}
 {{- end }}
