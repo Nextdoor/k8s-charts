@@ -45,20 +45,22 @@ spec:
         - {{ $port.containerPort | quote }}
         {{- end }}
   {{- end }}
-  {{- if and .Values.virtualService.enabled (gt (len .Values.virtualService.gateways) 0) }}
+  {{- with .Values.virtualService }}
+  {{- if and .enabled (gt (len .gateways) 0) }}
   - from:
     - source:
         namespaces:
-        {{- range .Values.virtualService.gateways }}
+        {{- range .gateways }}
         {{- $gwNamespace := first (splitList "/" .)  }}
         - {{ $gwNamespace | quote }}
         {{- end }}
     to:
     - operation:
         ports:
-        {{- range $port := .Values.ports }}
+        {{- range $port := $.Values.ports }}
         - {{ $port.containerPort | quote }}
         {{- end }}
+  {{- end }}
   {{- end }}
   {{- end }}
 {{- end }}
