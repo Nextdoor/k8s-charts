@@ -1,4 +1,3 @@
-# Default monitor values
 # -- (`string`) Optional shared pagerduty service name for monitors, will turn to a tag for alerts - if not provided, the .Release.name will be used by default
 serviceName:
 # -- (`string`) Optional shared pagerduty team name for monitors, will turn to a tag for alerts - if not provided, the tag will not be added
@@ -7,16 +6,15 @@ team:
 # -- (`map[string]interface{}`) List of monitors
 monitors:
   # -- (`map[string]interface{}`) Required: monitor resource name, Required unique monitor resource name(needed to allow value overrides and used a datadog monitor resource name)
-  # @section -- monitor
   resourceName:
     # -- (`boolean`) Optional: whether to exclude the monitor, defaults to False
-    disabled: True
+    disabled: true
     # -- (`string`) Require: monitor name
-    name: "[kubernetes] Monitor Kubernetes Failed Pods in Namespaces" # Required monitor name
+    name: "[kubernetes] Monitor Kubernetes Failed Pods in Namespaces"
     # -- (`string`) Required: monitor message
     message: "More than ten pods are failing in ({{kube_cluster_name.name}} cluster). \n The threshold of ten pods varies depending on your infrastructure. Change the threshold to suit your needs."
     # -- (`string`) Optional: monitor piority
-    priority: "2" # Optional alert severity/priority
+    priority: "2"\
     # -- (`string`) Required: monitor query
     query: "change(avg(last_5m),last_5m):sum:kubernetes_state.pod.status_phase{phase:failed} by {kube_cluster_name,kube_namespace} > 10"
     # -- (`string`) Optional: monitor type, if not specified will default to 'query alert'
