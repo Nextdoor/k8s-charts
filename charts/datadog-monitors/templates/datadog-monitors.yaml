@@ -1,0 +1,21 @@
+{{-  range $name, $monitor := .Values.monitors }}
+---
+apiVersion: datadoghq.com/v1alpha1
+kind: DatadogMonitor
+metadata:
+  name: {{ $name }}
+  labels: {{- include "nd-common.labels" $ | nindent 4 }}
+spec:
+  name: {{ $monitor.name | quote }}
+  message: {{ $monitor.message | quote }}
+  query: {{ $monitor.query  | quote }}
+  type: {{ default "query alert" $monitor.type | quote }}
+  {{- with $monitor.priority }}
+  priority: {{.}}
+  {{- end }}
+  tags: {{ include "datadog-monitors.shared-tags" $ | nindent 4 }}
+  {{- with $monitor.tags }}{{ toYaml . | nindent 4 }}{{- end }}
+  options:
+    locked: false
+    {{- with $monitor.options }}{{ toYaml . | nindent 4 }}{{- end }}
+{{- end }}
