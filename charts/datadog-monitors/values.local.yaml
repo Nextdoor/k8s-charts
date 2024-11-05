@@ -1,4 +1,3 @@
-testInstallCrd: true
 serviceName: eks
 team: cloudeng
 monitors:
