@@ -1,3 +1,4 @@
+{{- if .Capabilities.APIVersions.Has "datadoghq.com/v1alpha1" -}}
 {{-  range $name, $monitor := .Values.monitors }}
 ---
 apiVersion: datadoghq.com/v1alpha1
@@ -18,4 +19,5 @@ spec:
   options:
     locked: false
     {{- with $monitor.options }}{{ toYaml . | nindent 4 }}{{- end }}
+{{- end }}
 {{- end }}
