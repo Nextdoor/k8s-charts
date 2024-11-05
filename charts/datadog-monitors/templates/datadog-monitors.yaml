@@ -1,5 +1,6 @@
 {{- if .Capabilities.APIVersions.Has "datadoghq.com/v1alpha1" -}}
 {{-  range $name, $monitor := .Values.monitors }}
+{{- if not $monitor.disabled }}
 ---
 apiVersion: datadoghq.com/v1alpha1
 kind: DatadogMonitor
@@ -19,5 +20,6 @@ spec:
   options:
     locked: false
     {{- with $monitor.options }}{{ toYaml . | nindent 4 }}{{- end }}
+{{- end }}
 {{- end }}
 {{- end }}
