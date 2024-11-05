@@ -14,7 +14,7 @@ monitors:
     # -- (`string`) Required: monitor message
     message: "More than ten pods are failing in ({{kube_cluster_name.name}} cluster). \n The threshold of ten pods varies depending on your infrastructure. Change the threshold to suit your needs."
     # -- (`string`) Optional: monitor piority
-    priority: "2"\
+    priority: "2"
     # -- (`string`) Required: monitor query
     query: "change(avg(last_5m),last_5m):sum:kubernetes_state.pod.status_phase{phase:failed} by {kube_cluster_name,kube_namespace} > 10"
     # -- (`string`) Optional: monitor type, if not specified will default to 'query alert'

@@ -1,4 +1,4 @@
-{{/*- if .Capabilities.APIVersions.Has "datadoghq.com/v1alpha1" -*/}}
+{{- if .Capabilities.APIVersions.Has "datadoghq.com/v1alpha1" -}}
 {{-  range $name, $monitor := .Values.monitors }}
 {{- if not $monitor.disabled }}
 ---
@@ -22,4 +22,4 @@ spec:
     {{- with $monitor.options }}{{ toYaml . | nindent 4 }}{{- end }}
 {{- end }}
 {{- end }}
-{{/*- end */}}
+{{- end }}
