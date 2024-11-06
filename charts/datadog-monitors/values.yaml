@@ -10,13 +10,17 @@ monitors:
     # -- (`boolean`) Optional: whether to enable the monitor, defaults to true
     enabled: false
     # -- (`string`) Require: monitor name
-    name: "[kubernetes] Monitor Kubernetes Failed Pods in Namespaces"
+    # example: name: "[kubernetes] Monitor Kubernetes Failed Pods in Namespaces"
+    name:
     # -- (`string`) Required: monitor message
-    message: "More than ten pods are failing in ({{kube_cluster_name.name}} cluster). \n The threshold of ten pods varies depending on your infrastructure. Change the threshold to suit your needs."
+    # example: message: "More than ten pods are failing in ({{kube_cluster_name.name}} cluster). \n The threshold of ten pods varies depending on your infrastructure. Change the threshold to suit your needs."
+    message:
     # -- (`string`) Optional: monitor piority
-    priority: "2"
+    # example: priority: "2"
+    priority:
     # -- (`string`) Required: monitor query
-    query: "change(avg(last_5m),last_5m):sum:kubernetes_state.pod.status_phase{phase:failed} by {kube_cluster_name,kube_namespace} > 10"
+    # example: query: "change(avg(last_5m),last_5m):sum:kubernetes_state.pod.status_phase{phase:failed} by {kube_cluster_name,kube_namespace} > 10"
+    query:
     # -- (`string`) Optional: monitor type, if not specified will default to 'query alert'
     # Datadog monitor types to type values mapping:
     # - anomaly: `query alert`
@@ -43,41 +47,46 @@ monitors:
     # - service-discovery: `service-discovery alert`
     type: "query alert"
     # -- (`map[string]string`) Optional: Additional monitor tags(will be added on top of the default tags:service, team, namespace)
-    tags:
-      tagname: tagvalue
+    # example:
+    #   tags:
+    #     tagname1: tagvalue1
+    #     tagname2: tagvalue2
+    tags: []
     # -- (`map[string]interface{}`) Optional: monitor options
-    options:
-      # -- (`map[string]string`) Optional: monitor thresholds
-      thresholds:
-        # -- (`string`) Optional: monitor critical threshold
-        critical: "1"
-        # -- (`string`) Optional: monitor warning threshold
-        warning: "0.28"
-      # -- (`string`) Optional: Time in seconds to wait before evaluating the monitor
-      evaluationDelay: 300
-      # -- (`boolean`) Optional: A Boolean indicating Whether or not to group by simple monitor, triggers a single alert or multiple alerts when any group breaches the threshold.
-      groupbySimpleMonitor: false
-      # -- (`boolean`) Optional: A Boolean indicating whether notifications from this monitor automatically insert its triggering tags into the title.
-      includeTags: False
-      # -- (`string`) Optional: Time in seconds to allow a host to boot and applications to fully start before starting the evaluation.
-      newGroupDelay: 300
-      # -- (`boolean`) Optional: A Boolean indicating whether this monitor notifies when data stops reporting.
-      notifyNoData: False
-      # -- (`int`) Optional: The number of minutes before a monitor notifies after data stops reporting. Datadog recommends at least 2x the monitor timeframe for metric alerts or 2 minutes for service checks. If omitted, 2x the evaluation timeframe is used for metric alerts, and 24 hours is used for service checks.
-      noDataTimeframe: 30
-      # -- (`int`) Optional: The number of minutes after the last notification before a monitor re-notifies on the current status.
-      renotifyInterval: 0
-      # -- (`string[]`) Optional: The number of times re-notification messages should be sent on the current status at the provided re-notification interval.
-      renotifyOccurrences: 0
-      # -- (`string[]`) Optional: The types of statuses for which re-notification messages should be sent(Valid values are alert, warn, no data).
-      renotifyStatus: []
-      # -- (`string[]`) Optional: List of labels indicating the granularity for a monitor to alert on. Only available for monitors with groupings.
-      notifyBy: []
-      # -- (`boolean`) Optional: A Boolean indicating whether this monitor requires full window of data before it will fire, We highly recommend you set this to false for sparse metrics, otherwise some evaluations are skipped.
-      requireFullWindow: false
-      # -- (`map[string]string`) Optional: Threshold windows to finetune alerting
-      thresholdWindows:
-        # -- (`string`) Optional: Describes how long an anomalous metric must be normal before the alert recovers.
-        recoveryWindow: "10m"
-        # -- (`string`) Optional: Describes how long an anomalous metric must be anomalous before the alert fires.
-        alertWindow: "5m"
+    # example:
+      # (`map[string]string`) Optional: monitor thresholds
+      # thresholds:
+      #   (`string`) Optional: monitor critical threshold
+      #   critical: "1"
+      #   (`string`) Optional: monitor warning threshold
+      #   warning: "0.28"
+      # (`string`) Optional: Time in seconds to wait before evaluating the monitor
+      # evaluationDelay: 300
+      # (`boolean`) Optional: A Boolean indicating Whether or not to group by simple monitor, triggers a single alert or multiple alerts when any group breaches the threshold.
+      # groupbySimpleMonitor: false
+      # (`boolean`) Optional: A Boolean indicating whether notifications from this monitor automatically insert its triggering tags into the title.
+      # includeTags: False
+      # (`string`) Optional: Time in seconds to allow a host to boot and applications to fully start before starting the evaluation.
+      # newGroupDelay: 300
+      # (`boolean`) Optional: A Boolean indicating whether this monitor notifies when data stops reporting.
+      # notifyNoData: False
+      # (`int`) Optional: The number of minutes before a monitor notifies after data stops reporting. Datadog recommends at least 2x the monitor timeframe for metric alerts or 2 minutes for service checks. If omitted, 2x the evaluation timeframe is used for metric alerts, and 24 hours is used for service checks.
+      # noDataTimeframe: 30
+      # (`int`) Optional: The number of minutes after the last notification before a monitor re-notifies on the current status.
+      # renotifyInterval: 0
+      # (`string[]`) Optional: The number of times re-notification messages should be sent on the current status at the provided re-notification interval.
+      # renotifyOccurrences: 0
+      # (`string[]`) Optional: The types of statuses for which re-notification messages should be sent(Valid values are alert, warn, no data).
+      # renotifyStatus: []
+      # (`string[]`) Optional: List of labels indicating the granularity for a monitor to alert on. Only available for monitors with groupings.
+      # notifyBy: []
+      # (`boolean`) Optional: A Boolean indicating whether this monitor requires full window of data before it will fire, We highly recommend you set this to false for sparse metrics, otherwise some evaluations are skipped.
+      # requireFullWindow: false
+      # (`map[string]string`) Optional: Threshold windows to finetune alerting
+      # thresholdWindows:
+      #   (`string`) Optional: Describes how long an anomalous metric must be normal before the alert recovers.
+      #   recoveryWindow: "10m"
+      #   (`string`) Optional: Describes how long an anomalous metric must be anomalous before the alert fires.
+      #   alertWindow: "5m"
+    options: []
+
