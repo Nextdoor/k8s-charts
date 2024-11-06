@@ -2,7 +2,7 @@ serviceName: eks
 team: cloudeng
 monitors:
   failed-pods:
-    disabled: true
+    enabled: false
     name: "[kubernetes] Monitor Kubernetes Failed Pods in Namespaces"
     message: "More than ten pods are failing in ({{kube_cluster_name.name}} cluster). \n The threshold of ten pods varies depending on your infrastructure. Change the threshold to suit your needs."
     priority: "2"

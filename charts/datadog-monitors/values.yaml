@@ -7,8 +7,8 @@ team:
 monitors:
   # -- (`map[string]interface{}`) Required: monitor resource name, Required unique monitor resource name(needed to allow value overrides and used a datadog monitor resource name)
   resourceName:
-    # -- (`boolean`) Optional: whether to exclude the monitor, defaults to False
-    disabled: true
+    # -- (`boolean`) Optional: whether to enable the monitor, defaults to true
+    enabled: false
     # -- (`string`) Require: monitor name
     name: "[kubernetes] Monitor Kubernetes Failed Pods in Namespaces"
     # -- (`string`) Required: monitor message
