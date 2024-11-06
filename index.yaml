@@ -936,6 +936,24 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/daemonset-app-0.0.1/daemonset-app-0.0.1.tgz
     version: 0.0.1
+  datadog-monitors:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2024-11-06T17:07:14.179848282Z"
+    dependencies:
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.3.6
+    description: datadog monitor alerts template
+    digest: ddbaf395ace05efb551161e66fca04bc786e331c069be13571f3b8291de3c1bd
+    maintainers:
+    - email: scohen@nextdoor.com
+      name: scohen
+    name: datadog-monitors
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/datadog-monitors-0.0.1/datadog-monitors-0.0.1.tgz
+    version: 0.0.1
   flink-job:
   - apiVersion: v2
     appVersion: "1.0"
@@ -8096,4 +8114,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2024-11-02T16:12:53.533138151Z"
+generated: "2024-11-06T17:07:14.180481305Z"
