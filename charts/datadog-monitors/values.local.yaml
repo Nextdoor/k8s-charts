@@ -14,7 +14,8 @@ monitors:
     name: "Test log alert made from DatadogMonitor"
     message: "1-2-3 testing"
     tags:
-      - "test:datadog"
+      test: datadog
+      team: data
     priority: 5
     options:
       enableLogsSample: true

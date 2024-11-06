@@ -42,9 +42,9 @@ monitors:
     # - network-performance: `network-performance alert`
     # - service-discovery: `service-discovery alert`
     type: "query alert"
-    # -- (`string[]`) Optional: Additional monitor tags(will be added on top of the default tags:service, team, namespace, cluster, app_env, app_group)
+    # -- (`map[string]string`) Optional: Additional monitor tags(will be added on top of the default tags:service, team, namespace)
     tags:
-      - 'tagname:tagvalue'
+      tagname: tagvalue
     # -- (`map[string]interface{}`) Optional: monitor options
     options:
       # -- (`map[string]string`) Optional: monitor thresholds

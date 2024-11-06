@@ -1,4 +1,4 @@
-{{- if .Capabilities.APIVersions.Has "datadoghq.com/v1alpha1" -}}
+{{/*- if .Capabilities.APIVersions.Has "datadoghq.com/v1alpha1" -*/}}
 {{-  range $name, $monitor := .Values.monitors }}
 {{- if not $monitor.disabled }}
 ---
@@ -15,11 +15,10 @@ spec:
   {{- with $monitor.priority }}
   priority: {{.}}
   {{- end }}
-  tags: {{ include "datadog-monitors.shared-tags" $ | nindent 4 }}
-  {{- with $monitor.tags }}{{ toYaml . | nindent 4 }}{{- end }}
+  tags: {{ include "datadog-monitors.tags" (list $ .tags) | nindent 4 }}
   options:
     locked: false
     {{- with $monitor.options }}{{ toYaml . | nindent 4 }}{{- end }}
 {{- end }}
 {{- end }}
-{{- end }}
+{{/*- end */}}
