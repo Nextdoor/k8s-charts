@@ -63,9 +63,9 @@ monitors:
     # `thresholds.warning: "0.28"` # Optional: monitor warning threshold</br>
     # `evaluationDelay: 300` # Optional: Time in seconds to wait before evaluating the monitor</br>
     # `groupbySimpleMonitor:` false # Optional: A Boolean indicating Whether or not to group by simple monitor, triggers a single alert or multiple alerts when any group breaches the threshold.</br>
-    # `includeTags: False` # Optional: A Boolean indicating whether notifications from this monitor automatically insert its triggering tags into the title.</br>
+    # `includeTags: false` # Optional: A Boolean indicating whether notifications from this monitor automatically insert its triggering tags into the title.</br>
     # `newGroupDelay: 300` # Optional: Time in seconds to allow a host to boot and applications to fully start before starting the evaluation.</br>
-    # `notifyNoData: False` # Optional: A Boolean indicating whether this monitor notifies when data stops reporting.</br>
+    # `notifyNoData: false` # Optional: A Boolean indicating whether this monitor notifies when data stops reporting.</br>
     # `noDataTimeframe: 30` # Optional: The number of minutes before a monitor notifies after data stops reporting. Datadog recommends at least 2x the monitor timeframe for metric alerts or 2 minutes for service checks. If omitted, 2x the evaluation timeframe is used for metric alerts, and 24 hours is used for service checks.</br>
     # `renotifyInterval: 0` # Optional: The number of minutes after the last notification before a monitor re-notifies on the current status.</br>
     # `renotifyOccurrences: 0` # Optional: The number of times re-notification messages should be sent on the current status at the provided re-notification interval.</br>
@@ -101,7 +101,7 @@ monitors:
       # (`boolean`) Optional: A Boolean indicating whether notifications from this monitor automatically insert its triggering tags into the title.
       # @default --
       # @section -- options
-      includeTags: False
+      includeTags: false
       # (`string`) Optional: Time in seconds to allow a host to boot and applications to fully start before starting the evaluation.
       # @default --
       # @section -- options
@@ -109,7 +109,7 @@ monitors:
       # (`boolean`) Optional: A Boolean indicating whether this monitor notifies when data stops reporting.
       # @default --
       # @section -- options
-      notifyNoData: False
+      notifyNoData: false
       # (`int`) Optional: The number of minutes before a monitor notifies after data stops reporting. Datadog recommends at least 2x the monitor timeframe for metric alerts or 2 minutes for service checks. If omitted, 2x the evaluation timeframe is used for metric alerts, and 24 hours is used for service checks.
       # @default -- "2x evaluation timeframe"
       # @section -- options
