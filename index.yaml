@@ -939,6 +939,23 @@ entries:
   datadog-monitors:
   - apiVersion: v2
     appVersion: latest
+    created: "2024-11-08T19:23:25.638680139Z"
+    dependencies:
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.3.6
+    description: datadog monitor alerts template
+    digest: 767d3a74e908acba53544df19c40cefd253df198d95488e3d8ef3ded8b08e1ec
+    maintainers:
+    - email: scohen@nextdoor.com
+      name: scohen
+    name: datadog-monitors
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/datadog-monitors-0.0.2/datadog-monitors-0.0.2.tgz
+    version: 0.0.2
+  - apiVersion: v2
+    appVersion: latest
     created: "2024-11-06T17:07:14.179848282Z"
     dependencies:
     - name: nd-common
@@ -8114,4 +8131,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2024-11-06T17:07:14.180481305Z"
+generated: "2024-11-08T19:23:25.63936017Z"
