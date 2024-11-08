@@ -8,6 +8,7 @@ monitors:
   # -- (`map[string]interface{}`) Required: monitor resource name, Required unique monitor resource name(needed to allow value overrides and used a datadog monitor resource name)
   resourceName:
     # -- (`boolean`) Optional: whether to enable the monitor, defaults to true
+    # @default -- true
     enabled: false
     # -- (`string`) Require: monitor name
     # example: name: "[kubernetes] Monitor Kubernetes Failed Pods in Namespaces"
@@ -47,12 +48,14 @@ monitors:
     # - service-discovery: `service-discovery alert`
     type: "query alert"
     # -- (`map[string]string`) Optional: Additional monitor tags(will be added on top of the default tags:service, team, namespace)
+    # @default -- [service:<servicename>, namespace:<namespace>]
     # example:
     #   tags:
     #     tagname1: tagvalue1
     #     tagname2: tagvalue2
     tags: []
     # -- (`map[string]interface{}`) Optional: monitor options
+    # @default -- []
     # example:
       # (`map[string]string`) Optional: monitor thresholds
       # thresholds:
