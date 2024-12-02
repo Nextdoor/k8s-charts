@@ -11,3 +11,15 @@ setting.
 {{- .Values.proxySidecar.image.repository }}:{{ $tag }}
 {{- end }}
 {{- end }}
+
+{{- define "nd-common.extendedLabels" -}}
+{{- $baseLabels := include "nd-common.labels" . | fromYaml -}}
+{{- $extendedLabels := merge $baseLabels (dict
+    "helm.chart.simple-app/version" .Chart.Version
+) -}}
+{{- $extendedLabels | toYaml -}}
+{{- end -}}
+
+
+
+
