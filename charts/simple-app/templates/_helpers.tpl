@@ -19,7 +19,3 @@ setting.
 ) -}}
 {{- $extendedLabels | toYaml -}}
 {{- end -}}
-
-
-
-
