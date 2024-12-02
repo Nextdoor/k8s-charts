@@ -20,7 +20,7 @@ The additional labels include:
   - helm.chart/name: Specifies the name of the chart (hardcoded as "simple-app").
   - helm.chart/version: Includes the chart version dynamically from .Chart.Version.
 */}}
-{{- define "nd-common.extendedLabels" -}}
+{{- define "simple-app.labels" -}}
 {{- $baseLabels := include "nd-common.labels" . | fromYaml -}}
 {{- $extendedLabels := merge $baseLabels (dict
     "helm.chart/name" "simple-app"

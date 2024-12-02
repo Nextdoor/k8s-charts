@@ -5,7 +5,7 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: {{ include "nd-common.fullname" . }}
   labels:
-    {{- include "nd-common.extendedLabels" . | nindent 4 }}
+    {{- include "rollout-app.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: argoproj.io/v1alpha1
