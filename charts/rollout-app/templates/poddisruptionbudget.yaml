@@ -4,7 +4,7 @@ kind: PodDisruptionBudget
 metadata:
   name: {{ template "nd-common.fullname" . }}
   labels:
-    {{- include "nd-common.labels" . | nindent 4 }}
+    {{- include "nd-common.extendedLabels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:

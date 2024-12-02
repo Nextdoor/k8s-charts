@@ -8,7 +8,7 @@ kind: PrometheusRule
 metadata:
   name: {{ .Release.Name }}-{{ .Chart.Name }}-rules
   labels:
-    {{- include "nd-common.labels" . | nindent 4 }}
+    {{- include "nd-common.extendedLabels" . | nindent 4 }}
 spec:
   groups:
   - name: {{ .Release.Namespace }}.{{ .Release.Name }}.{{ .Chart.Name }}.PodRules

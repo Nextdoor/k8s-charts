@@ -9,7 +9,7 @@ kind: Service
 metadata:
   name: {{ include "nd-common.fullname" . }}
   labels:
-    {{- include "nd-common.labels" . | nindent 4 }}
+    {{- include "nd-common.extendedLabels" . | nindent 4 }}
   annotations:
     {{/*
     This is only used for type=LoadBalancer Services which run in AWS.
@@ -40,7 +40,7 @@ kind: Service
 metadata:
   name: {{ include "nd-common.fullname" . }}-preview
   labels:
-    {{- include "nd-common.labels" . | nindent 4 }}
+    {{- include "nd-common.extendedLabels" . | nindent 4 }}
   annotations:
     {{/*
     This is only used for type=LoadBalancer Services which run in AWS.
@@ -73,7 +73,7 @@ kind: Service
 metadata:
   name: {{ include "nd-common.fullname" . }}-canary
   labels:
-    {{- include "nd-common.labels" . | nindent 4 }}
+    {{- include "nd-common.extendedLabels" . | nindent 4 }}
   annotations:
     {{/*
     This is only used for type=LoadBalancer Services which run in AWS.
