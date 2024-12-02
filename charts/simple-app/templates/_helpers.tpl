@@ -23,8 +23,8 @@ The additional labels include:
 {{- define "simple-app.labels" -}}
 {{- $baseLabels := include "nd-common.labels" . | fromYaml -}}
 {{- $extendedLabels := merge $baseLabels (dict
-    "helm.chart/name" "simple-app"
-    "helm.chart/version" .Chart.Version
+    "helm.sh/chartName" "simple-app"
+    "helm.sh/chartVersion" .Chart.Version
 ) -}}
 {{- $extendedLabels | toYaml -}}
 {{- end -}}

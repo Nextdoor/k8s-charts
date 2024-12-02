@@ -18,8 +18,8 @@ The additional labels include:
 {{- define "stateful-app.labels" -}}
 {{- $baseLabels := include "nd-common.labels" . | fromYaml -}}
 {{- $extendedLabels := merge $baseLabels (dict
-    "helm.chart/name" "stateful-app"
-    "helm.chart/version" .Chart.Version
+    "helm.sh/chartName" "stateful-app"
+    "helm.sh/chartVersion" .Chart.Version
 ) -}}
 {{- $extendedLabels | toYaml -}}
 {{- end -}}

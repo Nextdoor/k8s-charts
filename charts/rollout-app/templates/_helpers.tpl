@@ -53,8 +53,8 @@ The additional labels include:
 {{- define "rollout-app.labels" -}}
 {{- $baseLabels := include "nd-common.labels" . | fromYaml -}}
 {{- $extendedLabels := merge $baseLabels (dict
-    "helm.chart/name" "rollout-app"
-    "helm.chart/version" .Chart.Version
+    "helm.sh/chartName" "rollout-app"
+    "helm.sh/chartVersion" .Chart.Version
 ) -}}
 {{- $extendedLabels | toYaml -}}
 {{- end -}}

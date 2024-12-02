@@ -9,8 +9,8 @@ The additional labels include:
 {{- define "daemonset-app.labels" -}}
 {{- $baseLabels := include "nd-common.labels" . | fromYaml -}}
 {{- $extendedLabels := merge $baseLabels (dict
-    "helm.chart/name" "daemonset-app"
-    "helm.chart/version" .Chart.Version
+    "helm.sh/chartName" "daemonset-app"
+    "helm.sh/chartVersion" .Chart.Version
 ) -}}
 {{- $extendedLabels | toYaml -}}
 {{- end -}}
