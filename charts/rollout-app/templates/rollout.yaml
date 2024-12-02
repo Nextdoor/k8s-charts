@@ -3,7 +3,7 @@ kind: Rollout
 metadata:
   name: {{ include "nd-common.fullname" . }}
   labels:
-    {{- include "nd-common.labels" . | nindent 4 }}
+    {{- include "rollout-app.labels" . | nindent 4 }}
 spec:
   {{- with .Values.minReadySeconds }}
   minReadySeconds: {{ . }}
@@ -140,7 +140,7 @@ spec:
         {{- end }}
         {{- end }}
       labels:
-        {{- include "nd-common.labels" . | nindent 8 }}
+        {{- include "rollout-app.labels" . | nindent 8 }}
         {{- include "nd-common.istioLabels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- tpl (toYaml .) $ | nindent 8 }}

@@ -6,7 +6,7 @@ kind: VirtualService
 metadata:
   name: {{ include "nd-common.fullname" . }}
   labels:
-    {{- include "nd-common.labels" . | nindent 4 }}
+    {{- include "simple-app.labels" . | nindent 4 }}
   {{- with .Values.virtualService.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}

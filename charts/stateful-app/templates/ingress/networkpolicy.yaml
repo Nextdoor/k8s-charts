@@ -5,7 +5,7 @@ kind: NetworkPolicy
 metadata:
   name: {{ include "nd-common.fullname" . }}-ingress-access
   labels:
-    {{- include "nd-common.labels" . | nindent 4 }}
+    {{- include "stateful-app.labels" . | nindent 4 }}
 spec:
   policyTypes: [Ingress]
   podSelector:

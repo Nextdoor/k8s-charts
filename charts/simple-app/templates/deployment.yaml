@@ -68,7 +68,7 @@ kind: Deployment
 metadata:
   name: {{ $fullName }}
   labels:
-    {{- include "nd-common.labels" $ | nindent 4 }}
+    {{- include "simple-app.labels" $ | nindent 4 }}
     {{- with $deploymentZoneLabel }}
     {{ . }}
     {{- end }}
@@ -105,7 +105,7 @@ spec:
         {{- end }}
         {{- end }}
       labels:
-        {{- include "nd-common.labels" $ | nindent 8 }}
+        {{- include "simple-app.labels" $ | nindent 8 }}
         {{- include "nd-common.istioLabels" $ | nindent 8 }}
         {{- with $.Values.podLabels }}
         {{- tpl (toYaml .) $ | nindent 8 }}
@@ -315,7 +315,7 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: {{ $fullName }}
   labels:
-    {{- include "nd-common.labels" $ | nindent 4 }}
+    {{- include "simple-app.labels" $ | nindent 4 }}
     {{- with $deploymentZoneLabel }}
     {{ . }}
     {{- end }}
@@ -369,7 +369,7 @@ kind: PodDisruptionBudget
 metadata:
   name: {{ $fullName }}
   labels:
-    {{- include "nd-common.labels" $ | nindent 4 }}
+    {{- include "simple-app.labels" $ | nindent 4 }}
     {{- with $deploymentZoneLabel }}
     {{ . }}
     {{- end }}
