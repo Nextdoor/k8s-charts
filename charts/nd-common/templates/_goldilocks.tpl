@@ -1,7 +1,7 @@
 {{/*
 
 The "goldilocksLabels" function creates common Goldilocks labels that can be applied
-to workloads(like deployments, pods, etc...). These labels help configure the Goldilocks VPAs. This
+to workloads(like: deployment, statefulset, etc...). These labels help configure the Goldilocks VPAs. This
 function automatically checks if `.Values.datadog.enabled` is True, so you do
 not need to add that logic into your template.
 
