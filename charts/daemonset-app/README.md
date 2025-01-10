@@ -264,7 +264,7 @@ secretsEngine: sealed
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.3.6 |
+| file://../nd-common | nd-common | 0.3.7 |
 
 ## Values
 
