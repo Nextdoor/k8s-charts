@@ -15,3 +15,4 @@ goldilocks.fairwinds.com/enabled: "true"
 goldilocks.fairwinds.com/vpa-update-mode: {{ default "off" .updateMode | quote }}
 {{- end }}
 {{- end }}
+
