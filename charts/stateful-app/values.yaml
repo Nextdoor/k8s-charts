@@ -606,6 +606,15 @@ datadog:
     # https://docs.datadoghq.com/agent/logs/advanced_log_collection/?tab=configurationfile
     processingRules: []
 
+# -- (`map`) Configuration for the goldilocks component.
+# Those values are used to control the goldilocks VPA's, enable/disable them or setting their mode.
+goldilocks:
+  # -- (`bool`) Enable the goldilocks VPA
+  enabled:
+  # -- (`string`) Default update mode fo goldilocks VPA's in the namespace(off/auto/initial), defaults to namespace level mode/off
+  # See https://goldilocks.docs.fairwinds.com/advanced
+  updateMode:
+
 tests:
   connection:
     # -- Controls whether or not this Helm test component is enabled.

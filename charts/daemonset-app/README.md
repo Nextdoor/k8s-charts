@@ -2,7 +2,7 @@
 
 Default DaemonSet Helm Chart
 
-![Version: 0.16.3](https://img.shields.io/badge/Version-0.16.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.17.0](https://img.shields.io/badge/Version-0.17.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -288,6 +288,9 @@ secretsEngine: sealed
 | envFrom | list | `[]` | Pull all of the environment variables listed in a ConfigMap into the Pod. See https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables for more details. |
 | extraContainers | list | `[]` |  |
 | fullnameOverride | string | `""` |  |
+| goldilocks | `map` | `{"enabled":null,"updateMode":null}` | Configuration for the goldilocks component. Those values are used to control the goldilocks VPA's, enable/disable them or setting their mode. |
+| goldilocks.enabled | `bool` | `nil` | Enable the goldilocks VPA |
+| goldilocks.updateMode | `string` | `nil` | Default update mode fo goldilocks VPA's in the namespace(off/auto/initial), defaults to namespace level mode/off See https://goldilocks.docs.fairwinds.com/advanced |
 | hostNetwork | string | `nil` |  |
 | image.forceTag | String | `nil` | Forcefully overrides the `image.tag` setting - this is useful if you have an outside too that automatically updates the `image.tag` value, but you want your application operators to be able to squash that override themselves. |
 | image.pullPolicy | String | `"IfNotPresent"` | Always, Never or IfNotPresent |
