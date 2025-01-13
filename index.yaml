@@ -3,6 +3,23 @@ entries:
   daemonset-app:
   - apiVersion: v2
     appVersion: latest
+    created: "2025-01-13T19:29:43.189228553Z"
+    dependencies:
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.4.0
+    description: Default DaemonSet Helm Chart
+    digest: ab0788870b6de34ffc4093f977446042346eedf108570ed6f1c21da89581fe3c
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: daemonset-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/daemonset-app-0.17.0/daemonset-app-0.17.0.tgz
+    version: 0.17.0
+  - apiVersion: v2
+    appVersion: latest
     created: "2024-12-03T23:12:47.449638134Z"
     dependencies:
     - name: nd-common
@@ -2074,6 +2091,16 @@ entries:
   nd-common:
   - apiVersion: v2
     appVersion: latest
+    created: "2025-01-13T19:29:43.28696805Z"
+    description: A helper chart used by most of our other charts
+    digest: 1df42ccc92be790b9214cdd210e1b3de59cef885084239cd87f732a9b02337ed
+    name: nd-common
+    type: library
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/nd-common-0.4.0/nd-common-0.4.0.tgz
+    version: 0.4.0
+  - apiVersion: v2
+    appVersion: latest
     created: "2024-11-02T16:12:53.17910194Z"
     description: A helper chart used by most of our other charts
     digest: 0a3f14418b0ae35e7280dd525d1ccda94fa7af9074574377f97eb1c7a45c8d29
@@ -3919,6 +3946,27 @@ entries:
     - https://github.com/Nextdoor/k8s-charts/releases/download/rollout-app-0.0.1/rollout-app-0.0.1.tgz
     version: 0.0.1
   simple-app:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2025-01-13T19:29:43.393618004Z"
+    dependencies:
+    - condition: istio-alerts.enabled
+      name: istio-alerts
+      repository: https://k8s-charts.nextdoor.com
+      version: 0.5.2
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.4.0
+    description: Default Microservice Helm Chart
+    digest: cb5a5f82c6679b1926b45c65450d4be8741d3a0522c6971a61d029264872740f
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: simple-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/simple-app-1.13.0/simple-app-1.13.0.tgz
+    version: 1.13.0
   - apiVersion: v2
     appVersion: latest
     created: "2024-12-03T23:12:47.79238421Z"
@@ -6750,6 +6798,27 @@ entries:
   stateful-app:
   - apiVersion: v2
     appVersion: latest
+    created: "2025-01-13T19:29:43.518292099Z"
+    dependencies:
+    - condition: istio-alerts.enabled
+      name: istio-alerts
+      repository: https://k8s-charts.nextdoor.com
+      version: 0.5.2
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.4.0
+    description: Default StatefulSet Helm Chart
+    digest: f73101a2b616500fe8ad15259aecb3bca2566803319a460e5508b5961a33ebc3
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: stateful-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-1.5.0/stateful-app-1.5.0.tgz
+    version: 1.5.0
+  - apiVersion: v2
+    appVersion: latest
     created: "2024-12-03T23:12:47.91621202Z"
     dependencies:
     - condition: istio-alerts.enabled
@@ -8291,4 +8360,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2024-12-03T23:12:47.917413419Z"
+generated: "2025-01-13T19:29:43.51940222Z"
