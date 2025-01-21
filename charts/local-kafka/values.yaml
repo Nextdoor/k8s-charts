@@ -9,7 +9,7 @@ clusterName: default
 # put into is used. It is recommended to keep this empty.
 namespaceOverride:
 
-# -- Optionall annotations added to all of the resources managed by this template.
+# -- Optional annotations added to all of the resources managed by this template.
 annotations: {}
 
 # -- Optional annotations added to all of the Strimzi-managed Pods.

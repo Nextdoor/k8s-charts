@@ -66,7 +66,7 @@ local-kafka:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| annotations | object | `{}` | Optionall annotations added to all of the resources managed by this template. |
+| annotations | object | `{}` | Optional annotations added to all of the resources managed by this template. |
 | clusterName | string | `"default"` | Set the name of the Kafka Cluster that is created for local development |
 | kafka.brokerVersion | `str` | `nil` | Optional version of Kafka to install (eg, `2.8.0`) |
 | kafka.interBrokerProtocolVersion | `str` | `nil` | Optional value for the inter.broker.protocol.version property (eg. `2.8`) |
