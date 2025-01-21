@@ -60,3 +60,10 @@ spec:
   entityOperator:
     topicOperator: {}
     userOperator: {}
+    {{- with .Values.podAnnotations }}
+    template:
+      pod:
+        metadata:
+          annotations:
+            {{- toYaml . | nindent 14 }}
+    {{- end }}

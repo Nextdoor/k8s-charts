@@ -9,6 +9,9 @@ clusterName: default
 # put into is used. It is recommended to keep this empty.
 namespaceOverride:
 
+# -- Optional annotations added to all of the Strimzi-managed Pods.
+podAnnotations: {}
+
 # Settings that dictate the version of Kafka to run, message formats, etc. If
 # these are left out, then the _latest_ version is used by the Operator.
 kafka:

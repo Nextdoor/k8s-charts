@@ -20,3 +20,10 @@ spec:
         size: 500Mi
         deleteClaim: false
         kraftMetadata: shared
+  {{- with .Values.podAnnotations }}
+  template:
+    pod:
+      metadata:
+        annotations:
+          {{- toYaml . | nindent 10 }}
+  {{- end }}
