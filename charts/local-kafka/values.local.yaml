@@ -1,3 +1,5 @@
 # Example of setting custom pod annotations
+annotations:
+  testAllAnnotations: value
 podAnnotations:
   testAnnotation: value

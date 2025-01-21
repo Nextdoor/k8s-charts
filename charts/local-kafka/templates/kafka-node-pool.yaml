@@ -7,6 +7,10 @@ metadata:
   {{- end }}
   labels:
     strimzi.io/cluster: {{ .Values.clusterName }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   replicas: 1
   roles:
@@ -20,10 +24,13 @@ spec:
         size: 500Mi
         deleteClaim: false
         kraftMetadata: shared
-  {{- with .Values.podAnnotations }}
   template:
     pod:
       metadata:
         annotations:
+          {{- with .Values.annotations }}
           {{- toYaml . | nindent 10 }}
-  {{- end }}
+          {{- end }}
+          {{- with .Values.podAnnotations }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}

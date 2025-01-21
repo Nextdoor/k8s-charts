@@ -7,6 +7,10 @@ metadata:
   {{- end }}
   labels:
     strimzi.io/cluster: {{ .Values.clusterName }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   authentication:
     type: tls

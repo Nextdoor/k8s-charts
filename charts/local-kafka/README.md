@@ -52,8 +52,8 @@ are up and ready before your own application pods start up:
 ```yaml
 # values.yaml
 local-kafka:
-  podAnnotations:
-    "helm.sh/hook": pre-install
+  annotations:
+    helm.sh/hook: pre-install
 ```
 
 ## Requirements
@@ -66,6 +66,7 @@ local-kafka:
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| annotations | object | `{}` | Optionall annotations added to all of the resources managed by this template. |
 | clusterName | string | `"default"` | Set the name of the Kafka Cluster that is created for local development |
 | kafka.brokerVersion | `str` | `nil` | Optional version of Kafka to install (eg, `2.8.0`) |
 | kafka.interBrokerProtocolVersion | `str` | `nil` | Optional value for the inter.broker.protocol.version property (eg. `2.8`) |

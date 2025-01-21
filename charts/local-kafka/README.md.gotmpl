@@ -51,8 +51,8 @@ are up and ready before your own application pods start up:
 ```yaml
 # values.yaml
 local-kafka:
-  podAnnotations:
-    "helm.sh/hook": pre-install
+  annotations:
+    helm.sh/hook: pre-install
 ```
 
 {{ template "chart.requirementsSection" . }}
