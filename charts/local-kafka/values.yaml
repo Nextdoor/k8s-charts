@@ -63,19 +63,10 @@ strimzi-kafka-operator:
   # development projects.
   watchAnyNamespace: true
 
-  # -- Run the Operator in a pretty verbose mode - allowing developers to more
-  # easily understand if there are any problems with the operator installation
-  # or its behavior.
-  logLevel: DEBUG
-
-  # I cannot tell you why - but for local dev (at least on an M1 laptop), it
-  # seems that the initial startup takes MUCH longer than it should. Without
-  # this, you get into a restart-loop where Kubernetes keeps thinking the
-  # Operator is not healthy, when it's really just in its startup phase.
-  livenessProbe:
-    initialDelaySeconds: 180
-  readinessProbe:
-    initialDelaySeconds: 180
+  # -- Optionally run the Operator in a pretty verbose mode - allowing
+  # developers to more easily understand if there are any problems with the
+  # operator installation or its behavior.
+  logLevel: INFO
 
   # -- Reconfigure the default resource requirements here so that the
   # "requests" are as low as possible for memory (so we're not allocating any
