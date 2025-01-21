@@ -1,0 +1,36 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: {{ .Values.clusterName }}
+  {{- with .Values.namespaceOverride }}
+  namespace: {{ . }}
+  {{- end }}
+  labels:
+    strimzi.io/cluster: {{ .Values.clusterName }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: 1
+  roles:
+    - controller
+    - broker
+  storage:
+    type: jbod
+    volumes:
+      - id: 0
+        type: persistent-claim
+        size: 500Mi
+        deleteClaim: false
+        kraftMetadata: shared
+  template:
+    pod:
+      metadata:
+        annotations:
+          {{- with .Values.annotations }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+          {{- with .Values.podAnnotations }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}

@@ -1,0 +1,4 @@
+# Test that setting the helm.sh/hook annotations works as expected and the helm
+# tests function
+annotations:
+  helm.sh/hook: pre-install
