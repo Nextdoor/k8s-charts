@@ -1,6 +1,10 @@
 {{ $destinationServiceSelectorForIstioMetrics     := include "istio-alerts.destinationServiceSelectorForIstioMetrics" . }}
 {{ $destinationServiceSelectorForKubeStateMetrics := include "istio-alerts.destinationServiceSelectorForKubeStateMetrics" . }}
-
+{{- $chartname := .Chart.Name -}}
+{{- $path := splitList "/" .Template.Name -}}
+{{- if gt (len $path) 3 -}}
+{{- $chartname = (printf "%s-%s" $name (index $path 2)) -}}
+{{- end -}}
 {{- if .Values.serviceRules.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
@@ -11,7 +15,7 @@ metadata:
     nextdoor.com/source: {{ .Values.chart_source }}
 spec:
   groups:
-  - name: {{ .Release.Namespace }}.{{ .Release.Name }}.{{ .Chart.Name }}.IstioServiceRules
+  - name: {{ .Release.Namespace }}.{{ .Release.Name }}.{{ $chartname }}.IstioServiceRules
     rules:
     {{- with .Values.serviceRules.http5XXMonitor }}
     {{- if .enabled }}
