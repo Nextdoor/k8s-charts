@@ -23,7 +23,7 @@ serviceRules:
   # -- Narrow down the alerts to a particular Destination Service if there
   # are multiple services that require different thresholds within the same
   # namespace.
-  destinationServiceName: .*
+  destinationServiceName: ""
 
   # -- Configuration related to the 5xx monitor for the VirtualService.
   http5XXMonitor:
