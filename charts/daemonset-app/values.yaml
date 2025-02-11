@@ -359,6 +359,11 @@ istio:
   # a DaemonSet to be part of the service mesh.
   enabled: false
 
+  # -- (`bool`) Set to "true" if your app is running the istio-proxy as a
+  # Kubernetes native sidecar - in which case PreStop commands should be updating
+  # initContainers of the Pod spec rather than containers.
+  nativeSidecarsEnabled: false
+
   # -- (`list <str>`) If supplied, this is the command that will be passed into
   # the `istio-proxy` sidecar container as a pre-stop function. This is used to
   # delay the shutdown of the istio-proxy sidecar in some way or another. Our
@@ -369,6 +374,17 @@ istio:
   # eg:
   # preStopCommand: [ /bin/sleep, "30" ]
   preStopCommand: null
+
+  # -- (`bool`) Set to "true" if you want our own default behavior for preStop
+  # command to be applied to istio-proxy.
+  #
+  # This used to be untogglable as it was almost always required, but with Kubernetes
+  # native sidecars, it's really not needed as an infinite drain can take over all
+  # the time.
+  #
+  # However, due to https://github.com/istio/istio/issues/51855, you may still
+  # want this even for a native sidecar
+  preStopDefaultEnabled: true
 
   # -- (`bool`) If set to "True", then the Istio Metrics Merging system will be
   # turned on and Envoy will attempt to scrape metrics from the application pod
