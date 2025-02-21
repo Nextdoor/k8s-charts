@@ -40,11 +40,19 @@ listening on the port. This ensures that the app is able to complete
 whatever its shutdown process is (like flushing data out of memory to a
 downstream source) before the network connectivity to the application
 is cut off.
+
+Istio supports running the proxy as a native sidecar, in which case we want
+to override "initContainers" instead of "containers" of the Pod spec.
+
+For native sidecars, when https://github.com/istio/istio/issues/51855 is
+fixed, we suggest setting .Values.istio.preStopDefaultEnabled to false
+so that the native drain preStop command can take over.
 */ -}}
+{{- $containerType := .Values.istio.nativeSidecarsEnabled | ternary "initContainers" "containers" }}
 {{- if .Values.istio.preStopCommand }}
 proxy.istio.io/overrides: >-
   { 
-    "containers": [
+    "{{ $containerType }}": [
       { 
         "name": "istio-proxy",
         "lifecycle": {
@@ -57,10 +65,10 @@ proxy.istio.io/overrides: >-
       }
     ]
   } 
-{{- else if and .Values.ports (gt (len .Values.ports) 0) }}
+{{- else if and .Values.ports (gt (len .Values.ports) 0) .Values.istio.preStopDefaultEnabled }}
 proxy.istio.io/overrides: >-
   { 
-    "containers": [
+    "{{ $containerType }}": [
       { 
         "name": "istio-proxy",
         "lifecycle": {
