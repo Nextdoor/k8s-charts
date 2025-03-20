@@ -45,10 +45,10 @@ Istio supports running the proxy as a native sidecar, in which case we want
 to override "initContainers" instead of "containers" of the Pod spec.
 
 For native sidecars, when https://github.com/istio/istio/issues/51855 is
-fixed, we suggest setting .Values.istio.preStopDefaultEnabled to false
-so that the native drain preStop command can take over.
+fixed, we suggest setting .Values.istio.nativeSidecars.keepCustomPreStopOverride
+to false so that the native drain preStop command can take over.
 */ -}}
-{{- $containerType := .Values.istio.nativeSidecarsEnabled | ternary "initContainers" "containers" }}
+{{- $containerType := .Values.istio.nativeSidecars.enabled | ternary "initContainers" "containers" }}
 {{- if .Values.istio.preStopCommand }}
 proxy.istio.io/overrides: >-
   { 
@@ -65,7 +65,7 @@ proxy.istio.io/overrides: >-
       }
     ]
   } 
-{{- else if and .Values.ports (gt (len .Values.ports) 0) .Values.istio.preStopDefaultEnabled }}
+{{- else if and .Values.ports (gt (len .Values.ports) 0) .Values.istio.nativeSidecars.keepCustomPreStopOverride }}
 proxy.istio.io/overrides: >-
   { 
     "{{ $containerType }}": [
