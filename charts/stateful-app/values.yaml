@@ -537,16 +537,16 @@ istio:
     # to https://github.com/istio/istio/issues/51855
     keepCustomPreStopOverride: true
 
-  # -- (`bool`) Set to "true" if you want our own default behavior for preStop
-  # command to be applied to istio-proxy.
+  # -- (`list <str>`) If supplied, this is the command that will be passed into
+  # the `istio-proxy` sidecar container as a pre-stop function. This is used to
+  # delay the shutdown of the istio-proxy sidecar in some way or another. Our
+  # own default behavior is applied if this value is not set - which is that
+  # the sidecar will wait until it does not see the application container
+  # listening on any TCP ports, and then it will shut down.
   #
-  # This used to be untogglable as it was almost always required, but with Kubernetes
-  # native sidecars, it's really not needed as an infinite drain can take over all
-  # the time.
-  #
-  # However, due to https://github.com/istio/istio/issues/51855, you may still
-  # want this even for a native sidecar
-  preStopDefaultEnabled: true
+  # eg:
+  # preStopCommand: [ /bin/sleep, "30" ]
+  preStopCommand: null
 
   # -- (`bool`) If set to "True", then the Istio Metrics Merging system will be
   # turned on and Envoy will attempt to scrape metrics from the application pod
