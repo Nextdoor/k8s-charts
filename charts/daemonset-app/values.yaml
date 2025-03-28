@@ -360,10 +360,16 @@ istio:
   enabled: false
 
   nativeSidecars:
-    # -- (`bool`) Set to "true" if your app is running istio-proxy as a Kubernetes
-    # native sidecar - in which case PreStop commands should be updating initContainers
-    # of the Pod spec rather than containers.
-    enabled: false
+    # -- (`bool|str`) Set to true if you want your app's proxy running as a Kubernetes
+    # native sidecar - in which case (1) PreStop commands should be updating
+    # initContainers of the Pod spec rather than containers, and (2) An appropriate
+    # annotation will be added to your Pod spec
+    #
+    # We will default to 'true' when https://github.com/istio/istio/issues/48794 is
+    # flipped sometime in the future.
+    #
+    # Set to an empty string "" or leave unset (nil) to omit the annotation.
+    enabled: ""
 
     # -- (`bool`) Set to "false" if you want to use Istio's default drain rather than
     # our own default behavior for preStop command to be applied to istio-proxy.

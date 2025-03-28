@@ -48,7 +48,11 @@ For native sidecars, when https://github.com/istio/istio/issues/51855 is
 fixed, we suggest setting .Values.istio.nativeSidecars.keepCustomPreStopOverride
 to false so that the native drain preStop command can take over.
 */ -}}
-{{- $containerType := .Values.istio.nativeSidecars.enabled | ternary "initContainers" "containers" }}
+
+{{- /* Original value could be bool, empty string "", nil, etc */ -}}
+{{- $nativeSidecars := .Values.istio.nativeSidecars.enabled | toString }}
+
+{{- $containerType := (eq $nativeSidecars "true") | ternary "initContainers" "containers" }}
 {{- if .Values.istio.preStopCommand }}
 proxy.istio.io/overrides: >-
   { 
@@ -85,6 +89,18 @@ proxy.istio.io/overrides: >-
       }
     ]
   } 
+{{- end }}
+
+{{- /*
+Set pod-level annotation, which takes precedence over any cluster-level setting.
+
+This is supported as of:
+https://istio.io/latest/news/releases/1.24.x/announcing-1.24/change-notes/
+
+We need to do a string comparison because $nativeSidecars can be "" or nil.
+*/ -}}
+{{- if or (eq $nativeSidecars "true") (eq $nativeSidecars "false") }}
+sidecar.istio.io/nativeSidecar: {{ $nativeSidecars | quote }}
 {{- end }}
 
 {{- /*
