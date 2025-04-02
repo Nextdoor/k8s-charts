@@ -40,11 +40,23 @@ listening on the port. This ensures that the app is able to complete
 whatever its shutdown process is (like flushing data out of memory to a
 downstream source) before the network connectivity to the application
 is cut off.
+
+Istio supports running the proxy as a native sidecar, in which case we want
+to override "initContainers" instead of "containers" of the Pod spec.
+
+For native sidecars, when https://github.com/istio/istio/issues/51855 is
+fixed, we suggest setting .Values.istio.nativeSidecars.keepCustomPreStopOverride
+to false so that the native drain preStop command can take over.
 */ -}}
+
+{{- /* Original value could be bool, empty string "", nil, etc */ -}}
+{{- $nativeSidecars := .Values.istio.nativeSidecars.enabled | toString }}
+
+{{- $containerType := (eq $nativeSidecars "true") | ternary "initContainers" "containers" }}
 {{- if .Values.istio.preStopCommand }}
 proxy.istio.io/overrides: >-
   { 
-    "containers": [
+    "{{ $containerType }}": [
       { 
         "name": "istio-proxy",
         "lifecycle": {
@@ -57,10 +69,10 @@ proxy.istio.io/overrides: >-
       }
     ]
   } 
-{{- else if and .Values.ports (gt (len .Values.ports) 0) }}
+{{- else if and .Values.ports (gt (len .Values.ports) 0) .Values.istio.nativeSidecars.keepCustomPreStopOverride }}
 proxy.istio.io/overrides: >-
   { 
-    "containers": [
+    "{{ $containerType }}": [
       { 
         "name": "istio-proxy",
         "lifecycle": {
@@ -77,6 +89,18 @@ proxy.istio.io/overrides: >-
       }
     ]
   } 
+{{- end }}
+
+{{- /*
+Set pod-level annotation, which takes precedence over any cluster-level setting.
+
+This is supported as of:
+https://istio.io/latest/news/releases/1.24.x/announcing-1.24/change-notes/
+
+We need to do a string comparison because $nativeSidecars can be "" or nil.
+*/ -}}
+{{- if or (eq $nativeSidecars "true") (eq $nativeSidecars "false") }}
+sidecar.istio.io/nativeSidecar: {{ $nativeSidecars | quote }}
 {{- end }}
 
 {{- /*

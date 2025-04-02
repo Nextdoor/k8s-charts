@@ -785,6 +785,26 @@ istio:
   # The port values can either be integers or templatized strings.
   excludeOutboundPorts: []
 
+  nativeSidecars:
+    # -- (`bool|str`) Set to true if you want your app's proxy running as a Kubernetes
+    # native sidecar - in which case (1) PreStop commands should be updating
+    # initContainers of the Pod spec rather than containers, and (2) An appropriate
+    # annotation will be added to your Pod spec
+    #
+    # We will default to 'true' when https://github.com/istio/istio/issues/48794 is
+    # flipped sometime in the future.
+    #
+    # Set to an empty string "" or leave unset (nil) to omit the annotation.
+    enabled: ""
+
+    # -- (`bool`) Set to "false" if you want to use Istio's default drain rather than
+    # our own default behavior for preStop command to be applied to istio-proxy.
+    #
+    # IMPORTANT NOTE: In a future iteration, we will remove this toggle and remove
+    # the custom default preStop altogether, but for now it may be needed/wanted due
+    # to https://github.com/istio/istio/issues/51855
+    keepCustomPreStopOverride: true
+
   # -- (`list <str>`) If supplied, this is the command that will be passed into
   # the `istio-proxy` sidecar container as a pre-stop function. This is used to
   # delay the shutdown of the istio-proxy sidecar in some way or another. Our
