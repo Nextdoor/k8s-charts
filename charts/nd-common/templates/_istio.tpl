@@ -49,8 +49,12 @@ fixed, we suggest setting .Values.istio.nativeSidecars.keepCustomPreStopOverride
 to false so that the native drain preStop command can take over.
 */ -}}
 
-{{- /* Original value could be bool, empty string "", nil, etc */ -}}
-{{- $nativeSidecars := .Values.istio.nativeSidecars.enabled | toString }}
+{{- /*
+Original value could be bool, empty string "", nil, etc or nativeSidecars
+may not even be defined
+*/ -}}
+{{- $nsMap := get .Values.istio "nativeSidecars" | default dict -}}
+{{- $nativeSidecars := get $nsMap "enabled" | toString -}}
 
 {{- $containerType := (eq $nativeSidecars "true") | ternary "initContainers" "containers" }}
 {{- if .Values.istio.preStopCommand }}
@@ -69,7 +73,7 @@ proxy.istio.io/overrides: >-
       }
     ]
   } 
-{{- else if and .Values.ports (gt (len .Values.ports) 0) .Values.istio.nativeSidecars.keepCustomPreStopOverride }}
+{{- else if and .Values.ports (gt (len .Values.ports) 0) (get $nsMap "keepCustomPreStopOverride") }}
 proxy.istio.io/overrides: >-
   { 
     "{{ $containerType }}": [
