@@ -1415,6 +1415,29 @@ entries:
   flink-operator:
   - apiVersion: v2
     appVersion: v0.3.9
+    created: "2025-06-12T17:28:39.93826557Z"
+    dependencies:
+    - condition: flink-operator-crd.enabled
+      name: flink-operator-crd
+      repository: https://k8s-charts.nextdoor.com
+      version: 0.3.9
+    - condition: cert-manager.enabled
+      name: cert-manager
+      repository: https://charts.jetstack.io
+      version: v1.6.1
+    description: Intalls the Spotify-version of the Flink-on-K8S-Operator
+    digest: fb6c577d434c8c836d749e22efdead3010507bddd6c45c5fea758e47830f76e4
+    maintainers:
+    - email: pjhuang@nextdoor.com
+      name: pjthepooh
+    name: flink-operator
+    sources:
+    - https://github.com/spotify/flink-on-k8s-operator/releases
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/flink-operator-0.2.3/flink-operator-0.2.3.tgz
+    version: 0.2.3
+  - apiVersion: v2
+    appVersion: v0.3.9
     created: "2024-08-09T19:46:55.343966894Z"
     dependencies:
     - condition: flink-operator-crd.enabled
@@ -3053,6 +3076,27 @@ entries:
   rollout-app:
   - apiVersion: v2
     appVersion: latest
+    created: "2025-06-12T17:28:40.069096786Z"
+    dependencies:
+    - condition: istio-alerts.enabled
+      name: istio-alerts
+      repository: https://k8s-charts.nextdoor.com
+      version: 0.5.3
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.4.2
+    description: Argo Rollout-based Application Helm Chart
+    digest: 6142eee0a018bd943b6c25bda92388d32e8e914964b4f6a253bc256da09ae66b
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: rollout-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/rollout-app-1.4.8/rollout-app-1.4.8.tgz
+    version: 1.4.8
+  - apiVersion: v2
+    appVersion: latest
     created: "2025-04-02T21:49:15.027446634Z"
     dependencies:
     - condition: istio-alerts.enabled
@@ -4039,6 +4083,27 @@ entries:
     - https://github.com/Nextdoor/k8s-charts/releases/download/rollout-app-0.0.1/rollout-app-0.0.1.tgz
     version: 0.0.1
   simple-app:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2025-06-12T17:28:40.245574895Z"
+    dependencies:
+    - condition: istio-alerts.enabled
+      name: istio-alerts
+      repository: https://k8s-charts.nextdoor.com
+      version: 0.5.3
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.4.2
+    description: Default Microservice Helm Chart
+    digest: 71a36ed6ae78769011869ecbc34c3b69a3e8c799a163923b5875dff857ccfab0
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: simple-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/simple-app-1.13.3/simple-app-1.13.3.tgz
+    version: 1.13.3
   - apiVersion: v2
     appVersion: latest
     created: "2025-04-02T21:49:15.19089349Z"
@@ -6912,6 +6977,27 @@ entries:
   stateful-app:
   - apiVersion: v2
     appVersion: latest
+    created: "2025-06-12T17:28:40.397807884Z"
+    dependencies:
+    - condition: istio-alerts.enabled
+      name: istio-alerts
+      repository: https://k8s-charts.nextdoor.com
+      version: 0.5.3
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.4.2
+    description: Default StatefulSet Helm Chart
+    digest: 51ebcb9918ff37ebf6501b4bfe7ff5ed4a17e4556ae6841bf1e370ff676b9398
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: stateful-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-1.5.3/stateful-app-1.5.3.tgz
+    version: 1.5.3
+  - apiVersion: v2
+    appVersion: latest
     created: "2025-04-02T21:49:15.362652758Z"
     dependencies:
     - condition: istio-alerts.enabled
@@ -8495,4 +8581,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2025-04-11T20:05:14.489428787Z"
+generated: "2025-06-12T17:28:40.399052053Z"
