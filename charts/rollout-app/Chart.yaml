@@ -10,7 +10,7 @@ maintainers:
 dependencies:
   - name: istio-alerts
     version: 0.5.3
-    repository: file://../istio-alerts # https://k8s-charts.nextdoor.com
+    repository: file://../istio-alerts  # https://k8s-charts.nextdoor.com
     condition: istio-alerts.enabled
   - name: nd-common
     version: 0.4.2
