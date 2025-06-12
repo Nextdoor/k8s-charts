@@ -1,11 +1,9 @@
-# For local development, we turn on the Ingress controller and set up a simple
-# local ingress.
+# For local development, we turn on the Ingress controller and set up a simple local ingress.
 ingress:
-  # -- Enable local ingress for local development.
+  # Enable local ingress for local development.
   enabled: true
 
-  # -- Disable the SSL-Redirect explicitly because it only applies to
-  # ALB-ingress controllers.
+  # Disable the SSL-Redirect explicitly because it only applies to ALB-ingress controllers.
   sslRedirect: false
 
 livenessProbe:
