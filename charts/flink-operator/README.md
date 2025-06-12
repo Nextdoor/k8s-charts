@@ -18,7 +18,7 @@ Intalls the Spotify-version of the Flink-on-K8S-Operator
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../flink-operator-crd | flink-operator-crd | 0.3.0 |
+| file://../flink-operator-crd | flink-operator-crd | 0.3.9 |
 | https://charts.jetstack.io | cert-manager | v1.6.1 |
 
 ## Values

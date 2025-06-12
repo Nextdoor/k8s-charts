@@ -309,8 +309,8 @@ secretsEngine: sealed
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../istio-alerts | istio-alerts | 0.5.2 |
-| file://../nd-common | nd-common | 0.4.1 |
+| file://../istio-alerts | istio-alerts | 0.5.3 |
+| file://../nd-common | nd-common | 0.4.2 |
 
 ## Values
 
