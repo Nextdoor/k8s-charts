@@ -196,7 +196,7 @@ spec:
         expr: {{ (include "nd-common.monitorSampleLimit" .) | quote }}
         labels:
           namespace: {{ .Release.Namespace }}
-          name: {{ include "nd-common.name" . }}
+          name: {{ include "nd-common.fullname" . }}
           instance: {{ .Release.Name }}
 {{- end }}
 {{- end }}
