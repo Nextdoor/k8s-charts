@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 1.13.1](https://img.shields.io/badge/Version-1.13.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.13.2](https://img.shields.io/badge/Version-1.13.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -368,8 +368,8 @@ secretsEngine: sealed
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.4.1 |
-| https://k8s-charts.nextdoor.com | istio-alerts | 0.5.2 |
+| file://../istio-alerts | istio-alerts | 0.5.3 |
+| file://../nd-common | nd-common | 0.4.2 |
 
 ## Values
 
