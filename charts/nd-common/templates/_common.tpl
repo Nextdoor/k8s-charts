@@ -69,13 +69,13 @@ Selector labels - two functions here:
   * one for "matchExpressions"
 */}}
 {{- define "nd-common.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "nd-common.name" . }}
+app.kubernetes.io/name: {{ include "nd-common.fullname" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 {{- define "nd-common.selectorLabelsExpression" -}}
 - key: app.kubernetes.io/name
   operator: In
-  values: [{{ include "nd-common.name" . }}]
+  values: [{{ include "nd-common.fullname" . }}]
 - key: app.kubernetes.io/instance
   operator: In
   values: [{{ .Release.Name }}]
