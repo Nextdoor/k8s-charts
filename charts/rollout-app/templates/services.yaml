@@ -1,9 +1,42 @@
 {{/*
-The "Active" service is the primary service that is receiving web traffic from
-users. This is the always-created and always-on service that Argo will use to
-route traffic to.
+There is one "umbrella" service per app_group and is the service that is receiving
+web traffic from clients. This is the always-created and always-on service that
+will round-robin traffic to the different stable and canary services in across AZs.
 */}}
+{{- $usingZones := false -}}
+{{- if gt (len .Values.rolloutZones) 0 -}}
+  {{- $usingZones = true -}}
+{{- end -}}
+
+{{ if $usingZones }}
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "nd-common.fullname" . }}
+  labels:
+    {{- include "rollout-app.labels" . | nindent 4 }}
+  annotations:
+    {{/*
+    This is only used for type=LoadBalancer Services which run in AWS.
+    */}}
+    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: kubernetes_namespace={{ .Release.Namespace }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    {{- include "rollout-app.servicePorts" . | nindent 4 }}
+  selector:
+    {{- include "nd-common.selectorLabels" . | nindent 4 }}
+{{- else -}}
+---
+{{/*
+This optional "Stable" service is created only when the .Values.strategy is set
+to "canary". Rollouts will then use this service to run the "production" pods.
+When using Istio VirtualServices (if .Values.virtualService.enabled=true), the
+VirtualService will be configured to use this Service as the stable service,
+and it will automatically adjust the weights to move traffic between the stable
+and canary service.
+*/}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -23,7 +56,6 @@ spec:
     {{- include "nd-common.selectorLabels" . | nindent 4 }}
 
 ---
-
 {{/*
 This optional "Preview" service is created when the .Values.strategy is set to
 "blueGreen". The intention is that this service is used either for running
@@ -85,4 +117,6 @@ spec:
     {{- include "rollout-app.servicePorts" . | nindent 4 }}
   selector:
     {{- include "nd-common.selectorLabels" . | nindent 4 }}
+{{- end }}
+
 {{- end }}
