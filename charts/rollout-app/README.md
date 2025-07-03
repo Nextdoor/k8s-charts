@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 1.4.8](https://img.shields.io/badge/Version-1.4.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -346,6 +346,8 @@ secretsEngine: sealed
 | replicaCount | `int` | `2` | The number of Pods to start up by default. If the `autoscaling.enabled` parameter is set, then this serves as the "start scale" for an application. Setting this to `null` prevents the setting from being applied at all in the PodSpec, leaving it to Kubernetes to use the default value (1). https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#replicas |
 | resources | object | `{}` |  |
 | revisionHistoryLimit | `int` | `3` | The default revisionHistoryLimit in Kubernetes is 10 - which is just really noisy. Set our default to 3. https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy |
+| rolloutZones | `string[]` | `[]` | If supplied, an individual `Rollout` (and optional `HPA`) is created for each of the Availability Zone strings passed in. The default usage of this parameter would be to ensure that each AZ in your infrastructure has its own Rollout and HPA for scaling that is independent of the others. This is useful for services that are accessed by zone-aware clients, where the load may be imbalanced from one zone to another. |
+| rolloutZonesTransition | `bool` | `false` | During the transition (from | to) individual zone rollout resources (from | to) multiple rollout resources, flip this setting to `True` to enable the creation of BOTH the Zone-Aware AND Default Rollout resources. This ensures that during the rollover from one to the other configuration, you do not lose all of your pods. |
 | runbookUrl | string | `"https://github.com/Nextdoor/k8s-charts/blob/main/charts/simple-app/README.md"` | The URL of the runbook for this service. |
 | secrets | `Map` | `{}` | Map of environment variables to plaintext secrets, KMS, or Bitnami Sealed Secrets encrypted secrets. |
 | secretsEngine | String | `"plaintext"` | Secrets Engine determines the type of Secret Resource that will be created (`KMSSecret`, `SealedSecret`, `Secret`). kms || sealed || plaintext are possible values. |

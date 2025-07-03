@@ -33,7 +33,6 @@ a deployment to continue.
 https://argoproj.github.io/argo-rollouts/features/bluegreen/#previewservice
 
 */}}
-
 {{- if eq .Values.strategy "blueGreen" }}
 apiVersion: v1
 kind: Service
@@ -60,13 +59,11 @@ spec:
 This optional "Canary" service is created only when the .Values.strategy is set
 to "canary". Rollouts will then use this service to route canary traffic to, in
 order to test releases.
-
 When using Istio VirtualServices (if .Values.virtualService.enabled=true), the
 VirtualService will be configured to use this Service as the canary service,
 and it will automatically adjust the weights to move traffic between the stable
 and canary service.
 */}}
-
 {{- if eq .Values.strategy "canary" }}
 apiVersion: v1
 kind: Service
