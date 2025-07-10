@@ -1,5 +1,11 @@
+{{/*
+If there is a configured list of rolloutZones and rolloutZonesTransition is true, then we need to add the "default" zone to the list of zones.
+This is to ensure that there are still pods up and running during the transition.
+*/}}
+{{- if $.Values.podDisruptionBudget -}}
+
 {{- $rolloutZones := default (list "default") .Values.rolloutZones }}
-{{- if .Values.rolloutZonesTransition }}
+{{- if and .Values.rolloutZones .Values.rolloutZonesTransition }}
 {{- $rolloutZones = prepend $rolloutZones "default" }}
 {{- end }}
 
@@ -16,9 +22,7 @@
 {{- else }}
 {{- $fullName                  = include "nd-common.fullname" $ }}
 {{- end }}
-
 ---
-{{- if $.Values.podDisruptionBudget -}}
 {{- if and $.Values.replicaCount (lt ($.Values.replicaCount | int) 2) }}
 {{- fail "Deployment replica count can not be less than 2 in order to configure PDB. Please configure Replica count greater than or equal to 2." }}
 {{- end }}
@@ -43,5 +47,5 @@ spec:
       {{- end }}
   {{ toYaml $.Values.podDisruptionBudget | nindent 2 }}
 {{- end }}
-
+---
 {{- end }}

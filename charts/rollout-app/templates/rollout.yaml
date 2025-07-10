@@ -1,4 +1,4 @@
-{{- /*
+{{/*
 Figure out if we are launching a rollout deployment for each Zone in the cluster (along
 with its own HPAs), or if we're launching just one standard rollout deployment.
 
@@ -8,7 +8,7 @@ make sure that each rollout is scaled up separately from the next one.
 {{- $rolloutZones := default (list "default") .Values.rolloutZones }}
 {{- $deactivateHpaForMaintenance := false }}
 
-{{- /*
+{{/*
 If we are transitioning from a single rollout deployment to multiple rollout deployments,
 we need to add the "default" zone to the list of zones in order to ensure that there
 are still pods up and running during the transition. The same logic holds true for when you switch
@@ -18,35 +18,30 @@ from multiple rollout deployments to a single rollout deployment.
 {{- $rolloutZones = prepend $rolloutZones "default" }}
 {{- end }}
 
-{{- /*
-The default fullName field here... we override it and append to it as we loop through $rolloutZones
-*/}}
+{{/* The default fullName field here... we override it and append to it as we loop through $rolloutZones */}}
 {{- $fullName := include "nd-common.fullname" . }}
 
-{{- /* Verify that some required inputs are supplied */}}
+{{/* Verify that some required inputs are supplied */}}
 {{- if .Values.virtualService.enabled }}
   {{- $readinessProbe := required "readinessProbe is required" .Values.readinessProbe }}
 {{- end }}
 
-{{- /*
+{{/* 
 By default, we do run the topology spread function - letting it decide
 whether or not to spread by AZ. However, in the per-zone rollouts we always
 disable this.
 */}}
 {{- $disableTopoSpreadFunction := false }}
 
-{{- /*
-The default rolloutZoneLabel is left empty. We patch it as we loop through
-$rolloutZones
-*/}}
+{{/* The default rolloutZoneLabel is left empty. We patch it as we loop through $rolloutZones */}}
 {{- $rolloutZoneLabel := "" }}
 
 
-{{- /* Iterate through the rollout zones now... */}}
+{{/* Iterate through the rollout zones now */}}
 {{- range $rolloutZone := index $rolloutZones }}
 
-{{- /*
-If $rolloutZone is NOT "default", then we know we'recreating a Rollout per zone. 
+{{/*
+If $rolloutZone is NOT "default", then we know we're creating a Rollout per zone. 
 In that case, we patch a few variables to be zone-specific.
 */}}
 {{- if ne $rolloutZone "default" }}
@@ -68,6 +63,12 @@ metadata:
     {{- with $rolloutZoneLabel }}
     {{ . }}
     {{- end }}
+  {{- if $.Values.rolloutAnnotations }}
+  annotations:
+    {{- range $annotation, $value := index $.Values.rolloutAnnotations }}
+    {{ $annotation }}: {{ tpl $value $ | quote }}
+    {{- end }}
+  {{- end }}
 spec:
   {{- with $.Values.minReadySeconds }}
   minReadySeconds: {{ . }}
@@ -138,9 +139,19 @@ spec:
     {{- else if (eq $.Values.strategy "canary") }}
     canary:
       {{- if or $.Values.virtualService.enabled $.Values.ingress.enabled }}
-      stableService: {{ include "nd-common.fullname" $ }}
-      canaryService: {{ include "nd-common.fullname" $ }}-canary
-      {{- end }}
+        {{/*
+        If you have multiple rollouts, then it does not make sense to have *multiple* virtual services as well.
+        In addition to that, Argo Rollouts will not let multiple rollouts reference the same virtual service,
+        meaning that you cannot share a virtual service between multiple rollouts. Thus, this is why failing here
+        is necessary. For context on where Argo Rollouts fails, see:
+        https://github.com/argoproj/argo-rollouts/blob/76cfc0e58892ed9759c1a732e243f75aed2fc6bd/utils/conditions/conditions.go#L158
+        */}}
+        {{- if and (gt (len $.Values.rolloutZones) 0) ($.Values.virtualService.enabled) -}}
+        {{- fail (printf "Invalid spec, multiple zones cannot be configured with virtual services enabled") }}
+        {{- end }}
+      stableService: {{ $fullName }}
+      canaryService: {{ $fullName }}-canary
+      {{ end }}
 
       {{- if or $.Values.virtualService.enabled $.Values.ingress.enabled }}
       trafficRouting:
@@ -198,7 +209,7 @@ spec:
       {{- end }}
 
     {{- else }}
-    {{- fail (printf "Must set .Values.strategy to 'blueGreen' or 'canary', '%s' is invalid" $.Values.strategy) }}
+    {{- fail (printf "Must set $.Values.strategy to 'blueGreen' or 'canary', '%s' is invalid" $.Values.strategy) }}
     {{- end }}
   template:
     metadata:
@@ -321,11 +332,21 @@ spec:
           {{- end }}
           {{- with $.Values.livenessProbe }}
           livenessProbe:
+            {{- if $.Values.enableOnlyGRPCProbing }}
+            {{- $probe := omit . "httpGet" }}
+            {{- toYaml $probe | nindent 12 }}
+            {{- else }}
             {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- end }}
           {{- with $.Values.readinessProbe }}
           readinessProbe:
+            {{- if $.Values.enableOnlyGRPCProbing }}
+            {{- $probe := omit . "httpGet" }}
+            {{- toYaml $probe | nindent 12 }}
+            {{- else }}
             {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- end }}
           resources:
             {{- toYaml $.Values.proxySidecar.resources | nindent 12 }}
@@ -401,10 +422,21 @@ spec:
           {{- end }}
           {{- with $.Values.livenessProbe }}
           livenessProbe:
+            {{- if $.Values.enableOnlyGRPCProbing }}
+            {{- $probe := omit . "httpGet" }}
+            {{- toYaml $probe | nindent 12 }}
+            {{- else }}
             {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- end }}
           {{- with $.Values.readinessProbe }}
           readinessProbe:
+            {{- if $.Values.enableOnlyGRPCProbing }}
+            {{- $probe := omit . "httpGet" }}
+            {{- toYaml $probe | nindent 12 }}
+            {{- else }}
             {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- end }}
+---
 {{- end }}

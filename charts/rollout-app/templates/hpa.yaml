@@ -11,10 +11,7 @@
 {{- $deactivateHpaForMaintenance = (and .Values.virtualService.maintenanceMode.enabled .Values.autoscaling.enabled) }}
 {{- end }}
 
-{{- $disableTopoSpreadFunction := false }}
-
 {{- $rolloutZoneLabel := "" }}
-
 
 {{- range $rolloutZone := index $rolloutZones }}
 
@@ -22,7 +19,6 @@
 {{- $topologyKey               := required ".Values.rolloutZones requires that .Values.topologyKey is also set" $.Values.topologyKey }}
 {{- $fullName                  = printf "%s-%s" (include "nd-common.fullname" $) $rolloutZone }}
 {{- $rolloutZoneLabel          = printf "%s: %s" $topologyKey $rolloutZone }}
-{{- $disableTopoSpreadFunction = true }}
 {{- else }}
 {{- $fullName                  = include "nd-common.fullname" $ }}
 {{- end }}

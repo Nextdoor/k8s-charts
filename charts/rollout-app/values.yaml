@@ -106,6 +106,12 @@ proxySidecar:
 # is enabled.
 startupProbe:
 
+
+# -- (`bool`) If enableOnlyGRPCProbing is set to true, then within when generating
+# the livenessProbe and readinessProbe fields within the Rollout spec, only the GRPC
+# ports will be used, skipping the creation of the HTTP ports.
+enableOnlyGRPCProbing: false
+
 # -- A PodSpec container "livenessProbe" configuration object. Note that this
 # livenessProbe will be applied to the proxySidecar container instead if that
 # is enabled.
@@ -1002,9 +1008,10 @@ initContainers: []
 # clients, where the load may be imbalanced from one zone to another.
 rolloutZones: []
 
-# -- (`bool`) During the transition (from | to) individual zone rollout
-# resources (from | to) multiple rollout resources, flip this setting to `True`
+# -- (`bool`) During the transition from an individual zone rollout
+# resources to using multiple rollout resources for AZs, flip this setting to `true`
 # to enable the creation of BOTH the Zone-Aware AND Default Rollout resources.
 # This ensures that during the rollover from one to the other configuration,
-# you do not lose all of your pods.
+# you do not lose all of your pods. To go from using multiple rollout resources
+# to just an individual rollout resource, flip this setting to `false`.
 rolloutZonesTransition: false
