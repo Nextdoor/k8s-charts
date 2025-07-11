@@ -3076,6 +3076,27 @@ entries:
   rollout-app:
   - apiVersion: v2
     appVersion: latest
+    created: "2025-07-11T18:08:49.264631068Z"
+    dependencies:
+    - condition: istio-alerts.enabled
+      name: istio-alerts
+      repository: https://k8s-charts.nextdoor.com
+      version: 0.5.3
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.4.2
+    description: Argo Rollout-based Application Helm Chart
+    digest: f7e3dd31ee45b8da804f7132f21a6b418f6a54b373731662db0da4a8c879cde4
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: rollout-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/rollout-app-1.5.0/rollout-app-1.5.0.tgz
+    version: 1.5.0
+  - apiVersion: v2
+    appVersion: latest
     created: "2025-06-12T17:28:40.069096786Z"
     dependencies:
     - condition: istio-alerts.enabled
@@ -8581,4 +8602,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2025-06-12T17:28:40.399052053Z"
+generated: "2025-07-11T18:08:49.266977129Z"
