@@ -1,17 +1,46 @@
-{{- if .Values.autoscaling.enabled }}
-{{ $deactivateHpaForMaintenance := (and .Values.autoscaling.enabled .Values.virtualService.enabled .Values.virtualService.maintenanceMode.enabled) }}
+{{- $rolloutZones := default (list "default") .Values.rolloutZones }}
+{{- $deactivateHpaForMaintenance := false }}
+
+{{- if .Values.rolloutZonesTransition }}
+{{- $rolloutZones = prepend $rolloutZones "default" }}
+{{- end }}
+
+{{- $fullName := include "nd-common.fullname" . }}
+
+{{- if .Values.virtualService.enabled }}
+{{- $deactivateHpaForMaintenance = (and .Values.virtualService.maintenanceMode.enabled .Values.autoscaling.enabled) }}
+{{- end }}
+
+{{- $rolloutZoneLabel := "" }}
+
+{{- range $rolloutZone := index $rolloutZones }}
+
+{{- if ne $rolloutZone "default" }}
+{{- $topologyKey               := required ".Values.rolloutZones requires that .Values.topologyKey is also set" $.Values.topologyKey }}
+{{- $fullName                  = printf "%s-%s" (include "nd-common.fullname" $) $rolloutZone }}
+{{- $rolloutZoneLabel          = printf "%s: %s" $topologyKey $rolloutZone }}
+{{- else }}
+{{- $fullName                  = include "nd-common.fullname" $ }}
+{{- end }}
+
+---
+{{- if $.Values.autoscaling.enabled }}
+{{ $deactivateHpaForMaintenance := (and $.Values.autoscaling.enabled $.Values.virtualService.enabled $.Values.virtualService.maintenanceMode.enabled) }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "nd-common.fullname" . }}
+  name: {{ $fullName }}
   labels:
-    {{- include "rollout-app.labels" . | nindent 4 }}
+    {{- include "rollout-app.labels" $ | nindent 4 }}
+    {{- with $rolloutZoneLabel }}
+    {{ . }}
+    {{- end }}
 spec:
   scaleTargetRef:
     apiVersion: argoproj.io/v1alpha1
     kind: Rollout
-    name: {{ include "nd-common.fullname" . }}
-  {{- with .Values.autoscaling.behavior }}
+    name: {{ $fullName }}
+  {{- with $.Values.autoscaling.behavior }}
   behavior:
     {{- if $deactivateHpaForMaintenance }}
     scaleDown:
@@ -20,24 +49,26 @@ spec:
     {{- toYaml . | nindent 4 }}
     {{- end }}
   {{- end }}
-  minReplicas: {{ .Values.autoscaling.minReplicas }}
-  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  minReplicas: {{ $.Values.autoscaling.minReplicas }}
+  maxReplicas: {{ $.Values.autoscaling.maxReplicas }}
   metrics:
     {{- /* https://github.com/kubernetes/kubernetes/issues/74099 */}}
-    {{- if .Values.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- if $.Values.autoscaling.targetMemoryUtilizationPercentage }}
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
-          averageUtilization: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}
+          averageUtilization: {{ $.Values.autoscaling.targetMemoryUtilizationPercentage }}
     {{- end }}
-    {{- if .Values.autoscaling.targetCPUUtilizationPercentage }}
+    {{- if $.Values.autoscaling.targetCPUUtilizationPercentage }}
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
+          averageUtilization: {{ $.Values.autoscaling.targetCPUUtilizationPercentage }}
     {{- end }}
+{{- end }}
+
 {{- end }}

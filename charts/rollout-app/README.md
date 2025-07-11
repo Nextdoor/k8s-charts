@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 1.4.8](https://img.shields.io/badge/Version-1.4.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -269,6 +269,7 @@ secretsEngine: sealed
 | datadog.scrapeLogs.source | `string` | `nil` | If set, this configures the "source" tag. If this is not set, the tag defaults to the `.Release.Name` for the application. |
 | datadog.scrapeMetrics | `bool` | `false` | If true, then we will configure the Datadog agent to scrape metrics from the application pod via the values set in the .Values.monitor.* map. |
 | datadog.service | `string` | `nil` | If set, this configures the "service" tag. If this is not set, the tag defaults to the `.Release.Name` for the application. |
+| enableOnlyGRPCProbing | `bool` | `false` | If enableOnlyGRPCProbing is set to true, then within when generating the livenessProbe and readinessProbe fields within the Rollout spec, only the GRPC ports will be used, skipping the creation of the HTTP ports. |
 | enableTopologySpread | `bool` | `false` | If set to `true`, then a default `TopologySpreadConstraint` will be created that forces your pods to be evenly distributed across nodes based on the `topologyKey` setting. The maximum skew between the spread is controlled with `topologySkew`. |
 | env | list | `[]` | Environment Variables for the primary container. These are all run through the tpl function (the key name and value), so you can dynamically name resources as you need. |
 | envFrom | list | `[]` | Pull all of the environment variables listed in a ConfigMap into the Pod. See https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables for more details. |
@@ -346,6 +347,8 @@ secretsEngine: sealed
 | replicaCount | `int` | `2` | The number of Pods to start up by default. If the `autoscaling.enabled` parameter is set, then this serves as the "start scale" for an application. Setting this to `null` prevents the setting from being applied at all in the PodSpec, leaving it to Kubernetes to use the default value (1). https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#replicas |
 | resources | object | `{}` |  |
 | revisionHistoryLimit | `int` | `3` | The default revisionHistoryLimit in Kubernetes is 10 - which is just really noisy. Set our default to 3. https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy |
+| rolloutZones | `string[]` | `[]` | If supplied, an individual `Rollout` (and optional `HPA`) is created for each of the Availability Zone strings passed in. The default usage of this parameter would be to ensure that each AZ in your infrastructure has its own Rollout and HPA for scaling that is independent of the others. This is useful for services that are accessed by zone-aware clients, where the load may be imbalanced from one zone to another. |
+| rolloutZonesTransition | `bool` | `false` | During the transition from an individual zone rollout resources to using multiple rollout resources for AZs, flip this setting to `true` to enable the creation of BOTH the Zone-Aware AND Default Rollout resources. This ensures that during the rollover from one to the other configuration, you do not lose all of your pods. To go from using multiple rollout resources to just an individual rollout resource, flip this setting to `false`. |
 | runbookUrl | string | `"https://github.com/Nextdoor/k8s-charts/blob/main/charts/simple-app/README.md"` | The URL of the runbook for this service. |
 | secrets | `Map` | `{}` | Map of environment variables to plaintext secrets, KMS, or Bitnami Sealed Secrets encrypted secrets. |
 | secretsEngine | String | `"plaintext"` | Secrets Engine determines the type of Secret Resource that will be created (`KMSSecret`, `SealedSecret`, `Secret`). kms || sealed || plaintext are possible values. |

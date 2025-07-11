@@ -47,6 +47,7 @@ ports:
 terminationGracePeriodSeconds: 30
 autoscaling:
   enabled: true
+  minReplicas: 2  # required for Githhub actions testing to pass, as PDB now requires minReplicas to be greater than or equal to 2.
 
 secrets:
   TEST_SECRET: junksecret

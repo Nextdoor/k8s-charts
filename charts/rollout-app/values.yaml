@@ -106,6 +106,12 @@ proxySidecar:
 # is enabled.
 startupProbe:
 
+
+# -- (`bool`) If enableOnlyGRPCProbing is set to true, then within when generating
+# the livenessProbe and readinessProbe fields within the Rollout spec, only the GRPC
+# ports will be used, skipping the creation of the HTTP ports.
+enableOnlyGRPCProbing: false
+
 # -- A PodSpec container "livenessProbe" configuration object. Note that this
 # livenessProbe will be applied to the proxySidecar container instead if that
 # is enabled.
@@ -986,7 +992,6 @@ prometheusRules:
 # container. The container definitions can include template variables.
 extraContainers: []
 
-
 # Init Containers
 #
 # Containers to run before main application container is started.
@@ -994,3 +999,19 @@ extraContainers: []
 # https://kubernetes.io/docs/concepts/workloads/pods/init-containers
 # for more details.
 initContainers: []
+
+# -- (`string[]`) If supplied, an individual `Rollout` (and optional `HPA`)
+# is created for each of the Availability Zone strings passed in. The default
+# usage of this parameter would be to ensure that each AZ in your
+# infrastructure has its own Rollout and HPA for scaling that is independent
+# of the others. This is useful for services that are accessed by zone-aware
+# clients, where the load may be imbalanced from one zone to another.
+rolloutZones: []
+
+# -- (`bool`) During the transition from an individual zone rollout
+# resources to using multiple rollout resources for AZs, flip this setting to `true`
+# to enable the creation of BOTH the Zone-Aware AND Default Rollout resources.
+# This ensures that during the rollover from one to the other configuration,
+# you do not lose all of your pods. To go from using multiple rollout resources
+# to just an individual rollout resource, flip this setting to `false`.
+rolloutZonesTransition: false
