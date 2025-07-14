@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.5.1](https://img.shields.io/badge/Version-1.5.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -17,6 +17,17 @@ Progressive Delivery Controller][argo_rollouts] for more information about
 how these work, and the various custom resource definitions.
 
 ## Upgrade Notes
+
+### 1.4.x -> 1.5.x
+
+**NEW: Allow rollouts per- availability-zone and support canary `dynamicStableScale` option**
+
+Beginning with this version, if serves up high cross-zone traffic, you may wish to enable
+same-zone locality awareness by spinning up Rollouts in each AZ. You can do this with the
+`rolloutZones` and `rolloutZonesTransition` parameters.
+
+Also, for cost-consciousness we added support for the [dynamicStableScale](https://argo-rollouts.readthedocs.io/en/stable/features/canary/#dynamic-stable-scale-with-traffic-routing)
+option.
 
 ### 1.3.x -> 1.4.x
 
@@ -249,9 +260,11 @@ secretsEngine: sealed
 | blueGreen.previewReplicaCount | `int` | `nil` | The PreviewReplicaCount field will indicate the number of replicas that the new version of an application should run. Once the application is ready to promote to the active service, the controller will scale the new ReplicaSet to the value of the spec.replicas. The rollout will not switch over the active service to the new ReplicaSet until it matches the spec.replicas count.  This feature is mainly used to save resources during the testing phase. If the application does not need a fully scaled up application for the tests, this feature can help save some resources.  If omitted, the preview ReplicaSet stack will be scaled to 100% of the replicas. |
 | blueGreen.scaleDownDelayRevisionLimit | `int` | `nil` | The ScaleDownDelayRevisionLimit limits the number of old active ReplicaSets to keep scaled up while they wait for the scaleDownDelay to pass after being removed from the active service.  If omitted, all ReplicaSets will be retained for the specified scaleDownDelay |
 | blueGreen.scaleDownDelaySeconds | `int` | `nil` | The ScaleDownDelaySeconds is used to delay scaling down the old ReplicaSet after the active Service is switched to the new ReplicaSet. |
+| canary.abortScaleDownDelaySeconds | `int` | `nil` | Can be used in conjuction with dynamicStableScale to control how quickly the canary ReplicaSet is scaled down. If dynamicStableScale is set, and the rollout is aborted, the canary ReplicaSet will dynamically scale down as traffic shifts back to stable. If you wish to leave the canary ReplicaSet scaled up while aborting a bit longer  ([default 30s](https://argo-rollouts.readthedocs.io/en/stable/features/scaledown-aborted-rs/)), an explicit value can be set here. |
 | canary.analysis | `map` | `nil` | Configure the background [Analysis](https://argoproj.github.io/argo-rollouts/features/analysis/) to execute during the rollout. If the analysis is unsuccessful the rollout will be aborted. |
 | canary.antiAffinity | `map` | `nil` | Check out the Anti Affinity document document for more information. |
 | canary.canaryMetadata | `map` | `nil` | Metadata which will be attached to the canary pods. This metadata will only exist during an update, since there are no canary pods in a fully promoted rollout. |
+| canary.dynamicStableScale | `bool` | `nil` | When true, dynamically reduces the scale of the stable ReplicaSet during an update such that it scales down as the traffic weight increases to canary.  Advantage include savings on spinup of new nodes when replica counts are high and less likely for HPAs to scale stable down as overall pod counts stay the same for similar traffic split.  By default (if false), the stable ReplicaSet is left scaled to 100% during the update. This has the advantage that if an abort occurs, traffic can be immediately shifted back to the stable ReplicaSet without delay (if set to true, and the rollout is aborted, the canary ReplicaSet will dynamically scale down as traffic shifts back to stable |
 | canary.maxSurge | `int` or `string` | `nil` | The maximum number of pods that can be scheduled above the original number of pods. Value can be an absolute number (ex: 5) or a percentage of total pods at the start of the update (ex: 10%). This can not be 0 if MaxUnavailable is 0. Absolute number is calculated from percentage by rounding up. By default, a value of 1 is used.# Example: when this is set to 30%, the new RC can be scaled up by 30% immediately when the rolling update starts. Once old pods have been killed, new RC can be scaled up further, ensuring that total number of pods running at any time during the update is at most 130% of original pods. +optional |
 | canary.maxUnavailable | `int` or `string` | `nil` | The maximum number of pods that can be unavailable during the update. Value can be an absolute number (ex: 5) or a percentage of total pods at the start of update (ex: 10%). Absolute number is calculated from percentage by rounding down. This can not be 0 if  MaxSurge is 0. By default, a fixed value of 1 is used. Example: when this is set to 30%, the old RC can be scaled down by 30% immediately when the rolling update starts. Once new pods are ready, old RC can be scaled down further, followed by scaling up the new RC, ensuring that at least 70% of original number of pods are available at all times during the update. +optional |
 | canary.scaleDownDelayRevisionLimit | `int` | `nil` | Limits the number of old RS that can run at one time before getting scaled down. Defaults to nil |
