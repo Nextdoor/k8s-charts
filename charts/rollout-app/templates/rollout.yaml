@@ -185,6 +185,10 @@ spec:
       maxSurge: {{ . }}
       {{- end }}
 
+      {{- with $.Values.canary.dynamicStableScale }}
+      dynamicStableScale: {{ . }}
+      {{- end }}
+
       {{- with $.Values.canary.scaleDownDelaySeconds }}
       scaleDownDelaySeconds: {{ int . }}
       {{- end }}

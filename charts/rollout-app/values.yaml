@@ -303,6 +303,21 @@ canary:
   # in a fully promoted rollout.
   canaryMetadata: null
 
+  # -- (`bool`) When ture, dynamically reduces the scale of the stable
+  # ReplicaSet during an update such that it scales down as the traffic
+  # weight increases to canary.
+  #
+  # Advantage include savings on spinup of new nodes when replica counts are
+  # high and less likely for HPAs to scale stable down as overall pod counts
+  # stay the same for similar traffic split.
+  #
+  # By default (if false), the stable ReplicaSet is left scaled to 100%
+  # during the update. This has the advantage that if an abort occurs, traffic
+  # can be immediately shifted back to the stable ReplicaSet without delay (if
+  # set to true, and the rollout is aborted, the canary ReplicaSet will
+  # dynamically scale down as traffic shifts back to stable
+  dynamicStableScale: null
+
   # -- (`map`) metadata which will be attached to the stable pods
   stableMetadata: null
 
