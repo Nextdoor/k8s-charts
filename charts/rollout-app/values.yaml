@@ -303,7 +303,7 @@ canary:
   # in a fully promoted rollout.
   canaryMetadata: null
 
-  # -- (`bool`) When ture, dynamically reduces the scale of the stable
+  # -- (`bool`) When true, dynamically reduces the scale of the stable
   # ReplicaSet during an update such that it scales down as the traffic
   # weight increases to canary.
   #
@@ -317,6 +317,15 @@ canary:
   # set to true, and the rollout is aborted, the canary ReplicaSet will
   # dynamically scale down as traffic shifts back to stable
   dynamicStableScale: null
+
+  # -- (`int`) Can be used in conjuction with dynamicStableScale to control how
+  # quickly the canary ReplicaSet is scaled down. If dynamicStableScale is set,
+  # and the rollout is aborted, the canary ReplicaSet will dynamically scale down
+  # as traffic shifts back to stable. If you wish to leave the canary ReplicaSet
+  # scaled up while aborting a bit longer 
+  # ([default 30s](https://argo-rollouts.readthedocs.io/en/stable/features/scaledown-aborted-rs/)),
+  # an explicit value can be set here.
+  abortScaleDownDelaySeconds: null
 
   # -- (`map`) metadata which will be attached to the stable pods
   stableMetadata: null
