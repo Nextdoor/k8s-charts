@@ -322,7 +322,7 @@ canary:
   # quickly the canary ReplicaSet is scaled down. If dynamicStableScale is set,
   # and the rollout is aborted, the canary ReplicaSet will dynamically scale down
   # as traffic shifts back to stable. If you wish to leave the canary ReplicaSet
-  # scaled up while aborting a bit longer 
+  # scaled up while aborting a bit longer
   # ([default 30s](https://argo-rollouts.readthedocs.io/en/stable/features/scaledown-aborted-rs/)),
   # an explicit value can be set here.
   abortScaleDownDelaySeconds: null
