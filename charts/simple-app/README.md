@@ -13,6 +13,15 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
 
+### 1.13.x -> 1.14.x
+
+**NEW: Added capabilities to enable rollout deployments for new and current services**
+
+### 1.12.x -> 1.13.x
+
+# TODO add what was added to minor version bump here
+**NEW:**
+
 ### 1.11.x -> 1.12.x
 
 **NEW: Allow access from cross-cluster, in-mesh services**
