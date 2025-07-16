@@ -158,7 +158,7 @@ spec:
         {{- if $.Values.virtualService.enabled }}
         istio:
           virtualService:
-            name: {{ include "nd-common.serviceAccountName" $ }}
+            name: {{ $fullName }}
         {{- end }}
         {{- if $.Values.ingress.enabled }}
         alb:
