@@ -59,6 +59,10 @@ to be zone-specific.
 {{- $disableTopoSpreadFunction = true }}
 {{- else }}
 {{- $fullName            = include "nd-common.fullname" $ }}
+{{- if .Values.deploymentZonesTransition }}
+{{- /* We need a separate label for transitions to make sure the node selectors for the transition deployment and per az deployments don't overlap */}}
+{{- $deploymentZoneLabel       = "transition: true"}} 
+{{- end }}
 {{- end }}
 
 ---
