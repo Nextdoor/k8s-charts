@@ -1,0 +1,32 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["config:recommended", ":semanticCommitTypeAll(chore)"],
+
+  "dependencyDashboard": true,
+  "rebaseWhen": "behind-base-branch",
+  "prConcurrentLimit": 1,
+  "prHourlyLimit": 1,
+
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"]
+  },
+  "osvVulnerabilityAlerts": true,
+
+  helmv3: {
+    managerFilePatterns: ["/^charts/.+/Chart\\.yaml$/"],
+  },
+
+  packageRules: [
+    {
+      matchManagers: ["helmv3"],
+      prCreation: "immediate",
+      automerge: false,
+      labels: ["dependencies"],
+      separateMultipleMajor: true,
+      separateMinorPatch: true,
+      separateMajorMinor: true,
+      separateMultipleMinor: true,
+    },
+  ],
+}
