@@ -61,7 +61,7 @@ to be zone-specific.
 {{- $fullName            = include "nd-common.fullname" $ }}
 {{- if $.Values.deploymentZonesTransition }}
 {{- /* We need a separate label for transitions to make sure the node selectors for the transition deployment and per az deployments don't overlap */}}
-{{- $deploymentZoneLabel       = "transition: true"}} 
+{{- $deploymentZoneLabel       = printf "%s: %s" "transition" true }} 
 {{- end }}
 {{- end }}
 
