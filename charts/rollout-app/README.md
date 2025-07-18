@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 1.5.3](https://img.shields.io/badge/Version-1.5.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.5.4](https://img.shields.io/badge/Version-1.5.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -20,7 +20,7 @@ how these work, and the various custom resource definitions.
 
 ### 1.4.x -> 1.5.x
 
-**NEW: Allow rollouts per- availability-zone and support canary `dynamicStableScale` option**
+**NEW: Allow rollouts per availability-zone, added support for canary `dynamicStableScale` field, and updated Datadog annotations**
 
 Beginning with this version, if serves up high cross-zone traffic, you may wish to enable
 same-zone locality awareness by spinning up Rollouts in each AZ. You can do this with the
@@ -28,6 +28,10 @@ same-zone locality awareness by spinning up Rollouts in each AZ. You can do this
 
 Also, for cost-consciousness we added support for the [dynamicStableScale](https://argo-rollouts.readthedocs.io/en/stable/features/canary/#dynamic-stable-scale-with-traffic-routing)
 option.
+
+DataDog annotations have been updated in this update to enable the DataDog Agent to tag
+stable and canary ReplicaSets with either a 'stable' or 'canary' value. This happens automatically if you set the `Values.datadog.enabled` flag to true.
+E.g., under annotations, there will be: `ad.datadoghq.com/tags: '{"argo_rollouts_replicaset_type": "stable"}'` (or "canary" for canary ReplicaSets).
 
 ### 1.3.x -> 1.4.x
 

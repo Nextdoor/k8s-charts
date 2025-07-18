@@ -36,7 +36,6 @@ disable this.
 {{/* The default rolloutZoneLabel is left empty. We patch it as we loop through $rolloutZones */}}
 {{- $rolloutZoneLabel := "" }}
 
-
 {{/* Iterate through the rollout zones now */}}
 {{- range $rolloutZone := index $rolloutZones }}
 
@@ -167,14 +166,16 @@ spec:
         {{- end }}
       {{- end }}
 
-      {{- with $.Values.canary.canaryMetadata }}
+      {{- $canaryMetadata := include "rollout-app.canaryMetadata" $ | fromYaml }}
+      {{- if $canaryMetadata }}
       canaryMetadata:
-        {{- toYaml . | nindent 8 }}
+        {{- toYaml $canaryMetadata | nindent 8 }}
       {{- end }}
 
-      {{- with $.Values.canary.stableMetadata }}
+      {{- $stableMetadata := include "rollout-app.stableMetadata" $ | fromYaml }}
+      {{- if $stableMetadata }}
       stableMetadata:
-        {{- toYaml . | nindent 8 }}
+        {{- toYaml $stableMetadata | nindent 8 }}
       {{- end }}
 
       {{- with $.Values.canary.maxUnavailable }}
