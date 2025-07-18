@@ -2,7 +2,7 @@ apiVersion: v2
 name: rollout-app
 description: Argo Rollout-based Application Helm Chart
 type: application
-version: 1.5.2
+version: 1.5.3
 appVersion: latest
 maintainers:
   - name: diranged
@@ -13,5 +13,5 @@ dependencies:
     repository: https://k8s-charts.nextdoor.com
     condition: istio-alerts.enabled
   - name: nd-common
-    version: 0.4.2
+    version: 0.5.0
     repository: file://../nd-common

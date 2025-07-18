@@ -2,12 +2,12 @@ apiVersion: v2
 name: datadog-monitors
 description: datadog monitor alerts template
 type: application
-version: 0.0.3
+version: 0.0.4
 appVersion: latest
 maintainers:
   - name: scohen
     email: scohen@nextdoor.com
 dependencies:
   - name: nd-common
-    version: 0.4.2
+    version: 0.5.0
     repository: file://../nd-common

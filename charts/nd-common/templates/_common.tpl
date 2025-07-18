@@ -120,3 +120,77 @@ Generates a fully qualified Docker image name.
 {{- .Values.image.repository }}:{{ $tag }}
 {{- end }}
 {{- end }}
+
+{{/*
+overrideCommonLabels
+
+Merges user-defined override labels into a standard set of base labels.
+
+The base labels come from the "nd-common.labels" template, which includes:
+- Standard Kubernetes labels like `app.kubernetes.io/version`
+- Helm metadata like `helm.sh/chart` and `app.kubernetes.io/managed-by`
+- Datadog labels via "nd-common.datadogLabels"
+- Selector labels via "nd-common.selectorLabels"
+- Goldilocks labels via "nd-common.goldilocksLabels"
+
+Use this when you want to:
+- Add custom labels such as `tags.datadoghq.com/service` or `taskworker.nextdoor.com/swimlane-name`
+- Override existing labels dynamically using Helm templating (e.g., `releaseToken`)
+- Maintain consistent labeling across resources while allowing per-resource customization
+
+### Parameters (via dict):
+- overrides: (required) A map of key-value label overrides.
+             Values can include template expressions (evaluated using `tpl`).
+- ctx:       (required) The Helm context to use for rendering `tpl`.
+             Typically passed as the root context (`$`).
+
+### Example usage:
+```yaml
+labels:
+  {{- include "nd-common.overrideCommonLabels" (dict
+        "ctx" $
+        "overrides" (dict
+          "tags.datadoghq.com/service" (printf "nextdoor-%s-tw" $id)
+          "tags.datadoghq.com/version" ($.Values.parameters.releaseToken | default "release")
+        )
+    ) | nindent 4 }}
+*/}}
+
+{{- define "nd-common.overrideCommonLabels" -}}
+
+{{- /* Get the context from .ctx (usually $) to access .Values, .Release, etc. */ -}}
+{{- $ctx := .ctx }}
+
+{{- /*
+Compute the base labels using the "nd-common.labels" template,
+which returns standardized labels such as:
+  - app.kubernetes.io/version
+  - tags.datadoghq.com/service
+  - helm.sh/chart
+  - and other selectors
+
+The output of "nd-common.labels" is a multi-line YAML string,
+so we parse it with `fromYaml` to convert it into a map
+that we can merge overrides into.
+*/ -}}
+{{- $base := include "nd-common.labels" $ctx | fromYaml }}
+
+{{- /* Get the overrides map from input */ -}}
+{{- $overrides := .overrides }}
+
+{{- /* Create a copy of the base labels so we don't accidentally change the original */ -}}
+{{- $merged := deepCopy $base }}
+
+{{- /*
+Go through each override label.
+Render its value as a template using the root context,
+then add it to the merged labels.
+*/ -}}
+{{- range $k, $v := $overrides }}
+{{- $_ := set $merged $k (tpl $v $ctx) }}
+{{- end }}
+
+{{- /* Output the merged labels as valid YAML */ -}}
+{{ toYaml $merged }}
+
+{{- end }}
