@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 1.5.6](https://img.shields.io/badge/Version-1.5.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.5.7](https://img.shields.io/badge/Version-1.5.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -283,7 +283,7 @@ secretsEngine: sealed
 | datadog.metricsToScrape | `strings[]` | `["\"*\""]` | A list of strings that match the metric names that Datadog should scrape from the endpoint. This defaults to `"*"` to tell it to scrape ALL metrics - however, if your app exposes too many metrics (> 2000), Datadog will drop them all on the ground. |
 | datadog.scrapeLogs.enabled | `bool` | `false` | If true, then it will enable application logging to datadog. |
 | datadog.scrapeLogs.processingRules | `map[]` | `[]` | A list of map that sets different log processing rules. https://docs.datadoghq.com/agent/logs/advanced_log_collection/?tab=configurationfile |
-| datadog.scrapeLogs.source | `string` | `nil` | If set, this configures the "source" tag. If this is not set, the tag defaults to the `.Release.Name` for the application. |
+| datadog.scrapeLogs.source | `string` | `"argo_rollouts"` | If set, this configures the "source" tag. If this is not set, the tag defaults to the `.Release.Name` for the application. In order to enable log collection for Canary deployments, we need to set the source to be "argo_rollouts". Otherwise, the DataDog Agent will not scrape the logs for the Canary deployment. For more information, see: https://docs.datadoghq.com/integrations/argo-rollouts/#log-collection |
 | datadog.scrapeMetrics | `bool` | `false` | If true, then we will configure the Datadog agent to scrape metrics from the application pod via the values set in the .Values.monitor.* map. |
 | datadog.service | `string` | `nil` | If set, this configures the "service" tag. If this is not set, the tag defaults to the `.Release.Name` for the application. |
 | enableOnlyGRPCProbing | `bool` | `false` | If enableOnlyGRPCProbing is set to true, then within when generating the livenessProbe and readinessProbe fields within the Rollout spec, only the GRPC ports will be used, skipping the creation of the HTTP ports. |

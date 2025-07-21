@@ -909,7 +909,10 @@ datadog:
     enabled: false
     # -- (`string`) If set, this configures the "source" tag. If this is not
     # set, the tag defaults to the `.Release.Name` for the application.
-    source: null
+    # In order to enable log collection for Canary deployments, we need to set the source to be "argo_rollouts".
+    # Otherwise, the DataDog Agent will not scrape the logs for the Canary deployment.
+    # For more information, see: https://docs.datadoghq.com/integrations/argo-rollouts/#log-collection
+    source: argo_rollouts
     # -- (`map[]`) A list of map that sets different log processing rules.
     # https://docs.datadoghq.com/agent/logs/advanced_log_collection/?tab=configurationfile
     processingRules: []
