@@ -36,7 +36,7 @@ ad.datadoghq.com/{{ include "nd-common.containerName" . }}.logs: |-
   [
     {
       "source": {{ default .Chart.Name .Values.datadog.scrapeLogs.source | quote }},
-      "service": {{ default .Chart.Name .Values.datadog.service | quote }},
+      "service": {{ default (include "nd-common.serviceName" .) .Values.datadog.service | quote }},
       "log_processing_rules": {{ tpl (toJson .Values.datadog.scrapeLogs.processingRules) $ }}
     }
   ]
