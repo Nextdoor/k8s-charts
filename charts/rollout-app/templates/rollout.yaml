@@ -166,16 +166,14 @@ spec:
         {{- end }}
       {{- end }}
 
-      {{- $canaryMetadata := include "rollout-app.canaryMetadata" $ | fromYaml }}
-      {{- if $canaryMetadata }}
+      {{- with $.Values.canary.canaryMetadata }}
       canaryMetadata:
-        {{- toYaml $canaryMetadata | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
 
-      {{- $stableMetadata := include "rollout-app.stableMetadata" $ | fromYaml }}
-      {{- if $stableMetadata }}
+      {{- with $.Values.canary.stableMetadata }}
       stableMetadata:
-        {{- toYaml $stableMetadata | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
 
       {{- with $.Values.canary.maxUnavailable }}
