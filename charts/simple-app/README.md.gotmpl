@@ -12,6 +12,13 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
 
+### 1.12.x -> 1.13.x
+
+**NEW: Support label overrides, istio-proxy to run as k8s-native sidecars, and setting Service TrafficDistribution**
+
+`service.trafficDistribution`, if set to `PreferClose` will have preference to route
+traffic to endpoints in the [same zone](https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution) as client.
+
 ### 1.11.x -> 1.12.x
 
 **NEW: Allow access from cross-cluster, in-mesh services**

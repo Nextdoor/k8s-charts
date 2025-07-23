@@ -32,6 +32,24 @@ spec:
     {{- include "nd-common.servicePorts" $ | nindent 4 }}
   selector:
     {{- include "nd-common.selectorLabels" $ | nindent 4 }}
+  {{/* https://github.com/helm/helm/issues/12053#issuecomment-1535044379 */}}
+  {{- if semverCompare ">=1.31.0-0" .Capabilities.KubeVersion.Version }}
+  {{/*
+  As of Kubernetes v1.31, Service spec supports the trafficDistribution field, which is beta 'on',
+  and moved to GA in v1.33.
+
+  For now, to ensure no side-effects, we only will set the field if the user explicitly sets it.
+
+  In the future, we may default set to 'PreferClose' (for kube-proxy, this means prioritizing sending
+  traffic to endpoints within the same zone as the client)
+
+  In its absense, the default routing strategy for kube-proxy is to distribute traffic to any endpoint
+  in the cluster
+  */}}
+  {{- with .Values.service.trafficDistribution }}
+  trafficDistribution: {{ .}}
+  {{- end }}
+  {{- end }}
 {{- end }}
 
 ---

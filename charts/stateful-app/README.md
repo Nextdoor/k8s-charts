@@ -2,7 +2,7 @@
 
 Default StatefulSet Helm Chart
 
-![Version: 1.5.6](https://img.shields.io/badge/Version-1.5.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.5.7](https://img.shields.io/badge/Version-1.5.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,13 @@ in Kubernetes][statefulsets]. The chart provides all of the common pieces like
 ServiceAccounts, Services, etc.
 
 ## Upgrade Notes
+
+### 1.4.x -> 1.5.x
+
+**NEW: Allow simpler common label overrides and Service to set PreferClose trafficDistribution**
+
+`service.trafficDistribution`, if set to `PreferClose` will have preference to route
+traffic to endpoints in the [same zone](https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution) as client.
 
 ### 1.3.x -> 1.4.x
 
@@ -309,7 +316,7 @@ secretsEngine: sealed
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.5.2 |
+| file://../nd-common | nd-common | 0.5.3 |
 | https://k8s-charts.nextdoor.com | istio-alerts | 0.5.3 |
 
 ## Values
@@ -415,6 +422,7 @@ secretsEngine: sealed
 | secretsEngine | String | `"plaintext"` | Secrets Engine determines the type of Secret Resource that will be created (`KMSSecret`, `SealedSecret`, `Secret`). kms || sealed || plaintext are possible values. |
 | securityContext | object | `{}` |  |
 | service.name | `string` | `nil` | Optional override for the Service name. Can be used to create a simpler more friendly service name that is not specific to the application name. |
+| service.trafficDistribution | `string` | `nil` | Allows you to set preferences for how traffic should be routed to Service endpoints.  In absense, default routing strategy for kube-proxy is to distribute traffic to any endpoint in the cluster  We may, one day, wish to set to 'PreferClose', but for now we'll leave it at discretion of user as it's a simple heuristic: if there are endpoints in the zone, they will receive all traffic for that zone, if there are no endpoints in a zone, the traffic will be distributed to other zones |
 | service.type | string | `"ClusterIP"` |  |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
