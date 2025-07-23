@@ -9,6 +9,42 @@ replicaCount: 2
 # just really noisy. Set our default to 3. https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy
 revisionHistoryLimit: 3
 
+# -- Migrating from `simple-app` (kind: Deployment) to `rollout-app` (kind: Rollout)?
+# This section handles the migrations from Nextdoor's regular Deployment kind (found in `simple-app`)
+# to the Rollout kind (found in `rollout-app`). Not necessary for new services.
+# !IMPORTANT!: You should only toggle the `inProgress` field to `true` if your Rollout pods are already up and accepting traffic, aka
+# their status is `Ready`. Not doing so will result in downtime for your application.
+# If you wish to migrate (`inProgress` field is `true`), the Pods you deploy will use the template found currently within the
+# Deployment's template. Upon migration completion (toggling `inProgress` to `false`), the Deployment will be deleted,
+# and the Pod's will have labels that match a rollout deployment. For more information on steps to migrate, check out the documentation here:
+# https://nextdoor.atlassian.net/wiki/spaces/ENG/pages/4013359115/Canary+Deployments+At+Nextdoor
+migrate:
+  # -- (`bool`) If true, your service will start to migrate from a Deployment to a Rollout.
+  # Ensure that the other fields under migrate are also set.
+  # !IMPORTANT!: You should only toggle the `inProgress` field to `true` if your Rollout pods are already up and accepting traffic, aka
+  # their status is `Ready`. Not doing so will result in downtime for your application.
+  inProgress: false
+  # -- (`map`) The workloadRef field helps ensure that during the migration,
+  # traffic is still always being handled by *something*. The rollout CRD will divert traffic to the original Deployment,
+  # and depending on the scaleDownStrategy field, progressively starts scalng down traffic to the
+  # original Deployment as traffic towards the canary deployment ramps up.
+  # For more information on how this is used during migrations, see:
+  # https://argo-rollouts.readthedocs.io/en/stable/migrating/#reference-deployment-from-rollout
+  workloadRef:
+    # -- (`string`) The of the chart that you are migrating from. If you are migrating from `simple-app`,
+    # the value can be found within your Chart.yaml file as in the dependencies list.
+    # Typically just `simple-app`, but it can also be the value of alias if that is set.
+    # NOTE: If you are migrating from a deployment that utilizes multiple availability zones, ensure
+    # that you apply the values found within `deploymentZones` to `rolloutZones` as well as the topology values.
+    name: null
+    # -- (`string`) specifies how the Deployment should be scaled down. There are three options available:
+    # - `never`: the Deployment is not scaled down
+    # - `onsuccess`: the Deployment is scaled down after the Rollout becomes healthy
+    # - `progressively`: as the Rollout is scaled up the Deployment is scaled down, and the default choice for migrations
+    # For more information on the strategy, please visit:
+    # https://argo-rollouts.readthedocs.io/en/stable/migrating/#reference-deployment-from-rollout
+    scaleDown: progressively
+
 # -- Set up a PodDisruptionBudget for the Deployment. See
 # https://kubernetes.io/docs/tasks/run-application/configure-pdb/ for more
 # details.
