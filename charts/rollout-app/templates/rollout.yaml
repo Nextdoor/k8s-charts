@@ -96,6 +96,7 @@ spec:
       {{- if $.Values.migrate.inProgress }}
       app.kubernetes.io/instance: {{ $.Release.Name }}
       app.kubernetes.io/name: {{ $.Values.migrate.workloadRef.name }}
+      helm.sh/chart-name: simple-app
       {{- else }}
       {{- include "nd-common.selectorLabels" $ | nindent 6 }}
       {{- with $rolloutZoneLabel }}
