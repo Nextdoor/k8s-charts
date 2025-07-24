@@ -26,7 +26,8 @@ For users who are migrating from `simple-app` to `rollout-app`, they are able to
 deployment name. This is a combination of the release name hyphenated with the chart name, or a user specified deployment reference name.
 Similar to $fullName, we override it and append to it as we loop through $rolloutZones.
 */}}
-{{- $deploymentRefName := printf "%s-%s" (.Release.Name) (default (default .Chart.Name .Values.nameOverride) (.Values.migrate.workloadRef.name)) }}
+{{- $prevDeployment := default (default .Chart.Name .Values.nameOverride) (.Values.migrate.workloadRef.name) }}
+{{- $deploymentRefName := printf "%s-%s" (.Release.Name) ($prevDeployment) }}
 
 {{/* Verify that some required inputs are supplied */}}
 {{- if .Values.virtualService.enabled }}
@@ -113,8 +114,17 @@ spec:
     blueGreen:
       {{- $fullName = include "nd-common.fullname" $ }}
       {{- if or $.Values.virtualService.enabled $.Values.ingress.enabled }}
+      {{- /*
+      For users who are migrating from a Deployment to BlueGreen rollouts, we need to use the previous Deployment's service name as the activeService.
+      The service name is similar to $deploymentRefName, however, the rolloutZoneLabel is not included. The preview service should also not be included.
+      */}}
+      {{- if $.Values.migrate.inProgress }}
+      activeService: {{ printf "%s-%s" ($.Release.Name) ($prevDeployment) }}
+      previewService: null
+      {{- else }}
       activeService: {{ $fullName }}
       previewService: {{ $fullName }}-preview
+      {{- end }}
       {{- end }}
 
       {{- with $.Values.blueGreen.autoPromotionEnabled }}
