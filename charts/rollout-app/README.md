@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 1.5.7](https://img.shields.io/badge/Version-1.5.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.6.0](https://img.shields.io/badge/Version-1.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -17,6 +17,18 @@ Progressive Delivery Controller][argo_rollouts] for more information about
 how these work, and the various custom resource definitions.
 
 ## Upgrade Notes
+
+### 1.5.x -> 1.6.x
+
+**NEW: Enabled migration capabilities from `simple-app` to `rollout-app`**
+
+Beginning with this version, you can now migrate from `simple-app` to `rollout-app` with no downtime between your services.
+To enable this, you will need to set the `migrate.inProgress` value to `true` in your values file.
+Additionally, you may need to set the `migrate.workloadRef.name` value to the name of the dependency chart you are migrating from.
+Check the `migrate.workloadRef.scaleDown` field for strategies available for scaling down the Deployment.
+The default value is `onsuccess`, meaning that the Deployment be scaled down only after the Rollout becomes healthy (extremely safe!).
+For more information on steps to migrate, check out the documentation here:
+# https://nextdoor.atlassian.net/wiki/spaces/ENG/pages/4013359115/Canary+Deployments+At+Nextdoor
 
 ### 1.4.x -> 1.5.x
 
@@ -312,6 +324,11 @@ secretsEngine: sealed
 | istio.preStopCommand | `list <str>` | `nil` | If supplied, this is the command that will be passed into the `istio-proxy` sidecar container as a pre-stop function. This is used to delay the shutdown of the istio-proxy sidecar in some way or another. Our own default behavior is applied if this value is not set - which is that the sidecar will wait until it does not see the application container listening on any TCP ports, and then it will shut down.  eg: preStopCommand: [ /bin/sleep, "30" ] |
 | kmsSecretsRegion | String | `nil` | AWS region where the KMS key is located |
 | livenessProbe | object | `{"httpGet":{"path":"/","port":"http"}}` | A PodSpec container "livenessProbe" configuration object. Note that this livenessProbe will be applied to the proxySidecar container instead if that is enabled. |
+| migrate | object | `{"inProgress":false,"workloadRef":{"name":null,"scaleDown":"progressively"}}` | Migrating from `simple-app` (kind: Deployment) to `rollout-app` (kind: Rollout)? This section handles the migrations from Nextdoor's regular Deployment kind (found in `simple-app`) to the Rollout kind (found in `rollout-app`). Not necessary for new services. !IMPORTANT!: You should only toggle the `inProgress` field to `true` if your Rollout pods are already up and accepting traffic, aka their status is `Ready`. Not doing so will result in downtime for your application. If you wish to migrate (`inProgress` field is `true`), the Pods you deploy will use the template found currently within the Deployment's template. Upon migration completion (toggling `inProgress` to `false`), the Deployment will be deleted, and the Pod's will have labels that match a rollout deployment. For more information on steps to migrate, check out the documentation here: https://nextdoor.atlassian.net/wiki/spaces/ENG/pages/4013359115/Canary+Deployments+At+Nextdoor |
+| migrate.inProgress | `bool` | `false` | If true, your service will start to migrate from a Deployment to a Rollout. Ensure that the other fields under migrate are also set. !IMPORTANT!: You should only toggle the `inProgress` field to `true` if your Rollout pods are already up and accepting traffic, aka their status is `Ready`. Not doing so will result in downtime for your application. |
+| migrate.workloadRef | `map` | `{"name":null,"scaleDown":"progressively"}` | The workloadRef field helps ensure that during the migration, traffic is still always being handled by *something*. The rollout CRD will divert traffic to the original Deployment, and depending on the scaleDownStrategy field, progressively starts scalng down traffic to the original Deployment as traffic towards the canary deployment ramps up. For more information on how this is used during migrations, see: https://argo-rollouts.readthedocs.io/en/stable/migrating/#reference-deployment-from-rollout |
+| migrate.workloadRef.name | `string` | `nil` | The of the chart that you are migrating from. If you are migrating from `simple-app`, the value can be found within your Chart.yaml file as in the dependencies list. Typically just `simple-app`, but it can also be the value of alias if that is set. NOTE: If you are migrating from a deployment that utilizes multiple availability zones, ensure that you apply the values found within `deploymentZones` to `rolloutZones` as well as the topology values. |
+| migrate.workloadRef.scaleDown | `string` | `"progressively"` | specifies how the Deployment should be scaled down. There are three options available: - `never`: the Deployment is not scaled down - `onsuccess`: the Deployment is scaled down after the Rollout becomes healthy - `progressively`: as the Rollout is scaled up the Deployment is scaled down, and the default choice for migrations For more information on the strategy, please visit: https://argo-rollouts.readthedocs.io/en/stable/migrating/#reference-deployment-from-rollout |
 | minReadySeconds | string | `nil` | https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#min-ready-seconds |
 | monitor.annotations | `map` | `{}` | ServiceMonitor annotations. |
 | monitor.enabled | `bool` | `true` | If enabled, ServiceMonitor resources for Prometheus Operator are created or if `Values.istio.enabled` is `True`, then the appropriate Pod Annotations will be added for the istio-proxy sidecar container to scrape the metrics. |

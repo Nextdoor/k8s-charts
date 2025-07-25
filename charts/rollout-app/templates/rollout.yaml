@@ -21,6 +21,14 @@ from multiple rollout deployments to a single rollout deployment.
 {{/* The default fullName field here... we override it and append to it as we loop through $rolloutZones */}}
 {{- $fullName := include "nd-common.fullname" . }}
 
+{{/*
+For users who are migrating from `simple-app` to `rollout-app`, they are able to specify their
+deployment name. This is a combination of the release name hyphenated with the chart name, or a user specified deployment reference name.
+Similar to $fullName, we override it and append to it as we loop through $rolloutZones.
+*/}}
+{{- $prevDeployment := default (default .Chart.Name .Values.nameOverride) (.Values.migrate.workloadRef.name) }}
+{{- $deploymentRefName := printf "%s-%s" (.Release.Name) ($prevDeployment) }}
+
 {{/* Verify that some required inputs are supplied */}}
 {{- if .Values.virtualService.enabled }}
   {{- $readinessProbe := required "readinessProbe is required" .Values.readinessProbe }}
@@ -46,6 +54,7 @@ In that case, we patch a few variables to be zone-specific.
 {{- if ne $rolloutZone "default" }}
 {{- $topologyKey               := required ".Values.rolloutZones requires that .Values.topologyKey is also set" $.Values.topologyKey }}
 {{- $fullName                  = printf "%s-%s" (include "nd-common.fullname" $) $rolloutZone }}
+{{- $deploymentRefName         = printf "%s-%s" $deploymentRefName $rolloutZone }}
 {{- $rolloutZoneLabel          = printf "%s: %s" $topologyKey $rolloutZone }}
 {{- $disableTopoSpreadFunction = true }}
 {{- else }}
@@ -83,17 +92,40 @@ spec:
   {{- end }}
   selector:
     matchLabels:
+      {{- /* When migrating from a Deployment, the selector actually needs to match the original Deployment's labels. */}}
+      {{- if $.Values.migrate.inProgress }}
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+      app.kubernetes.io/name: {{ $.Values.migrate.workloadRef.name }}
+      helm.sh/chart-name: simple-app
+      {{- else }}
       {{- include "nd-common.selectorLabels" $ | nindent 6 }}
       {{- with $rolloutZoneLabel }}
       {{ . }}
       {{- end }}
+      {{- end }}  
+  {{- if $.Values.migrate.inProgress }}
+  workloadRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ $deploymentRefName }}
+    scaleDown: {{ $.Values.migrate.workloadRef.scaleDown }}
+  {{- end }}
   strategy:
     {{- if (eq $.Values.strategy "blueGreen") }}
     blueGreen:
       {{- $fullName = include "nd-common.fullname" $ }}
       {{- if or $.Values.virtualService.enabled $.Values.ingress.enabled }}
+      {{- /*
+      For users who are migrating from a Deployment to BlueGreen rollouts, we need to use the previous Deployment's service name as the activeService.
+      The service name is similar to $deploymentRefName, however, the rolloutZoneLabel is not included. The preview service should also not be included.
+      */}}
+      {{- if $.Values.migrate.inProgress }}
+      activeService: {{ printf "%s-%s" ($.Release.Name) ($prevDeployment) }}
+      previewService: null
+      {{- else }}
       activeService: {{ $fullName }}
       previewService: {{ $fullName }}-preview
+      {{- end }}
       {{- end }}
 
       {{- with $.Values.blueGreen.autoPromotionEnabled }}
@@ -137,6 +169,11 @@ spec:
 
     {{- else if (eq $.Values.strategy "canary") }}
     canary:
+      {{- /*
+      During a migration, since we reference a previous Deployments service, we do not want to supply VirtualService values here,
+      otherwise we will run into selector misalignments.
+      */}}
+      {{- if not $.Values.migrate.inProgress }}
       {{- if or $.Values.virtualService.enabled $.Values.ingress.enabled }}
         {{/*
         If you have multiple rollouts, then it does not make sense to have *multiple* virtual services as well.
@@ -164,6 +201,8 @@ spec:
           ingress: {{ $fullName }}
           servicePort: {{ default (first $.Values.ports).containerPort $.Values.ingress.port }}
         {{- end }}
+      {{- end }}
+
       {{- end }}
 
       {{- with $.Values.canary.canaryMetadata }}
@@ -218,6 +257,14 @@ spec:
     {{- else }}
     {{- fail (printf "Must set $.Values.strategy to 'blueGreen' or 'canary', '%s' is invalid" $.Values.strategy) }}
     {{- end }}
+  {{- /*
+  When you are migrating from a regular Deployment, Argo Rollouts will use the previous Deployment's pods as the template.
+  Thus, we need to leave the template field as an empty object for Argo Rollouts to flesh out. Otherwise, you get the error:
+  The Rollout is invalid: spec.template: Internal error: template must be empty for workload reference rollout
+  */}}
+  {{- if $.Values.migrate.inProgress }}
+  template: {}
+  {{- else }}
   template:
     metadata:
       annotations:
@@ -445,5 +492,6 @@ spec:
             {{- toYaml . | nindent 12 }}
             {{- end }}
           {{- end }}
+  {{- end }}
 ---
 {{- end }}
