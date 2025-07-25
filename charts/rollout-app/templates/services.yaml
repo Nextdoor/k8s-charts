@@ -15,7 +15,7 @@ This is only used for multiple rollout deployments.
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "nd-common.fullname" . }}
+  name: {{ include "nd-common.serviceName" . }}
   labels:
     {{- include "rollout-app.labels" . | nindent 4 }}
   annotations:
@@ -43,7 +43,7 @@ and canary service.
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "nd-common.fullname" . }}
+  name: {{ include "nd-common.serviceName" . }}
   labels:
     {{- include "rollout-app.labels" . | nindent 4 }}
   annotations:
@@ -71,7 +71,7 @@ and canary service.
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "nd-common.fullname" . }}-canary
+  name: {{ include "nd-common.serviceName" . }}-canary
   labels:
     {{- include "rollout-app.labels" . | nindent 4 }}
   annotations:
@@ -98,7 +98,7 @@ https://argoproj.github.io/argo-rollouts/features/bluegreen/#previewservice
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "nd-common.fullname" . }}-preview
+  name: {{ include "nd-common.serviceName" . }}-preview
   labels:
     {{- include "rollout-app.labels" . | nindent 4 }}
   annotations:
