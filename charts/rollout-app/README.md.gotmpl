@@ -19,7 +19,7 @@ how these work, and the various custom resource definitions.
 
 ### 1.5.x -> 1.6.x
 
-**NEW: Enabled migration capabilities from `simple-app` to `rollout-app`**
+**NEW: Enabled migration capabilities from `simple-app` to `rollout-app`, allow setting Service TrafficDistribution**
 
 Beginning with this version, you can now migrate from `simple-app` to `rollout-app` with no downtime between your services.
 To enable this, you will need to set the `migrate.inProgress` value to `true` in your values file.
@@ -28,6 +28,11 @@ Check the `migrate.workloadRef.scaleDown` field for strategies available for sca
 The default value is `onsuccess`, meaning that the Deployment be scaled down only after the Rollout becomes healthy (extremely safe!).
 For more information on steps to migrate, check out the documentation here:
 # https://nextdoor.atlassian.net/wiki/spaces/ENG/pages/4013359115/Canary+Deployments+At+Nextdoor
+
+`service.trafficDistribution`, if set to `PreferClose` will have preference to route
+traffic to endpoints in the [same zone](https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution) as client.
+
+Its heuristic is simple: if an endpoint exists in the same zone as the client, route request to that endpoint. This has the downside of possibly overwhelming that endpoint. In that case, you can use the more nuanced `service.kubernetes.io/topology-mode: Auto` annotation on your `Service` which has some [fallback behavior](https://v1-31.docs.kubernetes.io/docs/concepts/services-networking/topology-aware-routing/#enabling-topology-aware-routing).
 
 ### 1.4.x -> 1.5.x
 

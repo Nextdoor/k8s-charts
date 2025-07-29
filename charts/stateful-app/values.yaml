@@ -258,6 +258,18 @@ service:
   # application name.
   name:
 
+  # -- (`string`) Allows you to set preferences for how traffic should be routed
+  # to Service endpoints.
+  #
+  # In absense, default routing strategy for kube-proxy is to distribute traffic
+  # to any endpoint in the cluster
+  #
+  # We may, one day, wish to set to 'PreferClose', but for now we'll leave it at
+  # discretion of user as it's a simple heuristic: if there are endpoints in the
+  # zone, they will receive all traffic for that zone, if there are no endpoints
+  # in a zone, the traffic will be distributed to other zones
+  trafficDistribution:
+
 # Configuration for creating a dedicated ALB for your service. This is
 # acceptable - but not the preferred method (see the IngressGateway setup
 # below).
