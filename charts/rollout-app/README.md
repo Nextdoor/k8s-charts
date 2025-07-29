@@ -33,6 +33,8 @@ For more information on steps to migrate, check out the documentation here:
 `service.trafficDistribution`, if set to `PreferClose` will have preference to route
 traffic to endpoints in the [same zone](https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution) as client.
 
+Its heuristic is simple: if an endpoint exists in the same zone as the client, route request to that endpoint. This has the downside of possibly overwhelming that endpoint. In that case, you can use the more nuanced `service.kubernetes.io/topology-mode: Auto` annotation on your `Service` which has some [fallback behavior](https://v1-31.docs.kubernetes.io/docs/concepts/services-networking/topology-aware-routing/#enabling-topology-aware-routing).
+
 ### 1.4.x -> 1.5.x
 
 **NEW: Allow rollouts per availability-zone and added support for canary `dynamicStableScale` field**
