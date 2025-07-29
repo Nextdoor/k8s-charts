@@ -26,6 +26,9 @@ metadata:
     This is only used for type=LoadBalancer Services which run in AWS.
     */}}
     service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: kubernetes_namespace={{ .Release.Namespace }}
+    {{- with .Values.service.annotations }}
+    {{- tpl (toYaml .) $ | nindent 4 }}
+    {{- end }}
 spec:
   type: {{ .Values.service.type }}
   ports:
