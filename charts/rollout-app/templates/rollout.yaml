@@ -173,20 +173,10 @@ spec:
       During a migration, since we reference a previous Deployments service, we do not want to supply VirtualService values here,
       otherwise we will run into selector misalignments.
       */}}
-      {{- if not $.Values.migrate.inProgress }}
+      {{- if not $.Values.migrate.inProgress }}  # TODO: remove this if we find that this field is not even needed within the migration doc logic here: https://nextdoor.atlassian.net/wiki/spaces/ENG/pages/4013359115/Canary+Deployments+At+Nextdoor
       {{- if or $.Values.virtualService.enabled $.Values.ingress.enabled }}
-        {{/*
-        If you have multiple rollouts, then it does not make sense to have *multiple* virtual services as well.
-        In addition to that, Argo Rollouts will not let multiple rollouts reference the same virtual service,
-        meaning that you cannot share a virtual service between multiple rollouts. Thus, this is why failing here
-        is necessary. For context on where Argo Rollouts fails, see:
-        https://github.com/argoproj/argo-rollouts/blob/76cfc0e58892ed9759c1a732e243f75aed2fc6bd/utils/conditions/conditions.go#L158
-        */}}
-        {{- if and (gt (len $.Values.rolloutZones) 0) ($.Values.virtualService.enabled) -}}
-        {{- fail (printf "Invalid spec, multiple zones cannot be configured with virtual services enabled") }}
-        {{- end }}
-      stableService: {{ $fullName }}
-      canaryService: {{ $fullName }}-canary
+      stableService: {{ include "nd-common.serviceName" $ }}
+      canaryService: {{ include "nd-common.serviceName" $ }}-canary
       {{ end }}
 
       {{- if or $.Values.virtualService.enabled $.Values.ingress.enabled }}
@@ -194,11 +184,11 @@ spec:
         {{- if $.Values.virtualService.enabled }}
         istio:
           virtualService:
-            name: {{ $fullName }}
+            name: {{ include "nd-common.fullname" $ }}
         {{- end }}
         {{- if $.Values.ingress.enabled }}
         alb:
-          ingress: {{ $fullName }}
+          ingress: {{ include "nd-common.fullname" $ }}
           servicePort: {{ default (first $.Values.ports).containerPort $.Values.ingress.port }}
         {{- end }}
       {{- end }}

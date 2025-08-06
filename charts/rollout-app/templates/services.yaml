@@ -1,45 +1,4 @@
-{{/*
-This is an umbrella service that is used to route web traffic to potential
-different AZ's for your rollout, load balancing across them. This is the 
-always-created and always-on service that will round-robin traffic
-to the different stable and canary services in across AZs.
-
-This is only used for multiple rollout deployments.
-*/}}
-{{- $usingZones := false -}}
-{{- if gt (len .Values.rolloutZones) 0 -}}
-  {{- $usingZones = true -}}
-{{- end -}}
-{{ if $usingZones }}
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "nd-common.serviceName" . }}
-  labels:
-    {{- include "rollout-app.labels" . | nindent 4 }}
-  annotations:
-    {{/*
-    This is only used for type=LoadBalancer Services which run in AWS.
-    */}}
-    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: kubernetes_namespace={{ .Release.Namespace }}
-spec:
-  type: {{ .Values.service.type }}
-  ports:
-    {{- include "rollout-app.servicePorts" . | nindent 4 }}
-  selector:
-    {{- include "nd-common.selectorLabels" . | nindent 4 }}
-
-{{- else -}} {{/*  if you are using a single rollout deployment*/}}
----
-{{/*
-This optional "Stable" service is created only when the .Values.strategy is set
-to "canary". Rollouts will then use this service to run the "production" pods.
-When using Istio VirtualServices (if .Values.virtualService.enabled=true), the
-VirtualService will be configured to use this Service as the stable service,
-and it will automatically adjust the weights to move traffic between the stable
-and canary service.
-*/}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -114,4 +73,3 @@ spec:
     {{- include "nd-common.selectorLabels" . | nindent 4 }}
 {{- end }}
 ---
-{{- end -}}
