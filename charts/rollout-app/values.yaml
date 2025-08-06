@@ -579,6 +579,31 @@ virtualService:
   # match a `containerPort` in the `Values.ports` list.
   port: 80
 
+  # -- Since multiple Rollout objects cannot referece the same stableService or
+  # canaryService, approaches like Istio subset routing (based on pod labels) to direct
+  # traffic to appropriate version can be used to utilize the same Kubernetes service
+  subsetRouting:
+    # -- (`bool`) Sets the VirtualService destination route with a subset identifier.
+    # This can then be referenced in a corresponding DestinationRule.
+    #
+    # This is usually preferred when using Rollouts in canary mode and multiple Rollout
+    # objects exist (like per-zone) because we need stable and canary pods to be served
+    # by the same Kubernetes service.
+    enabled: false
+
+    # -- (`list`) Sets each subset name and weight with otherwise the same properties of
+    # the destination route.
+    #
+    # The subset name can then be referenced in a corresponding DesitinationRule
+    #
+    # The templates will fail to render and let users know why if subsetRouting
+    # is enabled but subsets list is empty
+    subsets: []
+      # - name: stable
+      #   weight: 100
+      # - name: canary
+      #   weight: 0
+
   tls: ""
 
   # -- (`map`) Pass in an optional

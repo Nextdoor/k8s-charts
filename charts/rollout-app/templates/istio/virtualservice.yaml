@@ -57,6 +57,19 @@ spec:
       {{- end }}
       {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRouteDestination */}}
       route:
+        {{- if .Values.virtualService.subsetRouting.enabled }}
+        {{- if (eq (len .Values.virtualService.subsetRouting.subsets) 0) }}
+        {{- fail "Both virtualService.subsetRouting is enabled but the subset list is empty" }}
+        {{- end }}
+        {{- range .Values.virtualService.subsetRouting.subsets }}
+        - destination:
+            host: {{ include "nd-common.serviceName" $ }}
+            port:
+              number: {{ $.Values.virtualService.port }}
+            subset: {{ .name }}
+          weight: {{ .weight }}
+        {{- end }}
+        {{- else }}
         {{- /*
         This is the primary "active" or "stable" service that we will route traffic
         to most of the time. The weight is set to 100 here in the template, but Argo
@@ -80,6 +93,7 @@ spec:
             port:
               number: {{ .Values.virtualService.port }}
           weight: 0
+        {{- end }}
         {{- end }}
       {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPFaultInjection */}}
       {{- if and .Values.virtualService.maintenanceMode.enabled .Values.virtualService.fault }}

@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 1.6.2](https://img.shields.io/badge/Version-1.6.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.6.3](https://img.shields.io/badge/Version-1.6.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -410,7 +410,7 @@ secretsEngine: sealed
 | topologySpreadConstraints | `string` | `[]` | An array of custom TopologySpreadConstraint settings applied to the PodSpec within the Deployment. Each of these TopologySpreadObjects should conform to the [`pod.spec.topologySpreadConstraints`](https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/#api) API - but the `labelSelector` field should be left out, it will be inserted automatically for you. |
 | virtualService.annotations | object | `{}` | Any annotations you wish to add to the `VirtualService` resource. See https://istio.io/latest/docs/reference/config/annotations/ for more details. |
 | virtualService.corsPolicy | `map` | `{}` | If set, this will populate the corsPolicy setting for the VirtualService. See https://istio.io/latest/docs/reference/config/networking/virtual-service/#CorsPolicy for more details. |
-| virtualService.enabled | Boolean | `false` | Maps the Service to an Istio IngressGateway, exposing the service outside of the Kubernetes cluster. |
+| virtualService.enabled | Boolean | `true` | Maps the Service to an Istio IngressGateway, exposing the service outside of the Kubernetes cluster. |
 | virtualService.fault | `map` | `{}` | Pass in an optional [`HTTPFaultInjection`](https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPFaultInjection) configuration here to specify faults such as delaying or aborting the proxying of requests to the service.  If a configuration here is set, maintenanceMode.enabled MUST be set to 'false' (as that creates a very specific fault injection).  Otherwise, we fail to render the chart. |
 | virtualService.gateways | list | `[]` | The name of the Istio `Gateway` resource that this `VirtualService` will register with. You can get a list of the avaialable `Gateways` by running `kubectl -n istio-system get gateways`. Not specifying a Gateway means that you are creating a VirtualService routing definition only inside of the Kubernetes cluster, which is totally reasonable if you want to do that.  Must be in the form of $namespace/$gateway. Eg, "istio-system/default-gateway". |
 | virtualService.hosts | list | `["{{ include \"nd-common.fullname\" . }}"]` | A list of destination hostnames that this VirtualService will accept traffic for. Multiple names can be listed here. See https://istio.io/latest/docs/reference/config/networking/virtual-service/#VirtualService for more details. |
@@ -421,6 +421,9 @@ secretsEngine: sealed
 | virtualService.paths | `string[]` | `[]` | List of optional path prefixes that the `VirtualService` will use to match requests against and will pass to the `Service` object in this deployment. This list replaces the `path` prefix above - use one or the other, do not use both. |
 | virtualService.port | int | `80` | This is the backing Pod port _number_ to route traffic to. This must match a `containerPort` in the `Values.ports` list. |
 | virtualService.retries | `map` | `{}` | Pass in an optional [`HTTPRetry`](https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRetry) configuration here to control how services retry their failed requests to the backend service. The default behavior is to retry 2 times if a 503 is returned. |
+| virtualService.subsetRouting | object | `{"enabled":false,"subsets":[]}` | Since multiple Rollout objects cannot referece the same stableService or canaryService, approaches like Istio subset routing (based on pod labels) to direct traffic to appropriate version can be used to utilize the same Kubernetes service |
+| virtualService.subsetRouting.enabled | `bool` | `false` | Sets the VirtualService destination route with a subset identifier. This can then be referenced in a corresponding DestinationRule.  This is usually preferred when using Rollouts in canary mode and multiple Rollout objects exist (like per-zone) because we need stable and canary pods to be served by the same Kubernetes service. |
+| virtualService.subsetRouting.subsets | `list` | `[]` | Sets each subset name and weight with otherwise the same properties of the destination route.  The subset name can then be referenced in a corresponding DesitinationRule  The templates will fail to render and let users know why if subsetRouting is enabled but subsets list is empty |
 | virtualService.tls | string | `""` |  |
 | volumeMounts | list | `[]` | List of VolumeMounts that are applied to the application container - these must refer to volumes set in the `Values.volumes` parameter. |
 | volumes | list | `[]` | A list of 'volumes' that can be mounted into the Pod. See https://kubernetes.io/docs/concepts/storage/volumes/. |
