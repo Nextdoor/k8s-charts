@@ -565,6 +565,10 @@ virtualService:
     # -- (`int`) The HTTP response code that is returned when maintenanceMode is enabled.
     httpStatus: 503
 
+  # -- The default route match name. This isn't required, but is needed for example, when
+  # you have multiple routes in the VirtualService
+  routeName:
+
   # -- The default path prefix that the `VirtualService` will match requests
   # against to pass to the default `Service` object in this deployment.
   path: '/'
@@ -603,6 +607,18 @@ virtualService:
       #   weight: 100
       # - name: canary
       #   weight: 0
+
+    # -- (`string`) The Rollout object's Istio traffic routing destination route's stable
+    # subset identifier (set here to avoid any subset positional assumptions)
+    stableSubsetName:
+
+    # -- (`string`) The Rollout object's Istio traffic routing destination route's canary
+    # subset identifier (set here to avoid any subset positional assumptions)
+    canarySubsetName:
+
+    # -- (`string`) The DestinationRule containing the canary and stable subsets referenced
+    # in the Rollout
+    destinationRuleName:
 
   tls: ""
 

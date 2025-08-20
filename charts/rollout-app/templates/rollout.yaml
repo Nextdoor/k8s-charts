@@ -194,6 +194,12 @@ spec:
         istio:
           virtualService:
             name: {{ include "nd-common.fullname" $ }}
+          {{- if $.Values.virtualService.subsetRouting.enabled }}
+          destinationRule:
+            name: {{ $.Values.virtualService.subsetRouting.destinationRuleName }}
+            canarySubsetName: {{ default "canary" $.Values.virtualService.subsetRouting.canarySubsetName }}
+            stableSubsetName: {{ default "stable" $.Values.virtualService.subsetRouting.stableSubsetName }}
+          {{- end }}
         {{- end }}
         {{- if $.Values.ingress.enabled }}
         alb:

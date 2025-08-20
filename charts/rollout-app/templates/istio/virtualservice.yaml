@@ -36,6 +36,9 @@ spec:
       {{- tpl (toYaml .) $ | nindent 6 }}
       {{- end }}
       {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPMatchRequest */}}
+      {{- with .Values.virtualService.routeName }}
+      name: {{ . }}
+      {{- end }}
       {{- if .Values.virtualService.paths }}
       {{- range $path := .Values.virtualService.paths }}
       - uri:
