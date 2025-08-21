@@ -188,7 +188,7 @@ spec:
       {{ end }}
       {{ end }}
 
-      {{- if or $.Values.virtualService.enabled $.Values.ingress.enabled }}
+      {{- if and (eq $rolloutZone "default") (or $.Values.virtualService.enabled $.Values.ingress.enabled) }}
       trafficRouting:
         {{- if $.Values.virtualService.enabled }}
         istio:
