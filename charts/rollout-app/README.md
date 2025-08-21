@@ -20,7 +20,7 @@ how these work, and the various custom resource definitions.
 
 ### 1.5.x -> 1.6.x
 
-**NEW: Enabled migration capabilities from `simple-app` to `rollout-app`, allow setting Service TrafficDistribution**
+**NEW: Enabled migration capabilities from `simple-app` to `rollout-app`, allow setting Service TrafficDistribution, support subset-level traffic splitting**
 
 Beginning with this version, you can now migrate from `simple-app` to `rollout-app` with no downtime between your services.
 To enable this, you will need to set the `migrate.inProgress` value to `true` in your values file.
