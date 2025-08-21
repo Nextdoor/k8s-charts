@@ -25,8 +25,11 @@ When using Istio VirtualServices (if .Values.virtualService.enabled=true), the
 VirtualService will be configured to use this Service as the canary service,
 and it will automatically adjust the weights to move traffic between the stable
 and canary service.
+
+To avoid confusion, don't create when you have multiple Rollouts (1 per AZ) as
+multiple rollouts cannot control one Service.
 */}}
-{{- if eq .Values.strategy "canary" }}
+{{- if and (eq .Values.strategy "canary") (eq (len .Values.rolloutZones) 0) }}
 apiVersion: v1
 kind: Service
 metadata:

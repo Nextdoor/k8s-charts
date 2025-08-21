@@ -175,16 +175,31 @@ spec:
       */}}
       {{- if not $.Values.migrate.inProgress }}  # TODO: remove this if we find that this field is not even needed within the migration doc logic here: https://nextdoor.atlassian.net/wiki/spaces/ENG/pages/4013359115/Canary+Deployments+At+Nextdoor
       {{- if or $.Values.virtualService.enabled $.Values.ingress.enabled }}
+      {{- /*
+      Since multiple Rollout objects cannot referece the same stableService or canaryService, make sure we don't
+      specify those fields for same-zone Rollout objects.
+
+      In those cases, use approaches like Istio subset routing (based on pod labels) to direct traffic to appropriate
+      version
+      */}}
+      {{- if eq $rolloutZone "default" }}
       stableService: {{ include "nd-common.serviceName" $ }}
       canaryService: {{ include "nd-common.serviceName" $ }}-canary
       {{ end }}
+      {{ end }}
 
-      {{- if or $.Values.virtualService.enabled $.Values.ingress.enabled }}
+      {{- if and (eq $rolloutZone "default") (or $.Values.virtualService.enabled $.Values.ingress.enabled) }}
       trafficRouting:
         {{- if $.Values.virtualService.enabled }}
         istio:
           virtualService:
             name: {{ include "nd-common.fullname" $ }}
+          {{- if $.Values.virtualService.subsetRouting.enabled }}
+          destinationRule:
+            name: {{ $.Values.virtualService.subsetRouting.destinationRuleName }}
+            canarySubsetName: {{ default "canary" $.Values.virtualService.subsetRouting.canarySubsetName }}
+            stableSubsetName: {{ default "stable" $.Values.virtualService.subsetRouting.stableSubsetName }}
+          {{- end }}
         {{- end }}
         {{- if $.Values.ingress.enabled }}
         alb:

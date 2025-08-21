@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 1.6.2](https://img.shields.io/badge/Version-1.6.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.6.3](https://img.shields.io/badge/Version-1.6.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -20,7 +20,7 @@ how these work, and the various custom resource definitions.
 
 ### 1.5.x -> 1.6.x
 
-**NEW: Enabled migration capabilities from `simple-app` to `rollout-app`, allow setting Service TrafficDistribution**
+**NEW: Enabled migration capabilities from `simple-app` to `rollout-app`, allow setting Service TrafficDistribution, support subset-level traffic splitting**
 
 Beginning with this version, you can now migrate from `simple-app` to `rollout-app` with no downtime between your services.
 To enable this, you will need to set the `migrate.inProgress` value to `true` in your values file.
@@ -421,6 +421,13 @@ secretsEngine: sealed
 | virtualService.paths | `string[]` | `[]` | List of optional path prefixes that the `VirtualService` will use to match requests against and will pass to the `Service` object in this deployment. This list replaces the `path` prefix above - use one or the other, do not use both. |
 | virtualService.port | int | `80` | This is the backing Pod port _number_ to route traffic to. This must match a `containerPort` in the `Values.ports` list. |
 | virtualService.retries | `map` | `{}` | Pass in an optional [`HTTPRetry`](https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRetry) configuration here to control how services retry their failed requests to the backend service. The default behavior is to retry 2 times if a 503 is returned. |
+| virtualService.routeName | string | `nil` | The default route match name. This isn't required, but is needed for example, when you have multiple routes in the VirtualService |
+| virtualService.subsetRouting | object | `{"canarySubsetName":null,"destinationRuleName":null,"enabled":false,"stableSubsetName":null,"subsets":[]}` | Since multiple Rollout objects cannot referece the same stableService or canaryService, approaches like Istio subset routing (based on pod labels) to direct traffic to appropriate version can be used to utilize the same Kubernetes service |
+| virtualService.subsetRouting.canarySubsetName | `string` | `nil` | The Rollout object's Istio traffic routing destination route's canary subset identifier (set here to avoid any subset positional assumptions) |
+| virtualService.subsetRouting.destinationRuleName | `string` | `nil` | The DestinationRule containing the canary and stable subsets referenced in the Rollout |
+| virtualService.subsetRouting.enabled | `bool` | `false` | Sets the VirtualService destination route with a subset identifier. This can then be referenced in a corresponding DestinationRule.  This is usually preferred when using Rollouts in canary mode and multiple Rollout objects exist (like per-zone) because we need stable and canary pods to be served by the same Kubernetes service. |
+| virtualService.subsetRouting.stableSubsetName | `string` | `nil` | The Rollout object's Istio traffic routing destination route's stable subset identifier (set here to avoid any subset positional assumptions) |
+| virtualService.subsetRouting.subsets | `list` | `[]` | Sets each subset name and weight with otherwise the same properties of the destination route.  The subset name can then be referenced in a corresponding DesitinationRule  The templates will fail to render and let users know why if subsetRouting is enabled but subsets list is empty |
 | virtualService.tls | string | `""` |  |
 | volumeMounts | list | `[]` | List of VolumeMounts that are applied to the application container - these must refer to volumes set in the `Values.volumes` parameter. |
 | volumes | list | `[]` | A list of 'volumes' that can be mounted into the Pod. See https://kubernetes.io/docs/concepts/storage/volumes/. |
