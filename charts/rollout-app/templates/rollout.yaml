@@ -87,7 +87,7 @@ spec:
       {{- include "nd-common.selectorLabels" $ | nindent 6 }}
       {{- with $rolloutZoneLabel }}
       {{ . }}
-      {{- end }}  
+      {{- end }}
   strategy:
     {{- if (eq $.Values.strategy "blueGreen") }}
     blueGreen:
