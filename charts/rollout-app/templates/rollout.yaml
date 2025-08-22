@@ -167,8 +167,6 @@ spec:
         {{- end }}
       {{- end }}
 
-      {{- end }}
-
       {{- with $.Values.canary.canaryMetadata }}
       canaryMetadata:
         {{- toYaml . | nindent 8 }}
