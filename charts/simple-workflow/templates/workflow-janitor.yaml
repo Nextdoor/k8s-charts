@@ -22,7 +22,7 @@ spec:
       activeDeadlineSeconds: 120
       containers:
         - name: workflow-janitor
-          image: bitnami/kubectl:1.28.4
+          image: bitnamilegacy/kubectl:1.28.4
           command: ["/bin/bash"]
           args:
             - -c
