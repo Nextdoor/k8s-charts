@@ -2033,6 +2033,24 @@ entries:
   local-kafka:
   - apiVersion: v2
     appVersion: latest
+    created: "2025-09-30T23:45:52.548605253Z"
+    dependencies:
+    - condition: strimzi-kafka-operator.enabled
+      name: strimzi-kafka-operator
+      repository: https://strimzi.io/charts
+      version: 0.45.0
+    description: Local Development spinup of Strimzi-managed Kafka
+    digest: d7951d0dcb3c7c815c6261e1db75b8513e4e46504a6282d3dcb5f02ca6397d8e
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: local-kafka
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/local-kafka-0.43.1/local-kafka-0.43.1.tgz
+    version: 0.43.1
+  - apiVersion: v2
+    appVersion: latest
     created: "2025-01-21T21:48:48.317735381Z"
     dependencies:
     - condition: strimzi-kafka-operator.enabled
@@ -7432,6 +7450,19 @@ entries:
   simple-workflow:
   - apiVersion: v2
     appVersion: latest
+    created: "2025-09-30T23:45:52.695426895Z"
+    description: Default Argo Workflow Helm Chart
+    digest: f948c4a1c1bd158e69e99a388a56f8ddba189b530dd4cf08f7c1e2911dc72d3a
+    maintainers:
+    - email: bian@nextdoor.com
+      name: masterginger
+    name: simple-workflow
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/simple-workflow-0.0.16/simple-workflow-0.0.16.tgz
+    version: 0.0.16
+  - apiVersion: v2
+    appVersion: latest
     created: "2024-02-28T19:02:40.173623817Z"
     description: Default Argo Workflow Helm Chart
     digest: 95d9f1233f4f4edb6d4a5976d7537ac680aec08a2aea7f7d19f9275acafa1524
@@ -9316,4 +9347,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2025-08-22T23:42:55.401000989Z"
+generated: "2025-09-30T23:45:52.69683545Z"
