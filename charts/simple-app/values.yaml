@@ -662,6 +662,14 @@ istio:
   # from the application, rather than creating a new `ServiceMonitor` object.
   enabled: true
 
+  # -- (`bool`) Set to true when using Istio Ambient mode (sidecar-less service mesh).
+  # When enabled, the chart will NOT add sidecar injection labels (sidecar.istio.io/inject
+  # and istio.io/rev) to pods. The namespace must have istio.io/dataplane-mode: ambient
+  # label set for ambient mode to work.
+  #
+  # Default: false (use sidecar mode)
+  ambientMode: false
+
   # -- (`list`) If supplied, this is a list of inbound TCP ports that are excluded
   # from being proxied by the Istio-proxy Envoy sidecar process. The
   # `.Values.monitor.portNumber` is already included by default.

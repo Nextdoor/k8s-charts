@@ -2,7 +2,7 @@
 
 Default StatefulSet Helm Chart
 
-![Version: 1.5.7](https://img.shields.io/badge/Version-1.5.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.5.8](https://img.shields.io/badge/Version-1.5.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -318,7 +318,7 @@ secretsEngine: sealed
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.5.3 |
+| file://../nd-common | nd-common | 0.5.4 |
 | https://k8s-charts.nextdoor.com | istio-alerts | 0.5.3 |
 
 ## Values
@@ -362,6 +362,7 @@ secretsEngine: sealed
 | ingress.sslRedirect | bool | `true` | If `true`, then this will annotate the Ingress with a special AWS ALB Ingress Controller annotation that configures an SSL-redirect at the ALB level. |
 | initContainers | list | `[]` |  |
 | istio-alerts.enabled | `bool` | `true` | Whether or not to enable the istio-alerts chart. |
+| istio.ambientMode | `bool` | `false` | Set to true when using Istio Ambient mode (sidecar-less service mesh). When enabled, the chart will NOT add sidecar injection labels (sidecar.istio.io/inject and istio.io/rev) to pods. The namespace must have istio.io/dataplane-mode: ambient label set for ambient mode to work.  Default: false (use sidecar mode) |
 | istio.enabled | `bool` | `true` | Whether or not the service should be part of an Istio Service Mesh. If this is turned on and `Values.monitor.enabled=true`, then the Istio Sidecar containers will be configured to pull and merge the metrics from the application, rather than creating a new `ServiceMonitor` object. |
 | istio.excludeInboundPorts | `list` | `[]` | If supplied, this is a list of inbound TCP ports that are excluded from being proxied by the Istio-proxy Envoy sidecar process. The `.Values.monitor.portNumber` is already included by default. The port values can either be integers or templatized strings. |
 | istio.excludeOutboundPorts | `list` | `[]` | If supplied, this is a list of outbound TCP ports that are excluded from being proxied by the Istio-proxy Envoy sidecar process. The port values can either be integers or templatized strings. |

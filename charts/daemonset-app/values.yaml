@@ -371,6 +371,14 @@ istio:
   # a DaemonSet to be part of the service mesh.
   enabled: false
 
+  # -- (`bool`) Set to true when using Istio Ambient mode (sidecar-less service mesh).
+  # When enabled, the chart will NOT add sidecar injection labels (sidecar.istio.io/inject
+  # and istio.io/rev) to pods. The namespace must have istio.io/dataplane-mode: ambient
+  # label set for ambient mode to work.
+  #
+  # Default: false (use sidecar mode)
+  ambientMode: false
+
   nativeSidecars:
     # -- (`bool|str`) Set to true if you want your app's proxy running as a Kubernetes
     # native sidecar - in which case (1) PreStop commands should be updating
