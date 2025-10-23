@@ -188,8 +188,16 @@ mesh.
 {{- $tag  := $_tag | replace "@" "_" | replace ":" "_" | trunc 63 | quote -}}
 
 {{- /* https://istio.io/latest/docs/ops/configuration/mesh/injection-concepts/ */ -}}
+{{- /*
+In Istio Ambient mode, sidecar injection labels should NOT be set on pods.
+The namespace-level istio.io/dataplane-mode: ambient label controls ambient mode.
+Only set sidecar injection labels when explicitly using sidecar mode.
+Set .Values.istio.labelsEnabled: false to skip adding these labels for ambient workloads.
+*/ -}}
+{{- if .Values.istio.labelsEnabled }}
 sidecar.istio.io/inject: {{ eq true .Values.istio.enabled | quote }}
 istio.io/rev: {{ .Values.istio.rev | default "stable" | quote }}
+{{- end }}
 
 {{- /*
 Explicitly disable or enable Metrics Merging - we want to keep our Envoy
