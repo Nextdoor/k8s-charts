@@ -192,9 +192,9 @@ mesh.
 In Istio Ambient mode, sidecar injection labels should NOT be set on pods.
 The namespace-level istio.io/dataplane-mode: ambient label controls ambient mode.
 Only set sidecar injection labels when explicitly using sidecar mode.
-Set .Values.istio.ambientMode: true to skip adding these labels for ambient workloads.
+Set .Values.istio.labelsEnabled: false to skip adding these labels for ambient workloads.
 */ -}}
-{{- if not .Values.istio.ambientMode }}
+{{- if .Values.istio.labelsEnabled }}
 sidecar.istio.io/inject: {{ eq true .Values.istio.enabled | quote }}
 istio.io/rev: {{ .Values.istio.rev | default "stable" | quote }}
 {{- end }}
