@@ -15,6 +15,12 @@ revisionHistoryLimit: 3
 podDisruptionBudget:
   maxUnavailable: 1
 
+# -- (`bool`) If set to true when using deploymentZones, creates a single
+# PodDisruptionBudget across all zones instead of one PDB per zone. This allows
+# the PDB to consider all replicas across all zones when determining disruption
+# limits. Only applies when deploymentZones is configured.
+singlePdbAcrossZones: false
+
 image:
   # -- (String) The Docker image name and repository for your application
   repository: nginx

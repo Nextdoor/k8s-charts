@@ -14,12 +14,16 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ### 1.12.x -> 1.13.x
 
-**NEW: Support label overrides, istio-proxy to run as k8s-native sidecars, and setting Service TrafficDistribution**
+**NEW: Support label overrides, istio-proxy to run as k8s-native sidecars, setting Service TrafficDistribution, and single PDB spanning all AZs**
 
 `service.trafficDistribution`, if set to `PreferClose` will have preference to route
 traffic to endpoints in the [same zone](https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution) as client.
 
-Its heuristic is simple: if an endpoint exists in the same zone as the client, route request to that endpoint. This has the downside of possibly overwhelming that endpoint. In that case, you can use the more nuanced `service.kubernetes.io/topology-mode: Auto` annotation on your `Service` which has some [fallback behavior](https://v1-31.docs.kubernetes.io/docs/concepts/services-networking/topology-aware-routing/#enabling-topology-aware-routing).
+- Its heuristic is simple: if an endpoint exists in the same zone as the client, route request to that endpoint. This has the downside of possibly overwhelming that endpoint. In that case, you can use the more nuanced `service.kubernetes.io/topology-mode: Auto` annotation on your `Service` which has some [fallback behavior](https://v1-31.docs.kubernetes.io/docs/concepts/services-networking/topology-aware-routing/#enabling-topology-aware-routing).
+
+`singlePdbAcrossZones` opt-in added: If set to true when using per-AZ deployments, creates a single
+PodDisruptionBudget across all zones instead of one PDB per zone. This allows the PDB to consider
+all replicas across all zones when determining disruption limits..
 
 ### 1.11.x -> 1.12.x
 

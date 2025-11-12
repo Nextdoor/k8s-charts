@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 1.6.5](https://img.shields.io/badge/Version-1.6.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.6.6](https://img.shields.io/badge/Version-1.6.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -20,12 +20,16 @@ how these work, and the various custom resource definitions.
 
 ### 1.5.x -> 1.6.x
 
-**NEW: Allow setting Service TrafficDistribution, support subset-level traffic splitting**
+**NEW: Allow setting Service TrafficDistribution, support subset-level traffic splitting, single PDB spanning all AZs**
 
 `service.trafficDistribution`, if set to `PreferClose` will have preference to route
 traffic to endpoints in the [same zone](https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution) as client.
 
-Its heuristic is simple: if an endpoint exists in the same zone as the client, route request to that endpoint. This has the downside of possibly overwhelming that endpoint. In that case, you can use the more nuanced `service.kubernetes.io/topology-mode: Auto` annotation on your `Service` which has some [fallback behavior](https://v1-31.docs.kubernetes.io/docs/concepts/services-networking/topology-aware-routing/#enabling-topology-aware-routing).
+- Its heuristic is simple: if an endpoint exists in the same zone as the client, route request to that endpoint. This has the downside of possibly overwhelming that endpoint. In that case, you can use the more nuanced `service.kubernetes.io/topology-mode: Auto` annotation on your `Service` which has some [fallback behavior](https://v1-31.docs.kubernetes.io/docs/concepts/services-networking/topology-aware-routing/#enabling-topology-aware-routing).
+
+`singlePdbAcrossZones` opt-in added: If set to true when using per-AZ deployments, creates a single
+PodDisruptionBudget across all zones instead of one PDB per zone. This allows the PDB to consider
+all replicas across all zones when determining disruption limits..
 
 ### 1.4.x -> 1.5.x
 
@@ -382,6 +386,7 @@ secretsEngine: sealed
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
+| singlePdbAcrossZones | `bool` | `false` | If set to true when using rolloutZones, creates a single PodDisruptionBudget across all zones instead of one PDB per zone. This allows the PDB to consider all replicas across all zones when determining disruption limits. Only applies when rolloutZones is configured. |
 | startupProbe | string | `nil` | A PodSpec container "startupProbe" configuration object. Note that this startupProbe will be applied to the proxySidecar container instead if that is enabled. |
 | strategy | `string` | `"blueGreen"` | Chooses which Rollout strategy to use - either `blueGreen` or `canary`. Use `.Values.blueGreen` and `.Values.canary` to customize the actual behavior of the rollout. |
 | targetArchitecture | `string` | `"amd64"` | If set, this value will be used in the .spec.nodeSelector to ensure that these pods specifically launch on the desired target host architecture. If set to null/empty-string, then this value will not be set. |
