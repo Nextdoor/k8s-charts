@@ -3365,6 +3365,27 @@ entries:
   rollout-app:
   - apiVersion: v2
     appVersion: latest
+    created: "2025-11-12T23:06:37.464796373Z"
+    dependencies:
+    - condition: istio-alerts.enabled
+      name: istio-alerts
+      repository: https://k8s-charts.nextdoor.com
+      version: 0.5.3
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.5.4
+    description: Argo Rollout-based Application Helm Chart
+    digest: 0c61c4b57dd6418fefca120c6e40ddfc5d41d745ee9a7ec7a612986cc1c7cfb9
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: rollout-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/rollout-app-1.6.6/rollout-app-1.6.6.tgz
+    version: 1.6.6
+  - apiVersion: v2
+    appVersion: latest
     created: "2025-10-23T23:39:30.555912547Z"
     dependencies:
     - condition: istio-alerts.enabled
@@ -4666,6 +4687,27 @@ entries:
     - https://github.com/Nextdoor/k8s-charts/releases/download/rollout-app-0.0.1/rollout-app-0.0.1.tgz
     version: 0.0.1
   simple-app:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2025-11-12T23:06:37.688014709Z"
+    dependencies:
+    - condition: istio-alerts.enabled
+      name: istio-alerts
+      repository: https://k8s-charts.nextdoor.com
+      version: 0.5.3
+    - name: nd-common
+      repository: file://../nd-common
+      version: 0.5.4
+    description: Default Microservice Helm Chart
+    digest: b4e8a0e6db05740e6c7afad9d81bfafdaa2535f5bda81c2ab0cc17e5f22ef64b
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    name: simple-app
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/simple-app-1.13.13/simple-app-1.13.13.tgz
+    version: 1.13.13
   - apiVersion: v2
     appVersion: latest
     created: "2025-10-23T23:39:30.821166791Z"
@@ -9471,4 +9513,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2025-10-23T23:39:31.025855733Z"
+generated: "2025-11-12T23:06:37.690023083Z"
