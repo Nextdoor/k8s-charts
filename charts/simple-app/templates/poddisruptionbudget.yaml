@@ -1,6 +1,6 @@
 {{- /*
 Figure out if we are creating a PDB per zone or a single PDB across all zones.
-The logic here mirrors the rollout zone pattern.
+The logic here mirrors the deployment zone pattern.
 */}}
 {{- if .Values.podDisruptionBudget }}
 
@@ -12,7 +12,7 @@ kind: PodDisruptionBudget
 metadata:
   name: {{ include "nd-common.fullname" . }}
   labels:
-    {{- include "rollout-app.labels" . | nindent 4 }}
+    {{- include "simple-app.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
@@ -29,24 +29,24 @@ spec:
 {{- fail "Deployment autoscaling minimum can not be less than 2 in order to configure PDB. Please configure a minimum replica count greater than or equal to 2." }}
 {{- end }}
 
-{{- $rolloutZones := default (list "default") .Values.rolloutZones }}
+{{- $deploymentZones := default (list "default") .Values.deploymentZones }}
 
-{{- if .Values.rolloutZonesTransition }}
-{{- $rolloutZones = prepend $rolloutZones "default" }}
+{{- if .Values.deploymentZonesTransition }}
+{{- $deploymentZones = prepend $deploymentZones "default" }}
 {{- end }}
 
 {{- $fullName := include "nd-common.fullname" . }}
-{{- $rolloutZoneLabel := "" }}
+{{- $deploymentZoneLabel := "" }}
 
-{{- range $rolloutZone := index $rolloutZones }}
+{{- range $deploymentZone := index $deploymentZones }}
 
-{{- if ne $rolloutZone "default" }}
-{{- $topologyKey := required ".Values.rolloutZones requires that .Values.topologyKey is also set" $.Values.topologyKey }}
-{{- $fullName = printf "%s-%s" (include "nd-common.fullname" $) $rolloutZone }}
-{{- $rolloutZoneLabel = printf "%s: %s" $topologyKey $rolloutZone }}
+{{- if ne $deploymentZone "default" }}
+{{- $topologyKey := required ".Values.deploymentZones requires that .Values.topologyKey is also set" $.Values.topologyKey }}
+{{- $fullName = printf "%s-%s" (include "nd-common.fullname" $) $deploymentZone }}
+{{- $deploymentZoneLabel = printf "%s: %s" $topologyKey $deploymentZone }}
 {{- else }}
 {{- $fullName = include "nd-common.fullname" $ }}
-{{- $rolloutZoneLabel = "" }}
+{{- $deploymentZoneLabel = "" }}
 {{- end }}
 
 ---
@@ -55,15 +55,15 @@ kind: PodDisruptionBudget
 metadata:
   name: {{ $fullName }}
   labels:
-    {{- include "rollout-app.labels" $ | nindent 4 }}
-    {{- with $rolloutZoneLabel }}
+    {{- include "simple-app.labels" $ | nindent 4 }}
+    {{- with $deploymentZoneLabel }}
     {{ . }}
     {{- end }}
 spec:
   selector:
     matchLabels:
       {{- include "nd-common.selectorLabels" $ | nindent 6 }}
-      {{- with $rolloutZoneLabel }}
+      {{- with $deploymentZoneLabel }}
       {{ . }}
       {{- end }}
   {{ toYaml $.Values.podDisruptionBudget | nindent 2 }}
