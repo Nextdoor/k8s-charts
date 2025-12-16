@@ -1726,6 +1726,20 @@ entries:
     version: 0.3.0
   istio-alerts:
   - apiVersion: v2
+    created: "2025-12-16T23:40:59.264835741Z"
+    description: A Helm chart that provisions a series of alerts for istio VirtualServices
+    digest: 90f0558dde1031758926f82cba39b3923add9070726eff6eff10efbc1a2279eb
+    maintainers:
+    - email: matt@nextdoor.com
+      name: diranged
+    - email: akennedy@nextdoor.com
+      name: laikan57
+    name: istio-alerts
+    type: application
+    urls:
+    - https://github.com/Nextdoor/k8s-charts/releases/download/istio-alerts-0.5.4/istio-alerts-0.5.4.tgz
+    version: 0.5.4
+  - apiVersion: v2
     created: "2024-08-05T17:55:24.762391146Z"
     description: A Helm chart that provisions a series of alerts for istio VirtualServices
     digest: 144d4262b7287be2b430d817326d9066c6b83d0c6ac0afc004ef0b4441beb8da
@@ -9513,4 +9527,4 @@ entries:
     urls:
     - https://github.com/Nextdoor/k8s-charts/releases/download/stateful-app-0.0.1/stateful-app-0.0.1.tgz
     version: 0.0.1
-generated: "2025-11-12T23:06:37.690023083Z"
+generated: "2025-12-16T23:40:59.265624696Z"
