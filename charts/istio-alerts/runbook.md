@@ -34,7 +34,71 @@ Action Items:
 
 ## HighRequestLatency
 
-TBD
+This alert fires when the request latency for a service exceeds a threshold
+(default: 0.5s at the 95th percentile for 15m). High request latency indicates
+that your service is responding slower than expected, which can impact user
+experience and downstream services. You should investigate what's causing the
+increased response times.
+
+Can check trends/graph by:
+
+1. Going to your Grafana instance and navigating to the `Explore` tab
+2. Entering the following Prometheus query (replace `cluster` and `destination_service_namespace`):
+
+```
+histogram_quantile(
+  0.95,
+  sum(irate(
+    istio_request_duration_milliseconds_bucket{
+      cluster="<x>",
+      destination_service_namespace="<y>"
+    }[5m]
+  )) by (
+    destination_service_name,
+    reporter,
+    source_canonical_service,
+    le
+  )
+) / 1000
+```
+
+3. You can also check the "Istio Service Dashboard" in Grafana for latency breakdowns by percentile and source
+
+Common causes and action items:
+
+1. **Check service health**: Use `kubectl` to verify pod health, restarts, and resource usage
+   ```bash
+   kubectl --context <context> get pods -n <namespace>
+   kubectl --context <context> top pods -n <namespace>
+   kubectl --context <context> describe pod <pod-name> -n <namespace>
+   ```
+
+2. **Review application logs**: Check for slow queries, timeouts, or errors in your application logs that correlate with the latency spike
+
+3. **Database performance**: If your service uses a database, check for:
+   - Slow queries
+   - Connection pool exhaustion
+   - Database load/CPU usage
+   - Missing indexes
+
+4. **Downstream dependencies**: Check if any downstream services or APIs your service calls are experiencing latency issues
+
+5. **Resource constraints**: Verify the service has adequate:
+   - CPU and memory limits
+   - Database connection pool size
+   - Thread pool size
+
+6. **Traffic patterns**: Check if there's a traffic spike that might be overwhelming the service
+   ```
+   sum(rate(istio_requests_total{
+     cluster="<x>",
+     destination_service_namespace="<y>"
+   }[5m])) by (destination_service_name)
+   ```
+
+7. **If trends are expected**: Adjust thresholds (away from the [default 0.5s for 15 minutes](https://github.com/Nextdoor/k8s-charts/blob/main/charts/istio-alerts/values.yaml#L48-L66)) or change the percentile being monitored
+
+8. **If latency is unexpected**: Investigate your application performance, enable detailed tracing/profiling, and review recent deployments or configuration changes
 
 ## Alert-Rules-Selectors-Validity
 
