@@ -43,7 +43,7 @@ spec:
 
   For now, to ensure no side-effects, we only will set the field if the user explicitly sets it.
 
-  In the future, we may default set to 'PreferClose' (for kube-proxy, this means prioritizing sending
+  In the future, we may default set to 'PreferSameZone' (for kube-proxy, this means prioritizing sending
   traffic to endpoints within the same zone as the client)
 
   In its absense, the default routing strategy for kube-proxy is to distribute traffic to any endpoint

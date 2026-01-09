@@ -2,7 +2,7 @@
 
 Default DaemonSet Helm Chart
 
-![Version: 0.17.7](https://img.shields.io/badge/Version-0.17.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.17.8](https://img.shields.io/badge/Version-0.17.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -17,7 +17,7 @@ ServiceAccounts, Services, etc.
 
 **NEW: Goldilocks support, k8s-native sidecars support, allow setting Service TrafficDistribution**
 
-`service.trafficDistribution`, if set to `PreferClose` will have preference to route
+`service.trafficDistribution`, if set to `PreferSameZone` will have preference to route
 traffic to endpoints in the [same zone](https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution) as client.
 
 Its heuristic is simple: if an endpoint exists in the same zone as the client, route request to that endpoint. This has the downside of possibly overwhelming that endpoint. In that case, you can use the more nuanced `service.kubernetes.io/topology-mode: Auto` annotation on your `Service` which has some [fallback behavior](https://v1-31.docs.kubernetes.io/docs/concepts/services-networking/topology-aware-routing/#enabling-topology-aware-routing).
@@ -364,7 +364,7 @@ secretsEngine: sealed
 | secretsEngine | String | `"plaintext"` | Secrets Engine determines the type of Secret Resource that will be created (`KMSSecret`, `SealedSecret`, `Secret`). kms || sealed || plaintext are possible values. |
 | securityContext | object | `{}` |  |
 | service.name | `string` | `nil` | Optional override for the Service name. Can be used to create a simpler more friendly service name that is not specific to the application name. |
-| service.trafficDistribution | `string` | `nil` | Allows you to set preferences for how traffic should be routed to Service endpoints.  In absense, default routing strategy for kube-proxy is to distribute traffic to any endpoint in the cluster  We may, one day, wish to set to 'PreferClose', but for now we'll leave it at discretion of user as it's a simple heuristic: if there are endpoints in the zone, they will receive all traffic for that zone, if there are no endpoints in a zone, the traffic will be distributed to other zones |
+| service.trafficDistribution | `string` | `nil` | Allows you to set preferences for how traffic should be routed to Service endpoints.  In absense, default routing strategy for kube-proxy is to distribute traffic to any endpoint in the cluster  We may, one day, wish to set to 'PreferSameZone', but for now we'll leave it at discretion of user as it's a simple heuristic: if there are endpoints in the zone, they will receive all traffic for that zone, if there are no endpoints in a zone, the traffic will be distributed to other zones |
 | service.type | `string` | `"ClusterIP"` | `ClusterIP`, `NodePort`, `LoadBalancer` or `ExternalName`. |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
