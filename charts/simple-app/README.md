@@ -424,7 +424,7 @@ secretsEngine: sealed
 | autoscaling.keda.includeCPU | `bool` | `false` | If true, CPU utilization is also added as a trigger in the ScaledObject alongside the Datadog metric. |
 | autoscaling.keda.metricName | `string` | `""` | Suffix for the DatadogMetric CR name. The full name will be `<fullname>-<metricName>`. Required when keda is enabled. |
 | autoscaling.keda.query | `string` | `""` | Datadog query for the DatadogMetric CR. Rendered via tpl with the full Helm context plus two additional variables:   .fullName  - zone-specific resource name (e.g. myapp-us-west-2a), works for both zoned and non-zoned   .zone      - current deploymentZone value (e.g. "us-west-2a"), or "default" if deploymentZones is not set Standard Helm objects (.Release, .Values, .Chart) and named templates (include) also work. Non-zoned example: "sum:istio.mesh.request.count{destination_workload:{{ .fullName }}}.as_rate()" Zoned example:     "sum:istio.mesh.request.count{destination_workload:{{ include \"nd-common.fullname\" . }}-{{ .zone }}}.as_rate()" |
-| autoscaling.keda.targetValue | `string` | `""` | Target value per pod for the Datadog metric. |
+| autoscaling.keda.targetValue | `string` | `""` | Target value for the Datadog metric trigger. |
 | autoscaling.maxReplicas | int | `100` | Sets the maximum number of Pods to run |
 | autoscaling.minReplicas | int | `1` | Sets the minimum number of Pods to run |
 | autoscaling.targetCPUUtilizationPercentage | int | `80` | Configures the HPA to target a particular CPU utilization percentage |

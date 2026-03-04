@@ -768,8 +768,14 @@ autoscaling:
     # Zoned example:     "sum:istio.mesh.request.count{destination_workload:{{ include \"nd-common.fullname\" . }}-{{ .zone }}}.as_rate()"
     query: ""
 
-    # -- (`string`) Target value per pod for the Datadog metric.
+    # -- (`string`) Target value for the Datadog metric trigger.
     targetValue: ""
+
+    # -- (`string`) KEDA metric type for the Datadog trigger. Defaults to "Value".
+    # Set to "AverageValue" to have KEDA divide the metric by current pod count,
+    # useful when the query returns a total (e.g. total request rate) and
+    # targetValue represents the desired per-pod value.
+    # metricType: "Value"
 
     # -- (`string`) Namespace where the Datadog cluster agent is running.
     # Required when keda is enabled.
