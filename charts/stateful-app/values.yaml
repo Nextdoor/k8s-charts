@@ -8,11 +8,10 @@
 # delete all pods at once.
 podManagementPolicy: null
 
-# -- (`int`) The number of Pods to start up by default. If the
-# `autoscaling.enabled` parameter is set, then this serves as the "start
-# scale" for an application. Setting this to `null` prevents the setting from
-# being applied at all in the PodSpec, leaving it to Kubernetes to use the
-# default value (1). https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#replicas
+# -- (`int`) The number of Pods to start up by default. Setting this to
+# `null` prevents the setting from being applied at all in the PodSpec,
+# leaving it to Kubernetes to use the default value (1).
+# https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#replicas
 replicaCount: 2
 
 # -- (`int`) The default revisionHistoryLimit in Kubernetes is 10 - which is

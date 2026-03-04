@@ -1,0 +1,27 @@
+{{- if and .Values.autoscaling.enabled .Values.autoscaling.keda.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: {{ include "nd-common.fullname" . }}-datadog-auth
+  labels:
+    {{- include "simple-app.labels" . | nindent 4 }}
+spec:
+  configMapTargetRef:
+    - parameter: datadogNamespace
+      name: {{ include "nd-common.fullname" . }}-datadog-keda
+      key: datadogNamespace
+    - parameter: datadogMetricsService
+      name: {{ include "nd-common.fullname" . }}-datadog-keda
+      key: datadogMetricsService
+    - parameter: authMode
+      name: {{ include "nd-common.fullname" . }}-datadog-keda
+      key: authMode
+    - parameter: unsafeSsl
+      name: {{ include "nd-common.fullname" . }}-datadog-keda
+      key: unsafeSsl
+  boundServiceAccountToken:
+    - parameter: bearerToken
+      serviceAccountName: {{ include "nd-common.serviceAccountName" . }}
+      audiences:
+        - datadog-cluster-agent
+{{- end }}

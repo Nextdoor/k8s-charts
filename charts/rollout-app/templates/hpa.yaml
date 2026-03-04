@@ -24,7 +24,7 @@
 {{- end }}
 
 ---
-{{- if $.Values.autoscaling.enabled }}
+{{- if and $.Values.autoscaling.enabled (not $.Values.autoscaling.keda.enabled) }}
 {{ $deactivateHpaForMaintenance := (and $.Values.autoscaling.enabled $.Values.virtualService.enabled $.Values.virtualService.maintenanceMode.enabled) }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler

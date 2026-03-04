@@ -543,6 +543,45 @@ autoscaling:
   # -- If supplied, configures the HPA to target a particular Memory utilization percentage
   # targetMemoryUtilizationPercentage: 80
 
+  # -- (`map`) KEDA-based autoscaling with Datadog metrics via the cluster-agent proxy.
+  keda:
+    # -- Controls whether KEDA ScaledObject and supporting resources are created.
+    enabled: false
+
+    # -- (`string`) Suffix for the DatadogMetric CR name. The full name will be
+    # `<fullname>-<metricName>`. Required when keda is enabled.
+    metricName: ""
+
+    # -- (`string`) Datadog query for the DatadogMetric CR. Rendered via tpl
+    # with the full Helm context plus two additional variables:
+    #   .fullName  - zone-specific resource name (e.g. myapp-us-west-2a), works for both zoned and non-zoned
+    #   .zone      - current deploymentZone value (e.g. "us-west-2a"), or "default" if deploymentZones is not set
+    # Standard Helm objects (.Release, .Values, .Chart) and named templates (include) also work.
+    # Non-zoned example: "sum:istio.mesh.request.count{destination_workload:{{ .fullName }}}.as_rate()"
+    # Zoned example:     "sum:istio.mesh.request.count{destination_workload:{{ include \"nd-common.fullname\" . }}-{{ .zone }}}.as_rate()"
+    query: ""
+
+    # -- (`string`) Target value per pod for the Datadog metric.
+    targetValue: ""
+
+    # -- (`string`) Namespace where the Datadog cluster agent is running.
+    # Required when keda is enabled.
+    datadogNamespace: ""
+
+    # -- (`string`) Name of the Datadog cluster agent metrics server service.
+    # Required when keda is enabled.
+    datadogMetricsService: ""
+
+    # -- (`string`) Auth mode for the KEDA trigger authentication. Defaults to "bearer".
+    # authMode: "bearer"
+
+    # -- (`string`) Whether to skip TLS verification for the cluster agent. Defaults to "true".
+    # unsafeSsl: "true"
+
+    # -- (`bool`) If true, CPU utilization is also added as a trigger in the ScaledObject
+    # alongside the Datadog metric.
+    includeCPU: false
+
 # -- (`string`) If set, this value will be used in the .spec.nodeSelector to
 # ensure that these pods specifically launch on the desired target Operating
 # System. Must be set.
