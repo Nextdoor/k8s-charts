@@ -584,6 +584,17 @@ autoscaling:
     # -- (`string`) Whether to skip TLS verification for the cluster agent. Defaults to "true".
     # unsafeSsl: "true"
 
+    # -- (`int`) How often KEDA checks the metric, in seconds. Defaults to 30.
+    # pollingInterval: 30
+
+    # -- (`int`) Period in seconds to wait after the last trigger fires before
+    # scaling back down. Defaults to 300.
+    # cooldownPeriod: 300
+
+    # -- (`string`) Maximum age of the DatadogMetric value before it is
+    # considered stale. Defaults to "60s".
+    # maxAge: "60s"
+
     # -- (`bool`) If true, CPU utilization is also added as a trigger in the ScaledObject
     # alongside the Datadog metric.
     includeCPU: false

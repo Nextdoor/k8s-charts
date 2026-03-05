@@ -35,6 +35,7 @@ spec:
   */}}
   {{- $tplCtx := merge (dict "fullName" $fullName "zone" $deploymentZone) $ }}
   query: {{ tpl $.Values.autoscaling.keda.query $tplCtx | quote }}
+  maxAge: {{ $.Values.autoscaling.keda.maxAge | default "60s" }}
 
 {{- end }}
 {{- end }}
