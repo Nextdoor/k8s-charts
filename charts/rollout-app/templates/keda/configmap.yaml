@@ -1,0 +1,13 @@
+{{- if and .Values.autoscaling.enabled .Values.autoscaling.keda.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "nd-common.fullname" . }}-datadog-keda
+  labels:
+    {{- include "rollout-app.labels" . | nindent 4 }}
+data:
+  datadogNamespace: {{ required "autoscaling.keda.datadogNamespace is required when keda is enabled" .Values.autoscaling.keda.datadogNamespace | quote }}
+  datadogMetricsService: {{ required "autoscaling.keda.datadogMetricsService is required when keda is enabled" .Values.autoscaling.keda.datadogMetricsService | quote }}
+  authMode: {{ .Values.autoscaling.keda.authMode | default "bearer" | quote }}
+  unsafeSsl: {{ .Values.autoscaling.keda.unsafeSsl | default "true" | quote }}
+{{- end }}

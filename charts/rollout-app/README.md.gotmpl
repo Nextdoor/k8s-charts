@@ -17,6 +17,23 @@ how these work, and the various custom resource definitions.
 
 ## Upgrade Notes
 
+### 1.6.x -> 1.7.x
+
+**NEW: KEDA-based autoscaling with Datadog metrics**
+
+You can now use [KEDA](https://keda.sh/) with Datadog metrics (via the cluster-agent proxy)
+as an alternative to the built-in HPA. This enables scaling on leading indicators like request
+rate rather than lagging indicators like CPU utilization.
+
+Set `autoscaling.keda.enabled=true` along with the required fields (`metricName`, `query`,
+`targetValue`, `datadogNamespace`, `datadogMetricsService`) to create a `ScaledObject`,
+`DatadogMetric`, `TriggerAuthentication`, and supporting `ConfigMap`. When KEDA is enabled,
+the standard HPA is not rendered (KEDA manages its own HPA).
+
+Optionally set `autoscaling.keda.includeCPU=true` to add CPU utilization as an additional
+trigger alongside the Datadog metric. Per-zone resources are created automatically when
+`rolloutZones` is set.
+
 ### 1.5.x -> 1.6.x
 
 **NEW: Allow setting Service TrafficDistribution, support subset-level traffic splitting, single PDB spanning all AZs**

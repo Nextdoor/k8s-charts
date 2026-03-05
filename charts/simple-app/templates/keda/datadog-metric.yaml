@@ -1,0 +1,41 @@
+{{- if and .Values.autoscaling.enabled .Values.autoscaling.keda.enabled }}
+{{- $deploymentZones := default (list "default") .Values.deploymentZones }}
+
+{{- if .Values.deploymentZonesTransition }}
+{{- $deploymentZones = prepend $deploymentZones "default" }}
+{{- end }}
+
+{{- $fullName := include "nd-common.fullname" . }}
+
+{{- range $deploymentZone := index $deploymentZones }}
+
+{{- if ne $deploymentZone "default" }}
+{{- $fullName = printf "%s-%s" (include "nd-common.fullname" $) $deploymentZone }}
+{{- else }}
+{{- $fullName = include "nd-common.fullname" $ }}
+{{- end }}
+
+---
+apiVersion: datadoghq.com/v1alpha1
+kind: DatadogMetric
+metadata:
+  name: {{ $fullName }}-{{ $.Values.autoscaling.keda.metricName }}
+  labels:
+    {{- include "simple-app.labels" $ | nindent 4 }}
+  annotations:
+    external-metrics.datadoghq.com/always-active: "true"
+spec:
+  {{- /*
+  Render the query via tpl. The context includes the full Helm root ($) plus:
+
+    .fullName  - zone-specific resource name (e.g. myapp-us-west-2a), or base name if no zones
+    .zone      - current deploymentZone value (e.g. "us-west-2a"), or "default" if no zones
+
+  All standard Helm objects (.Release, .Values, .Chart) and named templates (include) also work.
+  */}}
+  {{- $tplCtx := merge (dict "fullName" $fullName "zone" $deploymentZone) $ }}
+  query: {{ tpl $.Values.autoscaling.keda.query $tplCtx | quote }}
+  maxAge: {{ $.Values.autoscaling.keda.maxAge | default "60s" }}
+
+{{- end }}
+{{- end }}

@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 1.6.7](https://img.shields.io/badge/Version-1.6.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.7.0](https://img.shields.io/badge/Version-1.7.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -17,6 +17,23 @@ Progressive Delivery Controller][argo_rollouts] for more information about
 how these work, and the various custom resource definitions.
 
 ## Upgrade Notes
+
+### 1.6.x -> 1.7.x
+
+**NEW: KEDA-based autoscaling with Datadog metrics**
+
+You can now use [KEDA](https://keda.sh/) with Datadog metrics (via the cluster-agent proxy)
+as an alternative to the built-in HPA. This enables scaling on leading indicators like request
+rate rather than lagging indicators like CPU utilization.
+
+Set `autoscaling.keda.enabled=true` along with the required fields (`metricName`, `query`,
+`targetValue`, `datadogNamespace`, `datadogMetricsService`) to create a `ScaledObject`,
+`DatadogMetric`, `TriggerAuthentication`, and supporting `ConfigMap`. When KEDA is enabled,
+the standard HPA is not rendered (KEDA manages its own HPA).
+
+Optionally set `autoscaling.keda.includeCPU=true` to add CPU utilization as an additional
+trigger alongside the Datadog metric. Per-zone resources are created automatically when
+`rolloutZones` is set.
 
 ### 1.5.x -> 1.6.x
 
@@ -261,6 +278,14 @@ secretsEngine: sealed
 | autoscaling.behavior.scaleUp.selectPolicy | `string` | `"Max"` | When evaluating the desired scale for the service, pick from one of the below behaviors based on which one scales up the most pods.  So, when scaling from 1 pod, the pattern looks like this:  1 -> 5 -> 10 -> 20 -> 40 -> 80  (over 5 minutes)  |
 | autoscaling.behavior.scaleUp.stabilizationWindowSeconds | `int` | `0` | https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#stabilization-window  The stabilization window is used to restrict the flapping of replica count when the metrics used for scaling keep fluctuating. The autoscaling algorithm uses this window to infer a previous desired state and avoid unwanted changes to workload scale.  For example, in the following example snippet, a stabilization window is specified for scaleDown.    behavior:     scaleDown:       stabilizationWindowSeconds: 300  When the metrics indicate that the target should be scaled down the algorithm looks into previously computed desired states, and uses the highest value from the specified interval. In the above example, all desired states from the past 5 minutes will be considered.  This approximates a rolling maximum, and avoids having the scaling algorithm frequently remove Pods only to trigger recreating an equivalent Pod just moments later.  |
 | autoscaling.enabled | bool | `false` | Controls whether or not an HorizontalPodAutoscaler resource is created. |
+| autoscaling.keda | `map` | `{"datadogMetricsService":"","datadogNamespace":"","enabled":false,"includeCPU":false,"metricName":"","query":"","targetValue":""}` | KEDA-based autoscaling with Datadog metrics via the cluster-agent proxy. |
+| autoscaling.keda.datadogMetricsService | `string` | `""` | Name of the Datadog cluster agent metrics server service. Required when keda is enabled. |
+| autoscaling.keda.datadogNamespace | `string` | `""` | Namespace where the Datadog cluster agent is running. Required when keda is enabled. |
+| autoscaling.keda.enabled | bool | `false` | Controls whether KEDA ScaledObject and supporting resources are created. |
+| autoscaling.keda.includeCPU | `bool` | `false` | If true, CPU utilization is also added as a trigger in the ScaledObject alongside the Datadog metric. |
+| autoscaling.keda.metricName | `string` | `""` | Suffix for the DatadogMetric CR name. The full name will be `<fullname>-<metricName>`. Required when keda is enabled. |
+| autoscaling.keda.query | `string` | `""` | Datadog query for the DatadogMetric CR. Rendered via tpl with the full Helm context plus two additional variables:   .fullName  - zone-specific resource name (e.g. myapp-us-west-2a), works for both zoned and non-zoned   .zone      - current rolloutZone value (e.g. "us-west-2a"), or "default" if rolloutZones is not set Standard Helm objects (.Release, .Values, .Chart) and named templates (include) also work. Non-zoned example: "sum:istio.mesh.request.count{destination_workload:{{ .fullName }}}.as_rate()" Zoned example:     "sum:istio.mesh.request.count{destination_workload:{{ include \"nd-common.fullname\" . }}-{{ .zone }}}.as_rate()" |
+| autoscaling.keda.targetValue | `string` | `""` | Target value for the Datadog metric trigger. |
 | autoscaling.maxReplicas | int | `100` | Sets the maximum number of Pods to run |
 | autoscaling.minReplicas | int | `1` | Sets the minimum number of Pods to run |
 | autoscaling.targetCPUUtilizationPercentage | int | `80` | Configures the HPA to target a particular CPU utilization percentage |

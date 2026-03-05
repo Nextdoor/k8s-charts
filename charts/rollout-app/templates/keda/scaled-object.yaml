@@ -1,0 +1,60 @@
+{{- if and .Values.autoscaling.enabled .Values.autoscaling.keda.enabled }}
+{{- $rolloutZones := default (list "default") .Values.rolloutZones }}
+
+{{- if .Values.rolloutZonesTransition }}
+{{- $rolloutZones = prepend $rolloutZones "default" }}
+{{- end }}
+
+{{- $fullName := include "nd-common.fullname" . }}
+
+{{- range $rolloutZone := index $rolloutZones }}
+
+{{- if ne $rolloutZone "default" }}
+{{- $fullName = printf "%s-%s" (include "nd-common.fullname" $) $rolloutZone }}
+{{- else }}
+{{- $fullName = include "nd-common.fullname" $ }}
+{{- end }}
+
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ $fullName }}-so-hpa
+  labels:
+    {{- include "rollout-app.labels" $ | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: argoproj.io/v1alpha1
+    kind: Rollout
+    name: {{ $fullName }}
+  minReplicaCount: {{ $.Values.autoscaling.minReplicas }}
+  maxReplicaCount: {{ $.Values.autoscaling.maxReplicas }}
+  pollingInterval: {{ $.Values.autoscaling.keda.pollingInterval | default 30 }}
+  cooldownPeriod: {{ $.Values.autoscaling.keda.cooldownPeriod | default 300 }}
+  {{- with $.Values.autoscaling.behavior }}
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        {{- toYaml . | nindent 8 }}
+  {{- end }}
+  triggers:
+    - type: datadog
+      metricType: {{ $.Values.autoscaling.keda.metricType | default "Value" }}
+      metadata:
+        useClusterAgentProxy: "true"
+        datadogMetricName: {{ $fullName }}-{{ $.Values.autoscaling.keda.metricName }}
+        datadogMetricNamespace: {{ $.Release.Namespace }}
+        targetValue: {{ $.Values.autoscaling.keda.targetValue | quote }}
+      authenticationRef:
+        name: {{ include "nd-common.fullname" $ }}-datadog-auth
+    {{- if $.Values.autoscaling.keda.includeCPU }}
+    {{- with $.Values.autoscaling.targetCPUUtilizationPercentage }}
+    - type: cpu
+      metricType: Utilization
+      metadata:
+        value: "{{ . }}"
+    {{- end }}
+    {{- end }}
+
+{{- end }}
+{{- end }}
