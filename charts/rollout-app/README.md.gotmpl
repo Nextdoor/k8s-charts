@@ -19,7 +19,11 @@ how these work, and the various custom resource definitions.
 
 ### 1.6.x -> 1.7.x
 
-**NEW: KEDA-based autoscaling with Datadog metrics**
+**NEW: KEDA-based autoscaling with Datadog metrics, allow setting Service SessionAffinity**
+
+`service.sessionAffinity`, if set to `ClientIP`, enables [session affinity](https://kubernetes.io/docs/reference/networking/virtual-ips/#session-affinity) on the Service so that connections from a particular client are passed to the same Pod each time.
+
+**KEDA-based autoscaling with Datadog metrics**
 
 You can now use [KEDA](https://keda.sh/) with Datadog metrics (via the cluster-agent proxy)
 as an alternative to the built-in HPA. This enables scaling on leading indicators like request

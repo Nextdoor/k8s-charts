@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 1.7.1](https://img.shields.io/badge/Version-1.7.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.7.2](https://img.shields.io/badge/Version-1.7.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -20,7 +20,11 @@ how these work, and the various custom resource definitions.
 
 ### 1.6.x -> 1.7.x
 
-**NEW: KEDA-based autoscaling with Datadog metrics**
+**NEW: KEDA-based autoscaling with Datadog metrics, allow setting Service SessionAffinity**
+
+`service.sessionAffinity`, if set to `ClientIP`, enables [session affinity](https://kubernetes.io/docs/reference/networking/virtual-ips/#session-affinity) on the Service so that connections from a particular client are passed to the same Pod each time.
+
+**KEDA-based autoscaling with Datadog metrics**
 
 You can now use [KEDA](https://keda.sh/) with Datadog metrics (via the cluster-agent proxy)
 as an alternative to the built-in HPA. This enables scaling on leading indicators like request
@@ -259,7 +263,7 @@ secretsEngine: sealed
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.5.5 |
+| file://../nd-common | nd-common | 0.5.6 |
 | https://k8s-charts.nextdoor.com | istio-alerts | 0.5.3 |
 
 ## Values
@@ -406,6 +410,7 @@ secretsEngine: sealed
 | secretsEngine | String | `"plaintext"` | Secrets Engine determines the type of Secret Resource that will be created (`KMSSecret`, `SealedSecret`, `Secret`). kms || sealed || plaintext are possible values. |
 | securityContext | object | `{}` |  |
 | service.name | `string` | `nil` | Optional override for the Service name. Can be used to create a simpler more friendly service name that is not specific to the application name. |
+| service.sessionAffinity | `string` | `nil` | If set, configures session affinity on the Service. Valid values are `None` (default) and `ClientIP`. When set to `ClientIP`, connections from a particular client are passed to the same Pod each time. |
 | service.trafficDistribution | `string` | `nil` | Allows you to set preferences for how traffic should be routed to Service endpoints.  In absense, default routing strategy for kube-proxy is to distribute traffic to any endpoint in the cluster  We may, one day, wish to set to 'PreferSameZone', but for now we'll leave it at discretion of user as it's a simple heuristic: if there are endpoints in the zone, they will receive all traffic for that zone, if there are no endpoints in a zone, the traffic will be distributed to other zones |
 | service.type | string | `"ClusterIP"` |  |
 | serviceAccount.annotations | object | `{}` |  |

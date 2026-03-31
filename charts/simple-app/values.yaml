@@ -257,6 +257,11 @@ service:
   # application name.
   name:
 
+  # -- (`string`) If set, configures session affinity on the Service. Valid
+  # values are `None` (default) and `ClientIP`. When set to `ClientIP`,
+  # connections from a particular client are passed to the same Pod each time.
+  sessionAffinity:
+
   # -- (`string`) Allows you to set preferences for how traffic should be routed
   # to Service endpoints.
   #

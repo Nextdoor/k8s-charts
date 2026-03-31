@@ -35,6 +35,9 @@ spec:
     {{- include "nd-common.servicePorts" $ | nindent 4 }}
   selector:
     {{- include "nd-common.selectorLabels" $ | nindent 4 }}
+  {{- with .Values.service.sessionAffinity }}
+  sessionAffinity: {{ . }}
+  {{- end }}
   {{/* https://github.com/helm/helm/issues/12053#issuecomment-1535044379 */}}
   {{- if semverCompare ">=1.31.0-0" .Capabilities.KubeVersion.Version }}
   {{/*
@@ -50,7 +53,7 @@ spec:
   in the cluster
   */}}
   {{- with .Values.service.trafficDistribution }}
-  trafficDistribution: {{ .}}
+  trafficDistribution: {{ . }}
   {{- end }}
   {{- end }}
 {{- end }}

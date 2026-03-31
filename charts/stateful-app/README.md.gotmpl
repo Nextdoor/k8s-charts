@@ -14,7 +14,9 @@ ServiceAccounts, Services, etc.
 
 ### 1.4.x -> 1.5.x
 
-**NEW: Allow simpler common label overrides and Service to set PreferSameZone trafficDistribution**
+**NEW: Allow simpler common label overrides, Service to set PreferSameZone trafficDistribution, and allow setting Service SessionAffinity**
+
+`service.sessionAffinity`, if set to `ClientIP`, enables [session affinity](https://kubernetes.io/docs/reference/networking/virtual-ips/#session-affinity) on the Service so that connections from a particular client are passed to the same Pod each time.
 
 `service.trafficDistribution`, if set to `PreferSameZone` will have preference to route
 traffic to endpoints in the [same zone](https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution) as client.
