@@ -2,7 +2,7 @@
 
 Default DaemonSet Helm Chart
 
-![Version: 0.17.9](https://img.shields.io/badge/Version-0.17.9-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.17.10](https://img.shields.io/badge/Version-0.17.10-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -15,7 +15,9 @@ ServiceAccounts, Services, etc.
 
 ### 1.16.x -> 1.17.x
 
-**NEW: Goldilocks support, k8s-native sidecars support, allow setting Service TrafficDistribution**
+**NEW: Goldilocks support, k8s-native sidecars support, allow setting Service TrafficDistribution and SessionAffinity**
+
+`service.sessionAffinity`, if set to `ClientIP`, enables [session affinity](https://kubernetes.io/docs/reference/networking/virtual-ips/#session-affinity) on the Service so that connections from a particular client are passed to the same Pod each time.
 
 `service.trafficDistribution`, if set to `PreferSameZone` will have preference to route
 traffic to endpoints in the [same zone](https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution) as client.
@@ -273,7 +275,7 @@ secretsEngine: sealed
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.5.5 |
+| file://../nd-common | nd-common | 0.5.6 |
 
 ## Values
 
@@ -364,6 +366,7 @@ secretsEngine: sealed
 | secretsEngine | String | `"plaintext"` | Secrets Engine determines the type of Secret Resource that will be created (`KMSSecret`, `SealedSecret`, `Secret`). kms || sealed || plaintext are possible values. |
 | securityContext | object | `{}` |  |
 | service.name | `string` | `nil` | Optional override for the Service name. Can be used to create a simpler more friendly service name that is not specific to the application name. |
+| service.sessionAffinity | `string` | `nil` | If set, configures session affinity on the Service. Valid values are `None` (default) and `ClientIP`. When set to `ClientIP`, connections from a particular client are passed to the same Pod each time. |
 | service.trafficDistribution | `string` | `nil` | Allows you to set preferences for how traffic should be routed to Service endpoints.  In absense, default routing strategy for kube-proxy is to distribute traffic to any endpoint in the cluster  We may, one day, wish to set to 'PreferSameZone', but for now we'll leave it at discretion of user as it's a simple heuristic: if there are endpoints in the zone, they will receive all traffic for that zone, if there are no endpoints in a zone, the traffic will be distributed to other zones |
 | service.type | `string` | `"ClusterIP"` | `ClusterIP`, `NodePort`, `LoadBalancer` or `ExternalName`. |
 | serviceAccount.annotations | object | `{}` |  |
