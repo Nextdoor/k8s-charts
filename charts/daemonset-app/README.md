@@ -2,7 +2,7 @@
 
 Default DaemonSet Helm Chart
 
-![Version: 0.17.10](https://img.shields.io/badge/Version-0.17.10-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.17.11](https://img.shields.io/badge/Version-0.17.11-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -283,6 +283,7 @@ secretsEngine: sealed
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
 | args | list | `[]` | The arguments passed to the command. If unspecified the container defaults are used. The exact rules of how commadn and args are interpreted can be # found at: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/ |
+| automountServiceAccountToken | `bool` | `true` | Whether to automount the Kubernetes API credentials into the pod. Set to `false` if your application does not need access to the Kubernetes API. |
 | command | list | `[]` | The command run by the container. This overrides `ENTRYPOINT`. If not specified, the container's default entrypoint is used. The exact rules of how commadn and args are interpreted can be # found at: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/ |
 | containerName | string | `""` |  |
 | datadog.enabled | `bool` | `true` | Whether or not the various datadog labels and options should be included or not. |
