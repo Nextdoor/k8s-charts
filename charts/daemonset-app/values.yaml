@@ -136,6 +136,10 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+# -- (`bool`) Whether to automount the Kubernetes API credentials into the pod.
+# Set to `false` if your application does not need access to the Kubernetes API.
+automountServiceAccountToken: true
+
 # -- https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#hook-handler-execution
 terminationGracePeriodSeconds: null
 
