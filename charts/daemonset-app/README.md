@@ -282,8 +282,8 @@ secretsEngine: sealed
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
-| automountServiceAccountToken | `bool` | `true` | Whether to automount the Kubernetes API credentials into the pod. Set to `false` if your application does not need access to the Kubernetes API. |
 | args | list | `[]` | The arguments passed to the command. If unspecified the container defaults are used. The exact rules of how commadn and args are interpreted can be # found at: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/ |
+| automountServiceAccountToken | `bool` | `true` | Whether to automount the Kubernetes API credentials into the pod. Set to `false` if your application does not need access to the Kubernetes API. |
 | command | list | `[]` | The command run by the container. This overrides `ENTRYPOINT`. If not specified, the container's default entrypoint is used. The exact rules of how commadn and args are interpreted can be # found at: https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/ |
 | containerName | string | `""` |  |
 | datadog.enabled | `bool` | `true` | Whether or not the various datadog labels and options should be included or not. |
