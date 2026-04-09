@@ -12,8 +12,9 @@ which may provide more context into what errors are being returned and why.
 
 Can check trends/graph by:
 
-1. Going to your Grafana instance and navigating to the `Explore` tab
-2. Entering the following Prometheus query (replace `cluster` and `destination_service_namespace`):
+1. Going to your Grafana instance and navigating to the `Explore` tab.
+2. Making sure you're using the `Promotheus` data source (not `Loki`), and choosing `Code` instead of `Builder` in the upper right.
+3. Entering the following Prometheus query (replace `cluster` and `destination_service_namespace`):
 
 ```
 sum by (destination_service_name, reporter) (
