@@ -20,6 +20,13 @@ defaults:
   # -- (`string`) The prefix URL to the runbook_urls that will be applied to each PrometheusRule
   runbookUrl: https://github.com/Nextdoor/k8s-charts/blob/main/charts/prometheus-alerts/runbook.md
 
+  # -- (`string`) Base URL (no trailing slash) of the Grafana used for the
+  # pre-filled Loki `logs_url` deep-link on the Job alerts (`KubeJobFailed`,
+  # `KubeJobCompletion`). Opens Explore scoped to the Job's `cluster`,
+  # `k8s_namespace_name`, and `k8s_job_name`. The central Grafana's Loki holds
+  # every cluster's logs, so one host serves all environments. Empty disables it.
+  grafanaUrl: https://grafana.corp.nextdoor.com
+
   # -- (`map`) Additional custom labels attached to every PrometheusRule
   additionalRuleLabels: {}
 

@@ -2,7 +2,7 @@
 
 Helm Chart that provisions a series of common Prometheus Alerts
 
-![Version: 1.8.8](https://img.shields.io/badge/Version-1.8.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
+![Version: 1.9.0](https://img.shields.io/badge/Version-1.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -87,7 +87,7 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.5.5 |
+| file://../nd-common | nd-common | 0.5.6 |
 
 ## Values
 
@@ -150,6 +150,7 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 | defaults.additionalRuleLabels | `map` | `{}` | Additional custom labels attached to every PrometheusRule |
 | defaults.daemonsetNameSelector | `string` | `".*"` | Pattern used to scope down the DaemonSet alerts to pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all the DaemonSets in the namespace. This string is run through the `tpl` function. |
 | defaults.deploymentNameSelector | `string` | `".*"` | Pattern used to scope down the Deployment alerts to pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all the Deployments in the namespace. This string is run through the `tpl` function. |
+| defaults.grafanaUrl | `string` | `"https://grafana.corp.nextdoor.com"` | Base URL (no trailing slash) of the Grafana used for the pre-filled Loki `logs_url` deep-link on the Job alerts (`KubeJobFailed`, `KubeJobCompletion`). Opens Explore scoped to the Job's `cluster`, `k8s_namespace_name`, and `k8s_job_name`. The central Grafana's Loki holds every cluster's logs, so one host serves all environments. Empty disables it. |
 | defaults.hpaNameSelector | `string` | `".*"` | Pattern used to scope down the HorizontalPodAutoscaler alerts to pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all the HorizontalPodAutoscalers in the namespace. This string is run through the `tpl` function. |
 | defaults.jobNameSelector | `string` | `".*"` | Pattern used to scope down the alerts to only Jobs that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all Jobs in the namespace. This string is run through the `tpl` function. |
 | defaults.podNameSelector | `string` | `".*"` | Pattern used to scope down the alerts to only Pods that are part of this general application. Set to `None` if you want to disable this selector and apply the rules to all Pods in the namespace. This string is run through the `tpl` function. |
