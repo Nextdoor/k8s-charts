@@ -7,16 +7,17 @@ verticalAutoscaling:
 
   # -- (`string`) Either `Off`, `Initial`, `Recreate` or `Auto` - Sets the
   # operational mode for the `VerticalPodAutoscaler`. See [the
-  # code](https://github.com/kubernetes/autoscaler/blob/vertical-pod-autoscaler-0.9.2/vertical-pod-autoscaler/pkg/apis/autoscaling.k8s.io/v1beta2/types.go#L98-L118)
-  # for details.
-  updateMode: Auto
+  # code](https://github.com/kubernetes/autoscaler/blob/vertical-pod-autoscaler-1.6.0/vertical-pod-autoscaler/pkg/apis/autoscaling.k8s.io/v1/types.go#L154-L185)
+  # for details. `Auto` is deprecated upstream and behaves identically to
+  # `Recreate`, so we default to `Recreate`.
+  updateMode: Recreate
 
   # -- (`string[]`) List of strings of controlled resources. Allowed values: "cpu", "memory".
   controlledResources: [cpu, memory]
 
   # -- (`string[]`) Either `RequestsAndLimits` or `RequestsOnly`. If
   # `RequestsAndLimits` are set, read [this
-  # doc](https://github.com/kubernetes/autoscaler/tree/vertical-pod-autoscaler-0.9.2/vertical-pod-autoscaler#limits-control)
+  # doc](https://github.com/kubernetes/autoscaler/blob/vertical-pod-autoscaler-1.6.0/vertical-pod-autoscaler/docs/features.md#limits-control)
   # in detail to understand the behavior.
   controlledValues: RequestsOnly
 
