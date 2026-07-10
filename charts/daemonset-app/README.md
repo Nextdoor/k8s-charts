@@ -2,7 +2,7 @@
 
 Default DaemonSet Helm Chart
 
-![Version: 0.17.11](https://img.shields.io/badge/Version-0.17.11-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.17.12](https://img.shields.io/badge/Version-0.17.12-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -390,13 +390,13 @@ secretsEngine: sealed
 | tolerations | list | `[]` |  |
 | updateStrategy | `DaemonSetUpdateStrategy` | `nil` | updateStrategy indicates the StatefulSetUpdateStrategy that will be employed to update Pods in the StatefulSet when a revision is made to Template.  https://v1-18.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#daemonsetupdatestrategy-v1-apps |
 | verticalAutoscaling.controlledResources | `string[]` | `["cpu","memory"]` | List of strings of controlled resources. Allowed values: "cpu", "memory". |
-| verticalAutoscaling.controlledValues | `string[]` | `"RequestsOnly"` | Either `RequestsAndLimits` or `RequestsOnly`. If `RequestsAndLimits` are set, read [this doc](https://github.com/kubernetes/autoscaler/tree/vertical-pod-autoscaler-0.9.2/vertical-pod-autoscaler#limits-control) in detail to understand the behavior. |
+| verticalAutoscaling.controlledValues | `string[]` | `"RequestsOnly"` | Either `RequestsAndLimits` or `RequestsOnly`. If `RequestsAndLimits` are set, read [this doc](https://github.com/kubernetes/autoscaler/blob/vertical-pod-autoscaler-1.6.0/vertical-pod-autoscaler/docs/features.md#limits-control) in detail to understand the behavior. |
 | verticalAutoscaling.enabled | `bool` | `false` | Controls whether or not an VerticalPodAutoscaler resource is created. |
 | verticalAutoscaling.maxCpu | `string` | `nil` | Sets the maximum CPU resources to request for the container. This is the upper-bound that the VPA will set. |
 | verticalAutoscaling.maxMemory | `string` | `nil` | Sets the maximum Memory resources to request for the container. This is the upper-bound of the resource requests that will be set by the VPA. |
 | verticalAutoscaling.minCpu | `string` | `nil` | Sets the minimum CPU resources to request for the container. This is the lower-bound of the resource requests that will be set by the VPA. |
 | verticalAutoscaling.minMemory | `string` | `nil` | Sets the minimum Memory resources to request for the container. This is the lower-bound of the resource requests that will be set by the VPA. |
-| verticalAutoscaling.updateMode | `string` | `"Auto"` | Either `Off`, `Initial`, `Recreate` or `Auto` - Sets the operational mode for the `VerticalPodAutoscaler`. See [the code](https://github.com/kubernetes/autoscaler/blob/vertical-pod-autoscaler-0.9.2/vertical-pod-autoscaler/pkg/apis/autoscaling.k8s.io/v1beta2/types.go#L98-L118) for details. |
+| verticalAutoscaling.updateMode | `string` | `"Recreate"` | Either `Off`, `Initial`, `Recreate` or `Auto` - Sets the operational mode for the `VerticalPodAutoscaler`. See [the code](https://github.com/kubernetes/autoscaler/blob/vertical-pod-autoscaler-1.6.0/vertical-pod-autoscaler/pkg/apis/autoscaling.k8s.io/v1/types.go#L154-L185) for details. `Auto` is deprecated upstream and behaves identically to `Recreate`, so we default to `Recreate`. |
 | volumeMounts | list | `[]` | List of VolumeMounts that are applied to the application container - these must refer to volumes set in the `Values.volumes` parameter. |
 | volumes | list | `[]` | A list of 'volumes' that can be mounted into the Pod. See https://kubernetes.io/docs/concepts/storage/volumes/. This is run through the `tpl` function for you. |
 
