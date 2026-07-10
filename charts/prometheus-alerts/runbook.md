@@ -124,7 +124,10 @@ NAME                                      COMPLETIONS   DURATION   AGE
 foobar-weekly-28571172                    0/1           3d2h       3d2h
 foobar-incremental-daily-28575492         0/1           139m       139m
 ```
-2. Jobs in kubernetes cluster launch pods to run. Check your favorite logging tool 
-(e.g., DataDog) to look for pods that begin with name of your failing jobs
-(e.g. "foobar-incremental-daily" for this case) in the time period for any failure clues.
+2. Jobs in kubernetes cluster launch pods to run. Check the logs of the pods that
+begin with the name of your failing job (e.g. "foobar-incremental-daily" for this
+case) in the time period for any failure clues. The alert includes a pre-filled
+`logs_url` annotation that deep-links straight to those pod logs in Grafana Loki
+(Explore), so you can jump there directly from PagerDuty. You may also check your
+favorite logging tool (e.g., DataDog).
 3. Check the configuration of your job in the chart files of your repo.

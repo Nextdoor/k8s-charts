@@ -586,6 +586,9 @@ spec:
       annotations:
         summary: Job did not complete in time
         runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubejobcompletion
+        {{- if $.Values.defaults.grafanaUrl }}
+        logs_url: {{ include "prometheus-alerts.jobLogsUrl" $ }}
+        {{- end }}
         description: >-
           Job {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.job_name
           {{`}}`}} is taking more than 12 hours to complete.
@@ -610,6 +613,9 @@ spec:
       annotations:
         summary: Job failed to complete.
         runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubejobfailed
+        {{- if $.Values.defaults.grafanaUrl }}
+        logs_url: {{ include "prometheus-alerts.jobLogsUrl" $ }}
+        {{- end }}
         description: >-
           Job {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.job_name
           {{`}}`}} failed to complete. Removing failed job after investigation
