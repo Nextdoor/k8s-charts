@@ -153,6 +153,12 @@ spec:
         istio:
           virtualService:
             name: {{ include "nd-common.fullname" $ }}
+            {{- with $.Values.virtualService.routes }}
+            routes:
+              {{- range . }}
+              - {{ .name }}
+              {{- end }}
+            {{- end }}
           {{- if $.Values.virtualService.subsetRouting.enabled }}
           destinationRule:
             name: {{ $.Values.virtualService.subsetRouting.destinationRuleName }}
