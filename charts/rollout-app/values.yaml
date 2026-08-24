@@ -559,6 +559,25 @@ virtualService:
   # match a `containerPort` in the `Values.ports` list.
   port: 80
 
+  # -- (`list`) When set, replaces the single implicit HTTP route above with one
+  # independently stable/canary-weighted HTTPRoute per entry, each matched and routed by
+  # its own destination port. Lets a consumer expose a second port (e.g. gRPC) on the same
+  # Service without Istio's HTTP/2 port-capture rewriting it to `virtualService.port`. Each
+  # route's `name` is also used to tell Argo Rollouts which routes to manage weights for.
+  # `fault`/`maintenanceMode` above only apply when `routes` is unset.
+  #
+  # Each entry:
+  #   name     (required) - route name
+  #   port     (required) - destination port number this route matches and routes to
+  #   paths    (optional) - list of uri prefixes, defaults to [ virtualService.path ]
+  #   matches  (optional) - extra HTTPMatchRequest fields, same shape as virtualService.matches
+  #   corsPolicy, retries (optional) - same shape as the top-level virtualService fields
+  routes: []
+    # - name: rest
+    #   port: 80
+    # - name: grpc
+    #   port: 50052
+
   # -- Since multiple Rollout objects cannot referece the same stableService or
   # canaryService, approaches like Istio subset routing (based on pod labels) to direct
   # traffic to appropriate version can be used to utilize the same Kubernetes service

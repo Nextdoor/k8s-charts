@@ -28,8 +28,67 @@ spec:
 
   {{- /*
   https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRoute
+
+  Istio treats an HTTP/2-named port (e.g. "grpc") as HTTP too, so the single default route
+  below would capture it and rewrite its destination to virtualService.port. Set
+  .Values.virtualService.routes to give each port its own independently weighted HTTPRoute.
   */}}
   http:
+  {{- if .Values.virtualService.routes }}
+  {{- range $route := .Values.virtualService.routes }}
+  {{- if not $route.name }}
+  {{ fail "each entry in .Values.virtualService.routes requires a name" }}
+  {{- end }}
+  {{- if not $route.port }}
+  {{ fail "each entry in .Values.virtualService.routes requires a port" }}
+  {{- end }}
+  - name: {{ $route.name }}
+    match:
+    {{- range $path := ($route.paths | default (list $.Values.virtualService.path)) }}
+      - port: {{ $route.port }}
+        uri:
+          prefix: {{ $path }}
+        {{- with $route.matches }}
+        {{- tpl (toYaml .) $global | nindent 8 }}
+        {{- end }}
+    {{- end }}
+    {{- with $route.corsPolicy }}
+    corsPolicy:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with $route.retries }}
+    retries:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    route:
+      {{- if $.Values.virtualService.subsetRouting.enabled }}
+      {{- if (eq (len $.Values.virtualService.subsetRouting.subsets) 0) }}
+      {{- fail "Both virtualService.subsetRouting is enabled but the subset list is empty" }}
+      {{- end }}
+      {{- range $.Values.virtualService.subsetRouting.subsets }}
+      - destination:
+          host: {{ include "nd-common.serviceName" $ }}
+          port:
+            number: {{ $route.port }}
+          subset: {{ .name }}
+        weight: {{ .weight }}
+      {{- end }}
+      {{- else }}
+      - destination:
+          host: {{ include "nd-common.serviceName" $ }}
+          port:
+            number: {{ $route.port }}
+        weight: 100
+      {{- if eq $.Values.strategy "canary" }}
+      - destination:
+          host: {{ include "nd-common.serviceName" $ }}-canary
+          port:
+            number: {{ $route.port }}
+        weight: 0
+      {{- end }}
+      {{- end }}
+  {{- end }}
+  {{- else }}
     - match:
       {{- /* https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPMatchRequest */}}
       {{- with .Values.virtualService.matches }}
@@ -114,6 +173,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- end }}
+  {{- end }}
 
   {{- with .Values.virtualService.tls }}
   tls:
