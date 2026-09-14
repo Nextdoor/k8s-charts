@@ -33,13 +33,20 @@ promtool: $(PROMTOOL)
 # Renders the chart's PrometheusRule and strips it down to the bare `groups`
 # document that promtool expects. Always re-rendered so a template edit can't
 # be tested against a stale file.
+#
+# Depends on `deps` (from Helm.mk) because this chart has a `nd-common`
+# dependency that must be present in charts/ before `helm template` will run.
+# The render and the transform are separate recipe lines on purpose: piped
+# straight into python, a `helm template` failure is swallowed and resurfaces
+# as an unrelated IndexError.
 .PHONY: tests/.rendered.yaml
-tests/.rendered.yaml:
+tests/.rendered.yaml: deps
 	@helm template t . \
 		--set containerRules.jobs.KubeJobFailed.suppressWhenNewerRunSucceeded=true \
 		--set defaults.grafanaUrl= \
-		| python3 -c 'import sys, yaml; rule = [d for d in yaml.safe_load_all(sys.stdin) if d and d.get("kind") == "PrometheusRule"][0]; yaml.safe_dump(rule["spec"], sys.stdout, width=10000)' \
-		> $@
+		> $@.tmp
+	@python3 -c 'import sys, yaml; rule = [d for d in yaml.safe_load_all(open(sys.argv[1])) if d and d.get("kind") == "PrometheusRule"][0]; yaml.safe_dump(rule["spec"], open(sys.argv[2], "w"), width=10000)' $@.tmp $@
+	@rm -f $@.tmp
 
 .PHONY: promtool_test
 promtool_test: $(PROMTOOL) tests/.rendered.yaml
