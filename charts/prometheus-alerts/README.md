@@ -2,7 +2,7 @@
 
 Helm Chart that provisions a series of common Prometheus Alerts
 
-![Version: 1.9.0](https://img.shields.io/badge/Version-1.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
+![Version: 1.10.0](https://img.shields.io/badge/Version-1.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -125,6 +125,7 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 | containerRules.jobs.KubeJobFailed.for | string | `"15m"` |  |
 | containerRules.jobs.KubeJobFailed.labels | object | `{}` |  |
 | containerRules.jobs.KubeJobFailed.severity | string | `"warning"` |  |
+| containerRules.jobs.KubeJobFailed.suppressWhenNewerRunSucceeded | `bool` | `false` | When enabled, a failed Job stops alerting as soon as a newer Job owned by the same CronJob succeeds. `kube_job_failed` is true for as long as the failed Job object is retained, so by default this alert keeps firing — and keeps re-notifying — until somebody deletes the Job, even when the workload already recovered on its next scheduled run. Turn this on for frequently-scheduled CronJobs that ride out transient upstream failures on their own; leave it off where every individual failure has to be acknowledged by a human. A CronJob that has never had a successful run, and a Job with no CronJob owner, keep alerting regardless of this setting. |
 | containerRules.jobs.enabled | bool | `true` | Enables the Job resource rules |
 | containerRules.pods.CPUThrottlingHigh | object | `{"for":"15m","labels":{},"severity":"warning","threshold":5}` | Container is being throttled by the CGroup - needs more resources. This value is appropriate for applications that are highly sensitive to request latency. Insensitive workloads might need to raise this percentage to avoid alert noise. |
 | containerRules.pods.ContainerWaiting.for | string | `"1h"` |  |

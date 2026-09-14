@@ -12,6 +12,9 @@ bin
 new
 orig
 
+# Rules rendered out of a chart for promtool unit tests
+/charts/*/tests/.rendered.yaml
+
 # MacOS file
 .DS_Store
 

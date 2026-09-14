@@ -616,11 +616,76 @@ spec:
         {{- if $.Values.defaults.grafanaUrl }}
         logs_url: {{ include "prometheus-alerts.jobLogsUrl" $ }}
         {{- end }}
+        {{- if .suppressWhenNewerRunSucceeded }}
+        description: >-
+          Job {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.job_name
+          {{`}}`}} failed to complete. This clears automatically once a newer
+          run of the same CronJob succeeds; removing the failed job also
+          clears it.
+        {{- else }}
         description: >-
           Job {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.job_name
           {{`}}`}} failed to complete. Removing failed job after investigation
           should clear this alert.
+        {{- end }}
+      {{- if .suppressWhenNewerRunSucceeded }}
+      {{- /*
+        `kube_job_failed` stays true for as long as the failed Job object is
+        retained by the cluster, so on its own this alert keeps firing — and
+        keeps re-notifying — until somebody deletes the Job, even after the
+        workload recovered on a later run. The `unless` below drops a failed
+        Job once a *newer* Job owned by the same CronJob has succeeded, which
+        makes the alert self-clearing for scheduled workloads.
+
+        It filters the raw `kube_job_failed` series rather than aggregating
+        it, so every label the alert already published is preserved — the
+        description and `logs_url` annotations template off
+        `$labels.namespace` / `$labels.job_name`.
+
+        Two cases intentionally still fire, because in both there is no newer
+        successful sibling to compare against and silence would be the wrong
+        outcome:
+
+          - a CronJob that has never had a successful run. A workload that
+            has never once succeeded must not go quiet.
+          - a Job with no CronJob owner (a standalone Job). Its behaviour is
+            unchanged from the default expression.
+      */}}
+      expr: |-
+        kube_job_failed{ {{ $jobSelector }} } > 0
+          unless on (namespace, job_name)
+        (
+          (
+            max by (namespace, job_name, owner_name) (
+              (
+                kube_job_status_start_time{ {{ $jobSelector }} }
+                  and on (namespace, job_name)
+                (kube_job_failed{ {{ $jobSelector }} } > 0)
+              )
+                * on (namespace, job_name) group_left(owner_name)
+              max by (namespace, job_name, owner_name) (
+                kube_job_owner{ {{ $jobSelector }}, owner_kind="CronJob" }
+              )
+            )
+          )
+            < on (namespace, owner_name) group_left()
+          (
+            max by (namespace, owner_name) (
+              (
+                kube_job_status_start_time{ {{ $jobSelector }} }
+                  and on (namespace, job_name)
+                (kube_job_status_succeeded{ {{ $jobSelector }} } > 0)
+              )
+                * on (namespace, job_name) group_left(owner_name)
+              max by (namespace, job_name, owner_name) (
+                kube_job_owner{ {{ $jobSelector }}, owner_kind="CronJob" }
+              )
+            )
+          )
+        )
+      {{- else }}
       expr: kube_job_failed{ {{- $jobSelector -}} }  > 0
+      {{- end }}
       for: {{ .for }}
       labels:
         severity: {{ .severity }}

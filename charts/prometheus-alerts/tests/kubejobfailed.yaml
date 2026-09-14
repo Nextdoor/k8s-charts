@@ -1,0 +1,142 @@
+# promtool unit tests for the `KubeJobFailed` alert.
+#
+# These cover `containerRules.jobs.KubeJobFailed.suppressWhenNewerRunSucceeded`,
+# whose whole job is to decide *when not to fire*. The two cases that must keep
+# firing (a CronJob that has never succeeded, and a Job with no CronJob owner)
+# are the ones worth locking down: if either ever starts being suppressed, a
+# broken workload goes silent and nothing else in this repo would catch it.
+#
+# The rules file is rendered from the chart by `make promtool_test` rather than
+# checked in, so these tests always exercise the real templated expression.
+# It is rendered with `defaults.grafanaUrl=""` to drop the `logs_url`
+# annotation -- a very long URL that none of these assertions care about.
+rule_files:
+  - .rendered.yaml
+
+evaluation_interval: 1m
+
+tests:
+  # The case this flag exists for: the Job failed, the next scheduled run
+  # recovered on its own, and the stale failed Job object should stop paging.
+  - interval: 1m
+    name: a newer run of the same CronJob succeeded - suppressed
+    input_series:
+      - series: 'kube_job_failed{job="kube-state-metrics", namespace="default", job_name="cron-a-1", condition="true"}'
+        values: '1+0x30'
+      - series: 'kube_job_status_succeeded{job="kube-state-metrics", namespace="default", job_name="cron-a-1"}'
+        values: '0+0x30'
+      - series: 'kube_job_status_start_time{job="kube-state-metrics", namespace="default", job_name="cron-a-1"}'
+        values: '1000+0x30'
+      - series: 'kube_job_owner{job="kube-state-metrics", namespace="default", job_name="cron-a-1", owner_kind="CronJob", owner_name="cron-a"}'
+        values: '1+0x30'
+      - series: 'kube_job_status_succeeded{job="kube-state-metrics", namespace="default", job_name="cron-a-2"}'
+        values: '1+0x30'
+      - series: 'kube_job_status_start_time{job="kube-state-metrics", namespace="default", job_name="cron-a-2"}'
+        values: '2000+0x30'
+      - series: 'kube_job_owner{job="kube-state-metrics", namespace="default", job_name="cron-a-2", owner_kind="CronJob", owner_name="cron-a"}'
+        values: '1+0x30'
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: KubeJobFailed
+        exp_alerts: []
+
+  # A CronJob that has never once succeeded has no newer success to compare
+  # against. It must keep alerting -- this is a genuinely broken workload.
+  - interval: 1m
+    name: CronJob has never succeeded - still fires
+    input_series:
+      - series: 'kube_job_failed{job="kube-state-metrics", namespace="default", job_name="cron-b-1", condition="true"}'
+        values: '1+0x30'
+      - series: 'kube_job_status_succeeded{job="kube-state-metrics", namespace="default", job_name="cron-b-1"}'
+        values: '0+0x30'
+      - series: 'kube_job_status_start_time{job="kube-state-metrics", namespace="default", job_name="cron-b-1"}'
+        values: '1000+0x30'
+      - series: 'kube_job_owner{job="kube-state-metrics", namespace="default", job_name="cron-b-1", owner_kind="CronJob", owner_name="cron-b"}'
+        values: '1+0x30'
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: KubeJobFailed
+        exp_alerts:
+          - exp_labels:
+              alertname: KubeJobFailed
+              severity: warning
+              job: kube-state-metrics
+              namespace: default
+              job_name: cron-b-1
+              condition: "true"
+            exp_annotations:
+              summary: Job failed to complete.
+              runbook_url: https://github.com/Nextdoor/k8s-charts/blob/main/charts/prometheus-alerts/runbook.md#alert-name-kubejobfailed
+              description: Job default/cron-b-1 failed to complete. This clears automatically once a newer run of the same CronJob succeeds; removing the failed job also clears it.
+
+  # The successful run is *older* than the failure, i.e. the most recent run is
+  # the broken one. Suppressing here would hide an active outage.
+  - interval: 1m
+    name: only an older run succeeded - still fires
+    input_series:
+      - series: 'kube_job_status_succeeded{job="kube-state-metrics", namespace="default", job_name="cron-c-1"}'
+        values: '1+0x30'
+      - series: 'kube_job_status_start_time{job="kube-state-metrics", namespace="default", job_name="cron-c-1"}'
+        values: '1000+0x30'
+      - series: 'kube_job_owner{job="kube-state-metrics", namespace="default", job_name="cron-c-1", owner_kind="CronJob", owner_name="cron-c"}'
+        values: '1+0x30'
+      - series: 'kube_job_failed{job="kube-state-metrics", namespace="default", job_name="cron-c-2", condition="true"}'
+        values: '1+0x30'
+      - series: 'kube_job_status_succeeded{job="kube-state-metrics", namespace="default", job_name="cron-c-2"}'
+        values: '0+0x30'
+      - series: 'kube_job_status_start_time{job="kube-state-metrics", namespace="default", job_name="cron-c-2"}'
+        values: '2000+0x30'
+      - series: 'kube_job_owner{job="kube-state-metrics", namespace="default", job_name="cron-c-2", owner_kind="CronJob", owner_name="cron-c"}'
+        values: '1+0x30'
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: KubeJobFailed
+        exp_alerts:
+          - exp_labels:
+              alertname: KubeJobFailed
+              severity: warning
+              job: kube-state-metrics
+              namespace: default
+              job_name: cron-c-2
+              condition: "true"
+            exp_annotations:
+              summary: Job failed to complete.
+              runbook_url: https://github.com/Nextdoor/k8s-charts/blob/main/charts/prometheus-alerts/runbook.md#alert-name-kubejobfailed
+              description: Job default/cron-c-2 failed to complete. This clears automatically once a newer run of the same CronJob succeeds; removing the failed job also clears it.
+
+  # A standalone Job has no CronJob parent and therefore no sibling runs. Its
+  # behaviour must be identical to the default expression.
+  - interval: 1m
+    name: Job with no CronJob owner - still fires
+    input_series:
+      - series: 'kube_job_failed{job="kube-state-metrics", namespace="default", job_name="standalone-1", condition="true"}'
+        values: '1+0x30'
+      - series: 'kube_job_status_succeeded{job="kube-state-metrics", namespace="default", job_name="standalone-1"}'
+        values: '0+0x30'
+      - series: 'kube_job_status_start_time{job="kube-state-metrics", namespace="default", job_name="standalone-1"}'
+        values: '1000+0x30'
+      # Deliberately no kube_job_owner series with owner_kind="CronJob".
+      - series: 'kube_job_owner{job="kube-state-metrics", namespace="default", job_name="standalone-1", owner_kind="<none>", owner_name="<none>"}'
+        values: '1+0x30'
+      # A completely unrelated CronJob succeeding later must not suppress it.
+      - series: 'kube_job_status_succeeded{job="kube-state-metrics", namespace="default", job_name="cron-d-1"}'
+        values: '1+0x30'
+      - series: 'kube_job_status_start_time{job="kube-state-metrics", namespace="default", job_name="cron-d-1"}'
+        values: '9000+0x30'
+      - series: 'kube_job_owner{job="kube-state-metrics", namespace="default", job_name="cron-d-1", owner_kind="CronJob", owner_name="cron-d"}'
+        values: '1+0x30'
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: KubeJobFailed
+        exp_alerts:
+          - exp_labels:
+              alertname: KubeJobFailed
+              severity: warning
+              job: kube-state-metrics
+              namespace: default
+              job_name: standalone-1
+              condition: "true"
+            exp_annotations:
+              summary: Job failed to complete.
+              runbook_url: https://github.com/Nextdoor/k8s-charts/blob/main/charts/prometheus-alerts/runbook.md#alert-name-kubejobfailed
+              description: Job default/standalone-1 failed to complete. This clears automatically once a newer run of the same CronJob succeeds; removing the failed job also clears it.

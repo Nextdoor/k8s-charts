@@ -252,6 +252,18 @@ containerRules:
       for: 15m
       labels: {}
 
+      # -- (`bool`) When enabled, a failed Job stops alerting as soon as a
+      # newer Job owned by the same CronJob succeeds. `kube_job_failed` is
+      # true for as long as the failed Job object is retained, so by default
+      # this alert keeps firing — and keeps re-notifying — until somebody
+      # deletes the Job, even when the workload already recovered on its next
+      # scheduled run. Turn this on for frequently-scheduled CronJobs that
+      # ride out transient upstream failures on their own; leave it off where
+      # every individual failure has to be acknowledged by a human. A CronJob
+      # that has never had a successful run, and a Job with no CronJob owner,
+      # keep alerting regardless of this setting.
+      suppressWhenNewerRunSucceeded: false
+
   hpas:
     # -- Enables the HorizontalPodAutoscaler resource rules
     enabled: true
