@@ -19,6 +19,33 @@ those changes in the `charts/simple-app`, `charts/daemonset-app` and
 
 ## Upgrade Notes
 
+### 1.9.x -> 1.10.x
+
+**CHANGE: `PodCrashLoopBackOff` now uses a `max_over_time` lookback.**
+
+`CrashLoopBackOff` is a *waiting* state, so a container that keeps restarting
+(an OOM loop, for example) alternates between `CrashLoopBackOff` and `Running`
+and its metric disappears on every restart. The alert used to fall out of
+`pending` each time that happened, restarting its `for` timer, so a pod that was
+plainly crash looping either never fired or fired and resolved over and over.
+
+The alert expression now evaluates the metric through a `max_over_time` lookback
+controlled by the new `containerRules.pods.PodCrashLoopBackOff.window` value
+(default `5m`), which bridges those brief `Running` phases.
+
+What changes for you after upgrading:
+
+- Fewer and longer `PodCrashLoopBackOff` alerts for the same underlying crash
+  loop, instead of a series of short ones.
+- The alert resolves up to `window` after the last `CrashLoopBackOff`
+  observation, so it can stay firing briefly after a real fix. The description
+  annotation now says "within the last `<window>`" to make that explicit.
+- A pod that is deleted while crash looping keeps its alert open for up to
+  `window` after deletion, because the lookback still sees its last samples.
+- `window` must be strictly shorter than `for`. The chart refuses to render
+  otherwise, because a `window` at or above `for` lets a single
+  `CrashLoopBackOff` observation page on its own.
+
 ### 1.6.x -> 1.7.x
 
 **CHANGE: Default selectors changed to be more generic.**
