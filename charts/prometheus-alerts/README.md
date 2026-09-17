@@ -2,7 +2,7 @@
 
 Helm Chart that provisions a series of common Prometheus Alerts
 
-![Version: 1.9.0](https://img.shields.io/badge/Version-1.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
+![Version: 1.10.0](https://img.shields.io/badge/Version-1.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -18,6 +18,33 @@ those changes in the `charts/simple-app`, `charts/daemonset-app` and
 `charts/stateful-app` charts.
 
 ## Upgrade Notes
+
+### 1.9.x -> 1.10.x
+
+**CHANGE: `PodCrashLoopBackOff` now uses a `max_over_time` lookback.**
+
+`CrashLoopBackOff` is a *waiting* state, so a container that keeps restarting
+(an OOM loop, for example) alternates between `CrashLoopBackOff` and `Running`
+and its metric disappears on every restart. The alert used to fall out of
+`pending` each time that happened, restarting its `for` timer, so a pod that was
+plainly crash looping either never fired or fired and resolved over and over.
+
+The alert expression now evaluates the metric through a `max_over_time` lookback
+controlled by the new `containerRules.pods.PodCrashLoopBackOff.window` value
+(default `5m`), which bridges those brief `Running` phases.
+
+What changes for you after upgrading:
+
+- Fewer and longer `PodCrashLoopBackOff` alerts for the same underlying crash
+  loop, instead of a series of short ones.
+- The alert resolves up to `window` after the last `CrashLoopBackOff`
+  observation, so it can stay firing briefly after a real fix. The description
+  annotation now says "within the last `<window>`" to make that explicit.
+- A pod that is deleted while crash looping keeps its alert open for up to
+  `window` after deletion, because the lookback still sees its last samples.
+- `window` must be strictly shorter than `for`. The chart refuses to render
+  otherwise, because a `window` at or above `for` lets a single
+  `CrashLoopBackOff` observation page on its own.
 
 ### 1.6.x -> 1.7.x
 
@@ -132,7 +159,8 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 | containerRules.pods.ContainerWaiting.severity | string | `"warning"` |  |
 | containerRules.pods.PodContainerOOMKilled | object | `{"for":"1m","labels":{},"over":"60m","severity":"warning","threshold":0}` | Sums up all of the OOMKilled events per pod over the $over time (60m). If that number breaches the $threshold (0) for $for (1m), then it will alert. |
 | containerRules.pods.PodContainerTerminated | object | `{"for":"1m","labels":{},"over":"10m","reasons":["ContainerCannotRun","DeadlineExceeded"],"severity":"warning","threshold":0}` | Monitors Pods for Containers that are terminated either for unexpected reasons like ContainerCannotRun. If that number breaches the $threshold (1) for $for (1m), then it will alert. |
-| containerRules.pods.PodCrashLoopBackOff | object | `{"for":"10m","labels":{},"severity":"warning"}` | Pod is in a CrashLoopBackOff state and is not becoming healthy. |
+| containerRules.pods.PodCrashLoopBackOff | object | `{"for":"10m","labels":{},"severity":"warning","window":"5m"}` | Pod has been in a CrashLoopBackOff state and is not becoming healthy. |
+| containerRules.pods.PodCrashLoopBackOff.window | string | `"5m"` | Lookback (`max_over_time`) that keeps this alert active across the brief Running phases of a crash loop. Must be strictly shorter than `for`. |
 | containerRules.pods.PodNotReady | object | `{"for":"15m","labels":{},"severity":"warning"}` | Pod has been in a non-ready state for more than a specific threshold |
 | containerRules.pods.PodSelectorValidity | object | `{"enabled":true,"for":"1h","labels":{},"severity":"warning"}` | Does a basic lookup using the defined selectors to see if we can see any info for a given selector. This is the "watcher for the watcher". If we get alerted by this, we likely have a bad selector and our alerts are not going to ever fire. |
 | containerRules.pods.enabled | bool | `true` | Enables the Pod resource rules |

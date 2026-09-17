@@ -1,4 +1,5 @@
 {{- include "prometheus-alerts.check_migration_alerts_grouped_by_resource" . }}
+{{- include "prometheus-alerts.check_crashloop_window" . }}
 {{- $daemonsetSelector   := include "prometheus-alerts.daemonsetSelector" . }}
 {{- $deploymentSelector  := include "prometheus-alerts.deploymentSelector" . }}
 {{- $namespaceSelector   := include "prometheus-alerts.namespaceSelector" . }}
@@ -158,17 +159,36 @@ spec:
         summary: {{`Container inside pod {{ $labels.pod }} is crash looping`}}
         runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubepodcrashlooping
         description: >-
-          {{`Container {{ $labels.container }} within pod {{ $labels.pod }} is in
-          a {{ $labels.reason }} state. Investigate because it indicates that
-          the Pod is unable to become fully healthy.`}}
+          {{`Container {{ $labels.container }} within pod {{ $labels.pod }} has
+          been in a {{ $labels.reason }} state within the last`}} {{ .window }}.
+          Investigate because it indicates that the Pod is unable to become
+          fully healthy. The container may be running again right now: the alert
+          only clears once no {{`{{ $labels.reason }}`}} has been observed for
+          {{ .window }}.
+      {{- /*
+        The `max_over_time` lookback is what makes this alert survive a crash
+        loop. CrashLoopBackOff is a *waiting* state, so a container that keeps
+        restarting (an OOM loop, for example) alternates between
+        CrashLoopBackOff and Running. Without the lookback the series vanishes
+        on every restart, the alert falls out of `pending`, the `for` timer
+        restarts from zero, and a pod that is plainly crash looping either never
+        fires or fires and resolves repeatedly.
+
+        `window` must stay strictly shorter than `for` (enforced by
+        `prometheus-alerts.check_crashloop_window`) so that a single isolated
+        CrashLoopBackOff observation cannot carry the alert all the way to
+        `firing`.
+      */}}
       expr: |-
         sum by(namespace, pod, container, reason) (
-          kube_pod_container_status_waiting_reason{
-            job="kube-state-metrics",
-            reason="CrashLoopBackOff",
-            {{ $podSelector }},
-            {{ $namespaceSelector }}
-          }
+          max_over_time(
+            kube_pod_container_status_waiting_reason{
+              job="kube-state-metrics",
+              reason="CrashLoopBackOff",
+              {{ $podSelector }},
+              {{ $namespaceSelector }}
+            }[{{ .window }}]
+          )
         ) > 0
       for: {{ .for }}
       labels:

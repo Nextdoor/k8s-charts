@@ -114,10 +114,32 @@ containerRules:
       for: 1m
       labels: {}
 
-    # -- Pod is in a CrashLoopBackOff state and is not becoming healthy.
+    # -- Pod has been in a CrashLoopBackOff state and is not becoming healthy.
     PodCrashLoopBackOff:
       severity: warning
       for: 10m
+      # CrashLoopBackOff is a *waiting* state, so a container that keeps
+      # restarting alternates between CrashLoopBackOff and Running and its
+      # metric disappears on every restart. Without a lookback the alert falls
+      # out of `pending` each time that happens and its `for` timer starts over,
+      # so a pod that is plainly crash looping either never fires or fires and
+      # resolves repeatedly.
+      #
+      # Trade-offs to know about before changing this:
+      #
+      #   * The alert resolves up to `window` after the last CrashLoopBackOff
+      #     observation, so it can stay firing briefly after a real fix.
+      #   * A pod deleted while crash looping keeps its alert open until its
+      #     last samples age out of `window`.
+      #   * `window` MUST be strictly shorter than `for`; the chart refuses to
+      #     render otherwise. At or above `for`, a single CrashLoopBackOff
+      #     observation is enough to carry the alert to `firing`, so a one-off
+      #     backoff pages.
+      #
+      # -- Lookback (`max_over_time`) that keeps this alert active across the
+      # brief Running phases of a crash loop. Must be strictly shorter than
+      # `for`.
+      window: 5m
       labels: {}
 
     # -- Pod has been in a non-ready state for more than a specific threshold

@@ -92,6 +92,45 @@ Events:
 
 The events will most likely tell you what is wrong, and how to fix it.
 
+## Alert Name: `KubePodCrashLooping`
+
+This alert indicates that a container in a pod has been observed in
+`CrashLoopBackOff` repeatedly, meaning it keeps exiting and being restarted
+instead of staying up. Common causes are a container that exits immediately
+(bad configuration, a missing dependency, a failing migration on startup) and a
+container that is repeatedly OOMKilled because its memory limit is too low for
+its workload.
+
+Follow the instructions in the
+(k8s repo wiki)[https://github.com/Nextdoor/k8s/wiki#remote-cluster-access] to
+log into the relevant cluster and namespace, then:
+
+1. `kubectl describe pod <podname>` - the container's `Last State` shows the
+   exit code and reason. `OOMKilled` points at the memory limit; a non-zero exit
+   code points at the application itself.
+2. `kubectl logs <podname> --previous` - the logs of the crashed container, which
+   usually name the actual failure.
+
+### About the lookback window
+
+`CrashLoopBackOff` is a *waiting* state, so a crash looping container alternates
+between `CrashLoopBackOff` and `Running` and its metric disappears every time
+the container restarts. The alert therefore evaluates that metric through a
+`max_over_time` lookback (the
+`containerRules.pods.PodCrashLoopBackOff.window` value, `5m` by default) so that
+it stays active across those brief `Running` phases instead of flapping.
+
+Two things follow from that, and both are expected behaviour rather than a bug:
+
+- **The pod may look healthy right now.** The alert says the container was in
+  `CrashLoopBackOff` at some point within the last `window`, not that it is in
+  `CrashLoopBackOff` at this instant. Check the container's restart count and
+  `Last State` rather than only its current state.
+- **Resolution lags.** After a genuine fix the alert stays firing for up to
+  `window` past the last `CrashLoopBackOff` observation. The same applies to a
+  pod that was deleted while crash looping: its alert can stay open until its
+  last samples age out of `window`.
+
 ## Alert Name: `KubePodNotReady`
 
 This alert indicates that a pod has has been in the pending or unknown state 
