@@ -152,6 +152,7 @@ This behavior can be tuned via the `defaults.podNameSelector`,
 | containerRules.jobs.KubeJobFailed.for | string | `"15m"` |  |
 | containerRules.jobs.KubeJobFailed.labels | object | `{}` |  |
 | containerRules.jobs.KubeJobFailed.severity | string | `"warning"` |  |
+| containerRules.jobs.KubeJobFailed.suppressWhenNewerRunSucceeded | `bool` | `false` | When enabled, a failed Job stops alerting as soon as a newer Job owned by the same CronJob succeeds. `kube_job_failed` is true for as long as the failed Job object is retained, so by default this alert keeps firing — and keeps re-notifying — until somebody deletes the Job, even when the workload already recovered on its next scheduled run. Turn this on for frequently-scheduled CronJobs that ride out transient upstream failures on their own; leave it off where every individual failure has to be acknowledged by a human. A CronJob that has never had a successful run, and a Job with no CronJob owner, keep alerting regardless of this setting. |
 | containerRules.jobs.enabled | bool | `true` | Enables the Job resource rules |
 | containerRules.pods.CPUThrottlingHigh | object | `{"for":"15m","labels":{},"severity":"warning","threshold":5}` | Container is being throttled by the CGroup - needs more resources. This value is appropriate for applications that are highly sensitive to request latency. Insensitive workloads might need to raise this percentage to avoid alert noise. |
 | containerRules.pods.ContainerWaiting.for | string | `"1h"` |  |

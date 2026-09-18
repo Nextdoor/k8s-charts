@@ -20,6 +20,40 @@ jobs:
       - name: Run helm-docs
         run: helm-docs && git diff --exit-code
 
+  promtool:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.12.2
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.9
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      # Runs `make promtool_test` for every chart that ships a `tests/`
+      # directory. Charts without one are skipped, so this is a no-op until a
+      # chart opts in by adding rule tests.
+      - name: Run promtool rule tests
+        run: |
+          set -euo pipefail
+          found=0
+          for dir in charts/*/tests; do
+            [ -d "$dir" ] || continue
+            found=1
+            make -C "$(dirname "$dir")" promtool_test
+          done
+          if [ "$found" = "0" ]; then
+            echo "No charts ship rule tests; nothing to do."
+          fi
+
   lint-and-test:
     runs-on: ubuntu-latest
     steps:

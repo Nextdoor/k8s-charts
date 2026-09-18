@@ -170,3 +170,12 @@ case) in the time period for any failure clues. The alert includes a pre-filled
 (Explore), so you can jump there directly from PagerDuty. You may also check your
 favorite logging tool (e.g., DataDog).
 3. Check the configuration of your job in the chart files of your repo.
+
+Note that `kube_job_failed` stays true for as long as the failed Job object is
+retained by the cluster. If the workload has already recovered on a later run,
+this alert keeps firing (and re-notifying) until the failed Job is deleted. For
+CronJobs that are expected to ride out transient upstream failures on their
+own, set `containerRules.jobs.KubeJobFailed.suppressWhenNewerRunSucceeded: true`
+and the alert clears itself as soon as a newer run of the same CronJob
+succeeds. A CronJob that has never had a successful run, and a Job with no
+CronJob owner, keep alerting either way.
