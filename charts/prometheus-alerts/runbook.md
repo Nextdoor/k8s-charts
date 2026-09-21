@@ -92,6 +92,79 @@ Events:
 
 The events will most likely tell you what is wrong, and how to fix it.
 
+## Alert Name: `KubeDeploymentLowAvailability`
+
+This alert indicates that a `Deployment` has been running with most of its
+replicas unavailable while the pods it owns were restarting repeatedly. Both
+halves of the expression have to hold at the same time:
+
+- fewer than `availableRatio` of the Deployment's desired replicas are
+  available, and
+- the pods it owns restarted more than `restartThreshold` times in
+  `restartWindow`, counted across every pod of that Deployment.
+
+### Scope
+
+This alert is opt-in: the chart ships with its values key commented out, so it
+only exists in namespaces where someone enabled it deliberately.
+
+Sustained, severe capacity loss in a single Deployment, reported as one alert
+for the whole workload. That is the gap it fills:
+
+- the per-pod crash-loop alert is keyed on the pod, so it produces a fresh alert
+  for every replacement pod and clears as soon as a pod is deleted - too
+  granular to act on for a Deployment with many replicas;
+- a generation or rollout-convergence alert only asks whether the rollout
+  converged, so it stays quiet while a converged Deployment runs on a fraction
+  of its replicas, and it needs a long `for` that makes it slow.
+
+It complements both rather than replacing either. Equally, it does **not** catch
+every failed rollout: a bad rollout that keeps enough replicas available never
+trips it, and neither does one whose pods fail without restarting (stuck
+`Pending`, image pull failures, admission rejections). If this alert is quiet,
+that is not evidence that a rollout succeeded.
+
+The restart half is also what separates a crash loop from ordinary scaling. A
+scale-up leaves a Deployment below the ratio for as long as the new pods take to
+become ready, but it does so with no restarts, so it does not trigger this
+alert.
+
+### Triage
+
+Expect per-pod `KubePodCrashLooping` alerts alongside this one. They tell you
+which pods are failing; this alert tells you the workload as a whole is not
+recovering.
+
+Log into the relevant cluster and namespace, then:
+
+1. `kubectl get deployment <name>` - compare the `READY` and `AVAILABLE`
+   columns against the desired replica count to confirm the shortfall is still
+   there.
+2. `kubectl get pods -l <selector>` - a high `RESTARTS` count across several
+   pods, or pods sitting in `CrashLoopBackOff`, confirms the loop.
+3. `kubectl describe pod <podname>` - the container's `Last State` shows the
+   exit code and reason. `OOMKilled` points at the memory limit; a non-zero exit
+   code points at the application itself.
+4. `kubectl logs <podname> --previous` - the logs of the crashed container,
+   which usually name the actual failure.
+5. `kubectl rollout history deployment/<name>` - if the crash loop started with
+   a rollout, `kubectl rollout undo` is usually the fastest mitigation.
+
+Two behaviours are worth knowing before you triage:
+
+- **The alert covers the Deployment, not a pod.** The pods named in the
+  accompanying per-pod alerts may already be gone. Work from the Deployment
+  down.
+- **A real recovery splits the episode.** If the workload recovers for longer
+  than one evaluation and then fails again, this alert resolves and fires again
+  as a second incident. The chart README describes an optional `max_over_time`
+  wrapper that bridges such gaps at the cost of a later resolve.
+
+This alert maps pods to their owning `Deployment` through the
+`namespace_workload_pod:kube_pod_owner:relabel_nd` recording rule. If the
+cluster's Prometheus does not provide that rule, the right-hand side of the
+expression is always empty and the alert can never fire.
+
 ## Alert Name: `KubePodCrashLooping`
 
 This alert indicates that a container in a pod has been observed in

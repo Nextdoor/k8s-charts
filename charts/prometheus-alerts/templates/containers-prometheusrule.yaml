@@ -303,6 +303,100 @@ spec:
         {{- end }}
     {{- end }}
 
+    {{- with .KubeDeploymentLowAvailability }}
+    - alert: KubeDeploymentLowAvailability
+      annotations:
+        summary: {{`Deployment {{ $labels.namespace }}/{{ $labels.deployment }} has low availability with repeated container restarts`}}
+        runbook_url: {{ $.Values.defaults.runbookUrl }}#alert-name-kubedeploymentlowavailability
+        description: >-
+          {{`Deployment {{ $labels.namespace }}/{{ $labels.deployment }} has had fewer than`}}
+          {{ mulf .availableRatio 100 }}% of its desired replicas available for
+          {{ .for }} while the pods it owns restarted more than
+          {{ .restartThreshold }} times in {{ .restartWindow }}. Pods are being
+          replaced but the workload is not regaining capacity; treat this as one
+          incident for the whole Deployment.
+      {{- /*
+        Opt-in: the values key for this alert ships commented out, so the rule is
+        only rendered where a consumer has deliberately enabled it.
+
+        Scope: sustained, severe capacity loss in a single Deployment - most of
+        the desired replicas are missing, and the pods that should be providing
+        them keep restarting. It is deliberately not a general rollout-failure
+        detector: a bad rollout that still keeps enough replicas available never
+        trips this rule.
+
+        It sits between the two alerts that already exist, rather than replacing
+        either of them:
+
+          - the per-pod crash-loop alert is keyed on the pod, so a Deployment
+            whose pods keep crashing produces a new alert identity every time a
+            pod is replaced, and each one clears as soon as that pod goes away.
+            Correct, but far too granular to describe one workload-wide incident
+            on a Deployment with many replicas.
+          - a generation/rollout-convergence alert only asks whether the rollout
+            converged. It stays quiet while a converged Deployment runs on a
+            fraction of its replicas, needs a long `for` to avoid flagging
+            healthy rollouts, and is noisy for workloads that are rescaled
+            continuously.
+
+        This rule is keyed on the Deployment, so one episode is one alert no
+        matter how many pods are cycled through, and it only fires when capacity
+        is actually lost.
+
+        Both halves of the expression are required. Low availability alone is
+        not evidence of failure: an autoscaler scale-up routinely leaves
+        available/spec low for tens of minutes while new pods start, with zero
+        restarts. Restarts alone are not either, because a workload with enough
+        healthy replicas is still serving.
+
+        Restarts are summed across every pod the Deployment owns, which is what
+        makes the rule survive pod replacement. The pod -> Deployment mapping
+        comes from the `namespace_workload_pod:kube_pod_owner:relabel_nd`
+        recording rule; if the cluster's Prometheus does not provide it, the
+        right-hand side is always empty and this alert never fires. See the
+        chart README.
+
+        `cluster` is deliberately absent from the `on()`/`by()` clauses: the
+        rule is evaluated by the Prometheus that owns the cluster, which adds
+        that label as an external label after evaluation.
+      */}}
+      expr: |-
+        (
+          kube_deployment_status_replicas_available{ {{- $deploymentSelector -}} }
+            /
+          kube_deployment_spec_replicas{ {{- $deploymentSelector -}} }
+        ) < {{ .availableRatio }}
+        and on (namespace, deployment)
+        label_replace(
+          sum by (namespace, owner_name) (
+            increase(
+              kube_pod_container_status_restarts_total{
+                job="kube-state-metrics",
+                {{ $podSelector }},
+                {{ $namespaceSelector }}
+              }[{{ .restartWindow }}]
+            )
+            * on (namespace, pod) group_left(owner_name)
+              max by (namespace, pod, owner_name) (
+                namespace_workload_pod:kube_pod_owner:relabel_nd{
+                  owner_kind="Deployment",
+                  {{ $namespaceSelector }}
+                }
+              )
+          ),
+          "deployment", "$1", "owner_name", "(.*)"
+        ) > {{ .restartThreshold }}
+      for: {{ .for }}
+      labels:
+        severity: {{ .severity }}
+        {{- with .labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with $.Values.defaults.additionalRuleLabels }}
+        {{ toYaml . | nindent 8 }}
+        {{- end }}
+    {{- end }}
+
     {{- with .DeploymentSelectorValidity -}}
     {{- if .enabled }}
     - alert: DeploymentSelectorValidity

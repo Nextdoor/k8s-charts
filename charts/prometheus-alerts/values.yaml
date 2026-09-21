@@ -184,6 +184,33 @@ containerRules:
       for: 15m
       labels: {}
 
+    # This alert is opt-in and ships disabled: the key below is commented out,
+    # and the rule is only rendered when it is present. Most consumers do not
+    # need it - see the `KubeDeploymentLowAvailability` section of the README for
+    # when it is worth enabling. To turn it on, uncomment the block; every key
+    # shown carries its recommended default, and any subset can be changed.
+    #
+    # The alert fires when a Deployment has had fewer than `availableRatio` of
+    # its desired replicas available for `for` while the pods it owns restarted
+    # more than `restartThreshold` times in `restartWindow`. Scope is
+    # deliberately narrow: sustained, severe capacity loss in one Deployment,
+    # reported as a single alert instead of one per pod. It is not a
+    # rollout-failure detector - a bad rollout that keeps enough replicas
+    # available never trips it - and it does not replace the per-pod crash-loop
+    # alert. Both halves are required: an autoscaler scale-up routinely leaves
+    # available/spec low for tens of minutes with zero restarts, so a
+    # ratio-only rule would page on normal scaling. Needs the
+    # `namespace_workload_pod:kube_pod_owner:relabel_nd` recording rule to map
+    # pods to their owning Deployment; without it the alert can never fire.
+    #
+    # KubeDeploymentLowAvailability:
+    #   severity: warning
+    #   for: 15m
+    #   availableRatio: 0.5
+    #   restartThreshold: 5
+    #   restartWindow: 15m
+    #   labels: {}
+
   statefulsets:
     # -- Enables the StatefulSet resource rules
     enabled: true

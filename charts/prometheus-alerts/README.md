@@ -2,7 +2,7 @@
 
 Helm Chart that provisions a series of common Prometheus Alerts
 
-![Version: 1.10.0](https://img.shields.io/badge/Version-1.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
+![Version: 1.10.1](https://img.shields.io/badge/Version-1.10.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.1](https://img.shields.io/badge/AppVersion-0.0.1-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -18,6 +18,100 @@ those changes in the `charts/simple-app`, `charts/daemonset-app` and
 `charts/stateful-app` charts.
 
 ## Upgrade Notes
+
+### 1.10.0 -> 1.10.1
+
+**NEW (opt-in): `KubeDeploymentLowAvailability`, a Deployment-level capacity
+alert.**
+
+Nothing changes for you on upgrade: the alert ships **disabled**. Its key is
+commented out in `values.yaml`, and the rule is only rendered when the key is
+present.
+
+When enabled it fires once for a Deployment when fewer than `availableRatio` of
+its desired replicas have been available for `for` **and** the pods it owns
+restarted more than `restartThreshold` times in `restartWindow`.
+
+#### What it is for
+
+Sustained, severe capacity loss in a single Deployment: most of the desired
+replicas are missing, and the pods that should be providing them keep
+restarting. It reports that as one alert for the Deployment, which is what the
+alerts that already exist cannot do:
+
+- **The per-pod crash-loop alert** is keyed on the pod. A Deployment whose pods
+  keep crashing produces a new alert identity for every replacement pod, and
+  each one clears as soon as its pod is deleted. Accurate per pod, and unusable
+  as a description of one workload-wide incident once a Deployment has more than
+  a handful of replicas.
+- **A generation or rollout-convergence alert** only asks whether the rollout
+  converged. It says nothing about a converged Deployment running on a fraction
+  of its replicas, it needs a long `for` so that healthy rollouts are not
+  flagged, and it is noisy for workloads that are rescaled continuously.
+
+This alert sits between the two and complements both: one alert per Deployment,
+raised only when capacity has actually been lost.
+
+#### What it is not
+
+- **Not a rollout-failure detector.** A bad rollout that keeps enough replicas
+  available never trips it, and neither does one whose pods fail without
+  restarting - stuck `Pending`, image pull failures, admission rejections. Keep
+  whatever rollout-progress alerting you have; this does not replace it.
+- **Not a replacement for the per-pod alert.** Expect `PodCrashLoopBackOff`
+  alongside it. That one names the failing pods; this one says the workload is
+  not recovering.
+- **Not something every chart consumer needs**, which is why it is off by
+  default. If your Deployments are small, or the per-pod alert already gives you
+  a volume of alerts you are happy with, leave it alone. It earns its place on
+  large, frequently rescaled Deployments, where per-pod alerts are too granular
+  to act on and a rollout-convergence alert is either too slow or too noisy.
+
+#### Enabling it
+
+Uncomment the block in `values.yaml`, or set it in your own values. The values
+below are the recommended defaults; any subset can be changed:
+
+```yaml
+containerRules:
+  deployments:
+    KubeDeploymentLowAvailability:
+      severity: warning
+      for: 15m
+      availableRatio: 0.5
+      restartThreshold: 5
+      restartWindow: 15m
+      labels: {}
+```
+
+Because the key is commented out by default it does not appear in the generated
+values table below; the block above is the reference. Removing the key again (or
+setting it to `null`) disables the alert.
+
+Things to know before you enable it:
+
+- **Both halves of the condition are deliberate.** Low availability on its own
+  is not evidence of failure: an autoscaler scale-up routinely leaves
+  available/spec below the ratio for tens of minutes with zero restarts.
+  Dropping the restart half would page on normal scaling.
+- **It needs the `namespace_workload_pod:kube_pod_owner:relabel_nd` recording
+  rule**, which maps a pod to its owning Deployment via the ReplicaSet and must
+  be provided by the Prometheus that evaluates these rules. Without it the
+  restart half of the expression is always empty and the alert silently never
+  fires, so do not enable it unless your Prometheus has that rule.
+- **Restarts are counted across every pod of the Deployment**, which is what
+  lets the alert survive pod replacement.
+- **A genuine recovery splits the episode.** If the Deployment recovers for
+  longer than one evaluation and then fails again, you get two alerts. Wrapping
+  the whole expression in `max_over_time((...)[30m:1m])` bridges gaps of up to
+  30 minutes and turns such an episode into one alert, at the cost of resolving
+  up to 30 minutes late. The rule ships without it; add it locally if the extra
+  grouping is worth the delayed resolve to you.
+- **`defaults.deploymentNameSelector: 'None'` disables this alert too.** The
+  selector helper only tests truthiness, so the literal string `None` renders as
+  `deployment=~"None"` and matches nothing. That is pre-existing behaviour for
+  every Deployment alert in this chart, and `DeploymentSelectorValidity` fires
+  when it happens.
 
 ### 1.9.x -> 1.10.x
 
