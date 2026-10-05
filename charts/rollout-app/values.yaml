@@ -943,6 +943,11 @@ priorityClassName: null
 # service mesh or not. If it is, certain defaults are applied to various Pod
 # and other resource configurations.
 istio:
+  # -- (`map`) Additional Istio ProxyConfig merged with holdApplicationUntilProxyStarts: true.
+  # User values take precedence, including an explicit false for that setting.
+  # Configure proxy.istio.io/config here rather than in podAnnotations.
+  proxyConfig: {}
+
   # -- (`bool`) Whether or not the service should be part of an Istio Service
   # Mesh. If this is turned on and `Values.monitor.enabled=true`, then the
   # Istio Sidecar containers will be configured to pull and merge the metrics

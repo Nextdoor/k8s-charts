@@ -12,7 +12,12 @@ Ensures that the application does not start up until after the Istio
 proxy container is ready to pass traffic. This prevents race
 conditions.
 */ -}}
+{{- with .Values.istio.proxyConfig }}
+{{- $proxyConfig := mergeOverwrite (dict "holdApplicationUntilProxyStarts" true) (deepCopy .) }}
+proxy.istio.io/config: {{ toJson $proxyConfig | quote }}
+{{- else }}
 proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+{{- end }}
 
 {{- /*
 Explicitly exclude our "metrics" port from being proxied by the Istio service,

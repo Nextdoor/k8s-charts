@@ -2,7 +2,7 @@
 
 Default StatefulSet Helm Chart
 
-![Version: 1.5.13](https://img.shields.io/badge/Version-1.5.13-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.5.14](https://img.shields.io/badge/Version-1.5.14-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [statefulsets]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -320,7 +320,7 @@ secretsEngine: sealed
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.5.7 |
+| file://../nd-common | nd-common | 0.5.8 |
 | https://k8s-charts.nextdoor.com | istio-alerts | 0.5.3 |
 
 ## Values
@@ -373,6 +373,7 @@ secretsEngine: sealed
 | istio.nativeSidecars.enabled | `bool|str` | `""` | Set to true if you want your app's proxy running as a Kubernetes native sidecar - in which case (1) PreStop commands should be updating initContainers of the Pod spec rather than containers, and (2) An appropriate annotation will be added to your Pod spec  We will default to 'true' when https://github.com/istio/istio/issues/48794 is flipped sometime in the future.  Set to an empty string "" or leave unset (nil) to omit the annotation. |
 | istio.nativeSidecars.keepCustomPreStopOverride | `bool` | `true` | Set to "false" if you want to use Istio's default drain rather than our own default behavior for preStop command to be applied to istio-proxy.  IMPORTANT NOTE: In a future iteration, we will remove this toggle and remove the custom default preStop altogether, but for now it may be needed/wanted due to https://github.com/istio/istio/issues/51855 |
 | istio.preStopCommand | `list <str>` | `nil` | If supplied, this is the command that will be passed into the `istio-proxy` sidecar container as a pre-stop function. This is used to delay the shutdown of the istio-proxy sidecar in some way or another. Our own default behavior is applied if this value is not set - which is that the sidecar will wait until it does not see the application container listening on any TCP ports, and then it will shut down.  eg: preStopCommand: [ /bin/sleep, "30" ] |
+| istio.proxyConfig | `map` | `{}` | Additional Istio ProxyConfig merged with holdApplicationUntilProxyStarts: true. User values take precedence, including an explicit false for that setting. Configure proxy.istio.io/config here rather than in podAnnotations. |
 | kmsSecretsRegion | String | `nil` | AWS region where the KMS key is located |
 | livenessProbe | string | `nil` | A PodSpec container "livenessProbe" configuration object. Note that this livenessProbe will be applied to the proxySidecar container instead if that is enabled. |
 | monitor.annotations | `map` | `{}` | ServiceMonitor annotations. |
