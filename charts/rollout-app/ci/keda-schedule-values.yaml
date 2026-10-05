@@ -1,0 +1,28 @@
+strategy: blueGreen
+
+ingress:
+  enabled: true
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  keda:
+    enabled: true
+    metricName: example
+    query: "sum:example.requests{*}.as_rate()"
+    targetValue: "1"
+    datadogNamespace: example-metrics
+    datadogMetricsService: example-metrics-server
+    includeCPU: true
+    maxAge: "120s"
+    metricUnavailableValue: 0
+    schedule:
+      timezone: UTC
+      start: "0 8 * * *"
+      end: "0 11 * * *"
+      desiredReplicas: 10
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http

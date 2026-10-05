@@ -602,12 +602,26 @@ autoscaling:
     # cooldownPeriod: 300
 
     # -- (`string`) Maximum age of the DatadogMetric value before it is
-    # considered stale. Defaults to "60s".
+    # considered stale. Defaults to "60s". In cluster-agent mode, use this
+    # freshness setting instead of the REST scaler's age (query lookback window).
     # maxAge: "60s"
 
     # -- (`bool`) If true, CPU utilization is also added as a trigger in the ScaledObject
     # alongside the Datadog metric.
     includeCPU: false
+
+    # -- (`number`) Optional metric value for the Datadog scaler when the cluster
+    # agent reports no data (HTTP 422). Null omits the setting; zero is supported.
+    # Requires KEDA 2.19 or newer in cluster-agent mode. Other errors still fail.
+    metricUnavailableValue: null
+
+    # -- (`map`) Optional cron trigger with timezone, start, end, and a positive
+    # integer desiredReplicas. Raises the replica floor during the time window.
+    # When deploymentZones is configured, desiredReplicas applies to EACH zone,
+    # including the original workload when the zone transition is enabled.
+    # Empty by default. Example: timezone: UTC, start: "0 8 * * *",
+    # end: "0 11 * * *", desiredReplicas: 10.
+    schedule: {}
 
 # -- (`string`) If set, this value will be used in the .spec.nodeSelector to
 # ensure that these pods specifically launch on the desired target Operating
