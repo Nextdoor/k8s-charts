@@ -71,14 +71,26 @@ Selector labels - two functions here:
 {{- define "nd-common.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "nd-common.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+{{- with .Values.extraSelectorLabels }}
+{{- if or (hasKey . "app.kubernetes.io/name") (hasKey . "app.kubernetes.io/instance") }}
+{{- fail "extraSelectorLabels must not override app.kubernetes.io/name or app.kubernetes.io/instance" }}
+{{- end }}
+{{ toYaml . }}
+{{- end }}
 {{- end }}
 {{- define "nd-common.selectorLabelsExpression" -}}
+{{- $labels := include "nd-common.selectorLabels" . | fromYaml }}
 - key: app.kubernetes.io/name
   operator: In
   values: [{{ include "nd-common.name" . }}]
 - key: app.kubernetes.io/instance
   operator: In
   values: [{{ .Release.Name }}]
+{{- range $key, $value := omit $labels "app.kubernetes.io/name" "app.kubernetes.io/instance" }}
+- key: {{ $key | quote }}
+  operator: In
+  values: [{{ $value | quote }}]
+{{- end }}
 {{- end }}
 
 {{/*

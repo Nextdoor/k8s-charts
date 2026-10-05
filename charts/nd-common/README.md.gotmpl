@@ -21,6 +21,10 @@ Helm charts - labels, selectorLabels, release name, etc.
 * `.Values.fullnameOverride`: Optional string used to completely rename the
   prefix for all of the chart resources. Using this will avoid any other values
   going into the chart resource names, giving you complete control.
+* `.Values.extraSelectorLabels`: Optional map of additional string labels included
+  in resource and pod labels and all selectors. Changing these on an existing
+  release changes immutable workload selectors. The built-in
+  `app.kubernetes.io/name` and `app.kubernetes.io/instance` keys cannot be overridden.
 * `.Values.podLabels`: List of labels to be applied to the Pods
 * `.Values.serviceAccount.create`
 * `.Values.serviceAccount.name`

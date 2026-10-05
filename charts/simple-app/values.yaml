@@ -158,6 +158,11 @@ ports:
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+
+# -- Additional string labels applied to resource and pod labels and selectors.
+# Changing these on an existing release changes immutable workload selectors.
+# Must not override app.kubernetes.io/name or app.kubernetes.io/instance.
+extraSelectorLabels: {}
 containerName: ""
 
 serviceAccount:

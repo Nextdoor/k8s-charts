@@ -1,0 +1,10 @@
+extraSelectorLabels:
+  app.kubernetes.io/component: api
+  example.com/group: "01"
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+enableTopologySpread: true

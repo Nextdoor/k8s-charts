@@ -2,7 +2,7 @@
 
 A helper chart used by most of our other charts
 
-![Version: 0.5.6](https://img.shields.io/badge/Version-0.5.6-informational?style=flat-square) ![Type: library](https://img.shields.io/badge/Type-library-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.5.7](https://img.shields.io/badge/Version-0.5.7-informational?style=flat-square) ![Type: library](https://img.shields.io/badge/Type-library-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 **This chart is a [Library Chart](https://helm.sh/docs/topics/library_charts/)** -
 this means that the chart itself deploys no resources, and has no `.yaml`
@@ -21,6 +21,10 @@ Helm charts - labels, selectorLabels, release name, etc.
 * `.Values.fullnameOverride`: Optional string used to completely rename the
   prefix for all of the chart resources. Using this will avoid any other values
   going into the chart resource names, giving you complete control.
+* `.Values.extraSelectorLabels`: Optional map of additional string labels included
+  in resource and pod labels and all selectors. Changing these on an existing
+  release changes immutable workload selectors. The built-in
+  `app.kubernetes.io/name` and `app.kubernetes.io/instance` keys cannot be overridden.
 * `.Values.podLabels`: List of labels to be applied to the Pods
 * `.Values.serviceAccount.create`
 * `.Values.serviceAccount.name`
