@@ -45,6 +45,9 @@ spec:
         datadogMetricName: {{ $fullName }}-{{ $.Values.autoscaling.keda.metricName }}
         datadogMetricNamespace: {{ $.Release.Namespace }}
         targetValue: {{ $.Values.autoscaling.keda.targetValue | quote }}
+        {{- if ne $.Values.autoscaling.keda.metricUnavailableValue nil }}
+        metricUnavailableValue: {{ $.Values.autoscaling.keda.metricUnavailableValue | quote }}
+        {{- end }}
       authenticationRef:
         name: {{ include "nd-common.fullname" $ }}-datadog-auth
     {{- if $.Values.autoscaling.keda.includeCPU }}
@@ -53,6 +56,21 @@ spec:
       metricType: Utilization
       metadata:
         value: "{{ . }}"
+    {{- end }}
+    {{- end }}
+
+    {{- with $.Values.autoscaling.keda.schedule }}
+    {{- if hasKey . "desiredReplicas" }}
+    {{- if not (regexMatch "^[1-9][0-9]*$" (toString .desiredReplicas)) }}
+    {{- fail "autoscaling.keda.schedule.desiredReplicas must be a positive integer" }}
+    {{- end }}
+    - type: cron
+      metricType: AverageValue
+      metadata:
+        timezone: {{ required "autoscaling.keda.schedule.timezone is required" .timezone | quote }}
+        start: {{ required "autoscaling.keda.schedule.start is required" .start | quote }}
+        end: {{ required "autoscaling.keda.schedule.end is required" .end | quote }}
+        desiredReplicas: {{ .desiredReplicas | quote }}
     {{- end }}
     {{- end }}
 
