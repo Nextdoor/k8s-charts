@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 1.14.2](https://img.shields.io/badge/Version-1.14.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.15.0](https://img.shields.io/badge/Version-1.15.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -402,7 +402,7 @@ secretsEngine: sealed
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.5.6 |
+| file://../nd-common | nd-common | 0.5.7 |
 | https://k8s-charts.nextdoor.com | istio-alerts | 0.5.3 |
 
 ## Values
@@ -450,6 +450,7 @@ secretsEngine: sealed
 | env | list | `[]` | Environment Variables for the primary container. These are all run through the tpl function (the key name and value), so you can dynamically name resources as you need. |
 | envFrom | list | `[]` | Pull all of the environment variables listed in a ConfigMap into the Pod. See https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables for more details. |
 | extraContainers | list | `[]` |  |
+| extraSelectorLabels | object | `{}` | Additional string labels applied to resource and pod labels and selectors. Changing these on an existing release changes immutable workload selectors. Must not override app.kubernetes.io/name or app.kubernetes.io/instance. |
 | fullnameOverride | string | `""` |  |
 | goldilocks | `map` | `{"enabled":null,"updateMode":null}` | Configuration for the goldilocks component. Those values are used to control the goldilocks VPA's, enable/disable them or setting their mode. |
 | goldilocks.enabled | `bool` | `nil` | Enable the goldilocks VPA |
