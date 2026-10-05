@@ -2,7 +2,7 @@
 
 A helper chart used by most of our other charts
 
-![Version: 0.5.7](https://img.shields.io/badge/Version-0.5.7-informational?style=flat-square) ![Type: library](https://img.shields.io/badge/Type-library-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 0.5.8](https://img.shields.io/badge/Version-0.5.8-informational?style=flat-square) ![Type: library](https://img.shields.io/badge/Type-library-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 **This chart is a [Library Chart](https://helm.sh/docs/topics/library_charts/)** -
 this means that the chart itself deploys no resources, and has no `.yaml`
@@ -295,6 +295,12 @@ spec:
 * `.Values.istio.enabled` (default: `True`): Controls whether or not the Istio
   functions are enabled or disabled. Also used in some other monitoring
   functions.
+
+* `.Values.istio.proxyConfig` (default: `{}`): Additional Istio ProxyConfig
+  merged into the `proxy.istio.io/config` annotation. User values take precedence
+  over `holdApplicationUntilProxyStarts: true`, including an explicit `false`.
+  Supply proxy configuration here instead of adding the annotation to
+  `.Values.podAnnotations`. The map is not evaluated as a Helm template.
 
 * `.Values.istio.excludeInboundPorts[]` (default: `[]`): If supplied, this is a
   list of TCP ports that are excluded from being proxied by the Istio-proxy

@@ -296,6 +296,12 @@ spec:
   functions are enabled or disabled. Also used in some other monitoring
   functions.
 
+* `.Values.istio.proxyConfig` (default: `{}`): Additional Istio ProxyConfig
+  merged into the `proxy.istio.io/config` annotation. User values take precedence
+  over `holdApplicationUntilProxyStarts: true`, including an explicit `false`.
+  Supply proxy configuration here instead of adding the annotation to
+  `.Values.podAnnotations`. The map is not evaluated as a Helm template.
+
 * `.Values.istio.excludeInboundPorts[]` (default: `[]`): If supplied, this is a
   list of TCP ports that are excluded from being proxied by the Istio-proxy
   Envoy sidecar process. _The `.Values.monitor.portNumber` is already included

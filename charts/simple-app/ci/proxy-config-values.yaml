@@ -1,0 +1,12 @@
+istio:
+  proxyConfig:
+    proxyStatsMatcher:
+      inclusionRegexps:
+        - ".*upstream_rq_total.*"
+    proxyMetadata:
+      EXAMPLE_SETTING: "enabled"
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
