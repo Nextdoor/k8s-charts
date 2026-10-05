@@ -1,5 +1,8 @@
 strategy: blueGreen
 
+ingress:
+  enabled: true
+
 autoscaling:
   enabled: true
   minReplicas: 2
