@@ -8,3 +8,4 @@ readinessProbe:
     port: http
 
 enableTopologySpread: true
+topologyKey: kubernetes.io/hostname
