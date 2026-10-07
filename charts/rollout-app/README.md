@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 1.9.0](https://img.shields.io/badge/Version-1.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.10.0](https://img.shields.io/badge/Version-1.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -17,6 +17,44 @@ Progressive Delivery Controller][argo_rollouts] for more information about
 how these work, and the various custom resource definitions.
 
 ## Upgrade Notes
+
+### 1.9.x -> 1.10.x
+
+**NEW: Optional DestinationRules for the chart's Services**
+
+Set `destinationRule.enabled=true` to render an Istio `DestinationRule` for each Service this
+chart creates (primary, `-canary`, `-preview`) with a shared `trafficPolicy` built from
+`connectionPool`, `outlierDetection`, `loadBalancer` and `tls`. When
+`virtualService.subsetRouting.enabled` is true and no explicit `subsets` are given, `stable`
+and `canary` subsets are generated on the primary rule and the Rollout's
+`trafficRouting.istio.destinationRule.name` defaults to it; Argo Rollouts manages the
+`rollouts-pod-template-hash` label on those subsets at runtime, so GitOps tooling may need
+to ignore that field. Istio only applies locality-aware routing (same-zone preference with
+failover) to an upstream once its rule carries `outlierDetection`.
+
+`destinationRule.zoneAwareLb.configure=true` additionally renders Istio 1.31's
+`zoneAwareLbSetting`, which keeps traffic in the client's zone in proportion to the upstream's
+capacity there and spills the remainder, so uneven pod spreads do not overload a zone. It
+requires the Istio 1.31 CRDs and client proxies with self-discovery enabled
+(`istio.proxyConfig.proxyMetadata.ISTIO_META_ENABLE_SELF_DISCOVERY: "true"` on the client
+chart). Recommended rollout: ship the rule with `zoneAwareLb.enabled=false` (istiod emits
+`routing_enabled: 0%`, no traffic change), roll self-discovery to the whole client fleet, then
+flip `enabled` to true. `localityLbSetting` and `zoneAwareLbSetting` are mutually exclusive;
+the chart fails to render if both are set.
+
+**NEW: `istio.locality.enabled` gives the sidecar its own locality**
+
+Istio 1.31 zone-aware load balancing is decided inside the *client* proxy, which needs its own
+locality (region/zone) to tell local upstream pods from remote ones. Istio only fills that from
+the pod labels `topology.istio.io/locality` / `istio-locality` (or cloud instance metadata), not
+from the Kubernetes `topology.kubernetes.io/*` pod labels, so a proxy without one of those labels
+silently never engages zone-aware routing. `istio.locality.enabled=true` renders an `istio-proxy`
+container override (`image: auto`, merged by the sidecar injector) with env entries that build the
+Istio label from the Kubernetes topology labels at container start. Enable it on workloads that
+call services carrying `zoneAwareLbSetting`; it changes nothing on its own. Requires sidecar mode
+and no `istio-proxy` entry in `extraContainers` (the chart fails to render otherwise), and a cluster
+with the Istio sidecar injector: without injection the override stays a real container with image
+`auto`, which cannot be pulled, so it is not exercised by the chart-testing install in CI.
 
 ### 1.6.x -> 1.7.x
 
@@ -326,6 +364,17 @@ secretsEngine: sealed
 | datadog.scrapeLogs.source | `string` | `nil` | If set, this configures the "source" tag. If this is not set, the tag defaults to the `.Release.Name` for the application. |
 | datadog.scrapeMetrics | `bool` | `false` | If true, then we will configure the Datadog agent to scrape metrics from the application pod via the values set in the .Values.monitor.* map. |
 | datadog.service | `string` | `nil` | If set, this configures the "service" tag. If this is not set, the tag defaults to the `.Release.Name` for the application. |
+| destinationRule.annotations | `map` | `{}` | Annotations added to the `DestinationRule` resource. |
+| destinationRule.connectionPool | `map` | `{}` | Passed through as `trafficPolicy.connectionPool`. See https://istio.io/latest/docs/reference/config/networking/destination-rule/#ConnectionPoolSettings |
+| destinationRule.enabled | `bool` | `false` | Create a `DestinationRule` for this chart's Service. Only rendered when `istio.enabled` is also true. |
+| destinationRule.loadBalancer | `map` | `{}` | Passed through as `trafficPolicy.loadBalancer`, for example `simple: LEAST_REQUEST` or a `localityLbSetting`. Must not contain `localityLbSetting` when `zoneAwareLb.configure` is true: Istio accepts only one of the two on a rule. See https://istio.io/latest/docs/reference/config/networking/destination-rule/#LoadBalancerSettings |
+| destinationRule.outlierDetection | `map` | `{}` | Passed through as `trafficPolicy.outlierDetection`. Required for Istio's priority-based locality failover; optional but recommended alongside zone-aware load balancing so unhealthy hosts are ejected. See https://istio.io/latest/docs/reference/config/networking/destination-rule/#OutlierDetection |
+| destinationRule.subsets | `list` | `[]` | Optional `subsets` passed through verbatim (`name`, `labels`, optional `trafficPolicy`). When empty and `virtualService.subsetRouting.enabled` is true, `stable` and `canary` subsets selecting this chart's pods are generated on the primary Service's rule (Argo Rollouts manages their `rollouts-pod-template-hash` label at runtime). See https://istio.io/latest/docs/reference/config/networking/destination-rule/#Subset |
+| destinationRule.tls | `map` | `{}` | Passed through as `trafficPolicy.tls`. See https://istio.io/latest/docs/reference/config/networking/destination-rule/#ClientTLSSettings |
+| destinationRule.zoneAwareLb.configure | `bool` | `false` | Render the `zoneAwareLbSetting` block at all. Requires the Istio 1.31 CRDs; older control planes reject the field. |
+| destinationRule.zoneAwareLb.enabled | `bool` | `false` | When false, istiod emits `routing_enabled: 0%` for the upstream, so traffic behaviour is unchanged. Ship the rule disabled, roll self-discovery to 100% of the client fleet, then flip this to true: the change applies on the next xDS push without pod restarts. |
+| destinationRule.zoneAwareLb.failover | `list` | `[]` | Optional cross-region failover pairs (`from`/`to` regions). Zone and region partitioning within a region is automatic. See https://istio.io/latest/docs/reference/config/networking/destination-rule/#LocalityLoadBalancerSetting-Failover |
+| destinationRule.zoneAwareLb.minClusterSize | `int` | `6` | Minimum number of upstream hosts in the proxy's region before zone-aware routing engages; below it Envoy falls back to plain load balancing. Keep replicas above this value. |
 | enableOnlyGRPCProbing | `bool` | `false` | If enableOnlyGRPCProbing is set to true, then within when generating the livenessProbe and readinessProbe fields within the Rollout spec, only the GRPC ports will be used, skipping the creation of the HTTP ports. |
 | enableTopologySpread | `bool` | `false` | If set to `true`, then a default `TopologySpreadConstraint` will be created that forces your pods to be evenly distributed across nodes based on the `topologyKey` setting. The maximum skew between the spread is controlled with `topologySkew`. |
 | env | list | `[]` | Environment Variables for the primary container. These are all run through the tpl function (the key name and value), so you can dynamically name resources as you need. |
@@ -352,6 +401,7 @@ secretsEngine: sealed
 | istio.excludeInboundPorts | `list` | `[]` | If supplied, this is a list of inbound TCP ports that are excluded from being proxied by the Istio-proxy Envoy sidecar process. The `.Values.monitor.portNumber` is already included by default. The port values can either be integers or templatized strings. |
 | istio.excludeOutboundPorts | `list` | `[]` | If supplied, this is a list of outbound TCP ports that are excluded from being proxied by the Istio-proxy Envoy sidecar process. The port values can either be integers or templatized strings. |
 | istio.labelsEnabled | `bool` | `true` | Adds sidecar injection labels (sidecar.istio.io/inject and istio.io/rev) to pods.  You can set to false if this is not needed (e.g., if the app namespace has Istio Ambient mode enabled with a label like istio.io/dataplane-mode: ambient)   Default: true (use sidecar mode) |
+| istio.locality.enabled | `bool` | `false` | Set to true on workloads that call services with `zoneAwareLbSetting`. Requires sidecar mode (`istio.enabled` and `istio.labelsEnabled` true), a cluster with the Istio sidecar injector (without it the override is created as a real container with image `auto`, which cannot be pulled), and no `istio-proxy` entry in `extraContainers`. |
 | istio.metricsMerging | `bool` | `false` | If set to "True", then the Istio Metrics Merging system will be turned on and Envoy will attempt to scrape metrics from the application pod and merge them with its own. This defaults to False beacuse in most environments we want to explicitly split up the metrics and collect Istio metrics separate from Application metrics. |
 | istio.nativeSidecars.enabled | `bool|str` | `""` | Set to true if you want your app's proxy running as a Kubernetes native sidecar - in which case (1) PreStop commands should be updating initContainers of the Pod spec rather than containers, and (2) An appropriate annotation will be added to your Pod spec  We will default to 'true' when https://github.com/istio/istio/issues/48794 is flipped sometime in the future.  Set to an empty string "" or leave unset (nil) to omit the annotation. |
 | istio.nativeSidecars.keepCustomPreStopOverride | `bool` | `true` | Set to "false" if you want to use Istio's default drain rather than our own default behavior for preStop command to be applied to istio-proxy.  IMPORTANT NOTE: In a future iteration, we will remove this toggle and remove the custom default preStop altogether, but for now it may be needed/wanted due to https://github.com/istio/istio/issues/51855 |

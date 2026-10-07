@@ -1,0 +1,31 @@
+# Exercises the optional DestinationRules with a canary Rollout that routes by
+# Istio subsets: the chart generates the stable/canary subsets on the primary
+# Service's rule and points the Rollout's trafficRouting at it. Zone-aware load
+# balancing is rendered enabled here to cover that branch of the template.
+strategy: canary
+canary:
+  maxUnavailable: 0
+
+virtualService:
+  enabled: true
+  subsetRouting:
+    enabled: true
+    subsets:
+      - name: stable
+        weight: 100
+      - name: canary
+        weight: 0
+
+destinationRule:
+  enabled: true
+  outlierDetection:
+    consecutive5xxErrors: 50
+    interval: 10s
+    baseEjectionTime: 30s
+    maxEjectionPercent: 20
+  loadBalancer:
+    simple: LEAST_REQUEST
+  zoneAwareLb:
+    configure: true
+    enabled: true
+    minClusterSize: 6

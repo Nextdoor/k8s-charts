@@ -17,6 +17,44 @@ how these work, and the various custom resource definitions.
 
 ## Upgrade Notes
 
+### 1.9.x -> 1.10.x
+
+**NEW: Optional DestinationRules for the chart's Services**
+
+Set `destinationRule.enabled=true` to render an Istio `DestinationRule` for each Service this
+chart creates (primary, `-canary`, `-preview`) with a shared `trafficPolicy` built from
+`connectionPool`, `outlierDetection`, `loadBalancer` and `tls`. When
+`virtualService.subsetRouting.enabled` is true and no explicit `subsets` are given, `stable`
+and `canary` subsets are generated on the primary rule and the Rollout's
+`trafficRouting.istio.destinationRule.name` defaults to it; Argo Rollouts manages the
+`rollouts-pod-template-hash` label on those subsets at runtime, so GitOps tooling may need
+to ignore that field. Istio only applies locality-aware routing (same-zone preference with
+failover) to an upstream once its rule carries `outlierDetection`.
+
+`destinationRule.zoneAwareLb.configure=true` additionally renders Istio 1.31's
+`zoneAwareLbSetting`, which keeps traffic in the client's zone in proportion to the upstream's
+capacity there and spills the remainder, so uneven pod spreads do not overload a zone. It
+requires the Istio 1.31 CRDs and client proxies with self-discovery enabled
+(`istio.proxyConfig.proxyMetadata.ISTIO_META_ENABLE_SELF_DISCOVERY: "true"` on the client
+chart). Recommended rollout: ship the rule with `zoneAwareLb.enabled=false` (istiod emits
+`routing_enabled: 0%`, no traffic change), roll self-discovery to the whole client fleet, then
+flip `enabled` to true. `localityLbSetting` and `zoneAwareLbSetting` are mutually exclusive;
+the chart fails to render if both are set.
+
+**NEW: `istio.locality.enabled` gives the sidecar its own locality**
+
+Istio 1.31 zone-aware load balancing is decided inside the *client* proxy, which needs its own
+locality (region/zone) to tell local upstream pods from remote ones. Istio only fills that from
+the pod labels `topology.istio.io/locality` / `istio-locality` (or cloud instance metadata), not
+from the Kubernetes `topology.kubernetes.io/*` pod labels, so a proxy without one of those labels
+silently never engages zone-aware routing. `istio.locality.enabled=true` renders an `istio-proxy`
+container override (`image: auto`, merged by the sidecar injector) with env entries that build the
+Istio label from the Kubernetes topology labels at container start. Enable it on workloads that
+call services carrying `zoneAwareLbSetting`; it changes nothing on its own. Requires sidecar mode
+and no `istio-proxy` entry in `extraContainers` (the chart fails to render otherwise), and a cluster
+with the Istio sidecar injector: without injection the override stays a real container with image
+`auto`, which cannot be pulled, so it is not exercised by the chart-testing install in CI.
+
 ### 1.6.x -> 1.7.x
 
 **NEW: KEDA-based autoscaling with Datadog metrics, allow setting Service SessionAffinity**

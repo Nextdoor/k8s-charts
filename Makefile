@@ -7,7 +7,7 @@ crds:
 	kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_prometheusrules.yaml \
 		-f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml \
 		-f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_podmonitors.yaml \
-		-f https://raw.githubusercontent.com/istio/istio/1.17.3/manifests/charts/base/crds/crd-all.gen.yaml \
+		-f https://raw.githubusercontent.com/istio/istio/1.31.0/manifests/charts/base/files/crd-all.gen.yaml \
 		-f https://github.com/jetstack/cert-manager/releases/download/v1.6.1/cert-manager.crds.yaml
 	kubectl apply --server-side \
 		-f https://raw.githubusercontent.com/kedacore/keda/v2.19.0/config/crd/bases/keda.sh_scaledobjects.yaml \
