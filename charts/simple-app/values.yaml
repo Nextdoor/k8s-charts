@@ -412,6 +412,77 @@ virtualService:
   # Otherwise, we fail to render the chart.
   fault: {}
 
+# An optional Istio DestinationRule for the Service created by this chart.
+#
+# Istio only applies locality-aware routing (same-zone preference with failover
+# to other zones) to an upstream when a DestinationRule for that host carries
+# `outlierDetection`. Istio 1.31 adds zone-aware load balancing, configured on
+# the same object through `trafficPolicy.loadBalancer.zoneAwareLbSetting`: the
+# client proxy keeps traffic in its own zone in proportion to the upstream's
+# capacity in that zone and spills the remainder to other zones, which avoids
+# overloading a zone when client and upstream pods are unevenly spread.
+#
+# Zone-aware load balancing also requires the *client* proxies to know their own
+# zone distribution (self-discovery). Clients deployed from this chart can opt
+# in with
+# `istio.proxyConfig.proxyMetadata.ISTIO_META_ENABLE_SELF_DISCOVERY: "true"`.
+destinationRule:
+  # -- (`bool`) Create a `DestinationRule` for this chart's Service. Only
+  # rendered when `istio.enabled` is also true.
+  enabled: false
+
+  # -- (`map`) Annotations added to the `DestinationRule` resource.
+  annotations: {}
+
+  # -- (`map`) Passed through as `trafficPolicy.connectionPool`. See
+  # https://istio.io/latest/docs/reference/config/networking/destination-rule/#ConnectionPoolSettings
+  connectionPool: {}
+
+  # -- (`map`) Passed through as `trafficPolicy.outlierDetection`. Required
+  # for Istio's priority-based locality failover; optional but recommended
+  # alongside zone-aware load balancing so unhealthy hosts are ejected. See
+  # https://istio.io/latest/docs/reference/config/networking/destination-rule/#OutlierDetection
+  outlierDetection: {}
+
+  # -- (`map`) Passed through as `trafficPolicy.loadBalancer`, for example
+  # `simple: LEAST_REQUEST` or a `localityLbSetting`. Must not contain
+  # `localityLbSetting` when `zoneAwareLb.configure` is true: Istio accepts
+  # only one of the two on a rule. See
+  # https://istio.io/latest/docs/reference/config/networking/destination-rule/#LoadBalancerSettings
+  loadBalancer: {}
+
+  # -- (`map`) Passed through as `trafficPolicy.tls`. See
+  # https://istio.io/latest/docs/reference/config/networking/destination-rule/#ClientTLSSettings
+  tls: {}
+
+  # Zone-aware load balancing (Istio 1.31 and newer). Rendered as
+  # `trafficPolicy.loadBalancer.zoneAwareLbSetting`.
+  zoneAwareLb:
+    # -- (`bool`) Render the `zoneAwareLbSetting` block at all. Requires the
+    # Istio 1.31 CRDs; older control planes reject the field.
+    configure: false
+
+    # -- (`bool`) When false, istiod emits `routing_enabled: 0%` for the
+    # upstream, so traffic behaviour is unchanged. Ship the rule disabled,
+    # roll self-discovery to 100% of the client fleet, then flip this to
+    # true: the change applies on the next xDS push without pod restarts.
+    enabled: false
+
+    # -- (`int`) Minimum number of upstream hosts in the proxy's region before
+    # zone-aware routing engages; below it Envoy falls back to plain load
+    # balancing. Keep replicas above this value.
+    minClusterSize: 6
+
+    # -- (`list`) Optional cross-region failover pairs (`from`/`to` regions).
+    # Zone and region partitioning within a region is automatic. See
+    # https://istio.io/latest/docs/reference/config/networking/destination-rule/#LocalityLoadBalancerSetting-Failover
+    failover: []
+
+  # -- (`list`) Optional `subsets` passed through verbatim (`name`, `labels`,
+  # optional `trafficPolicy`). See
+  # https://istio.io/latest/docs/reference/config/networking/destination-rule/#Subset
+  subsets: []
+
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little

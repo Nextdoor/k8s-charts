@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 1.9.0](https://img.shields.io/badge/Version-1.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.10.0](https://img.shields.io/badge/Version-1.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -17,6 +17,30 @@ Progressive Delivery Controller][argo_rollouts] for more information about
 how these work, and the various custom resource definitions.
 
 ## Upgrade Notes
+
+### 1.9.x -> 1.10.x
+
+**NEW: Optional DestinationRules for the chart's Services**
+
+Set `destinationRule.enabled=true` to render an Istio `DestinationRule` for each Service this
+chart creates (primary, `-canary`, `-preview`) with a shared `trafficPolicy` built from
+`connectionPool`, `outlierDetection`, `loadBalancer` and `tls`. When
+`virtualService.subsetRouting.enabled` is true and no explicit `subsets` are given, `stable`
+and `canary` subsets are generated on the primary rule and the Rollout's
+`trafficRouting.istio.destinationRule.name` defaults to it; Argo Rollouts manages the
+`rollouts-pod-template-hash` label on those subsets at runtime, so GitOps tooling may need
+to ignore that field. Istio only applies locality-aware routing (same-zone preference with
+failover) to an upstream once its rule carries `outlierDetection`.
+
+`destinationRule.zoneAwareLb.configure=true` additionally renders Istio 1.31's
+`zoneAwareLbSetting`, which keeps traffic in the client's zone in proportion to the upstream's
+capacity there and spills the remainder, so uneven pod spreads do not overload a zone. It
+requires the Istio 1.31 CRDs and client proxies with self-discovery enabled
+(`istio.proxyConfig.proxyMetadata.ISTIO_META_ENABLE_SELF_DISCOVERY: "true"` on the client
+chart). Recommended rollout: ship the rule with `zoneAwareLb.enabled=false` (istiod emits
+`routing_enabled: 0%`, no traffic change), roll self-discovery to the whole client fleet, then
+flip `enabled` to true. `localityLbSetting` and `zoneAwareLbSetting` are mutually exclusive;
+the chart fails to render if both are set.
 
 ### 1.6.x -> 1.7.x
 
@@ -326,6 +350,17 @@ secretsEngine: sealed
 | datadog.scrapeLogs.source | `string` | `nil` | If set, this configures the "source" tag. If this is not set, the tag defaults to the `.Release.Name` for the application. |
 | datadog.scrapeMetrics | `bool` | `false` | If true, then we will configure the Datadog agent to scrape metrics from the application pod via the values set in the .Values.monitor.* map. |
 | datadog.service | `string` | `nil` | If set, this configures the "service" tag. If this is not set, the tag defaults to the `.Release.Name` for the application. |
+| destinationRule.annotations | `map` | `{}` | Annotations added to the `DestinationRule` resource. |
+| destinationRule.connectionPool | `map` | `{}` | Passed through as `trafficPolicy.connectionPool`. See https://istio.io/latest/docs/reference/config/networking/destination-rule/#ConnectionPoolSettings |
+| destinationRule.enabled | `bool` | `false` | Create a `DestinationRule` for this chart's Service. Only rendered when `istio.enabled` is also true. |
+| destinationRule.loadBalancer | `map` | `{}` | Passed through as `trafficPolicy.loadBalancer`, for example `simple: LEAST_REQUEST` or a `localityLbSetting`. Must not contain `localityLbSetting` when `zoneAwareLb.configure` is true: Istio accepts only one of the two on a rule. See https://istio.io/latest/docs/reference/config/networking/destination-rule/#LoadBalancerSettings |
+| destinationRule.outlierDetection | `map` | `{}` | Passed through as `trafficPolicy.outlierDetection`. Required for Istio's priority-based locality failover; optional but recommended alongside zone-aware load balancing so unhealthy hosts are ejected. See https://istio.io/latest/docs/reference/config/networking/destination-rule/#OutlierDetection |
+| destinationRule.subsets | `list` | `[]` | Optional `subsets` passed through verbatim (`name`, `labels`, optional `trafficPolicy`). When empty and `virtualService.subsetRouting.enabled` is true, `stable` and `canary` subsets selecting this chart's pods are generated on the primary Service's rule (Argo Rollouts manages their `rollouts-pod-template-hash` label at runtime). See https://istio.io/latest/docs/reference/config/networking/destination-rule/#Subset |
+| destinationRule.tls | `map` | `{}` | Passed through as `trafficPolicy.tls`. See https://istio.io/latest/docs/reference/config/networking/destination-rule/#ClientTLSSettings |
+| destinationRule.zoneAwareLb.configure | `bool` | `false` | Render the `zoneAwareLbSetting` block at all. Requires the Istio 1.31 CRDs; older control planes reject the field. |
+| destinationRule.zoneAwareLb.enabled | `bool` | `false` | When false, istiod emits `routing_enabled: 0%` for the upstream, so traffic behaviour is unchanged. Ship the rule disabled, roll self-discovery to 100% of the client fleet, then flip this to true: the change applies on the next xDS push without pod restarts. |
+| destinationRule.zoneAwareLb.failover | `list` | `[]` | Optional cross-region failover pairs (`from`/`to` regions). Zone and region partitioning within a region is automatic. See https://istio.io/latest/docs/reference/config/networking/destination-rule/#LocalityLoadBalancerSetting-Failover |
+| destinationRule.zoneAwareLb.minClusterSize | `int` | `6` | Minimum number of upstream hosts in the proxy's region before zone-aware routing engages; below it Envoy falls back to plain load balancing. Keep replicas above this value. |
 | enableOnlyGRPCProbing | `bool` | `false` | If enableOnlyGRPCProbing is set to true, then within when generating the livenessProbe and readinessProbe fields within the Rollout spec, only the GRPC ports will be used, skipping the creation of the HTTP ports. |
 | enableTopologySpread | `bool` | `false` | If set to `true`, then a default `TopologySpreadConstraint` will be created that forces your pods to be evenly distributed across nodes based on the `topologyKey` setting. The maximum skew between the spread is controlled with `topologySkew`. |
 | env | list | `[]` | Environment Variables for the primary container. These are all run through the tpl function (the key name and value), so you can dynamically name resources as you need. |

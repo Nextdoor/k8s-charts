@@ -161,7 +161,7 @@ spec:
             {{- end }}
           {{- if $.Values.virtualService.subsetRouting.enabled }}
           destinationRule:
-            name: {{ $.Values.virtualService.subsetRouting.destinationRuleName }}
+            name: {{ $.Values.virtualService.subsetRouting.destinationRuleName | default (ternary (include "nd-common.fullname" $) "" $.Values.destinationRule.enabled) }}
             canarySubsetName: {{ default "canary" $.Values.virtualService.subsetRouting.canarySubsetName }}
             stableSubsetName: {{ default "stable" $.Values.virtualService.subsetRouting.stableSubsetName }}
           {{- end }}
