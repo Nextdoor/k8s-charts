@@ -1,0 +1,13 @@
+# Exercises istio.locality.enabled together with client self-discovery on a
+# canary Rollout: the typical configuration for a workload that calls a
+# zone-aware upstream.
+strategy: canary
+canary:
+  maxUnavailable: 0
+
+istio:
+  locality:
+    enabled: true
+  proxyConfig:
+    proxyMetadata:
+      ISTIO_META_ENABLE_SELF_DISCOVERY: "true"

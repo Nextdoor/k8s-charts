@@ -1054,6 +1054,22 @@ istio:
   # Default: true (use sidecar mode)
   labelsEnabled: true
 
+  # Give the istio-proxy sidecar its own locality (region/zone), which Istio
+  # 1.31 zone-aware load balancing needs on the *client* side. Istio only reads
+  # the pod labels `topology.istio.io/locality` / `istio-locality` for this (or
+  # cloud instance metadata), not the Kubernetes topology labels, so without
+  # this the proxy has no locality and zone-aware routing is silently inert.
+  # Implemented as an `istio-proxy` container override (`image: auto`) that the
+  # sidecar injector merges into the real sidecar, adding env entries that build
+  # the Istio label from the pod's `topology.kubernetes.io/{region,zone}`
+  # labels at container start. Harmless on its own: routing only changes where
+  # a DestinationRule asks for `zoneAwareLbSetting`.
+  locality:
+    # -- (`bool`) Set to true on workloads that call services with
+    # `zoneAwareLbSetting`. Requires sidecar mode (`istio.enabled` and
+    # `istio.labelsEnabled` true) and no `istio-proxy` entry in `extraContainers`.
+    enabled: false
+
   # -- (`list`) If supplied, this is a list of inbound TCP ports that are excluded
   # from being proxied by the Istio-proxy Envoy sidecar process. The
   # `.Values.monitor.portNumber` is already included by default.

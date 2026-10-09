@@ -12,6 +12,20 @@ defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
 
+### 1.17.x -> 1.18.x
+
+**NEW: `istio.locality.enabled` gives the sidecar its own locality**
+
+Istio 1.31 zone-aware load balancing is decided inside the *client* proxy, which needs its own
+locality (region/zone) to tell local upstream pods from remote ones. Istio only fills that from
+the pod labels `topology.istio.io/locality` / `istio-locality` (or cloud instance metadata), not
+from the Kubernetes `topology.kubernetes.io/*` pod labels, so a proxy without one of those labels
+silently never engages zone-aware routing. `istio.locality.enabled=true` renders an `istio-proxy`
+container override (`image: auto`, merged by the sidecar injector) with env entries that build the
+Istio label from the Kubernetes topology labels at container start. Enable it on workloads that
+call services carrying `zoneAwareLbSetting`; it changes nothing on its own. Requires sidecar mode
+and no `istio-proxy` entry in `extraContainers` (the chart fails to render otherwise).
+
 ### 1.16.x -> 1.17.x
 
 **NEW: Optional DestinationRule for the chart's Service**

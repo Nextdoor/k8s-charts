@@ -2,7 +2,7 @@
 
 Argo Rollout-based Application Helm Chart
 
-![Version: 1.10.0](https://img.shields.io/badge/Version-1.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.11.0](https://img.shields.io/badge/Version-1.11.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [analysistemplate]: https://argoproj.github.io/argo-rollouts/features/analysis/?query=AnalysisTemplate#background-analysis
 [argo_rollouts]: https://argoproj.github.io/argo-rollouts/
@@ -17,6 +17,20 @@ Progressive Delivery Controller][argo_rollouts] for more information about
 how these work, and the various custom resource definitions.
 
 ## Upgrade Notes
+
+### 1.10.x -> 1.11.x
+
+**NEW: `istio.locality.enabled` gives the sidecar its own locality**
+
+Istio 1.31 zone-aware load balancing is decided inside the *client* proxy, which needs its own
+locality (region/zone) to tell local upstream pods from remote ones. Istio only fills that from
+the pod labels `topology.istio.io/locality` / `istio-locality` (or cloud instance metadata), not
+from the Kubernetes `topology.kubernetes.io/*` pod labels, so a proxy without one of those labels
+silently never engages zone-aware routing. `istio.locality.enabled=true` renders an `istio-proxy`
+container override (`image: auto`, merged by the sidecar injector) with env entries that build the
+Istio label from the Kubernetes topology labels at container start. Enable it on workloads that
+call services carrying `zoneAwareLbSetting`; it changes nothing on its own. Requires sidecar mode
+and no `istio-proxy` entry in `extraContainers` (the chart fails to render otherwise).
 
 ### 1.9.x -> 1.10.x
 
@@ -387,6 +401,7 @@ secretsEngine: sealed
 | istio.excludeInboundPorts | `list` | `[]` | If supplied, this is a list of inbound TCP ports that are excluded from being proxied by the Istio-proxy Envoy sidecar process. The `.Values.monitor.portNumber` is already included by default. The port values can either be integers or templatized strings. |
 | istio.excludeOutboundPorts | `list` | `[]` | If supplied, this is a list of outbound TCP ports that are excluded from being proxied by the Istio-proxy Envoy sidecar process. The port values can either be integers or templatized strings. |
 | istio.labelsEnabled | `bool` | `true` | Adds sidecar injection labels (sidecar.istio.io/inject and istio.io/rev) to pods.  You can set to false if this is not needed (e.g., if the app namespace has Istio Ambient mode enabled with a label like istio.io/dataplane-mode: ambient)   Default: true (use sidecar mode) |
+| istio.locality.enabled | `bool` | `false` | Set to true on workloads that call services with `zoneAwareLbSetting`. Requires sidecar mode (`istio.enabled` and `istio.labelsEnabled` true) and no `istio-proxy` entry in `extraContainers`. |
 | istio.metricsMerging | `bool` | `false` | If set to "True", then the Istio Metrics Merging system will be turned on and Envoy will attempt to scrape metrics from the application pod and merge them with its own. This defaults to False beacuse in most environments we want to explicitly split up the metrics and collect Istio metrics separate from Application metrics. |
 | istio.nativeSidecars.enabled | `bool|str` | `""` | Set to true if you want your app's proxy running as a Kubernetes native sidecar - in which case (1) PreStop commands should be updating initContainers of the Pod spec rather than containers, and (2) An appropriate annotation will be added to your Pod spec  We will default to 'true' when https://github.com/istio/istio/issues/48794 is flipped sometime in the future.  Set to an empty string "" or leave unset (nil) to omit the annotation. |
 | istio.nativeSidecars.keepCustomPreStopOverride | `bool` | `true` | Set to "false" if you want to use Istio's default drain rather than our own default behavior for preStop command to be applied to istio-proxy.  IMPORTANT NOTE: In a future iteration, we will remove this toggle and remove the custom default preStop altogether, but for now it may be needed/wanted due to https://github.com/istio/istio/issues/51855 |

@@ -295,6 +295,9 @@ spec:
         - {{- tpl (toString (toYaml $extraContainer)) $ | nindent 10 }}
         {{- end }}
         {{- end }}
+        {{- with include "rollout-app.istioLocalityContainer" $ }}
+        {{- . | nindent 8 }}
+        {{- end }}
         {{- if $.Values.proxySidecar.enabled }}
         - name: {{ $.Values.proxySidecar.name }}
           image: {{ include "rollout-app.proxyImageFqdn" $ }}
