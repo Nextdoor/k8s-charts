@@ -1,0 +1,27 @@
+# Exercises the optional DestinationRule: connection pool, outlier detection and
+# zone-aware load balancing rendered in its disabled (routing 0%) state, which is
+# how a rule is expected to ship before client proxies have self-discovery.
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+replicaCount: 2
+minReadySeconds: 2
+progressDeadlineSeconds: 90
+terminationGracePeriodSeconds: 5
+
+destinationRule:
+  enabled: true
+  connectionPool:
+    http:
+      http1MaxPendingRequests: 1024
+  outlierDetection:
+    consecutive5xxErrors: 50
+    interval: 10s
+    baseEjectionTime: 30s
+    maxEjectionPercent: 20
+  zoneAwareLb:
+    configure: true
+    enabled: false
+    minClusterSize: 6

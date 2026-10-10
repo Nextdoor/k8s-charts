@@ -593,6 +593,13 @@ virtualService:
     # This is usually preferred when using Rollouts in canary mode and multiple Rollout
     # objects exist (like per-zone) because we need stable and canary pods to be served
     # by the same Kubernetes service.
+    #
+    # When enabled (and no ALB ingress is configured), the Rollout does not set
+    # `stableService`/`canaryService` and no `-canary` Service is created: the single
+    # Service must keep selecting both stable and canary pods, since traffic is split
+    # by DestinationRule subset. Argo Rollouts manages the `rollouts-pod-template-hash`
+    # label on the subsets at runtime, so GitOps tooling should ignore differences on
+    # the DestinationRule's `spec.subsets`.
     enabled: false
 
     # -- (`list`) Sets each subset name and weight with otherwise the same properties of
@@ -637,6 +644,82 @@ virtualService:
   #
   # Otherwise, we fail to render the chart.
   fault: {}
+
+# Optional Istio DestinationRules for the Services created by this chart: one
+# rule per Service (primary, `-canary` for the canary strategy without
+# rolloutZones, `-preview` for blueGreen), all with the same trafficPolicy.
+#
+# Istio only applies locality-aware routing (same-zone preference with failover
+# to other zones) to an upstream when a DestinationRule for that host carries
+# `outlierDetection`. Istio 1.31 adds zone-aware load balancing, configured on
+# the same object through `trafficPolicy.loadBalancer.zoneAwareLbSetting`: the
+# client proxy keeps traffic in its own zone in proportion to the upstream's
+# capacity in that zone and spills the remainder to other zones, which avoids
+# overloading a zone when client and upstream pods are unevenly spread.
+#
+# Zone-aware load balancing also requires the *client* proxies to know their own
+# zone distribution (self-discovery). Clients deployed from this chart can opt
+# in with
+# `istio.proxyConfig.proxyMetadata.ISTIO_META_ENABLE_SELF_DISCOVERY: "true"`.
+destinationRule:
+  # -- (`bool`) Create a `DestinationRule` for this chart's Service. Only
+  # rendered when `istio.enabled` is also true.
+  enabled: false
+
+  # -- (`map`) Annotations added to the `DestinationRule` resource.
+  annotations: {}
+
+  # -- (`map`) Passed through as `trafficPolicy.connectionPool`. See
+  # https://istio.io/latest/docs/reference/config/networking/destination-rule/#ConnectionPoolSettings
+  connectionPool: {}
+
+  # -- (`map`) Passed through as `trafficPolicy.outlierDetection`. Required
+  # for Istio's priority-based locality failover; optional but recommended
+  # alongside zone-aware load balancing so unhealthy hosts are ejected. See
+  # https://istio.io/latest/docs/reference/config/networking/destination-rule/#OutlierDetection
+  outlierDetection: {}
+
+  # -- (`map`) Passed through as `trafficPolicy.loadBalancer`, for example
+  # `simple: LEAST_REQUEST` or a `localityLbSetting`. Must not contain
+  # `localityLbSetting` when `zoneAwareLb.configure` is true: Istio accepts
+  # only one of the two on a rule. See
+  # https://istio.io/latest/docs/reference/config/networking/destination-rule/#LoadBalancerSettings
+  loadBalancer: {}
+
+  # -- (`map`) Passed through as `trafficPolicy.tls`. See
+  # https://istio.io/latest/docs/reference/config/networking/destination-rule/#ClientTLSSettings
+  tls: {}
+
+  # Zone-aware load balancing (Istio 1.31 and newer). Rendered as
+  # `trafficPolicy.loadBalancer.zoneAwareLbSetting`.
+  zoneAwareLb:
+    # -- (`bool`) Render the `zoneAwareLbSetting` block at all. Requires the
+    # Istio 1.31 CRDs; older control planes reject the field.
+    configure: false
+
+    # -- (`bool`) When false, istiod emits `routing_enabled: 0%` for the
+    # upstream, so traffic behaviour is unchanged. Ship the rule disabled,
+    # roll self-discovery to 100% of the client fleet, then flip this to
+    # true: the change applies on the next xDS push without pod restarts.
+    enabled: false
+
+    # -- (`int`) Minimum number of upstream hosts in the proxy's region before
+    # zone-aware routing engages; below it Envoy falls back to plain load
+    # balancing. Keep replicas above this value.
+    minClusterSize: 6
+
+    # -- (`list`) Optional cross-region failover pairs (`from`/`to` regions).
+    # Zone and region partitioning within a region is automatic. See
+    # https://istio.io/latest/docs/reference/config/networking/destination-rule/#LocalityLoadBalancerSetting-Failover
+    failover: []
+
+  # -- (`list`) Optional `subsets` passed through verbatim (`name`, `labels`,
+  # optional `trafficPolicy`). When empty and `virtualService.subsetRouting.enabled`
+  # is true, `stable` and `canary` subsets selecting this chart's pods are
+  # generated on the primary Service's rule (Argo Rollouts manages their
+  # `rollouts-pod-template-hash` label at runtime). See
+  # https://istio.io/latest/docs/reference/config/networking/destination-rule/#Subset
+  subsets: []
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -977,6 +1060,25 @@ istio:
   #
   # Default: true (use sidecar mode)
   labelsEnabled: true
+
+  # Give the istio-proxy sidecar its own locality (region/zone), which Istio
+  # 1.31 zone-aware load balancing needs on the *client* side. Istio only reads
+  # the pod labels `topology.istio.io/locality` / `istio-locality` for this (or
+  # cloud instance metadata), not the Kubernetes topology labels, so without
+  # this the proxy has no locality and zone-aware routing is silently inert.
+  # Implemented as an `istio-proxy` container override (`image: auto`) that the
+  # sidecar injector merges into the real sidecar, adding env entries that build
+  # the Istio label from the pod's `topology.kubernetes.io/{region,zone}`
+  # labels at container start. Harmless on its own: routing only changes where
+  # a DestinationRule asks for `zoneAwareLbSetting`.
+  locality:
+    # -- (`bool`) Set to true on workloads that call services with
+    # `zoneAwareLbSetting`. Requires sidecar mode (`istio.enabled` and
+    # `istio.labelsEnabled` true), a cluster with the Istio sidecar injector
+    # (without it the override is created as a real container with image
+    # `auto`, which cannot be pulled), and no `istio-proxy` entry in
+    # `extraContainers`.
+    enabled: false
 
   # -- (`list`) If supplied, this is a list of inbound TCP ports that are excluded
   # from being proxied by the Istio-proxy Envoy sidecar process. The

@@ -29,7 +29,7 @@ and canary service.
 To avoid confusion, don't create when you have multiple Rollouts (1 per AZ) as
 multiple rollouts cannot control one Service.
 */}}
-{{- if and (eq .Values.strategy "canary") (eq (len .Values.rolloutZones) 0) }}
+{{- if and (eq .Values.strategy "canary") (eq (len .Values.rolloutZones) 0) (or (not .Values.virtualService.subsetRouting.enabled) .Values.ingress.enabled) }}
 apiVersion: v1
 kind: Service
 metadata:
