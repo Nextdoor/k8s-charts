@@ -593,6 +593,13 @@ virtualService:
     # This is usually preferred when using Rollouts in canary mode and multiple Rollout
     # objects exist (like per-zone) because we need stable and canary pods to be served
     # by the same Kubernetes service.
+    #
+    # When enabled (and no ALB ingress is configured), the Rollout does not set
+    # `stableService`/`canaryService` and no `-canary` Service is created: the single
+    # Service must keep selecting both stable and canary pods, since traffic is split
+    # by DestinationRule subset. Argo Rollouts manages the `rollouts-pod-template-hash`
+    # label on the subsets at runtime, so GitOps tooling should ignore differences on
+    # the DestinationRule's `spec.subsets`.
     enabled: false
 
     # -- (`list`) Sets each subset name and weight with otherwise the same properties of

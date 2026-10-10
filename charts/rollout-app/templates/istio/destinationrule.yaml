@@ -1,55 +1,27 @@
 {{- /*
-Optional DestinationRule(s) for the Service(s) created by this chart.
-
-Istio only applies locality-aware routing to an upstream when a DestinationRule for
-that host carries `outlierDetection`, and Istio 1.31's zone-aware load balancing is
-configured through `trafficPolicy.loadBalancer.zoneAwareLbSetting` on the same
-object. Rendering the rule from the chart lets a service opt in with values only.
+DestinationRules for the Service(s) created by this chart, rendered by
+nd-common.destinationRuleFor (see charts/nd-common/templates/_destinationrule.tpl).
 
 One rule is rendered per Service this chart creates, with the same trafficPolicy:
-the primary Service, the `-canary` Service (canary strategy without rolloutZones)
-and the `-preview` Service (blueGreen strategy). Subsets are only attached to the
-primary Service's rule. When `virtualService.subsetRouting.enabled` is set and no
-explicit `destinationRule.subsets` are given, stable and canary subsets selecting
-this chart's pods are generated; Argo Rollouts then manages the
+the primary Service, the `-canary` Service (canary strategy without rolloutZones,
+host-level routing only) and the `-preview` Service (blueGreen strategy). Subsets
+are only attached to the primary Service's rule. When
+`virtualService.subsetRouting.enabled` is set and no explicit
+`destinationRule.subsets` are given, stable and canary subsets selecting this
+chart's pods are generated; Argo Rollouts then manages the
 `rollouts-pod-template-hash` label on each subset at runtime.
-
-Notes:
-  - `zoneAwareLbSetting` and `localityLbSetting` are mutually exclusive in Istio
-    (istiod rejects a rule that carries both), so rendering fails early when both
-    are configured.
-  - `zoneAwareLbSetting.enabled: false` makes istiod emit `routing_enabled: 0%`,
-    which leaves traffic behaviour unchanged. The rule can therefore ship before
-    client proxies have self-discovery, and the later flip to `true` is a single
-    values change that takes effect on the next xDS push, without pod restarts.
 */}}
 {{- if and .Values.istio.enabled .Values.destinationRule.enabled }}
-{{- $dr := .Values.destinationRule }}
-{{- $lb := deepCopy (default (dict) $dr.loadBalancer) }}
-{{- if $dr.zoneAwareLb.configure }}
-{{- if hasKey $lb "localityLbSetting" }}
-{{- fail "destinationRule.loadBalancer.localityLbSetting cannot be combined with destinationRule.zoneAwareLb.configure=true: Istio accepts only one of localityLbSetting and zoneAwareLbSetting on a DestinationRule" }}
-{{- end }}
-{{- $za := dict "enabled" $dr.zoneAwareLb.enabled }}
-{{- with $dr.zoneAwareLb.minClusterSize }}
-{{- $_ := set $za "minClusterSize" . }}
-{{- end }}
-{{- with $dr.zoneAwareLb.failover }}
-{{- $_ := set $za "failover" . }}
-{{- end }}
-{{- $_ := set $lb "zoneAwareLbSetting" $za }}
-{{- end }}
-{{- $hasPolicy := or $dr.connectionPool $dr.outlierDetection $lb $dr.tls }}
 {{- $fullname := include "nd-common.fullname" . }}
 {{- $serviceName := include "nd-common.serviceName" . }}
 {{- $targets := list (dict "name" $fullname "host" $serviceName) }}
-{{- if and (eq .Values.strategy "canary") (eq (len .Values.rolloutZones) 0) }}
+{{- if and (eq .Values.strategy "canary") (eq (len .Values.rolloutZones) 0) (or (not .Values.virtualService.subsetRouting.enabled) .Values.ingress.enabled) }}
 {{- $targets = append $targets (dict "name" (printf "%s-canary" $fullname) "host" (printf "%s-canary" $serviceName)) }}
 {{- end }}
 {{- if eq .Values.strategy "blueGreen" }}
 {{- $targets = append $targets (dict "name" (printf "%s-preview" $fullname) "host" (printf "%s-preview" $serviceName)) }}
 {{- end }}
-{{- $subsets := $dr.subsets }}
+{{- $subsets := .Values.destinationRule.subsets }}
 {{- if and (not $subsets) .Values.virtualService.enabled .Values.virtualService.subsetRouting.enabled }}
 {{- $selector := include "nd-common.selectorLabels" . | fromYaml }}
 {{- $subsets = list
@@ -57,41 +29,8 @@ Notes:
       (dict "name" (default "canary" .Values.virtualService.subsetRouting.canarySubsetName) "labels" $selector) }}
 {{- end }}
 {{- range $target := $targets }}
----
-apiVersion: networking.istio.io/v1
-kind: DestinationRule
-metadata:
-  name: {{ $target.name }}
-  labels:
-    {{- include "rollout-app.labels" $ | nindent 4 }}
-  {{- with $dr.annotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-spec:
-  host: {{ $target.host }}.{{ $.Release.Namespace }}.svc.cluster.local
-  {{- if $hasPolicy }}
-  trafficPolicy:
-    {{- with $dr.connectionPool }}
-    connectionPool:
-      {{- toYaml . | nindent 6 }}
-    {{- end }}
-    {{- with $dr.outlierDetection }}
-    outlierDetection:
-      {{- toYaml . | nindent 6 }}
-    {{- end }}
-    {{- with $lb }}
-    loadBalancer:
-      {{- toYaml . | nindent 6 }}
-    {{- end }}
-    {{- with $dr.tls }}
-    tls:
-      {{- toYaml . | nindent 6 }}
-    {{- end }}
-  {{- end }}
-  {{- if and $subsets (eq $target.name $fullname) }}
-  subsets:
-    {{- toYaml $subsets | nindent 4 }}
-  {{- end }}
+{{- $s := list }}
+{{- if eq $target.name $fullname }}{{ $s = $subsets }}{{ end }}
+{{- include "nd-common.destinationRuleFor" (dict "root" $ "name" $target.name "host" $target.host "subsets" $s) }}
 {{- end }}
 {{- end }}

@@ -29,8 +29,13 @@ chart creates (primary, `-canary`, `-preview`) with a shared `trafficPolicy` bui
 and `canary` subsets are generated on the primary rule and the Rollout's
 `trafficRouting.istio.destinationRule.name` defaults to it; Argo Rollouts manages the
 `rollouts-pod-template-hash` label on those subsets at runtime, so GitOps tooling may need
-to ignore that field. Istio only applies locality-aware routing (same-zone preference with
-failover) to an upstream once its rule carries `outlierDetection`.
+to ignore that field. With subset routing (and no ALB ingress) the Rollout no longer sets
+`stableService`/`canaryService` and the `-canary` Service is not created: the single Service has to
+keep selecting both stable and canary pods, because otherwise Argo Rollouts pins the Service to the
+stable ReplicaSet and the canary subset has no endpoints. Consumers already using `subsetRouting`
+get this behaviour on upgrade; re-applying the Service drops the stale hash selector. Istio only
+applies locality-aware routing (same-zone preference with failover) to an upstream once its rule
+carries `outlierDetection`.
 
 `destinationRule.zoneAwareLb.configure=true` additionally renders Istio 1.31's
 `zoneAwareLbSetting`, which keeps traffic in the client's zone in proportion to the upstream's
@@ -301,7 +306,7 @@ secretsEngine: sealed
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.5.8 |
+| file://../nd-common | nd-common | 0.5.9 |
 | https://k8s-charts.nextdoor.com | istio-alerts | 0.5.3 |
 
 ## Values
@@ -503,7 +508,7 @@ secretsEngine: sealed
 | virtualService.subsetRouting | object | `{"canarySubsetName":null,"destinationRuleName":null,"enabled":false,"stableSubsetName":null,"subsets":[]}` | Since multiple Rollout objects cannot referece the same stableService or canaryService, approaches like Istio subset routing (based on pod labels) to direct traffic to appropriate version can be used to utilize the same Kubernetes service |
 | virtualService.subsetRouting.canarySubsetName | `string` | `nil` | The Rollout object's Istio traffic routing destination route's canary subset identifier (set here to avoid any subset positional assumptions) |
 | virtualService.subsetRouting.destinationRuleName | `string` | `nil` | The DestinationRule containing the canary and stable subsets referenced in the Rollout |
-| virtualService.subsetRouting.enabled | `bool` | `false` | Sets the VirtualService destination route with a subset identifier. This can then be referenced in a corresponding DestinationRule.  This is usually preferred when using Rollouts in canary mode and multiple Rollout objects exist (like per-zone) because we need stable and canary pods to be served by the same Kubernetes service. |
+| virtualService.subsetRouting.enabled | `bool` | `false` | Sets the VirtualService destination route with a subset identifier. This can then be referenced in a corresponding DestinationRule.  This is usually preferred when using Rollouts in canary mode and multiple Rollout objects exist (like per-zone) because we need stable and canary pods to be served by the same Kubernetes service.  When enabled (and no ALB ingress is configured), the Rollout does not set `stableService`/`canaryService` and no `-canary` Service is created: the single Service must keep selecting both stable and canary pods, since traffic is split by DestinationRule subset. Argo Rollouts manages the `rollouts-pod-template-hash` label on the subsets at runtime, so GitOps tooling should ignore differences on the DestinationRule's `spec.subsets`. |
 | virtualService.subsetRouting.stableSubsetName | `string` | `nil` | The Rollout object's Istio traffic routing destination route's stable subset identifier (set here to avoid any subset positional assumptions) |
 | virtualService.subsetRouting.subsets | `list` | `[]` | Sets each subset name and weight with otherwise the same properties of the destination route.  The subset name can then be referenced in a corresponding DesitinationRule  The templates will fail to render and let users know why if subsetRouting is enabled but subsets list is empty |
 | virtualService.tls | string | `""` |  |

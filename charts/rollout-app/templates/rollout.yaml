@@ -146,8 +146,17 @@ spec:
       version
       */}}
       {{- if and (eq $rolloutZone "default") (or $.Values.virtualService.enabled $.Values.ingress.enabled) }}
+      {{- /*
+      With Istio subset routing the single Service must keep selecting both stable and canary
+      pods: Argo Rollouts splits traffic by DestinationRule subset, not by Service. If
+      stableService is set, the controller rewrites that Service's selector to the stable
+      ReplicaSet hash and the canary subset ends up with no endpoints. Only the ALB ingress
+      path still needs the two Services.
+      */}}
+      {{- if or (not $.Values.virtualService.subsetRouting.enabled) $.Values.ingress.enabled }}
       stableService: {{ include "nd-common.serviceName" $ }}
       canaryService: {{ include "nd-common.serviceName" $ }}-canary
+      {{- end }}
       trafficRouting:
         {{- if $.Values.virtualService.enabled }}
         istio:
@@ -295,7 +304,7 @@ spec:
         - {{- tpl (toString (toYaml $extraContainer)) $ | nindent 10 }}
         {{- end }}
         {{- end }}
-        {{- with include "rollout-app.istioLocalityContainer" $ }}
+        {{- with include "nd-common.istioLocalityContainer" $ }}
         {{- . | nindent 8 }}
         {{- end }}
         {{- if $.Values.proxySidecar.enabled }}

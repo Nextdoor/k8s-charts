@@ -163,7 +163,7 @@ spec:
         - {{- tpl (toString (toYaml $extraContainer)) $ | nindent 10 }}
         {{- end }}
         {{- end }}
-        {{- with include "simple-app.istioLocalityContainer" $ }}
+        {{- with include "nd-common.istioLocalityContainer" $ }}
         {{- . | nindent 8 }}
         {{- end }}
         {{- if $.Values.proxySidecar.enabled }}

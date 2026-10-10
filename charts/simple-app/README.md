@@ -435,7 +435,7 @@ secretsEngine: sealed
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../nd-common | nd-common | 0.5.8 |
+| file://../nd-common | nd-common | 0.5.9 |
 | https://k8s-charts.nextdoor.com | istio-alerts | 0.5.3 |
 
 ## Values

@@ -28,8 +28,13 @@ chart creates (primary, `-canary`, `-preview`) with a shared `trafficPolicy` bui
 and `canary` subsets are generated on the primary rule and the Rollout's
 `trafficRouting.istio.destinationRule.name` defaults to it; Argo Rollouts manages the
 `rollouts-pod-template-hash` label on those subsets at runtime, so GitOps tooling may need
-to ignore that field. Istio only applies locality-aware routing (same-zone preference with
-failover) to an upstream once its rule carries `outlierDetection`.
+to ignore that field. With subset routing (and no ALB ingress) the Rollout no longer sets
+`stableService`/`canaryService` and the `-canary` Service is not created: the single Service has to
+keep selecting both stable and canary pods, because otherwise Argo Rollouts pins the Service to the
+stable ReplicaSet and the canary subset has no endpoints. Consumers already using `subsetRouting`
+get this behaviour on upgrade; re-applying the Service drops the stale hash selector. Istio only
+applies locality-aware routing (same-zone preference with failover) to an upstream once its rule
+carries `outlierDetection`.
 
 `destinationRule.zoneAwareLb.configure=true` additionally renders Istio 1.31's
 `zoneAwareLbSetting`, which keeps traffic in the client's zone in proportion to the upstream's
