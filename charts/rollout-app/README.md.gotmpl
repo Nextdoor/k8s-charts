@@ -34,7 +34,11 @@ keep selecting both stable and canary pods, because otherwise Argo Rollouts pins
 stable ReplicaSet and the canary subset has no endpoints. Consumers already using `subsetRouting`
 get this behaviour on upgrade; re-applying the Service drops the stale hash selector. Enabling
 `subsetRouting` together with `ingress.enabled` is refused at render time, because ALB traffic
-routing requires those two Services. Istio only
+routing requires those two Services. So is pointing `subsetRouting.destinationRuleName` at an
+externally managed rule while `destinationRule.enabled` is true: Istio merges DestinationRules
+for one host oldest-first and drops duplicate subset names, so the `stable`/`canary` subsets Argo
+Rollouts updates on the external rule can be ignored in favour of this chart's unmanaged copies
+(verified on a live mesh: the canary subset kept resolving to this chart's rule). Istio only
 applies locality-aware routing (same-zone preference with failover) to an upstream once its rule
 carries `outlierDetection`.
 

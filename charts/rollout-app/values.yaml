@@ -626,7 +626,12 @@ virtualService:
     canarySubsetName:
 
     # -- (`string`) The DestinationRule containing the canary and stable subsets referenced
-    # in the Rollout
+    # in the Rollout. Leave unset when `destinationRule.enabled` is true: the Rollout then
+    # references this chart's rule, which carries generated `stable`/`canary` subsets.
+    # Pointing this at an externally managed rule while `destinationRule.enabled` is also
+    # true is refused at render time, because Istio merges DestinationRules for one host
+    # oldest-first and drops duplicate subset names, so the subsets Argo Rollouts updates
+    # on the external rule can be silently ignored.
     destinationRuleName:
 
   tls: ""

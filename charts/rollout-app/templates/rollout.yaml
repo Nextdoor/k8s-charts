@@ -29,6 +29,11 @@ from multiple rollout deployments to a single rollout deployment.
 {{- if and .Values.virtualService.subsetRouting.enabled .Values.ingress.enabled }}
   {{- fail "virtualService.subsetRouting.enabled and ingress.enabled cannot both be true: Istio subset routing needs one Service selecting both stable and canary pods, while ALB traffic routing needs stableService/canaryService, which makes Argo Rollouts pin the Service selector to the stable ReplicaSet and leaves the canary subset without endpoints. Use one or the other." }}
 {{- end }}
+{{- with .Values.virtualService.subsetRouting.destinationRuleName }}
+{{- if and $.Values.virtualService.subsetRouting.enabled $.Values.destinationRule.enabled (ne . $fullName) }}
+  {{- fail (printf "virtualService.subsetRouting.destinationRuleName=%q points at a DestinationRule this chart does not render while destinationRule.enabled=true also renders %q for the same host. Istio merges DestinationRules for one host oldest-first and drops duplicate subset names, so the stable/canary subsets Argo Rollouts updates on the external rule can be ignored in favour of this chart's unmanaged copies, and the canary receives the wrong pods. Either unset destinationRuleName (the Rollout then references this chart's rule, which carries the generated subsets) or set destinationRule.enabled=false and keep managing the external rule." . $fullName) }}
+{{- end }}
+{{- end }}
 
 {{/* 
 By default, we do run the topology spread function - letting it decide
