@@ -15,7 +15,7 @@ chart's pods are generated; Argo Rollouts then manages the
 {{- $fullname := include "nd-common.fullname" . }}
 {{- $serviceName := include "nd-common.serviceName" . }}
 {{- $targets := list (dict "name" $fullname "host" $serviceName) }}
-{{- if and (eq .Values.strategy "canary") (eq (len .Values.rolloutZones) 0) (or (not .Values.virtualService.subsetRouting.enabled) .Values.ingress.enabled) }}
+{{- if and (eq .Values.strategy "canary") (eq (len .Values.rolloutZones) 0) (not .Values.virtualService.subsetRouting.enabled) }}
 {{- $targets = append $targets (dict "name" (printf "%s-canary" $fullname) "host" (printf "%s-canary" $serviceName)) }}
 {{- end }}
 {{- if eq .Values.strategy "blueGreen" }}

@@ -26,6 +26,9 @@ from multiple rollout deployments to a single rollout deployment.
 {{- if .Values.virtualService.enabled }}
   {{- $readinessProbe := required "readinessProbe is required" .Values.readinessProbe }}
 {{- end }}
+{{- if and .Values.virtualService.subsetRouting.enabled .Values.ingress.enabled }}
+  {{- fail "virtualService.subsetRouting.enabled and ingress.enabled cannot both be true: Istio subset routing needs one Service selecting both stable and canary pods, while ALB traffic routing needs stableService/canaryService, which makes Argo Rollouts pin the Service selector to the stable ReplicaSet and leaves the canary subset without endpoints. Use one or the other." }}
+{{- end }}
 
 {{/* 
 By default, we do run the topology spread function - letting it decide
@@ -150,10 +153,10 @@ spec:
       With Istio subset routing the single Service must keep selecting both stable and canary
       pods: Argo Rollouts splits traffic by DestinationRule subset, not by Service. If
       stableService is set, the controller rewrites that Service's selector to the stable
-      ReplicaSet hash and the canary subset ends up with no endpoints. Only the ALB ingress
-      path still needs the two Services.
+      ReplicaSet hash and the canary subset ends up with no endpoints. The ALB ingress path
+      needs the two Services, so combining it with subset routing is refused above.
       */}}
-      {{- if or (not $.Values.virtualService.subsetRouting.enabled) $.Values.ingress.enabled }}
+      {{- if not $.Values.virtualService.subsetRouting.enabled }}
       stableService: {{ include "nd-common.serviceName" $ }}
       canaryService: {{ include "nd-common.serviceName" $ }}-canary
       {{- end }}
