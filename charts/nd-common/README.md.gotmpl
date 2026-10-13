@@ -296,6 +296,12 @@ spec:
   functions are enabled or disabled. Also used in some other monitoring
   functions.
 
+* `.Values.istio.locality.enabled` (default: `false`): Gives the `istio-proxy`
+  sidecar its own locality (region/zone) from the pod's Kubernetes topology
+  labels, via the `nd-common.istioLocalityContainer` override below. Needed on
+  the *client* side of Istio 1.31 zone-aware load balancing; harmless otherwise.
+  Requires sidecar mode and a cluster with the Istio sidecar injector.
+
 * `.Values.istio.proxyConfig` (default: `{}`): Additional Istio ProxyConfig
   merged into the `proxy.istio.io/config` annotation. User values take precedence
   over `holdApplicationUntilProxyStarts: true`, including an explicit `false`.
@@ -370,6 +376,80 @@ spec:
     metadata:
       labels:
         {{`{{- include "nd-common.istioLabels" . | nindent 8 }}`}}
+```
+
+### `nd-common.istioLocalityContainer`
+
+Renders an `istio-proxy` container override (`image: auto`) that the Istio
+sidecar injector merges into the real sidecar, carrying env entries that build
+the `topology.istio.io/locality` label from the pod's
+`topology.kubernetes.io/{region,zone}` labels at container start. Istio does not
+read the Kubernetes topology labels itself, so without this a sidecar has no
+locality and zone-aware load balancing is silently inert. Renders nothing unless
+`.Values.istio.locality.enabled` is true; fails to render outside sidecar mode or
+when `.Values.extraContainers` already defines `istio-proxy`.
+
+_Example Usage_:
+
+```yaml
+# templates/deployment.yaml
+spec:
+  template:
+    spec:
+      containers:
+        {{`{{- with include "nd-common.istioLocalityContainer" $ }}`}}
+        {{`{{- . | nindent 8 }}`}}
+        {{`{{- end }}`}}
+```
+
+## [DestinationRule Functions](templates/_destinationrule.tpl)
+
+Istio only applies locality-aware routing to an upstream when a `DestinationRule`
+for that host exists (priority-based failover needs `outlierDetection`), and
+Istio 1.31's zone-aware load balancing is configured on the same object through
+`trafficPolicy.loadBalancer.zoneAwareLbSetting`. These helpers render that rule
+from values. The rule is only rendered when `.Values.istio.enabled` and
+`.Values.destinationRule.enabled` are both true.
+
+### Values Parameters
+
+* `.Values.destinationRule.enabled` (default: `false`)
+* `.Values.destinationRule.annotations` (default: `{}`)
+* `.Values.destinationRule.connectionPool`, `.outlierDetection`, `.loadBalancer`,
+  `.tls` (default: `{}`): passed through into `trafficPolicy`.
+* `.Values.destinationRule.zoneAwareLb.configure` (default: `false`): render
+  `zoneAwareLbSetting` at all (needs the Istio 1.31 CRDs).
+* `.Values.destinationRule.zoneAwareLb.enabled` (default: `false`): `false` makes
+  istiod emit `routing_enabled: 0%`, so the rule can ship before clients are
+  ready and be flipped later without pod restarts.
+* `.Values.destinationRule.zoneAwareLb.minClusterSize` (default: `6`)
+* `.Values.destinationRule.zoneAwareLb.failover` (default: `[]`)
+* `.Values.destinationRule.subsets` (default: `[]`): passed through verbatim.
+
+`loadBalancer.localityLbSetting` and `zoneAwareLb.configure` are mutually
+exclusive; rendering fails if both are set, since Istio rejects such a rule.
+
+### `nd-common.destinationRule`
+
+The rule for the chart's primary Service, named after the release, with
+`.Values.destinationRule.subsets` attached.
+
+_Example Usage_:
+
+```yaml
+# templates/istio/destinationrule.yaml
+{{`{{- include "nd-common.destinationRule" . }}`}}
+```
+
+### `nd-common.destinationRuleFor`
+
+Renders one rule from a dict (`root`, `name`, `host`, optional `subsets`), for
+charts that create more than one Service.
+
+_Example Usage_:
+
+```yaml
+{{`{{- include "nd-common.destinationRuleFor" (dict "root" $ "name" (printf "%s-preview" $fullname) "host" (printf "%s-preview" $serviceName)) }}`}}
 ```
 
 {{ template "helm-docs.versionFooter" . }}
