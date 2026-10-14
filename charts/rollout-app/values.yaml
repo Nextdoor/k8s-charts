@@ -664,10 +664,52 @@ virtualService:
 # capacity in that zone and spills the remainder to other zones, which avoids
 # overloading a zone when client and upstream pods are unevenly spread.
 #
-# Zone-aware load balancing also requires the *client* proxies to know their own
-# zone distribution (self-discovery). Clients deployed from this chart can opt
-# in with
-# `istio.proxyConfig.proxyMetadata.ISTIO_META_ENABLE_SELF_DISCOVERY: "true"`.
+# WHEN TO USE THIS. Consider a DestinationRule when this Service receives much of
+# its traffic from pods in other availability zones (cross-zone bytes are billed
+# and add latency) and callers should prefer same-zone pods. There are three
+# options; choose by the shape of the *callers*, not of this Service:
+#
+#   1. Zone-aware load balancing (`enabled: true`, `outlierDetection` set,
+#      `zoneAwareLb.configure: true`, Istio 1.31+). Each caller keeps traffic in
+#      its own zone in proportion to this Service's capacity there and spills the
+#      rest, so an uneven pod spread never overloads a zone. Best when every
+#      caller is ONE Deployment or Rollout spread across zones. The decision is
+#      made in the caller's proxy, so the caller must also set
+#      `istio.locality.enabled: true` and
+#      `istio.proxyConfig.proxyMetadata.ISTIO_META_ENABLE_SELF_DISCOVERY: "true"`
+#      (both exist in this chart); without them this rule changes nothing. This
+#      Service needs at least `zoneAwareLb.minClusterSize` pods (default 6) in
+#      the region, otherwise Envoy falls back to plain balancing.
+#      With Argo Rollouts subset routing, a canary subset smaller than
+#      `minClusterSize` is balanced zone-blind until it is promoted.
+#   2. Same-zone pin (`enabled: true`, `outlierDetection` set, `zoneAwareLb`
+#      left off). Callers always use same-zone pods and fail over only when those
+#      are unhealthy; nothing is needed on the caller. Use this when callers are
+#      split into per-zone workloads (`rolloutZones`): zone-aware mode sees a
+#      per-zone caller as 100% local and would spill most of its traffic instead.
+#      Only safe when this Service's pods are spread evenly across zones; a zone
+#      with fewer pods otherwise runs hot.
+#   3. Per-zone copies of THIS Service (`rolloutZones` below): the structural
+#      option for very large flows; see that setting.
+#
+# Rollout order for option 1: ship with `zoneAwareLb.enabled: false` (istiod
+# emits `routing_enabled: 0%`, no traffic change), get the callers' locality
+# flag and self-discovery onto 100% of their pods, then flip `enabled: true`.
+# It applies on the next xDS push with no restarts; rollback is the same field.
+#
+# Verifying: Envoy exposes per-upstream counters `lb_zone_routing_all_directly`,
+# `lb_zone_routing_sampled`, `lb_zone_routing_cross_zone` (how requests were
+# routed) and `lb_local_cluster_not_ok` (> 0 means the caller's self-discovery
+# is not working). A caller emits them only with a stats matcher, which MUST be
+# scoped to this Service's name; an unscoped `.*lb_zone.*` emits the counters
+# for every upstream the proxy knows (hundreds) and bloats metric cardinality:
+#   istio:
+#     proxyConfig:
+#       proxyStatsMatcher:
+#         inclusionRegexps:
+#           - ".*<this-service>.*lb_zone_routing.*"
+#           - ".*<this-service>.*lb_local_cluster_not_ok"
+# Read them with `istioctl experimental envoy-stats <caller-pod> | grep lb_zone`.
 destinationRule:
   # -- (`bool`) Create a `DestinationRule` for this chart's Service. Only
   # rendered when `istio.enabled` is also true.
@@ -1078,6 +1120,15 @@ istio:
   # the Istio label from the pod's `topology.kubernetes.io/{region,zone}`
   # labels at container start. Harmless on its own: routing only changes where
   # a DestinationRule asks for `zoneAwareLbSetting`.
+  #
+  # WHEN TO USE THIS. Set it on a workload that (a) calls a service whose
+  # DestinationRule carries `zoneAwareLbSetting` and (b) is ONE Deployment or
+  # Rollout spread across zones. Pair it with
+  # `istio.proxyConfig.proxyMetadata.ISTIO_META_ENABLE_SELF_DISCOVERY: "true"`;
+  # zone-aware routing needs both. Do not use it to make a per-zone workload
+  # (`deploymentZones` / `rolloutZones`) zone-aware: its proxy sees itself as
+  # 100% local and would spill most traffic; ask the callee for the same-zone
+  # pin instead (see the `destinationRule` comments).
   locality:
     # -- (`bool`) Set to true on workloads that call services with
     # `zoneAwareLbSetting`. Requires sidecar mode (`istio.enabled` and

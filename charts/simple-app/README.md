@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 1.17.0](https://img.shields.io/badge/Version-1.17.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.17.1](https://img.shields.io/badge/Version-1.17.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,19 @@ in a [Deployment][deployments]. The chart automatically configures various
 defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
+
+### 1.17.0 -> 1.17.1
+
+**Docs: when to use the DestinationRule and the proxy locality flag**
+
+No template changes. The `destinationRule` and `istio.locality` comments in `values.yaml` now
+explain how to choose between the three same-zone options, by the shape of the *callers*:
+zone-aware load balancing (callers are single multi-zone workloads; needs `istio.locality.enabled`
+and self-discovery on the caller, and at least `zoneAwareLb.minClusterSize` pods here), the plain
+same-zone pin (callers are per-zone workloads; needs nothing on the caller; only safe when this
+Service's pods are spread evenly), and per-zone copies of this Service (`deploymentZones`). They also
+give the rollout order and a *scoped* stats-matcher example for the Envoy `lb_zone_*` counters,
+which must be limited to the service name to keep metric cardinality in check.
 
 ### 1.16.x -> 1.17.x
 
