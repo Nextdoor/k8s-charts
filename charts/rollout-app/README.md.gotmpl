@@ -17,6 +17,19 @@ how these work, and the various custom resource definitions.
 
 ## Upgrade Notes
 
+### 1.10.0 -> 1.10.1
+
+**Docs: when to use the DestinationRule and the proxy locality flag**
+
+No template changes. The `destinationRule` and `istio.locality` comments in `values.yaml` now
+explain how to choose between the three same-zone options, by the shape of the *callers*:
+zone-aware load balancing (callers are single multi-zone workloads; needs `istio.locality.enabled`
+and self-discovery on the caller, and at least `zoneAwareLb.minClusterSize` pods here), the plain
+same-zone pin (callers are per-zone workloads; needs nothing on the caller; only safe when this
+Service's pods are spread evenly), and per-zone copies of this Service (`rolloutZones`). They also
+give the rollout order and a *scoped* stats-matcher example for the Envoy `lb_zone_*` counters,
+which must be limited to the service name to keep metric cardinality in check.
+
 ### 1.9.x -> 1.10.x
 
 **NEW: Optional DestinationRules for the chart's Services**
