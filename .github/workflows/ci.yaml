@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'charts/**'
+      - '.github/test-keda-auth.py'
+      - '.github/workflows/ci.yaml'
 
 jobs:
   helm-docs:
@@ -56,6 +58,13 @@ jobs:
 
       - name: Run chart-testing (lint)
         run: ct --config ct.yaml lint
+
+      - name: Test KEDA authentication rendering
+        run: |
+          python -m pip install PyYAML
+          helm dependency build charts/simple-app --skip-refresh
+          helm dependency build charts/rollout-app --skip-refresh
+          python .github/test-keda-auth.py
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.10.0

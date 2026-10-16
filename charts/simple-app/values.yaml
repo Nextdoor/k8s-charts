@@ -702,6 +702,11 @@ autoscaling:
     # -- (`string`) Auth mode for the KEDA trigger authentication. Defaults to "bearer".
     # authMode: "bearer"
 
+    # -- (`strings[]`) Optional audiences for the bound service account token.
+    # Empty uses the Kubernetes API server default, matching delegated token
+    # authentication. Set custom audiences only when the metrics server accepts them.
+    tokenAudiences: []
+
     # -- (`string`) Whether to skip TLS verification for the cluster agent. Defaults to "true".
     # unsafeSsl: "true"
 
