@@ -415,14 +415,14 @@ is first:
   capacity or scheduling constraints. Check node pool capacity and the pod's
   resource requests, affinity and tolerations.
 - **Node assigned, `Init:0/N`, no pod IP, zero restarts, and other pods on the
-  same node are fine:** the pod's network sandbox never came up. If the node
-  is more than a few minutes old this is the istio-cni iptables stall; it
-  self-heals after 30 minutes, and force-deleting the pod resolves it
-  immediately. See
-  [Runbook: PodNotReady Sandbox Creation Stall](https://github.com/Nextdoor/k8s/wiki/Runbook:-PodNotReady-Sandbox-Creation-Stall).
-  If the node is brand new, see
-  [Runbook: Vigil](https://github.com/Nextdoor/k8s/wiki/Runbook:-Vigil) and
-  [Runbook: AWS VPC CNI](https://github.com/Nextdoor/k8s/wiki/Runbook:-AWS-VPC-CNI).
+  same node are fine:** the pod's network sandbox never came up, most often
+  because a CNI plugin stalled while setting up the pod's network namespace.
+  It self-heals when kubelet's runtime request timeout expires (30 minutes
+  for sandbox creation at the default 15m), and force-deleting the pod
+  resolves it immediately; the pod never served traffic and its controller
+  replaces it. If the node is only a few minutes old, check instead whether
+  the node's CNI and other DaemonSet pods were Ready when the pod was
+  scheduled.
 - **Node assigned and init containers are running or failing:** an init
   container is stuck. `kubectl logs <pod> -c <init-container>` shows why.
 - **Several pods on one node are not ready:** judge the node, not the pods.
