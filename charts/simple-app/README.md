@@ -382,6 +382,87 @@ If you are operating in an Istio Service Mesh, see the
 works. Otherwise, see the `Values.serviceMonitor` settings to configure a
 Prometheus ServiceMonitor resource to monitor your application.
 
+## Alert Runbooks
+
+The `Values.prometheusRules` alerts set their `runbook_url` to
+`Values.runbookUrl` plus an anchor into this section. Each entry below says
+what the alert means and where to start. Thresholds quoted are the chart
+defaults; check `Values.prometheusRules` for your service's overrides.
+
+### Kube Pod Container Terminated
+
+A container in one of your pods exited with `ContainerCannotRun` or
+`DeadlineExceeded` within the last 10 minutes. `ContainerCannotRun` is almost
+always a bad image or entrypoint (wrong command, missing binary, bad
+permissions); `DeadlineExceeded` means a runtime operation timed out. Start
+with `kubectl describe pod <pod>` and the container's termination message,
+then `kubectl logs --previous`.
+
+### Alert Name: KubePodCrashLooping
+
+A container has been in `CrashLoopBackOff` for 10 minutes: it starts, exits,
+and kubelet backs off restarting it. Read `kubectl logs --previous` for the
+exit reason, then `kubectl describe pod` for the exit code (137 is OOMKilled
+or SIGKILL, 1 is usually an application error). Most cases are a config or
+secret the new release expects but cannot find.
+
+### Alert Name: KubePodNotReady
+
+A pod has been `Pending` or `Unknown` for 15 minutes. Decide which of these it
+is first:
+
+- **No node assigned** (`kubectl describe pod` shows `FailedScheduling`):
+  capacity or scheduling constraints. Check node pool capacity and the pod's
+  resource requests, affinity and tolerations.
+- **Node assigned, `Init:0/N`, no pod IP, zero restarts, and other pods on the
+  same node are fine:** the pod's network sandbox never came up. If the node
+  is more than a few minutes old this is the istio-cni iptables stall; it
+  self-heals after 30 minutes, and force-deleting the pod resolves it
+  immediately. See
+  [Runbook: PodNotReady Sandbox Creation Stall](https://github.com/Nextdoor/k8s/wiki/Runbook:-PodNotReady-Sandbox-Creation-Stall).
+  If the node is brand new, see
+  [Runbook: Vigil](https://github.com/Nextdoor/k8s/wiki/Runbook:-Vigil) and
+  [Runbook: AWS VPC CNI](https://github.com/Nextdoor/k8s/wiki/Runbook:-AWS-VPC-CNI).
+- **Node assigned and init containers are running or failing:** an init
+  container is stuck. `kubectl logs <pod> -c <init-container>` shows why.
+- **Several pods on one node are not ready:** judge the node, not the pods.
+  Check its conditions and DaemonSet pods before touching the workload.
+
+### CPUThrottlingHigh
+
+More than 5% of a container's CFS periods were throttled over the last 5
+minutes, for 15 minutes. The container is hitting its CPU limit. Either the
+limit is too low for the workload or the workload has a hot loop. Compare
+`container_cpu_usage_seconds_total` against the limit before raising it;
+bursty services often need a higher limit relative to their request.
+
+### ContainerWaiting
+
+A container has been in a waiting state (anything other than
+`CrashLoopBackOff`, which has its own alert) for an hour. The reason label
+says which: `ImagePullBackOff`/`ErrImagePull` is a missing image or registry
+auth, `CreateContainerConfigError` is a missing ConfigMap or Secret,
+`ContainerCreating` for this long usually means a volume mount or network
+sandbox problem (see KubePodNotReady above).
+
+### DeploymentGenerationMismatch
+
+The Deployment controller has not observed the latest spec generation for 15
+minutes, which means a rollout failed and was not rolled back. Check
+`kubectl rollout status deployment/<name>` and the ReplicaSet events.
+
+### HpaReplicasMismatch
+
+The HPA's desired replica count has differed from the current count for 15
+minutes: it wants to scale but cannot. Look for pods stuck Pending (capacity
+or scheduling) or a PodDisruptionBudget blocking scale-down.
+
+### HpaMaxedOut
+
+The HPA has been at `maxReplicas` for 15 minutes. The service may simply need
+a higher ceiling, or something is driving load it was not sized for. Check
+the scaling metric's trend before raising the limit.
+
 ## Datadog Agent Support
 
 This chart supports operating in environments where the Datadog Agent is
