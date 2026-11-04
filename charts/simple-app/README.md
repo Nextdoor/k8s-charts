@@ -2,7 +2,7 @@
 
 Default Microservice Helm Chart
 
-![Version: 1.17.2](https://img.shields.io/badge/Version-1.17.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
+![Version: 1.18.0](https://img.shields.io/badge/Version-1.18.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: latest](https://img.shields.io/badge/AppVersion-latest-informational?style=flat-square)
 
 [deployments]: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 [hpa]: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
@@ -12,6 +12,20 @@ in a [Deployment][deployments]. The chart automatically configures various
 defaults for you like the Kubernetes [Horizontal Pod Autoscaler][hpa].
 
 ## Upgrade Notes
+
+### 1.17.x -> 1.18.x
+
+**NEW: Opt-in shared KEDA Datadog ClusterTriggerAuthentication**
+
+KEDA 2.21 enforces token audiences by default and only mints bound service account tokens for an
+operator allowlist, so each workload's own `ServiceAccount` can no longer be the Datadog token
+identity. Set `autoscaling.keda.sharedTriggerAuthentication.enabled=true` to point the Datadog
+trigger at the cluster-wide `datadog-cluster-agent` `ClusterTriggerAuthentication` (owned by the
+`keda` chart in Nextdoor/k8s). The chart then skips its own `TriggerAuthentication` and Datadog
+`ConfigMap`, and renders one `Role`/`RoleBinding` (`<fullname>-keda-external-metrics-reader`) that
+lets `keda/keda-datadog-metrics` read `external.metrics.k8s.io` in the release namespace.
+`datadogNamespace`, `datadogMetricsService`, `authMode`, `unsafeSsl` and `tokenAudiences` are
+ignored in that mode. The default is `false`, which renders exactly as before.
 
 ### 1.17.0 -> 1.17.1
 
@@ -467,7 +481,7 @@ secretsEngine: sealed
 | autoscaling.behavior.scaleUp.selectPolicy | `string` | `"Max"` | When evaluating the desired scale for the service, pick from one of the below behaviors based on which one scales up the most pods.  So, when scaling from 1 pod, the pattern looks like this:  1 -> 5 -> 10 -> 20 -> 40 -> 80  (over 5 minutes)  |
 | autoscaling.behavior.scaleUp.stabilizationWindowSeconds | `int` | `0` | https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#stabilization-window  The stabilization window is used to restrict the flapping of replica count when the metrics used for scaling keep fluctuating. The autoscaling algorithm uses this window to infer a previous desired state and avoid unwanted changes to workload scale.  For example, in the following example snippet, a stabilization window is specified for scaleDown.    behavior:     scaleDown:       stabilizationWindowSeconds: 300  When the metrics indicate that the target should be scaled down the algorithm looks into previously computed desired states, and uses the highest value from the specified interval. In the above example, all desired states from the past 5 minutes will be considered.  This approximates a rolling maximum, and avoids having the scaling algorithm frequently remove Pods only to trigger recreating an equivalent Pod just moments later.  |
 | autoscaling.enabled | bool | `false` | Controls whether or not an HorizontalPodAutoscaler resource is created. |
-| autoscaling.keda | `map` | `{"datadogMetricsService":"","datadogNamespace":"","enabled":false,"includeCPU":false,"metricName":"","metricUnavailableValue":null,"query":"","schedule":{},"targetValue":"","tokenAudiences":[]}` | KEDA-based autoscaling with Datadog metrics via the cluster-agent proxy. |
+| autoscaling.keda | `map` | `{"datadogMetricsService":"","datadogNamespace":"","enabled":false,"includeCPU":false,"metricName":"","metricUnavailableValue":null,"query":"","schedule":{},"sharedTriggerAuthentication":{"enabled":false,"name":"datadog-cluster-agent","serviceAccountName":"keda-datadog-metrics","serviceAccountNamespace":"keda"},"targetValue":"","tokenAudiences":[]}` | KEDA-based autoscaling with Datadog metrics via the cluster-agent proxy. |
 | autoscaling.keda.datadogMetricsService | `string` | `""` | Name of the Datadog cluster agent metrics server service. Required when keda is enabled. |
 | autoscaling.keda.datadogNamespace | `string` | `""` | Namespace where the Datadog cluster agent is running. Required when keda is enabled. |
 | autoscaling.keda.enabled | bool | `false` | Controls whether KEDA ScaledObject and supporting resources are created. |
@@ -476,6 +490,10 @@ secretsEngine: sealed
 | autoscaling.keda.metricUnavailableValue | `number` | `nil` | Optional metric value for the Datadog scaler when the cluster agent reports no data (HTTP 422). Null omits the setting; zero is supported. Requires KEDA 2.19 or newer in cluster-agent mode. Other errors still fail. |
 | autoscaling.keda.query | `string` | `""` | Datadog query for the DatadogMetric CR. Rendered via tpl with the full Helm context plus two additional variables:   .fullName  - zone-specific resource name (e.g. myapp-us-west-2a), works for both zoned and non-zoned   .zone      - current deploymentZone value (e.g. "us-west-2a"), or "default" if deploymentZones is not set Standard Helm objects (.Release, .Values, .Chart) and named templates (include) also work. Non-zoned example: "sum:istio.mesh.request.count{destination_workload:{{ .fullName }}}.as_rate()" Zoned example:     "sum:istio.mesh.request.count{destination_workload:{{ include \"nd-common.fullname\" . }}-{{ .zone }}}.as_rate()" |
 | autoscaling.keda.schedule | `map` | `{}` | Optional cron trigger with timezone, start, end, and a positive integer desiredReplicas. Raises the replica floor during the time window. When deploymentZones is configured, desiredReplicas applies to EACH zone, including the original workload when the zone transition is enabled. Empty by default. Example: timezone: UTC, start: "0 8 * * *", end: "0 11 * * *", desiredReplicas: 10. |
+| autoscaling.keda.sharedTriggerAuthentication.enabled | `bool` | `false` | Use the shared ClusterTriggerAuthentication instead of this chart's TriggerAuthentication and ConfigMap |
+| autoscaling.keda.sharedTriggerAuthentication.name | `string` | `"datadog-cluster-agent"` | Name of the shared ClusterTriggerAuthentication |
+| autoscaling.keda.sharedTriggerAuthentication.serviceAccountName | `string` | `"keda-datadog-metrics"` | Service account KEDA mints tokens for; granted external-metrics read in the release namespace |
+| autoscaling.keda.sharedTriggerAuthentication.serviceAccountNamespace | `string` | `"keda"` | Namespace of that service account |
 | autoscaling.keda.targetValue | `string` | `""` | Target value for the Datadog metric trigger. |
 | autoscaling.keda.tokenAudiences | `strings[]` | `[]` | Optional audiences for the bound service account token. Empty uses the Kubernetes API server default, matching delegated token authentication. Set custom audiences only when the metrics server accepts them. |
 | autoscaling.maxReplicas | int | `100` | Sets the maximum number of Pods to run |
