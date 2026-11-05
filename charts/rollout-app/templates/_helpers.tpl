@@ -58,3 +58,25 @@ The additional labels include:
 ) -}}
 {{- $extendedLabels | toYaml -}}
 {{- end -}}
+
+{{/*
+True when Datadog triggers use the shared KEDA ClusterTriggerAuthentication
+instead of this chart's bound-token TriggerAuthentication. Compared as a string
+so an Argo CD/Helm `--set` or `--set-string` "true"/"false" override works.
+*/}}
+{{- define "rollout-app.kedaSharedAuth" -}}
+{{- $shared := .Values.autoscaling.keda.sharedTriggerAuthentication | default dict -}}
+{{- if eq (printf "%v" $shared.enabled) "true" -}}true{{- end -}}
+{{- end -}}
+
+{{/*
+authenticationRef body for the Datadog trigger.
+*/}}
+{{- define "rollout-app.kedaDatadogAuthRef" -}}
+{{- if eq (include "rollout-app.kedaSharedAuth" .) "true" -}}
+name: {{ required "autoscaling.keda.sharedTriggerAuthentication.name is required" .Values.autoscaling.keda.sharedTriggerAuthentication.name }}
+kind: ClusterTriggerAuthentication
+{{- else -}}
+name: {{ include "nd-common.fullname" . }}-datadog-auth
+{{- end -}}
+{{- end -}}

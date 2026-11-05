@@ -17,6 +17,20 @@ how these work, and the various custom resource definitions.
 
 ## Upgrade Notes
 
+### 1.10.x -> 1.11.x
+
+**NEW: Opt-in shared KEDA Datadog ClusterTriggerAuthentication**
+
+KEDA 2.21 enforces token audiences by default and only mints bound service account tokens for an
+operator allowlist, so each workload's own `ServiceAccount` can no longer be the Datadog token
+identity. Set `autoscaling.keda.sharedTriggerAuthentication.enabled=true` to point the Datadog
+trigger at the cluster-wide `datadog-cluster-agent` `ClusterTriggerAuthentication` (owned by the
+`keda` chart in Nextdoor/k8s). The chart then skips its own `TriggerAuthentication` and Datadog
+`ConfigMap`, and renders one `Role`/`RoleBinding` (`<fullname>-keda-external-metrics-reader`) that
+lets `keda/keda-datadog-metrics` read `external.metrics.k8s.io` in the release namespace.
+`datadogNamespace`, `datadogMetricsService`, `authMode`, `unsafeSsl` and `tokenAudiences` are
+ignored in that mode. The default is `false`, which renders exactly as before.
+
 ### 1.10.0 -> 1.10.1
 
 **Docs: when to use the DestinationRule and the proxy locality flag**

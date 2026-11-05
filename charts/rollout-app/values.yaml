@@ -954,6 +954,17 @@ autoscaling:
     # authentication. Set custom audiences only when the metrics server accepts them.
     tokenAudiences: []
 
+    # Shared KEDA Datadog auth from Nextdoor/k8s charts/keda (CLOUD-437); see Upgrade Notes.
+    sharedTriggerAuthentication:
+      # -- (`bool`) Use the shared ClusterTriggerAuthentication instead of this chart's TriggerAuthentication and ConfigMap
+      enabled: false
+      # -- (`string`) Name of the shared ClusterTriggerAuthentication
+      name: datadog-cluster-agent
+      # -- (`string`) Service account KEDA mints tokens for; granted external-metrics read in the release namespace
+      serviceAccountName: keda-datadog-metrics
+      # -- (`string`) Namespace of that service account
+      serviceAccountNamespace: keda
+
     # -- (`string`) Whether to skip TLS verification for the cluster agent. Defaults to "true".
     # unsafeSsl: "true"
 

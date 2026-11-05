@@ -1,0 +1,21 @@
+strategy: blueGreen
+
+ingress:
+  enabled: true
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  keda:
+    enabled: true
+    metricName: example
+    query: "sum:example.requests{*}.as_rate()"
+    targetValue: "1"
+    includeCPU: true
+    sharedTriggerAuthentication:
+      enabled: true
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http

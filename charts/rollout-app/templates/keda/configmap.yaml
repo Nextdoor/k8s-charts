@@ -1,4 +1,4 @@
-{{- if and .Values.autoscaling.enabled .Values.autoscaling.keda.enabled }}
+{{- if and .Values.autoscaling.enabled .Values.autoscaling.keda.enabled (ne (include "rollout-app.kedaSharedAuth" .) "true") }}
 apiVersion: v1
 kind: ConfigMap
 metadata:

@@ -49,7 +49,7 @@ spec:
         metricUnavailableValue: {{ $.Values.autoscaling.keda.metricUnavailableValue | quote }}
         {{- end }}
       authenticationRef:
-        name: {{ include "nd-common.fullname" $ }}-datadog-auth
+        {{- include "simple-app.kedaDatadogAuthRef" $ | nindent 8 }}
     {{- if $.Values.autoscaling.keda.includeCPU }}
     {{- with $.Values.autoscaling.targetCPUUtilizationPercentage }}
     - type: cpu
